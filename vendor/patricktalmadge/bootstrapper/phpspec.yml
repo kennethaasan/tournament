@@ -1,6 +1,0 @@
-suites:
-    markdown_suite:
-        namespace: Bootstrapper
-        src_path: src
-        spec_path: tests
-        spec_prefix: spec
