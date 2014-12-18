@@ -1,0 +1,32 @@
+<div ng-include="'partials/helpers/loading.html'"></div>
+
+<div class="row" ng-hide="loading">
+
+    <div class="col-sm-12">
+        <div class="input-group">
+            <div class="input-group-addon"><span class="fa fa-search"></span></div>
+            <input type="text" ng-model="searchText" class="form-control" id="search" placeholder="Søk"/>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <td><h3>Alle lag</h3></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="team in teams | filter:searchText">
+                    <td>{{team.name}}</td>
+                    <td class="text-right">
+                        <a class="btn btn-sm btn-primary" href="#lag/{{team.id}}">Åpne</a>
+                        <a class="btn btn-sm btn-danger" ng-click="deleteTeam(team)">Slett</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

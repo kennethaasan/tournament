@@ -1,0 +1,1 @@
+/Users/kenneth/Laravel/turnering/app/views/teams/show.blade.php

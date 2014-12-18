@@ -1,0 +1,26 @@
+<?php $__env->startSection('title', 'Moduler'); ?>
+
+<?php $__env->startSection('content'); ?>
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th>Modul</th>
+						<th>Øving</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach($todos as $todo): ?>
+						<tr class="clickableRow" href="<?php echo route('teacher.todos.show', $todo->id); ?>">
+							<td><a href="<?php echo route('teacher.todos.show', $todo->id); ?>"><?php echo $todo->title; ?></a></td>
+							<td><a href="<?php echo route('teacher.todos.show', $todo->id); ?>"><?php echo $todo->practice; ?></a></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.default', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

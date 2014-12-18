@@ -1,0 +1,28 @@
+<?php $__env->startSection('title', 'Innlevering av ' . $todo->practice); ?>
+
+<?php $__env->startSection('content'); ?>
+	<div class="row">
+		<div class="col-md-12">
+			<?php echo Form::horizontal(array('route' => array('todos.answers.store', $todo->id))); ?>
+
+
+				<div class="form-group">
+					<div class="col-sm-12">
+						<?php echo Form::textarea('body', null, ['required' => 'required', 'autofocus' => 'autofocus']); ?>
+
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-12">
+						<?php echo Form::submit('Lever øvingen'); ?>
+
+					</div>
+				</div>
+
+			<?php echo Form::close(); ?>
+
+		</div>
+	</div>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.default', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

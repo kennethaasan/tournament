@@ -1,0 +1,78 @@
+<?php $__env->startSection('title', $todo->title . ' - ' . $todo->practice); ?>
+
+<?php $__env->startSection('content'); ?>
+
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<th>Student</th>
+						<th>Øving</th>
+						<th>Øving godkjent?</th>
+						<th>Retting av medstudent 1</th>
+						<th>Retting av medstudent 2</th>
+						<th>Retting av medstudent 3</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach($answers as $answer): ?>
+						<tr>
+							<td><?php echo $answer->email; ?></td>
+							<?php if($answer->answer_id): ?>
+								<td class="success">
+									<span class="glyphicon glyphicon glyphicon-check"></span>
+									<a href="<?php echo route('todos.answers.show', array($todo->id, $answer->answer_id)); ?>">Vis besvarelse</a>
+								</td>
+							<?php else: ?>
+								<td class="warning">
+									<span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke levert
+								</td>
+							<?php endif; ?>
+
+
+							<?php if(!isset($answer->approved_from_teacher)): ?>
+								<td class="info text-center">Mangler vurdering</td>
+							<?php elseif($answer->approved_from_teacher == true): ?>
+								<td class="success text-center"><span class="glyphicon glyphicon glyphicon-check"></span></td>
+							<?php else: ?>
+								<td class="danger text-center"><span class="glyphicon glyphicon glyphicon-unchecked"></span></td>
+							<?php endif; ?>
+
+
+							<?php if(isset($answer->corrections)): ?>
+								<?php for($i = 0; $i < 3; $i++): ?>
+									<?php if(isset($answer->corrections[$i])): ?>
+										<?php if($answer->corrections[$i]->finished == true): ?>
+											<td class="success">
+												<span class="glyphicon glyphicon glyphicon-check"></span>
+												<a href="<?php echo route('answers.corrections.show', array($answer->answer_id, $answer->corrections[$i]->id)); ?>">Vis tilbakemelding</a>
+											</td>
+										<?php else: ?>
+											<td class="warning"><span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke rettet</td>
+										<?php endif; ?>
+									<?php else: ?>
+										<td class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke trukket</td>
+									<?php endif; ?>
+								<?php endfor; ?>
+							<?php else: ?>
+								<td class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke trukket</td>
+								<td class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke trukket</td>
+								<td class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span> Ikke trukket</td>	
+							<?php endif; ?>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-12 text-center">
+			<?php echo $answers->links(); ?>
+
+		</div>
+	</div>
+	
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.default', array_except(get_defined_vars(), array('__data', '__path')))->render(); ?>

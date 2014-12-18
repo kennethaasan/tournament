@@ -1,0 +1,25 @@
+{
+  "name": "tournament",
+  "version": "0.0.1",
+  "authors": [
+    "Kenneth Aasan <k.aasan@sportradar.com>"
+  ],
+  "description": "Tournament",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "bootstrap": "~3.3.1",
+    "angular": "~1.3.5",
+    "angular-route": "~1.3.5",
+    "angular-resource": "~1.3.5",
+    "angular-ui-select": "~0.9.1",
+    "font-awesome": "~4.2.0"
+  }
+}
