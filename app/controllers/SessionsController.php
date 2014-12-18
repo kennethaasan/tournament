@@ -42,10 +42,7 @@ class SessionsController extends \BaseController {
 
 		if ($attempt)
 		{
-			if (Auth::user()->admin)
-				return Redirect::intended('/admin')->with('flash_message', 'Du har blitt logget inn!');
-			else
-				return Redirect::intended('/')->with('flash_message', 'Du har blitt logget inn!');
+			return Redirect::intended('/')->with('flash_message', 'Du har blitt logget inn!');
 		}
 
 		return Redirect::back()

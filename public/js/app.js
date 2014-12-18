@@ -39,6 +39,6 @@ angular.module('app').config(function($routeProvider, $locationProvider) {
         controller: 'PlayerEdit'
     });
 
-    $routeProvider.otherwise({ redirectTo: '/turneringer    ' });
+    $routeProvider.otherwise({ redirectTo: '/turneringer' });
 
 });
