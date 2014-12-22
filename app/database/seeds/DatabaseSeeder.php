@@ -64,8 +64,7 @@ class TournamentTableSeeder extends Seeder {
 
         Tournament::create(array(
             'name' => 'Vanvikan Julecup 2014',
-            'start_date' => '2014-12-30',
-            'end_date' => '2014-12-30',
+            'date' => '2014-12-30',
             'location' => 'Vanvikanhallen'
         ));
 
@@ -82,7 +81,8 @@ class TeamsTableSeeder extends Seeder {
 
         foreach (range(1, 30) as $index) {
             Team::create(array(
-                'name' => $faker->name()
+                'name' => $faker->name(),
+                'group_code' => $faker->randomElement(['A', 'B', 'C', 'D', 'W'])
             ));
         }
 
@@ -101,6 +101,7 @@ class PlayersTableSeeder extends Seeder {
             Player::create(array(
                 'name' => $faker->name(),
                 'number' => $faker->numberBetween(1, 99),
+                'paid' => $faker->boolean(),
                 'team_id' => $faker->numberBetween(1, 30)
             ));
         }

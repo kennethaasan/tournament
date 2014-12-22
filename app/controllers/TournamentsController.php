@@ -3,8 +3,6 @@
 class TournamentsController extends ApiController {
 
 
-	protected $groups = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N'];
-
 	/**
 	 * Display a listing of tournaments
 	 *
@@ -20,7 +18,7 @@ class TournamentsController extends ApiController {
 		}
 
 		return $this->respond([
-	        'data' => $tournaments->toArray()
+	        'data' => $this->transformCollection($tournaments)
 	    ]);
 	}
 
@@ -56,13 +54,13 @@ class TournamentsController extends ApiController {
 	{
 		$tournament = Tournament::find($id);
 
-		if ( ! $tournament) 
+		if ( ! $tournament)
 		{
 			return $this->respondNotFound('Tournament does not exist.');
 		}
 
 		return $this->respond([
-	        'data' => $tournament->toArray()
+	        'data' => $this->transform($tournament)
 	    ]);
 	}
 
@@ -102,6 +100,21 @@ class TournamentsController extends ApiController {
 		Tournament::destroy($id);
 
 		return $this->respondCreated('Tournament successfully deleted.');
+	}
+
+	private function transform($tournament)
+	{
+		return [
+			'id' 		=> (int) $tournament['id'],
+			'name' 		=> $tournament['name'],
+			'date' 		=> $tournament['date'],
+			'location' 	=> $tournament['location'],
+		];
+	}
+
+	private function transformCollection($tournaments)
+	{
+		return array_map([$this, 'transform'], $tournaments->toArray());
 	}
 
 }

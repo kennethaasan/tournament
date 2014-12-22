@@ -17,7 +17,7 @@ class TeamsController extends ApiController {
 		}
 
 		return $this->respond([
-	        'data' => $teams->toArray()
+	        'data' => $this->transformCollection($teams)
 	    ]);
 	}
 
@@ -53,13 +53,13 @@ class TeamsController extends ApiController {
 	{
 		$team = Team::find($id);
 
-		if ( ! $team) 
+		if ( ! $team)
 		{
 			return $this->respondNotFound('Team does not exist.');
 		}
 
 		return $this->respond([
-	        'data' => $team->toArray()
+	        'data' => $this->transform($team)
 	    ]);
 	}
 
@@ -99,6 +99,20 @@ class TeamsController extends ApiController {
 		Team::destroy($id);
 
 		return $this->respondCreated('Team successfully deleted.');
+	}
+
+	private function transform($team)
+	{
+		return [
+			'id' 			=> (int) $team['id'],
+			'name' 			=> $team['name'],
+			'group_code'	=> $team['group_code']
+		];
+	}
+
+	private function transformCollection($teams)
+	{
+		return array_map([$this, 'transform'], $teams->toArray());
 	}
 
 }

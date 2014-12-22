@@ -6,16 +6,9 @@
 </div>
 
 <div class="form-group">
-    <label for="start_date" class="col-sm-2 control-label">Startdato</label>
+    <label for="date" class="col-sm-2 control-label">Dato</label>
     <div class="col-sm-10">
-        <input type="text" ng-model="tournament.start_date" class="form-control" id="start_date" placeholder="Når starter denne turneringen?"/>
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="start_date" class="col-sm-2 control-label">Sluttdato</label>
-    <div class="col-sm-10">
-        <input type="text" ng-model="tournament.end_date" class="form-control" id="end_date" placeholder="Når slutter denne turneringen?"/>
+        <input type="date" ng-model="tournament.date" class="form-control" id="date" placeholder="Dato for turneringen?"/>
     </div>
 </div>
 
@@ -23,13 +16,6 @@
     <label for="location" class="col-sm-2 control-label">Sted</label>
     <div class="col-sm-10">
         <input type="text" ng-model="tournament.location" class="form-control" id="location" placeholder="Hvor blir denne turneringen arrangert?"/>
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Grupper</label>
-    <div class="col-sm-10">
-        <input type="text" ng-model="tournament.groups" class="form-control" id="groups" placeholder="Grupper"/>
     </div>
 </div>
 

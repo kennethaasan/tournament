@@ -16,6 +16,7 @@ class CreateTeamsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('name', 255)->unique();
+			$table->enum('group_code', array('A', 'B', 'C', 'D', 'W'))->nullable();
 			$table->timestamps();
 		});
 	}

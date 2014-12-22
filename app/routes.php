@@ -39,12 +39,14 @@ Route::group(array('prefix' => 'api/v1', 'before' => 'admin'), function()
 	Route::resource('tournaments', 'TournamentsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
     Route::resource('teams', 'TeamsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
     Route::resource('players', 'PlayersController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+    Route::resource('matches', 'MatchesController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+    Route::resource('goals', 'GoalsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
 
 });
 
 /*Route::group(array('before' => 'auth'), function()
 {
-    
+
 
 });*/
 

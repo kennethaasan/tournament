@@ -16,10 +16,8 @@ class CreateTournamentsTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('name', 255)->unique();
-			$table->date('start_date')->nullable();
-			$table->date('end_date')->nullable();
+			$table->date('date')->nullable();
 			$table->string('location', 255)->nullable();
-			$table->integer('groups')->nullable();
 			$table->timestamps();
 		});
 	}

@@ -8,6 +8,6 @@ class Team extends \Eloquent {
 	];
 
 	// Don't forget to fill this array
-	protected $fillable = ['name'];
+	protected $fillable = ['name', 'group_code'];
 
 }

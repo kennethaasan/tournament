@@ -17,7 +17,7 @@ class PlayersController extends ApiController {
 		}
 
 		return $this->respond([
-	        'data' => $players->toArray()
+	        'data' => $this->transformCollection($players)
 	    ]);
 	}
 
@@ -53,13 +53,13 @@ class PlayersController extends ApiController {
 	{
 		$player = Player::find($id);
 
-		if ( ! $player) 
+		if ( ! $player)
 		{
 			return $this->respondNotFound('Player does not exist.');
 		}
 
 		return $this->respond([
-	        'data' => $player->toArray()
+	        'data' => $this->transform($player)
 	    ]);
 	}
 
@@ -99,6 +99,22 @@ class PlayersController extends ApiController {
 		Player::destroy($id);
 
 		return $this->respondCreated('Player successfully deleted.');
+	}
+
+	private function transform($player)
+	{
+		return [
+			'id' 		=> (int) $player['id'],
+			'name' 		=> $player['name'],
+			'number' 	=> (int) $player['number'],
+			'paid' 		=> (boolean) $player['paid'],
+			'team_id'	=> (int) $player['team_id']
+		];
+	}
+
+	private function transformCollection($players)
+	{
+		return array_map([$this, 'transform'], $players->toArray());
 	}
 
 }
