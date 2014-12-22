@@ -9,7 +9,7 @@ sql
 
 tournament(id, name)
 
-team(id, group_code enum('A', 'B', 'C', 'D'), name)
+team(id, group_code enum('A', 'B', 'C', 'D', 'Ladies'), name)
 
 player(id, name, team_id)
 
