@@ -6,6 +6,7 @@ Football tournament administration made with Laravel and Angular
 
 sql
 ==========
+http://laravel.com/docs/4.2/eloquent
 
 tournament(id, name)
 
