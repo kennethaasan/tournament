@@ -8,4 +8,15 @@ class Goal extends \Eloquent {
 	];
 
 	protected $fillable = ['match_id', 'player_id'];
+
+	public function match()
+	{
+		return $this->belongsTo('Match');
+	}
+
+	public function player()
+	{
+		return $this->belongsTo('Player');
+	}
+
 }

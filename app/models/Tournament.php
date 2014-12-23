@@ -11,4 +11,10 @@ class Tournament extends \Eloquent {
 	// Don't forget to fill this array
 	protected $fillable = ['name', 'date', 'location'];
 
+
+	public function matches()
+	{
+		return $this->hasMany('Match');
+	}
+
 }

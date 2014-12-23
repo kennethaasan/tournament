@@ -26,6 +26,12 @@ class DatabaseSeeder extends Seeder {
         $this->call('PlayersTableSeeder');
         $this->command->info('Player table seeded!');
 
+        $this->call('MatchesTableSeeder');
+        $this->command->info('Match table seeded!');
+
+        $this->call('GoalsTableSeeder');
+        $this->command->info('Goal table seeded!');
+
 	}
 
 }
@@ -82,7 +88,7 @@ class TeamsTableSeeder extends Seeder {
         foreach (range(1, 30) as $index) {
             Team::create(array(
                 'name' => $faker->name(),
-                'group_code' => $faker->randomElement(['A', 'B', 'C', 'D', 'W'])
+                'group_code' => $faker->randomElement(['A', 'B', 'C', 'D'])
             ));
         }
 
@@ -97,7 +103,7 @@ class PlayersTableSeeder extends Seeder {
 
         $faker = Faker::create();
 
-        foreach (range(1, 300) as $index) {
+        foreach (range(1, 200) as $index) {
             Player::create(array(
                 'name' => $faker->name(),
                 'number' => $faker->numberBetween(1, 99),
@@ -106,6 +112,45 @@ class PlayersTableSeeder extends Seeder {
             ));
         }
 
+    }
+}
+
+class MatchesTableSeeder extends Seeder {
+
+    public function run() {
+
+        DB::table('matches')->delete();
+
+        $faker = Faker::create();
+
+        foreach (range(1, 30) as $index) {
+            Match::create(array(
+                'tournament_id' => 1,
+                'kickoff_at'    => '11:00',
+                'match_code'    => $faker->randomElement(['A', 'B', 'C', 'D', 'Q1', 'Q2', 'Q3', 'Q4', 'S1', 'S2', 'F']),
+                'hometeam_id'   => $faker->numberBetween(1, 30),
+                'awayteam_id'   => $faker->numberBetween(1, 30),
+                'score_home'    => $faker->numberBetween(0, 9),
+                'score_away'    => $faker->numberBetween(0, 9)
+            ));
+        }
+    }
+}
+
+class GoalsTableSeeder extends Seeder {
+
+    public function run() {
+
+        DB::table('goals')->delete();
+
+        $faker = Faker::create();
+
+        foreach (range(1, 400) as $index) {
+            Goal::create(array(
+                'match_id'      => $faker->numberBetween(1, 30),
+                'player_id'     => $faker->numberBetween(1, 200)
+            ));
+        }
     }
 }
 

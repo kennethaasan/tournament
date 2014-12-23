@@ -13,4 +13,14 @@ class Player extends \Eloquent {
 	// Don't forget to fill this array
 	protected $fillable = ['name', 'number', 'paid', 'team_id'];
 
+	public function goals()
+	{
+		return $this->hasMany('Goal');
+	}
+
+	public function team()
+	{
+		return $this->belongsTo('Team');
+	}
+
 }

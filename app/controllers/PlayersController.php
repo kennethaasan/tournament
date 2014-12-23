@@ -74,7 +74,7 @@ class PlayersController extends ApiController {
 	{
 		$data = Input::all();
 
-		$validator = Validator::make($data, player::$rules);
+		$validator = Validator::make($data, Player::$rules);
 
 		if ($validator->fails())
 		{

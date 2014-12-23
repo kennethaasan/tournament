@@ -33,14 +33,24 @@ Route::get('logout', ['as' => 'logout', 'uses' => 'SessionsController@destroy'])
 Route::resource('sessions', 'SessionsController', ['only' => ['create', 'destroy', 'store']]);
 
 
+
 // Route group for API versioning
-Route::group(array('prefix' => 'api/v1', 'before' => 'admin'), function()
+Route::group(array('prefix' => 'api/v1'), function()
 {
-	Route::resource('tournaments', 'TournamentsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
-    Route::resource('teams', 'TeamsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
-    Route::resource('players', 'PlayersController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
-    Route::resource('matches', 'MatchesController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
-    Route::resource('goals', 'GoalsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	Route::get('tournaments/{tournament}/info', [
+		'as' => 'tournaments.info',
+		'uses' => 'MatchesController@info'
+	]);
+
+	Route::group(array('before' => 'admin'), function()
+	{
+		Route::resource('tournaments', 'TournamentsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	    Route::resource('teams', 'TeamsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	    Route::resource('players', 'PlayersController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	    Route::resource('tournaments.matches', 'MatchesController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	    Route::resource('goals', 'GoalsController', ['only' => ['index', 'store', 'show', 'update', 'destroy']]);
+	});
+
 
 });
 

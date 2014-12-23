@@ -1,6 +1,6 @@
 <?php
 
-class GoalsController extends \BaseController {
+class GoalsController extends ApiController {
 
 	/**
 	 * Display a listing of the resource.
@@ -10,7 +10,16 @@ class GoalsController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
+		$goals = Goal::all();
+
+		if (count($goals) === 0)
+		{
+			return $this->respondNotFound('No goals exist.');
+		}
+
+		return $this->respond([
+			'data' => $this->transformCollection($goals)
+		]);
 	}
 
 	/**
@@ -21,7 +30,18 @@ class GoalsController extends \BaseController {
 	 */
 	public function store()
 	{
-		//
+		$data = Input::all();
+
+		$validator = Validator::make($data, Goal::$rules);
+
+		if ($validator->fails())
+		{
+			return $this->respondBadRequest('Validation fails.', $validator->messages()->toArray());
+		}
+
+		$goal = Goal::create($data);
+
+		return $this->respondCreated('Goal successfully created.');
 	}
 
 	/**
@@ -33,7 +53,16 @@ class GoalsController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		//
+		$goal = Goal::find($id);
+
+		if ( ! $goal)
+		{
+			return $this->respondNotFound('Goal does not exist.');
+		}
+
+		return $this->respond([
+	        'data' => $this->transform($goal)
+	    ]);
 	}
 
 	/**
@@ -45,7 +74,20 @@ class GoalsController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$data = Input::all();
+
+		$validator = Validator::make($data, Goal::$rules);
+
+		if ($validator->fails())
+		{
+			return $this->respondBadRequest('Validation fails.', $validator->messages()->toArray());
+		}
+
+		$goal = Goal::find($id);
+
+		$goal->update($data);
+
+		return $this->respondCreated('Goal successfully updated.');
 	}
 
 	/**
@@ -57,7 +99,24 @@ class GoalsController extends \BaseController {
 	 */
 	public function destroy($id)
 	{
-		//
+		Goal::destroy($id);
+
+		return $this->respondCreated('Goal successfully deleted.');
+	}
+
+	private function transform($goal)
+	{
+		return [
+			'id' 			=> (int) $goal['id'],
+			'match_id' 		=> (int) $goal['match_id'],
+			'player_id'		=> (int) $goal['player_id'],
+			'player'		=> Player::find($goal['player_id'])->name
+		];
+	}
+
+	private function transformCollection($goals)
+	{
+		return array_map([$this, 'transform'], $goals->toArray());
 	}
 
 }
