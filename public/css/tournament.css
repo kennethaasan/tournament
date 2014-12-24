@@ -1,0 +1,25 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body {
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+	background: url("../img/bg_redjul.jpg");
+	background-size: cover;
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+}
+
+.table td ,
+.table th {
+	line-height: 1 !important;
+}
+
+.team {
+	width: 40%;
+}

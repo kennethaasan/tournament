@@ -139,7 +139,15 @@ class MatchesController extends ApiController {
 
 
 
-
+	private function transformTournament($tournament)
+	{
+		return [
+			'id' 		=> (int) $tournament['id'],
+			'name' 		=> $tournament['name'],
+			'date' 		=> $tournament['date'],
+			'location' 	=> $tournament['location'],
+		];
+	}
 
 	private function createTeam($id, $name)
 	{
@@ -159,8 +167,8 @@ class MatchesController extends ApiController {
 
 	public function info($id)
 	{
+		$tournament = $this->transformTournament(Tournament::findOrFail($id));
 		$teams = array();
-		$match_codes = array();
 		$tables = array();
 
 		$matches = $this->transformCollection(Match::where('tournament_id', $id)
@@ -260,20 +268,52 @@ class MatchesController extends ApiController {
 
 		}
 
+		//Create table array for each group code
+		foreach ($this->group_codes as $group_code) {
+			$tables[$group_code] = array();
+		}
+
+		//Loop through every team to add them to their group in tables
+		foreach ($teams as $team => $teamValue) {
+			if (isset($tables[$teams[$team]['group_code']]))
+			{
+				array_push($tables[$teams[$team]['group_code']], $teams[$team]);
+			}
+		}
+
+		//Loop through every group to sort them
+		foreach ($tables as $table => $tableValue) {
+
+			usort($tables[$table], function($a, $b) {
+				if ($b['points'] !== $a['points'])
+				{
+					return $b['points'] - $a['points'];
+				}
+				elseif ($b['goals_for'] - $b['goals_against'] !== $a['goals_for'] + $a['goals_against'])
+				{
+					return ($b['goals_for'] - $b['goals_against']) - ($a['goals_for'] - $a['goals_against']);
+				}
+				elseif ($b['goals_for'] !== $a['goals_for'])
+				{
+					return $b['goals_for'] - $a['goals_for'];
+				}
+
+				return 0;
+
+			});
+
+		}
+
 		return $this->respond([
 	        'data' => array(
-	        	'teams' 		=> $teams,
+	        	'tournament'	=> $tournament,
+	        	'tables' 		=> $tables,
+	        	//'teams' 		=> $teams,
 	        	'matches' 		=> $matches,
-	        	'group_codes'	=> $this->group_codes,
-	        	'tables' 		=> $tables
+	        	//'group_codes'	=> $this->group_codes
+
 	        )
 	    ]);
 	}
-
-
-
-
-
-
 
 }

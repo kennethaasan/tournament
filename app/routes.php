@@ -33,12 +33,15 @@ Route::get('logout', ['as' => 'logout', 'uses' => 'SessionsController@destroy'])
 Route::resource('sessions', 'SessionsController', ['only' => ['create', 'destroy', 'store']]);
 
 
+Route::get('tournaments/{tournament}/info', ['as' => 'tournaments.info', function($tournament = 1)
+{
+	return View::make('layouts/tournament')->with('tournament', $tournament);
+}])->where('tournament', '[0-9]+');
 
 // Route group for API versioning
 Route::group(array('prefix' => 'api/v1'), function()
 {
 	Route::get('tournaments/{tournament}/info', [
-		'as' => 'tournaments.info',
 		'uses' => 'MatchesController@info'
 	]);
 
