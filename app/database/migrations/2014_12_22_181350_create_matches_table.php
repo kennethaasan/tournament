@@ -18,6 +18,7 @@ class CreateMatchesTable extends Migration {
 			$table->integer('tournament_id')->unsigned()->index()->nullable();
 			$table->foreign('tournament_id')->references('id')->on('tournaments')->onDelete('set null');
 			$table->time('kickoff_at')->nullable();
+			$table->enum('field', array('1', '2'));
 			$table->enum('match_code', array('A', 'B', 'C', 'D', 'W', 'Q1', 'Q2', 'Q3', 'Q4', 'S1', 'S2', 'F'));
 			$table->integer('hometeam_id')->unsigned()->index()->nullable();
 			$table->foreign('hometeam_id')->references('id')->on('teams')->onDelete('set null');

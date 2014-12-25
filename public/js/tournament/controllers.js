@@ -14,15 +14,19 @@ angular.module('app.controllers', [])
                 $scope.tournament = response.data.tournament;
                 $scope.matches = response.data.matches;
                 $scope.tables = response.data.tables;
+                $scope.topscorers = response.data.topscorers;
+
+                console.log(response.data);
             }).
             error(function(response) {
                 console.log(response);
             });
     };
 
-    getTournament();
     var interval = $interval(function() {
         getTournament();
     }, 30000);
+
+    getTournament();
 
 });

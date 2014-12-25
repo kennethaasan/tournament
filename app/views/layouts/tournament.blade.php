@@ -19,18 +19,20 @@
 	    <div class="container-fluid" ng-controller="TournamentController">
 	    	<p class="text-center" ng-show="loading"><span class="fa fa-spinner fa-5x fa-spin"></span></p>
 
+
 	    	<div class="row" ng-hide="loading">
 	    		<div class="col-md-12">
 		    		<div class="panel panel-default">
-						  	<div class="panel-heading"><h3 class="text-center"><% tournament.name %></h3></div>
+						  	<div class="panel-heading"><h5 class="text-center"><% tournament.name %></h5></div>
 					</div>
 				</div>
 
 	    	</div>
 
+
 	    	<div class="row" ng-hide="loading">
 
-			    <div class="col-md-7">
+			    <div class="col-md-6">
 			    	<div class="panel panel-default">
 					  	<div class="panel-heading">KAMPOPPSETT</div>
 
@@ -42,27 +44,27 @@
 					    			<th>GRP/KAMP</th>
 					    			<th>HJEMMELAG</th>
 					    			<th>BORTELAG</th>
-					    			<th class="text-center">RESULTAT</th>
+					    			<th>RESULTAT</th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
 					    		<tr ng-repeat="match in matches">
-					    			<td><% match.kickoff_at %></td>
-					    			<td>BANE</td>
+					    			<td><% match.kickoff_at | limitTo:5 %></td>
+					    			<td><% match.field %></td>
 					    			<td><% match.match_code %></td>
 					    			<td><% match.hometeam %></td>
 					    			<td><% match.awayteam %></td>
-					    			<td class="text-center"><% match.score_home %>-<% match.score_away %></td>
+					    			<td><% match.score_home %>-<% match.score_away %></td>
 					    		</tr>
 					    	</tbody>
 					  	</table>
 					</div>
 			    </div>
 
-			    <div class="col-md-5">
+			    <div class="col-md-4">
 
 			    	<div class="panel panel-default" ng-repeat="(key, table) in tables" ng-if="table.length > 0">
-					  	<div class="panel-heading">Tabell - <% key %></div>
+					  	<div class="panel-heading">TABELL - <% key %></div>
 
 					  	<table class="table table-condensed table-striped">
 					    	<thead>
@@ -89,6 +91,29 @@
 					    			<td class="text-center"><% team.goals_against %></td>
 					    			<td class="text-center"><% team.goals_for - team.goals_against %></td>
 					    			<td class="text-center"><% team.points %></td>
+					    		</tr>
+					    	</tbody>
+					  	</table>
+					</div>
+
+			    </div>
+
+			    <div class="col-md-2">
+
+			    	<div class="panel panel-default" ng-if="topscorers.length > 0">
+					  	<div class="panel-heading">TOPPSCORER</div>
+
+					  	<table class="table table-condensed table-striped">
+					    	<thead>
+					    		<tr>
+					    			<th class="player">Spiller</th>
+					    			<th class="text-center">Mål</th>
+					    		</tr>
+					    	</thead>
+					    	<tbody>
+					    		<tr ng-repeat="player in topscorers">
+					    			<td class="player"><% player.name %></td>
+					    			<td class="text-center"><% player.goals %></td>
 					    		</tr>
 					    	</tbody>
 					  	</table>

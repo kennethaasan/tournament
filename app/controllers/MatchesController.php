@@ -111,6 +111,8 @@ class MatchesController extends ApiController {
 	{
 		$score_home = null;
 		$score_away = null;
+		$hometeam = null;
+		$awayteam = null;
 
 		if ($match['score_home'] !== null && $match['score_away'] !== null)
 		{
@@ -118,15 +120,26 @@ class MatchesController extends ApiController {
 			$score_away = (int) $match['score_away'];
 		}
 
+		if (isset($match['hometeam_id']))
+		{
+			$hometeam = Team::find($match['hometeam_id'])->name;
+		}
+
+		if (isset($match['hometeam_id']))
+		{
+			$awayteam = Team::find($match['awayteam_id'])->name;
+		}
+
 		return [
 			'id' 			=> (int) $match['id'],
 			'tournament_id'	=> (int) $match['tournament_id'],
 			'kickoff_at'	=> $match['kickoff_at'],
+			'field'			=> $match['field'],
 			'match_code'	=> $match['match_code'],
 			'hometeam_id'	=> (int) $match['hometeam_id'],
-			'hometeam'		=> Team::find($match['hometeam_id'])->name,
+			'hometeam'		=> $hometeam,
 			'awayteam_id'	=> (int) $match['awayteam_id'],
-			'awayteam'		=> Team::find($match['awayteam_id'])->name,
+			'awayteam'		=> $awayteam,
 			'score_home'	=> $score_home,
 			'score_away'	=> $score_away
 		];
@@ -171,8 +184,27 @@ class MatchesController extends ApiController {
 		$teams = array();
 		$tables = array();
 
+		/*
+		select goals.player_id, players.name, count(*) as goals
+		from goals
+		left join matches on goals.match_id = matches.id
+		left join players on goals.player_id = players.id
+		where matches.tournament_id = 1
+		group by player_id
+		*/
+
+		$topscorers = Goal::leftJoin('matches', 'goals.match_id', '=', 'matches.id')
+			->leftJoin('players', 'goals.player_id', '=', 'players.id')
+			->where('matches.tournament_id', $id)
+			->groupBy('goals.player_id')
+			->orderBy('goals', 'desc')
+			->limit(45)
+			->select(DB::raw('goals.player_id, players.name, count(*) as goals'))
+			->get();
+
 		$matches = $this->transformCollection(Match::where('tournament_id', $id)
 			->orderBy('kickoff_at', 'asc')
+			->orderBy('field', 'asc')
 			->get());
 
 		foreach ($matches as $match) {
@@ -310,6 +342,7 @@ class MatchesController extends ApiController {
 	        	'tables' 		=> $tables,
 	        	//'teams' 		=> $teams,
 	        	'matches' 		=> $matches,
+	        	'topscorers'	=> $topscorers
 	        	//'group_codes'	=> $this->group_codes
 
 	        )
