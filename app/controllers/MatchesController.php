@@ -54,6 +54,20 @@ class MatchesController extends ApiController {
 	 * @param  int  $id
 	 * @return Response
 	 */
+	private function transformTeam($team)
+	{
+		return [
+			'id' 			=> (int) $team['id'],
+			'name' 			=> $team['name'],
+			'group_code'	=> $team['group_code']
+		];
+	}
+
+	private function transformCollectionTeam($teams)
+	{
+		return array_map([$this, 'transformTeam'], $teams->toArray());
+	}
+
 	public function show($tournament_id, $match_id)
 	{
 		$match = Match::find($match_id);
@@ -64,7 +78,8 @@ class MatchesController extends ApiController {
 		}
 
 		return $this->respond([
-	        'data' => $this->transform($match)
+	        'data' 	=> $this->transform($match),
+	        'teams' => $this->transformCollectionTeam(Team::all())
 	    ]);
 	}
 
@@ -86,7 +101,7 @@ class MatchesController extends ApiController {
 			return $this->respondBadRequest('Validation fails.', $validator->messages()->toArray());
 		}
 
-		$match = Match::find($id);
+		$match = Match::find($match_id);
 
 		$match->update($data);
 

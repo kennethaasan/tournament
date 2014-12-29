@@ -19,6 +19,16 @@ angular.module('app').config(function($routeProvider, $locationProvider) {
         controller: 'TournamentEdit'
     });
 
+    $routeProvider.when('/turneringer/:tournament_id/kamper', {
+        templateUrl: 'partials/matches/matches.html',
+        controller: 'Matches'
+    });
+
+    $routeProvider.when('/turneringer/:tournament_id/kamper/:id', {
+        templateUrl: 'partials/matches/match_edit.html',
+        controller: 'MatchEdit'
+    });
+
     $routeProvider.when('/lag', {
         templateUrl: 'partials/teams/teams.html',
         controller: 'Teams'

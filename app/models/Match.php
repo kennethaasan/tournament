@@ -5,7 +5,7 @@ class Match extends \Eloquent {
 	// Add your validation rules here
 	public static $rules = [
 		'tournament_id' => 'required|exists:tournaments,id',
-		'kickoff_at' => 'date',
+		'kickoff_at' => '',
 		'match_code' => 'required',
 		'hometeam_id' => 'integer|exists:teams,id',
 		'awayteam_id' => 'integer|exists:teams,id',

@@ -25,7 +25,7 @@ angular.module('app.controllers', [])
 
     var interval = $interval(function() {
         getTournament();
-    }, 30000);
+    }, 5000);
 
     getTournament();
 

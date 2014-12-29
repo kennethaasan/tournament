@@ -36,7 +36,8 @@ angular.module('app.controllers', [])
 
         $scope.loading = true;
         $scope.errors = undefined;
-            Tournament.update({ id: $scope.tournament.id }, $scope.tournament, function() {
+
+        Tournament.update({ id: $scope.tournament.id }, $scope.tournament, function() {
             $scope.loadTournament();
         }, function(errors) {
             $scope.loading = false;
@@ -45,6 +46,65 @@ angular.module('app.controllers', [])
     };
 
     $scope.loadTournament();
+
+})
+.controller('Matches', function($scope, $routeParams, Match) {
+
+    $scope.loading = true;
+
+    Match.get({ tournament_id: $routeParams.tournament_id }, function(response) {
+        $scope.loading = false;
+        $scope.matches = response.data;
+    });
+
+})
+.controller('MatchEdit', function($scope, $routeParams, Match, Team) {
+
+    $scope.loading = true;
+    $scope.teams = false;
+
+    Team.get(function(response) {
+        $scope.teams = response.data;
+    });
+
+    $scope.loadMatch = function() {
+        if (! $scope.teams)
+        {
+            return setTimeout($scope.loadMatch, 100); // check again
+        }
+
+        Match.get({ tournament_id: $routeParams.tournament_id, id: $routeParams.id }, function(response) {
+            $scope.loading = false;
+
+            var time = response.data.kickoff_at.split(':');
+
+            response.data.kickoff = (new Date());
+            response.data.kickoff.setHours(time[0], time[1], time[2], 0);
+
+
+            $scope.match = response.data;
+            console.log(response.data);
+        }, function(errors) {
+            console.log(errors);
+        });
+    };
+
+    $scope.updateMatch = function() {
+
+        $scope.loading = true;
+        $scope.errors = undefined;
+
+        $scope.match.kickoff_at = $scope.match.kickoff.getHours() + ':' + $scope.match.kickoff.getMinutes();
+
+        Match.update({ tournament_id: $scope.match.tournament_id, id: $scope.match.id }, $scope.match, function() {
+            $scope.loadMatch();
+        }, function(errors) {
+            $scope.loading = false;
+            $scope.errors = errors.data.error.validation_errors;
+        });
+    };
+
+    $scope.loadMatch();
 
 })
 .controller('Teams', function($scope, Team, popupService) {

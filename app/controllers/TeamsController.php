@@ -9,6 +9,12 @@ class TeamsController extends ApiController {
 	 */
 	public function index()
 	{
+		//Check if cache exsists
+		if (Cache::has('teams'))
+		{
+			return Cache::get('teams');
+		}
+
 		$teams = Team::all();
 
 		if (count($teams) === 0)
@@ -16,9 +22,14 @@ class TeamsController extends ApiController {
 			return $this->respondNotFound('No teams exist.');
 		}
 
-		return $this->respond([
+		$data = $this->respond([
 	        'data' => $this->transformCollection($teams)
 	    ]);
+
+		//Save in cache (1 minutes)
+		Cache::put('teams', $data, 1);
+
+		return $data;
 	}
 
 
