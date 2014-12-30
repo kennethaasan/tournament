@@ -31,6 +31,7 @@
                         <li ng-class="{ active: isActive('/turneringer')}"><a href="#turneringer">Turneringer</a></li>
                         <li ng-class="{ active: isActive('/lag')}"><a href="#lag">Lag</a></li>
                         <li ng-class="{ active: isActive('/spillere')}"><a href="#spillere">Spillere</a></li>
+                        <li ng-class="{ active: isActive('/maal')}"><a href="#maal">Mål</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li>{{ link_to_route('logout', 'Logg ut') }}</li>
@@ -39,7 +40,7 @@
 			</div>
 	    </div>
 
-	    
+
 	    <div class="container" ng-view></div>
 
 
@@ -48,8 +49,8 @@
 			<footer>
                 <p class="text-center">&copy; Vanvik IL</p>
             </footer>
-	    </div> <!-- /container -->        
-        
+	    </div> <!-- /container -->
+
 
         <script src="{{ asset('bower_components/jquery/dist/jquery.min.js') }}"></script>
         <script src="{{ asset('bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>

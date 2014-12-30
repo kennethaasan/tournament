@@ -122,7 +122,7 @@ class PlayersTableSeeder extends Seeder {
                 'name' => $faker->name(),
                 'number' => $faker->numberBetween(1, 99),
                 'paid' => $faker->boolean(),
-                'team_id' => $faker->numberBetween(1, 20)
+                //'team_id' => $faker->numberBetween(1, 20)
             ));
         }
 
@@ -255,10 +255,10 @@ class GoalsTableSeeder extends Seeder {
 
         $faker = Faker::create();
 
-        foreach (range(1, 400) as $index) {
+        foreach (range(1, 100) as $index) {
             Goal::create(array(
-                'match_id'      => $faker->numberBetween(1, 30),
-                'player_id'     => $faker->numberBetween(1, 200)
+                'match_id'      => $faker->numberBetween(1, 20),
+                'player_id'     => $faker->numberBetween(1, 100)
             ));
         }
     }

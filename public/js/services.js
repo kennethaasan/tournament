@@ -44,4 +44,15 @@ angular.module('app.services', [])
             }
         }
     );
+})
+
+.factory('Goal', function($resource) {
+    return $resource('api/v1/goals/:id', { id: '@id' },
+        {
+            'update': {
+                method: 'PUT'
+            }
+        }
+    );
+
 });

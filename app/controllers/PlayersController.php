@@ -9,7 +9,7 @@ class PlayersController extends ApiController {
 	 */
 	public function index()
 	{
-		$players = Player::all();
+		$players = Player::orderBy('name')->get();
 
 		if (count($players) === 0)
 		{
@@ -108,7 +108,7 @@ class PlayersController extends ApiController {
 			'name' 		=> $player['name'],
 			'number' 	=> (int) $player['number'],
 			'paid' 		=> (boolean) $player['paid'],
-			'team_id'	=> (int) $player['team_id']
+			//'team_id'	=> (int) $player['team_id']
 		];
 	}
 

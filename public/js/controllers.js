@@ -170,6 +170,9 @@ angular.module('app.controllers', [])
         Player.get(function(response) {
             $scope.loading = false;
             $scope.players = response.data;
+        }, function() {
+            $scope.loading = false;
+            $scope.players = false;
         });
     };
 
@@ -217,5 +220,87 @@ angular.module('app.controllers', [])
     };
 
     $scope.loadPlayer();
+
+})
+
+.controller('PlayerNew', function($scope, $location, Player) {
+
+    $scope.player = new Player();
+
+    $scope.savePlayer = function() {
+
+        $scope.loading = true;
+        $scope.errors = undefined;
+
+        Player.save($scope.player, function() {
+            //Go back to players
+            $location.path('/spillere');
+        }, function(errors) {
+            $scope.loading = false;
+            $scope.errors = errors.data.error.validation_errors;
+            console.log(errors);
+        });
+    };
+
+})
+.controller('Goals', function($scope, $location, Goal, popupService) {
+
+    $scope.loading = true;
+
+    $scope.loadGoals = function() {
+        Goal.get(function(response) {
+            $scope.loading = false;
+            $scope.goals = response.data;
+        }, function(errors) {
+            $scope.loading = false;
+            $scope.goals = false;
+        });
+    };
+
+    $scope.deleteGoal = function(goal) {
+        if (popupService.showPopup('Vil du slette dette målet?')) {
+
+            $scope.loading = true;
+
+            Goal.remove({ id: goal.id }, function(response) {
+                $scope.loadGoals();
+            }, function(errors) {
+                console.log(errors);
+            });
+        }
+    };
+
+    $scope.loadGoals();
+
+})
+.controller('GoalNew', function($scope, $location, Goal, Match, Player) {
+
+    $scope.goal = new Goal();
+
+    $scope.matches = false;
+    $scope.players = false;
+
+    Match.get({ tournament_id: 1 }, function(response) {
+        $scope.matches = response.data;
+    });
+
+    Player.get(function(response) {
+        $scope.players = response.data;
+    });
+
+    $scope.saveGoal = function() {
+
+        $scope.loading = true;
+        $scope.errors = undefined;
+
+        Goal.save($scope.goal, function() {
+            //Go back to maal
+            $location.path('/maal');
+        }, function(errors) {
+            $scope.loading = false;
+            $scope.errors = errors.data.error.validation_errors;
+            console.log(errors);
+        });
+    };
 
 });

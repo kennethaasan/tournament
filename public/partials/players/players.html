@@ -2,24 +2,36 @@
 
 <div class="row" ng-hide="loading">
 
-    <div class="col-sm-12">
+    <div class="col-md-10">
         <div class="input-group">
             <div class="input-group-addon"><span class="fa fa-search"></span></div>
             <input type="text" ng-model="searchText" class="form-control" id="search" placeholder="Søk"/>
         </div>
     </div>
 
+    <div class="col-md-2">
+        <a class="btn btn-block btn-primary" href="#spillere/ny">Ny spiller</a>
+    </div>
+
     <div class="col-md-12">
         <table class="table">
             <thead>
                 <tr>
-                    <td><h3>Alle spillere</h3></td>
-                    <td></td>
+                    <td colspan="4"><h3>Alle spillere</h3></td>
+                </tr>
+                <tr>
+                    <th>NAVN</th>
+                    <th>#</th>
+                    <th>Betalt</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="player in players | filter:searchText">
                     <td>{{player.name}}</td>
+                    <td>{{player.number}}</td>
+                    <td ng-if="player.paid === true" class="success"><span class="glyphicon glyphicon glyphicon-check"></span></td>
+                    <td ng-if="player.paid === false" class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span></td>
                     <td class="text-right">
                         <a class="btn btn-sm btn-primary" href="#spillere/{{player.id}}">Åpne</a>
                         <a class="btn btn-sm btn-danger" ng-click="deletePlayer(player)">Slett</a>

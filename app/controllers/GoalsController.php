@@ -104,11 +104,35 @@ class GoalsController extends ApiController {
 		return $this->respondCreated('Goal successfully deleted.');
 	}
 
+	private function transformMatch($match)
+	{
+		$hometeam = null;
+		$awayteam = null;
+
+		if (isset($match['hometeam_id']))
+		{
+			$hometeam = Team::find($match['hometeam_id'])->name;
+		}
+
+		if (isset($match['hometeam_id']))
+		{
+			$awayteam = Team::find($match['awayteam_id'])->name;
+		}
+
+		return [
+			'hometeam_id'	=> (int) $match['hometeam_id'],
+			'hometeam'		=> $hometeam,
+			'awayteam_id'	=> (int) $match['awayteam_id'],
+			'awayteam'		=> $awayteam,
+		];
+	}
+
 	private function transform($goal)
 	{
 		return [
 			'id' 			=> (int) $goal['id'],
 			'match_id' 		=> (int) $goal['match_id'],
+			'match'			=> $this->transformMatch(Match::find($goal['match_id'])),
 			'player_id'		=> (int) $goal['player_id'],
 			'player'		=> Player::find($goal['player_id'])->name
 		];

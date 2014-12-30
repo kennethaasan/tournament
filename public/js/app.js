@@ -44,9 +44,24 @@ angular.module('app').config(function($routeProvider, $locationProvider) {
         controller: 'Players'
     });
 
+    $routeProvider.when('/spillere/ny', {
+        templateUrl: 'partials/players/player_new.html',
+        controller: 'PlayerNew'
+    });
+
     $routeProvider.when('/spillere/:id', {
         templateUrl: 'partials/players/player_edit.html',
         controller: 'PlayerEdit'
+    });
+
+    $routeProvider.when('/maal/', {
+        templateUrl: 'partials/goals/goals.html',
+        controller: 'Goals'
+    });
+
+    $routeProvider.when('/maal/ny', {
+        templateUrl: 'partials/goals/goal_new.html',
+        controller: 'GoalNew'
     });
 
     $routeProvider.otherwise({ redirectTo: '/turneringer' });
