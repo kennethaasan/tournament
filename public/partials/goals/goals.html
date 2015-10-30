@@ -27,7 +27,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="goal in goals | filter:searchText">
-                    <td>{{ goal.match.hometeam }} - {{ goal.match.awayteam }}</td>
+                    <td>{{ goal.match.match_code }}: {{ goal.match.hometeam }} - {{ goal.match.awayteam }}</td>
                     <td>{{ goal.player }}</td>
                     <td class="text-right">
                         <a class="btn btn-sm btn-danger" ng-click="deleteGoal(goal)">Slett</a>

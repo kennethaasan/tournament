@@ -58,10 +58,10 @@ angular.module('app.controllers', [])
     });
 
 })
-.controller('MatchEdit', function($scope, $routeParams, Match, Team) {
+.controller('MatchEdit', function($scope, $routeParams, Match, Team, $location) {
 
     $scope.loading = true;
-    $scope.teams = false;
+    $scope.teams = [];
 
     Team.get(function(response) {
         $scope.teams = response.data;
@@ -83,7 +83,6 @@ angular.module('app.controllers', [])
 
 
             $scope.match = response.data;
-            console.log(response.data);
         }, function(errors) {
             console.log(errors);
         });
@@ -97,7 +96,9 @@ angular.module('app.controllers', [])
         $scope.match.kickoff_at = $scope.match.kickoff.getHours() + ':' + $scope.match.kickoff.getMinutes();
 
         Match.update({ tournament_id: $scope.match.tournament_id, id: $scope.match.id }, $scope.match, function() {
-            $scope.loadMatch();
+            //$scope.loadMatch();
+            // Go back to matches
+            $location.path('/turneringer/' + $routeParams.tournament_id + '/kamper');
         }, function(errors) {
             $scope.loading = false;
             $scope.errors = errors.data.error.validation_errors;
@@ -192,9 +193,15 @@ angular.module('app.controllers', [])
     $scope.loadPlayers();
 
 })
-.controller('PlayerEdit', function($scope, $routeParams, Player) {
+.controller('PlayerEdit', function($scope, $routeParams, Player, Team) {
 
     $scope.loading = true;
+
+    $scope.teams = [];
+
+    Team.get(function(response) {
+        $scope.teams = response.data;
+    });
 
     $scope.loadPlayer = function() {
         Player.get({ id: $routeParams.id }, function(response) {
@@ -223,9 +230,15 @@ angular.module('app.controllers', [])
 
 })
 
-.controller('PlayerNew', function($scope, $location, Player) {
+.controller('PlayerNew', function($scope, $location, Player, Team) {
 
     $scope.player = new Player();
+
+    $scope.teams = [];
+
+    Team.get(function(response) {
+        $scope.teams = response.data;
+    });
 
     $scope.savePlayer = function() {
 
@@ -277,8 +290,8 @@ angular.module('app.controllers', [])
 
     $scope.goal = new Goal();
 
-    $scope.matches = false;
-    $scope.players = false;
+    $scope.matches = [];
+    $scope.players = [];
 
     Match.get({ tournament_id: 1 }, function(response) {
         $scope.matches = response.data;
@@ -289,7 +302,6 @@ angular.module('app.controllers', [])
     });
 
     $scope.saveGoal = function() {
-
         $scope.loading = true;
         $scope.errors = undefined;
 

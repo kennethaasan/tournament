@@ -10,6 +10,7 @@
 
 	    <link rel="stylesheet" href="{{ asset('bower_components/bootstrap/dist/css/bootstrap.min.css') }}">
 	    <link rel="stylesheet" href="{{ asset('bower_components/font-awesome/css/font-awesome.min.css') }}">
+	    <link rel="stylesheet" href="{{ asset('bower_components/angular-ui-select/dist/select.css') }}">
 	    <link rel="stylesheet" href="{{ asset('css/main.css') }}">
 
 	</head>
@@ -30,8 +31,8 @@
 					<ul class="nav navbar-nav">
                         <li ng-class="{ active: isActive('/turneringer')}"><a href="#turneringer">Turneringer</a></li>
                         <li ng-class="{ active: isActive('/lag')}"><a href="#lag">Lag</a></li>
-                        <li ng-class="{ active: isActive('/spillere')}"><a href="#spillere">Spillere</a></li>
-                        <li ng-class="{ active: isActive('/maal')}"><a href="#maal">Mål</a></li>
+                        <!--<li ng-class="{ active: isActive('/spillere')}"><a href="#spillere">Spillere</a></li>
+                        <li ng-class="{ active: isActive('/maal')}"><a href="#maal">Mål</a></li>-->
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
 						<li>{{ link_to_route('logout', 'Logg ut') }}</li>
@@ -62,7 +63,9 @@
         <script src="{{ asset('js/filters.js') }}"></script>
         <script src="{{ asset('bower_components/angular-resource/angular-resource.min.js') }}"></script>
         <script src="{{ asset('bower_components/angular-route/angular-route.min.js') }}"></script>
+        <script src="{{ asset('bower_components/angular-sanitize/angular-sanitize.min.js') }}"></script>
         <script src="{{ asset('bower_components/angular-bootstrap/ui-bootstrap.min.js') }}"></script>
+        <script src="{{ asset('bower_components/angular-ui-select/dist/select.js') }}"></script>
 
         <script src="{{ asset('js/main.js') }}"></script>
 

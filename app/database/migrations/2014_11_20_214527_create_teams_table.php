@@ -15,7 +15,7 @@ class CreateTeamsTable extends Migration {
 		Schema::create('teams', function(Blueprint $table)
 		{
 			$table->increments('id');
-			$table->string('name', 255)->unique();
+			$table->string('name', 255);
 			$table->enum('group_code', array('A', 'B', 'C', 'D', 'W'))->nullable();
 			$table->timestamps();
 		});

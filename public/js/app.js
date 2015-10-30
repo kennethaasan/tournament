@@ -1,9 +1,16 @@
 angular.module('app', [
     'ngRoute',
     'ngResource',
+    'ngSanitize',
+    'ui.select',
     'app.controllers',
     'app.services'
 ]);
+
+angular.module('app').config(function(uiSelectConfig) {
+    uiSelectConfig.theme = 'bootstrap';
+    uiSelectConfig.resetSearchInput = true;
+});
 
 angular.module('app').config(function($routeProvider, $locationProvider) {
 

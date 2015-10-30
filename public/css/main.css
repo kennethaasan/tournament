@@ -16,3 +16,7 @@ body {
 table > tbody > tr > td {
 	vertical-align: middle !important;
 }
+
+.ui-select-container button {
+	text-align: left !important;
+}

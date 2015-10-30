@@ -22,6 +22,7 @@
                 <tr>
                     <th>NAVN</th>
                     <th>#</th>
+                    <th>Lag</th>
                     <th>Betalt</th>
                     <th></th>
                 </tr>
@@ -30,6 +31,7 @@
                 <tr ng-repeat="player in players | filter:searchText">
                     <td>{{player.name}}</td>
                     <td>{{player.number}}</td>
+                    <td>{{player.team}}</td>
                     <td ng-if="player.paid === true" class="success"><span class="glyphicon glyphicon glyphicon-check"></span></td>
                     <td ng-if="player.paid === false" class="danger"><span class="glyphicon glyphicon glyphicon-unchecked"></span></td>
                     <td class="text-right">

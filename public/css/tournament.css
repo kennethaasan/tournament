@@ -15,6 +15,9 @@ body {
 .container-fluid {
 	padding-top: 10px;
 
+    padding-right: 70px;
+    padding-left: 70px;
+
 	background-image: url('../img/BiSmXaq.png'), url('../img/XHuy0NJ.png'), url('../img/okpRxJU.png');
     -webkit-animation: snow 20s linear infinite;
     -moz-animation: snow 20s linear infinite;
@@ -25,7 +28,7 @@ body {
 .table td ,
 .table th {
 	line-height: 1 !important;
-	font-size: 11px !important;
+	font-size: 17px !important;
 }
 
 .table > thead > tr > th,

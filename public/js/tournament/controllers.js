@@ -16,17 +16,16 @@ angular.module('app.controllers', [])
                 $scope.tables = response.data.tables;
                 $scope.topscorers = response.data.topscorers;
 
-                console.log(response.data);
             }).
             error(function(response) {
                 console.log(response);
             });
     };
 
+
+    getTournament();
     var interval = $interval(function() {
         getTournament();
     }, 5000);
-
-    getTournament();
 
 });

@@ -198,7 +198,7 @@ class MatchesController extends ApiController {
 			->where('matches.tournament_id', $id)
 			->groupBy('goals.player_id')
 			->orderBy('goals', 'desc')
-			->limit(45)
+			->limit(25)
 			->select(DB::raw('goals.player_id, players.name, count(*) as goals'))
 			->get();
 
@@ -295,6 +295,7 @@ class MatchesController extends ApiController {
 			$teams[$team]['losses'] = $losses;
 			$teams[$team]['goals_for'] = $goals_for;
 			$teams[$team]['goals_against'] = $goals_against;
+			$teams[$team]['diff'] = $goals_for - $goals_against;
 			$teams[$team]['points'] = $points;
 			$teams[$team]['group_code'] = $group;
 
@@ -321,9 +322,9 @@ class MatchesController extends ApiController {
 				{
 					return $b['points'] - $a['points'];
 				}
-				elseif ($b['goals_for'] - $b['goals_against'] !== $a['goals_for'] + $a['goals_against'])
+				elseif ($b['diff'] !== $a['diff'])
 				{
-					return ($b['goals_for'] - $b['goals_against']) - ($a['goals_for'] - $a['goals_against']);
+					return $b['diff'] - $a['diff'];
 				}
 				elseif ($b['goals_for'] !== $a['goals_for'])
 				{

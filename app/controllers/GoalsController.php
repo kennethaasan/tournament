@@ -10,7 +10,7 @@ class GoalsController extends ApiController {
 	 */
 	public function index()
 	{
-		$goals = Goal::all();
+		$goals = Goal::orderBy('id', 'desc')->get();
 
 		if (count($goals) === 0)
 		{
@@ -124,6 +124,7 @@ class GoalsController extends ApiController {
 			'hometeam'		=> $hometeam,
 			'awayteam_id'	=> (int) $match['awayteam_id'],
 			'awayteam'		=> $awayteam,
+			'match_code'	=> $match['match_code']
 		];
 	}
 

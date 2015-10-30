@@ -108,7 +108,8 @@ class PlayersController extends ApiController {
 			'name' 		=> $player['name'],
 			'number' 	=> (int) $player['number'],
 			'paid' 		=> (boolean) $player['paid'],
-			//'team_id'	=> (int) $player['team_id']
+			'team_id'	=> (int) $player['team_id'],
+			'team'		=> Team::find($player['team_id'])->name
 		];
 	}
 
