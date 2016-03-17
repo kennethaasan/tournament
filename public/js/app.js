@@ -56,6 +56,11 @@ angular.module('app').config(function($routeProvider, $locationProvider) {
         controller: 'PlayerNew'
     });
 
+    $routeProvider.when('/spillere/nyttlag', {
+        templateUrl: 'partials/players/player_newteam.html',
+        controller: 'PlayerNewTeam'
+    });
+
     $routeProvider.when('/spillere/:id', {
         templateUrl: 'partials/players/player_edit.html',
         controller: 'PlayerEdit'

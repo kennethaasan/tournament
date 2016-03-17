@@ -233,19 +233,23 @@ class MatchesController extends ApiController {
 
 			foreach ($matches as $match) {
 
-				if ($match['score_home'] === null && $match['score_away'] === null)
-				{
-					continue;
-				}
+				//if ($match['score_home'] === null && $match['score_away'] === null)
+				//{
+					//continue;
+				//}
 
 				foreach ($this->group_codes as $group_code) {
 
 
 					if ($teams[$team]['id'] === $match['hometeam_id'] && $match['match_code'] === $group_code)
 					{
-						$totalMatches++;
-						$goals_for = $goals_for + $match['score_home'];
-						$goals_against = $goals_against + $match['score_away'];
+						if ($match['score_home'] !== null && $match['score_away'] !== null)
+						{
+							$totalMatches++;
+							$goals_for = $goals_for + $match['score_home'];
+							$goals_against = $goals_against + $match['score_away'];
+						}
+
 						$group = $match['match_code'];
 
 						if ($match['score_home'] > $match['score_away'])
@@ -253,7 +257,7 @@ class MatchesController extends ApiController {
 							$victorys++;
 							$points = $points + 3;
 						}
-						elseif ($match['score_home'] === $match['score_away'])
+						elseif ($match['score_home'] !== null && $match['score_away'] !== null && $match['score_home'] === $match['score_away'])
 						{
 							$draws++;
 							$points++;
@@ -266,9 +270,13 @@ class MatchesController extends ApiController {
 
 					if ($teams[$team]['id'] === $match['awayteam_id'] && $match['match_code'] === $group_code)
 					{
-						$totalMatches++;
-						$goals_for = $goals_for + $match['score_away'];
-						$goals_against = $goals_against + $match['score_home'];
+						if ($match['score_home'] !== null && $match['score_away'] !== null)
+						{
+							$totalMatches++;
+							$goals_for = $goals_for + $match['score_away'];
+							$goals_against = $goals_against + $match['score_home'];
+						}
+
 						$group = $match['match_code'];
 
 						if ($match['score_away'] > $match['score_home'])
@@ -276,7 +284,7 @@ class MatchesController extends ApiController {
 							$victorys++;
 							$points = $points + 3;
 						}
-						elseif ($match['score_away'] === $match['score_home'])
+						elseif ($match['score_home'] !== null && $match['score_away'] !== null && $match['score_away'] === $match['score_home'])
 						{
 							$draws++;
 							$points++;

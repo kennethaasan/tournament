@@ -10,7 +10,7 @@
 
 	    <link rel="stylesheet" href="{{ asset('bower_components/bootstrap/dist/css/bootstrap.min.black.css') }}">
 	    <link rel="stylesheet" href="{{ asset('bower_components/font-awesome/css/font-awesome.min.css') }}">
-	    <link rel="stylesheet" href="{{ asset('css/tournament.css') }}">
+	    <link rel="stylesheet" href="{{ asset('css/vanvikanindoor.css') }}">
 
 	</head>
     <body>
@@ -21,10 +21,8 @@
 
 
 	    	<div class="row" ng-hide="loading">
-	    		<div class="col-md-12">
-		    		<div class="panel panel-default">
-						  	<div class="panel-heading"><h5 class="text-center"><% tournament.name %></h5></div>
-					</div>
+	    		<div class="col-md-12 text-center">
+		    		<img src="{{ asset('img/topbanner_vindoor2014.png') }}" width="800" height="80" />
 				</div>
 
 	    	</div>
@@ -32,19 +30,19 @@
 
 	    	<div class="row" ng-hide="loading">
 
-			    <div class="col-md-6">
+			    <div class="col-md-8">
 			    	<div class="panel panel-default">
 					  	<div class="panel-heading">KAMPOPPSETT</div>
 
-					  	<table class="table table-condensed table-striped">
+					  	<table class="table table-condensed">
 					    	<thead>
 					    		<tr>
 					    			<th>TID</th>
 					    			<th>BANE</th>
-					    			<th>GRP/KAMP</th>
+					    			<th>GRP</th>
 					    			<th>HJEMMELAG</th>
 					    			<th>BORTELAG</th>
-					    			<th>RESULTAT</th>
+					    			<th colspan="3" class="text-center">RESULTAT</th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
@@ -54,7 +52,9 @@
 					    			<td><% match.match_code %></td>
 					    			<td><% match.hometeam %></td>
 					    			<td><% match.awayteam %></td>
-					    			<td><% match.score_home %>-<% match.score_away %></td>
+					    			<td class="text-right"><% match.score_home %></td>
+					    			<td class="text-center">-</td>
+					    			<td class="text-left"><% match.score_away %></td>
 					    		</tr>
 					    	</tbody>
 					  	</table>
@@ -64,9 +64,9 @@
 			    <div class="col-md-4">
 
 			    	<div class="panel panel-default" ng-repeat="(key, table) in tables" ng-if="table.length > 0">
-					  	<div class="panel-heading">TABELL - <% key %></div>
+					  	<div class="panel-heading">TABELL - GRUPPE <% key %></div>
 
-					  	<table class="table table-condensed table-striped">
+					  	<table class="table table-condensed">
 					    	<thead>
 					    		<tr>
 					    			<th class="team">LAG</th>
@@ -97,13 +97,13 @@
 					</div>
 
 			    </div>
-
+					<!--
 			    <div class="col-md-2">
 
-			    	<div class="panel panel-default" ng-if="topscorers.length > 0">
+			    	<div class="panel panel-default">
 					  	<div class="panel-heading">TOPPSCORER</div>
 
-					  	<table class="table table-condensed table-striped">
+					  	<table class="table table-condensed">
 					    	<thead>
 					    		<tr>
 					    			<th class="player">Spiller</th>
@@ -117,11 +117,18 @@
 					    		</tr>
 					    	</tbody>
 					  	</table>
-					</div>
-
+						</div>
 			    </div>
+					-->
 
 			</div>
+
+			<div class="row" ng-hide="loading">
+	    		<div class="col-md-12 text-center">
+		    		<img src="{{ asset('img/sponsorer2.png') }}" width="1000" height="101" />
+				</div>
+
+	    	</div>
 
 	    </div>
 
