@@ -5,11 +5,13 @@
    ========================================================================== */
 
 body {
-	background: url("../img/bg_redjul.jpg");
-	background-size: cover;
-	background-position: center center;
+	background: url("../img/easter.jpg");
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color: #3681b6;
 	background-repeat: no-repeat;
-	background-attachment: fixed;
 }
 
 .container-fluid {
@@ -17,18 +19,38 @@ body {
 
     padding-right: 70px;
     padding-left: 70px;
+}
 
-	background-image: url('../img/BiSmXaq.png'), url('../img/XHuy0NJ.png'), url('../img/okpRxJU.png');
-    -webkit-animation: snow 20s linear infinite;
-    -moz-animation: snow 20s linear infinite;
-    -ms-animation: snow 20s linear infinite;
-    animation: snow 20s linear infinite;
+.panel {
+	background-color: rgba(0, 0, 0, 0);
+	border-radius: 0;
+}
+
+.panel-default > .panel-heading {
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+}
+
+.table thead tr {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.table {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.table tbody tr:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.table tbody tr:nth-child(odd) {
+	background-color: rgba(0, 0, 0, 0.3);
 }
 
 .table td ,
 .table th {
 	line-height: 1 !important;
-	font-size: 17px !important;
+	font-size: 12px !important;
 }
 
 .table > thead > tr > th,
@@ -44,29 +66,4 @@ body {
 
 .player {
 	width: 90%;
-}
-
-@-webkit-keyframes snow {
-    0% { background-position: 0px 0px, 0px 0px, 0px 0px }
-    100% {
-        background-position: 500px 1000px, 400px 400px, 300px 300px;
-    }
-}
-@-moz-keyframes snow {
-    0% { background-position: 0px 0px, 0px 0px, 0px 0px }
-    100% {
-        background-position: 500px 1000px, 400px 400px, 300px 300px;
-    }
-}
-@-ms-keyframes snow {
-    0% { background-position: 0px 0px, 0px 0px, 0px 0px }
-    100% {
-        background-position: 500px 1000px, 400px 400px, 300px 300px;
-    }
-}
-@keyframes snow {
-    0% { background-position: 0px 0px, 0px 0px, 0px 0px }
-    100% {
-        background-position: 500px 1000px, 400px 400px, 300px 300px;
-    }
 }
