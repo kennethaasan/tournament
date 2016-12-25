@@ -10,7 +10,7 @@
 
 	    <link rel="stylesheet" href="{{ asset('bower_components/bootstrap/dist/css/bootstrap.min.black.css') }}">
 	    <link rel="stylesheet" href="{{ asset('bower_components/font-awesome/css/font-awesome.min.css') }}">
-	    <link rel="stylesheet" href="{{ asset('css/vanvikanindoor.css') }}">
+	    <link rel="stylesheet" href="{{ asset('css/tournament.css') }}">
 
 	</head>
     <body>
@@ -20,39 +20,42 @@
 	    	<p class="text-center" ng-show="loading"><span class="fa fa-spinner fa-5x fa-spin"></span></p>
 
 
+	    	<!--<div class="row" ng-hide="loading">
+	    		<div class="col-md-12">
+		    		<div class="panel panel-default">
+						  <div class="panel-heading">
+								<h5 class="text-center"><% tournament.name %></h5>
+							</div>
+						</div>
+					</div>
+    		</div>-->
+
+
 	    	<div class="row" ng-hide="loading">
-	    		<div class="col-md-12 text-center">
-		    		<img src="{{ asset('img/topbanner_vindoor2014.png') }}" width="800" height="80" />
-				</div>
 
-	    	</div>
-
-
-	    	<div class="row" ng-hide="loading">
-
-			    <div class="col-md-8">
+			    <div class="col-md-6">
 			    	<div class="panel panel-default">
 					  	<div class="panel-heading">KAMPOPPSETT</div>
 
-					  	<table class="table table-condensed">
+					  	<table class="table table-condensed table-striped">
 					    	<thead>
 					    		<tr>
 					    			<th>TID</th>
-					    			<th>BANE</th>
-					    			<th>GRP</th>
+					    			<th class="text-center">BANE</th>
+					    			<th class="text-center">GRP</th>
 					    			<th>HJEMMELAG</th>
 					    			<th>BORTELAG</th>
-					    			<th colspan="3" class="text-center">RESULTAT</th>
+					    			<th colspan="3" class="text-center">RES</th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
 					    		<tr ng-repeat="match in matches">
 					    			<td><% match.kickoff_at | limitTo:5 %></td>
-					    			<td><% match.field %></td>
-					    			<td><% match.match_code %></td>
+					    			<td class="text-center"><% match.field %></td>
+					    			<td class="text-center"><% match.match_code %></td>
 					    			<td><% match.hometeam %></td>
 					    			<td><% match.awayteam %></td>
-					    			<td class="text-right"><% match.score_home %></td>
+										<td class="text-right"><% match.score_home %></td>
 					    			<td class="text-center">-</td>
 					    			<td class="text-left"><% match.score_away %></td>
 					    		</tr>
@@ -64,9 +67,9 @@
 			    <div class="col-md-4">
 
 			    	<div class="panel panel-default" ng-repeat="(key, table) in tables" ng-if="table.length > 0">
-					  	<div class="panel-heading">TABELL - GRUPPE <% key %></div>
+					  	<div class="panel-heading">TABELL - <% key %></div>
 
-					  	<table class="table table-condensed">
+					  	<table class="table table-condensed table-striped">
 					    	<thead>
 					    		<tr>
 					    			<th class="team">LAG</th>
@@ -77,7 +80,7 @@
 					    			<th class="text-center">FOR</th>
 					    			<th class="text-center">MOT</th>
 					    			<th class="text-center">DIFF</th>
-					    			<th class="text-center">POENG</th>
+					    			<th class="text-center">P</th>
 					    		</tr>
 					    	</thead>
 					    	<tbody>
@@ -97,13 +100,13 @@
 					</div>
 
 			    </div>
-					<!--
+
 			    <div class="col-md-2">
 
-			    	<div class="panel panel-default">
+			    	<div class="panel panel-default" ng-if="topscorers.length > 0">
 					  	<div class="panel-heading">TOPPSCORER</div>
 
-					  	<table class="table table-condensed">
+					  	<table class="table table-condensed table-striped">
 					    	<thead>
 					    		<tr>
 					    			<th class="player">Spiller</th>
@@ -117,18 +120,11 @@
 					    		</tr>
 					    	</tbody>
 					  	</table>
-						</div>
+					</div>
+
 			    </div>
-					-->
 
 			</div>
-
-			<div class="row" ng-hide="loading">
-	    		<div class="col-md-12 text-center">
-		    		<img src="{{ asset('img/sponsorer2.png') }}" width="1000" height="101" />
-				</div>
-
-	    	</div>
 
 	    </div>
 

@@ -25,7 +25,7 @@ $app = new Illuminate\Foundation\Application;
 */
 
 $env = $app->detectEnvironment(function() {
-    return gethostname() == 'prod.production.com' ? 'production' : 'local';
+    return gethostname() == 'vanvikil.no' ? 'production' : 'local';
 });
 
 
