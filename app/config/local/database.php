@@ -23,7 +23,7 @@ return array(
 		'mysql' => array(
 			'driver'    => 'mysql',
 			'host'      => 'localhost',
-			'database'  => 'turnering_vanvikanindoor',
+			'database'  => 'turnering',
 			'username'  => 'root',
 			'password'  => 'qwe',
 			'charset'   => 'utf8',
