@@ -78,8 +78,8 @@ class TeamsTableSeeder extends Seeder {
 
         Team::create(array('name' => 'Ungkaran2.0', 'group_code' => 'A'));
         Team::create(array('name' => 'SGG', 'group_code' => 'A'));
-        Team::create(array('name' => 'Jumboflyers', 'group_code' => 'A'));
         Team::create(array('name' => 'Rakata', 'group_code' => 'A'));
+        Team::create(array('name' => 'Jumboflyers', 'group_code' => 'A'));
         Team::create(array('name' => 'FC Glæfs', 'group_code' => 'A'));
 
         Team::create(array('name' => 'Kråkvåg IL', 'group_code' => 'B'));
@@ -90,7 +90,7 @@ class TeamsTableSeeder extends Seeder {
 
         Team::create(array('name' => 'Team Fjeldvær', 'group_code' => 'C'));
         Team::create(array('name' => 'Hamarstrand Curlingklubb', 'group_code' => 'C'));
-        Team::create(array('name' => 'Heimdal Lost Elites', 'group_code' => 'C'));
+        Team::create(array('name' => 'Innherred renovasjon', 'group_code' => 'C'));
         Team::create(array('name' => 'RFSU', 'group_code' => 'C'));
         Team::create(array('name' => 'fc taliban', 'group_code' => 'C'));
 
@@ -163,26 +163,6 @@ class MatchesTableSeeder extends Seeder {
     public function run() {
 
         DB::table('matches')->delete();
-
-				// 1
-				// 2-3
-				// 4-5
-
-				// 2
-				// 1-5
-				// 3-4
-
-				// 3
-				// 1-4
-				// 2-5
-
-				// 4
-				// 1-2
-				// 3-5
-
-				// 5
-				// 1-3
-				// 2-4
 
 				$this->generateMatch(1, '10:00', 1, 'A', 1, 4);
 				$this->generateMatch(1, '10:00', 2, 'A', 2, 5);
