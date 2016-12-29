@@ -185,42 +185,51 @@ class MatchesTableSeeder extends Seeder {
 
 				$this->generateMatch(1, '11:30', 1, 'B', 1+5, 3+5);
 				$this->generateMatch(1, '11:30', 2, 'B', 4+5, 5+5);
-				//
+
 				$this->generateMatch(1, '11:45', 1, 'C', 1+10, 5+10);
 				$this->generateMatch(1, '11:45', 2, 'C', 3+10, 4+10);
-				//
+
 				$this->generateMatch(1, '12:00', 1, 'D', 1+15, 3+15);
 				$this->generateMatch(1, '12:00', 2, 'D', 4+15, 5+15);
-				//
+
 				$this->generateMatch(1, '12:15', 1, 'W-A', 2+20, 1+20);
 				$this->generateMatch(1, '12:15', 2, 'W-B', 5+20, 4+20);
 
 
 				$this->generateMatch(1, '12:30', 1, 'A', 1, 2);
 				$this->generateMatch(1, '12:30', 2, 'A', 3, 4);
-				//
+
 				$this->generateMatch(1, '12:45', 1, 'B', 1+5, 2+5);
 				$this->generateMatch(1, '12:45', 2, 'B', 3+5, 4+5);
-				//
+
 				$this->generateMatch(1, '13:00', 1, 'C', 1+10, 4+10);
 				$this->generateMatch(1, '13:00', 2, 'C', 2+10, 5+10);
-				//
+
 				$this->generateMatch(1, '13:15', 1, 'D', 1+15, 2+15);
 				$this->generateMatch(1, '13:15', 2, 'D', 3+15, 4+15);
-				//
-        $this->generateMatch(1, '13:30', 1, 'W-A', 3+20, 2+20);
-        $this->generateMatch(1, '13:30', 2, 'W-B', 6+20, 5+20);
+
+        // $this->generateMatch(1, '13:30', 1, 'W-A', 3+20, 2+20);
+        // $this->generateMatch(1, '13:30', 2, 'W-B', 6+20, 5+20);
 
 
-				$this->generateMatch(1, '13:45', 1, 'A', 1, 5);
-        $this->generateMatch(1, '13:45', 2, 'A', 2, 3);
-				//
-        $this->generateMatch(1, '14:00', 1, 'B', 1+5, 5+5);
-        $this->generateMatch(1, '14:00', 2, 'B', 2+5, 3+5);
-				//
+				// $this->generateMatch(1, '13:45', 1, 'A', 1, 5);
+        // $this->generateMatch(1, '13:45', 2, 'A', 2, 3);
+        //
+        // $this->generateMatch(1, '14:00', 1, 'B', 1+5, 5+5);
+        // $this->generateMatch(1, '14:00', 2, 'B', 2+5, 3+5);
+
+        $this->generateMatch(1, '13:30', 1, 'A', 1, 5);
+        $this->generateMatch(1, '13:30', 2, 'A', 2, 3);
+
+        $this->generateMatch(1, '13:45', 1, 'B', 1+5, 5+5);
+        $this->generateMatch(1, '13:45', 2, 'B', 2+5, 3+5);
+
+        $this->generateMatch(1, '14:00', 1, 'W-A', 3+20, 2+20);
+        $this->generateMatch(1, '14:00', 2, 'W-B', 6+20, 5+20);
+
         $this->generateMatch(1, '14:15', 1, 'C', 1+10, 2+10);
         $this->generateMatch(1, '14:15', 2, 'C', 3+10, 5+10);
-				//
+
         $this->generateMatch(1, '14:30', 1, 'D', 1+15, 5+15);
         $this->generateMatch(1, '14:30', 2, 'D', 2+15, 3+15);
 
@@ -230,16 +239,16 @@ class MatchesTableSeeder extends Seeder {
 
 				$this->generateMatch(1, '15:00', 1, 'A', 2, 4);
 				$this->generateMatch(1, '15:00', 2, 'A', 3, 5);
-				//
+
 				$this->generateMatch(1, '15:15', 1, 'B', 2+5, 4+5);
 				$this->generateMatch(1, '15:15', 2, 'B', 3+5, 5+5);
-				//
+
 				$this->generateMatch(1, '15:30', 1, 'C', 1+10, 3+10);
 				$this->generateMatch(1, '15:30', 2, 'C', 2+10, 4+10);
-				//
+
 				$this->generateMatch(1, '15:45', 1, 'D', 2+15, 4+15);
 				$this->generateMatch(1, '15:45', 2, 'D', 3+15, 5+15);
-				//
+
 				$this->generateMatch(1, '16:00', 1, 'F', 11+20, 12+20);
 				$this->generateMatch(1, '16:00', 1, 'F', 13+20, 14+20);
 
