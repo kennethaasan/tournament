@@ -287,8 +287,6 @@ angular.module('app.controllers', [])
         $scope.players.forEach(function(player) {
             player.team_id = $scope.selectedTeam.team_id;
 
-            console.log('player', player);
-
             Player.save(player, function() {
                 //Go back to players
                 $location.path('/spillere');
@@ -332,8 +330,11 @@ angular.module('app.controllers', [])
 
 })
 .controller('GoalNew', function($scope, $location, Goal, Match, Player) {
+    $scope.selectedMatch = new Goal();
 
-    $scope.goal = new Goal();
+    $scope.goals = [
+        new Goal()
+    ];
 
     $scope.matches = [];
     $scope.players = [];
@@ -346,18 +347,31 @@ angular.module('app.controllers', [])
         $scope.players = response.data;
     });
 
-    $scope.saveGoal = function() {
+    $scope.addGoal = function() {
+      $scope.goals.push(new Goal());
+    };
+
+    $scope.saveGoals = function() {
+        if (!$scope.selectedMatch.match_id) {
+            return $scope.errors = {
+              match_id: ['match id må fylles ut.']
+            };
+        }
+
         $scope.loading = true;
         $scope.errors = undefined;
 
-        Goal.save($scope.goal, function() {
-            //Go back to maal
-            $location.path('/maal');
-        }, function(errors) {
-            $scope.loading = false;
-            $scope.errors = errors.data.error.validation_errors;
-            console.log(errors);
+        $scope.goals.forEach(function(goal) {
+            goal.match_id = $scope.selectedMatch.match_id;
+
+            Goal.save(goal, function() {
+                //Go back to maal
+                $location.path('/maal');
+            }, function(errors) {
+                $scope.loading = false;
+                $scope.errors = errors.data.error.validation_errors;
+                console.log(errors);
+            });
         });
     };
-
 });
