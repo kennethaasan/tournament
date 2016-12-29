@@ -258,7 +258,7 @@ angular.module('app.controllers', [])
 })
 
 .controller('PlayerNewTeam', function($scope, $location, Player, Team) {
-    $scope.selectedTeam = {};
+    $scope.selectedTeam = new Player();
 
     $scope.players = [
       new Player()
@@ -271,37 +271,33 @@ angular.module('app.controllers', [])
     });
 
     $scope.addPlayer = function() {
-      console.log('addPlayer');
       $scope.players.push(new Player());
     };
 
     $scope.savePlayers = function() {
+        if (!$scope.selectedTeam.team_id) {
+            return $scope.errors = {
+              team_id: ['team id må fylles ut.']
+            };
+        }
 
         $scope.loading = true;
         $scope.errors = undefined;
 
         $scope.players.forEach(function(player) {
-            console.log(player);
-            player.team_id = $scope.selectedTeam;
-            console.log(player);
+            player.team_id = $scope.selectedTeam.team_id;
+
+            console.log('player', player);
 
             Player.save(player, function() {
-
+                //Go back to players
+                $location.path('/spillere');
             }, function(errors) {
                 $scope.loading = false;
                 $scope.errors = errors.data.error.validation_errors;
                 console.log(errors);
             });
         });
-
-        // Player.save($scope.player, function() {
-        //     //Go back to players
-        //     $location.path('/spillere');
-        // }, function(errors) {
-        //     $scope.loading = false;
-        //     $scope.errors = errors.data.error.validation_errors;
-        //     console.log(errors);
-        // });
     };
 })
 

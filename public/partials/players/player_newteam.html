@@ -8,7 +8,7 @@
             <div class="form-group">
                 <label for="player" class="col-sm-2 control-label">Lag</label>
                 <div class="col-sm-10">
-                    <ui-select ng-model="selectedTeam" id="team">
+                    <ui-select ng-model="selectedTeam.team_id" id="selectedTeam">
                         <ui-select-match placeholder="Velg et lag...">{{$select.selected.name}}</ui-select-match>
                         <ui-select-choices repeat="team.id as team in teams | filter: $select.search">
                             <span ng-bind-html="team.name | highlight: $select.search"></span>
@@ -23,14 +23,27 @@
                 <div class="form-group">
                     <label for="name" class="col-sm-2 control-label">Navn</label>
                     <div class="col-sm-10">
-                        <input type="text" ng-model="player.name" class="form-control" id="name" placeholder="Navn"/>
+                        <input
+                          type="text"
+                          ng-model="player.name"
+                          class="form-control"
+                          id="name"
+                          placeholder="Navn"
+                          required
+                        />
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="number" class="col-sm-2 control-label">Nummer</label>
                     <div class="col-sm-10">
-                        <input type="text" ng-model="player.number" class="form-control" id="number" placeholder="Spillerens nummer"/>
+                        <input
+                          type="text"
+                          ng-model="player.number"
+                          class="form-control"
+                          id="number"
+                          placeholder="Spillerens nummer"
+                        />
                     </div>
                 </div>
 
@@ -39,7 +52,13 @@
                     <div class="col-sm-10">
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" ng-model="player.paid" class="" id="paid "/>Betalt
+                                <input
+                                  type="checkbox"
+                                  ng-model="player.paid"
+                                  class=""
+                                  id="paid"
+                                />
+                                Betalt
                             </label>
                         </div>
                     </div>
@@ -51,11 +70,19 @@
 
             <div class="form-group">
                 <div class="col-sm-offset-2 col-sm-10">
-                    <input type="button" class="btn btn-primary" value="Ny spiller" ng-click="addPlayer()" />
-                    <input type="submit" class="btn btn-primary" value="Lagre lag"/>
+                    <input
+                      type="button"
+                      class="btn btn-primary"
+                      value="Ny spiller"
+                      ng-click="addPlayer()"
+                    />
+                    <input
+                      type="submit"
+                      class="btn btn-primary"
+                      value="Lagre lag"
+                    />
                 </div>
             </div>
-
         </form>
     </div>
 </div>
