@@ -284,12 +284,14 @@ angular.module('app.controllers', [])
         $scope.loading = true;
         $scope.errors = undefined;
 
-        $scope.players.forEach(function(player) {
+        $scope.players.forEach(function(player, index) {
             player.team_id = $scope.selectedTeam.team_id;
 
             Player.save(player, function() {
-                //Go back to players
-                $location.path('/spillere');
+                if (index === ($scope.players.length - 1)) {
+                    //Go back to players
+                    $location.path('/spillere');
+                }
             }, function(errors) {
                 $scope.loading = false;
                 $scope.errors = errors.data.error.validation_errors;
@@ -361,16 +363,18 @@ angular.module('app.controllers', [])
         $scope.loading = true;
         $scope.errors = undefined;
 
-        $scope.goals.forEach(function(goal) {
+        $scope.goals.forEach(function(goal, index) {
             goal.match_id = $scope.selectedMatch.match_id;
 
             Goal.save(goal, function() {
-                //Go back to maal
-                $location.path('/maal');
+                if (index === ($scope.goals.length - 1)) {
+                    //Go back to maal
+                    $location.path('/maal');
+                }
             }, function(errors) {
+                console.error('errors', errors);
                 $scope.loading = false;
                 $scope.errors = errors.data.error.validation_errors;
-                console.log(errors);
             });
         });
     };
