@@ -30,7 +30,7 @@
 
 	    	<div class="row" ng-hide="loading">
 
-			    <div class="col-md-5">
+			    <div class="col-md-6">
 			    	<div class="panel panel-default">
 					  	<div class="panel-heading">KAMPOPPSETT</div>
 
@@ -61,7 +61,7 @@
 					</div>
 			    </div>
 
-			    <div class="col-md-4">
+			    <div class="col-md-6">
 
 			    	<div class="panel panel-default" ng-repeat="(key, table) in tables" ng-if="table.length > 0">
 					  	<div class="panel-heading">TABELL - GRUPPE <% key %></div>
@@ -97,7 +97,7 @@
 					</div>
 
 			    </div>
-			    <div class="col-md-3">
+			    <!--<div class="col-md-3">
 
 			    	<div class="panel panel-default">
 					  	<div class="panel-heading">TOPPSCORER</div>
@@ -117,7 +117,7 @@
 					    	</tbody>
 					  	</table>
 						</div>
-			    </div>
+			    </div>-->
 
 			</div>
 
