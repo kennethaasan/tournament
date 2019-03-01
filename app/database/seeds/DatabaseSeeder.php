@@ -74,8 +74,14 @@ class TournamentTableSeeder extends Seeder {
         DB::table('tournaments')->delete();
 
         Tournament::create(array(
-            'name' => 'Vanvikan Indoor 2017',
-            'date' => '2017-01-21',
+            'name' => 'Vanvikan Indoor 2019 Menn',
+            'date' => '2019-01-19',
+            'location' => 'Vanvikanhallen'
+        ));
+
+        Tournament::create(array(
+            'name' => 'Vanvikan Indoor 2019 Kvinner',
+            'date' => '2019-01-20',
             'location' => 'Vanvikanhallen'
         ));
 
@@ -108,26 +114,43 @@ class TeamsTableSeeder extends Seeder {
         Team::create(array('name' => 'Vinner S1')); //13
         Team::create(array('name' => 'Vinner S2')); //14
 
+        Team::create(array('name' => 'Beste tredjeplass')); // 15
+        Team::create(array('name' => 'Nest beste tredjeplass')); // 16
+        Team::create(array('name' => 'Beste andreplass')); // 17
 
-        Team::create(array('name' => 'Åfjord', 'group_code' => 'A')); // 1
-				Team::create(array('name' => 'Ørland 1', 'group_code' => 'A')); // 2
-				Team::create(array('name' => 'Leik 1', 'group_code' => 'A')); // 3
-				Team::create(array('name' => 'Rissa jr', 'group_code' => 'A')); // 4
 
-				Team::create(array('name' => 'Bjørgan', 'group_code' => 'B')); // 5
-				Team::create(array('name' => 'Vanvik 1', 'group_code' => 'B')); // 6
-				Team::create(array('name' => 'Jøssund', 'group_code' => 'B')); // 7
-				Team::create(array('name' => 'Leik 2', 'group_code' => 'B')); // 8
+        Team::create(array('name' => 'Støren', 'group_code' => 'A')); // 1
+        Team::create(array('name' => 'Neset FK', 'group_code' => 'A')); // 2
+        Team::create(array('name' => 'FK Fosen 1', 'group_code' => 'A')); // 3
+        Team::create(array('name' => 'Vanvik 2', 'group_code' => 'A')); // 4
 
-				Team::create(array('name' => 'Byåsen TF 1', 'group_code' => 'C')); // 9
-				Team::create(array('name' => 'Rissa', 'group_code' => 'C')); // 10
-				Team::create(array('name' => 'FK Fosen', 'group_code' => 'C')); // 11
-				Team::create(array('name' => 'Vanvik 2', 'group_code' => 'C')); // 12
+        Team::create(array('name' => 'Vanvik 1', 'group_code' => 'B')); // 5
+        Team::create(array('name' => 'Flatås', 'group_code' => 'B')); // 6
+        Team::create(array('name' => 'Rissa IL', 'group_code' => 'B')); // 7
+        Team::create(array('name' => 'FK Fosen 2', 'group_code' => 'B')); // 8
 
-        Team::create(array('name' => 'Neset', 'group_code' => 'C')); // 13
-				Team::create(array('name' => 'Byåsen TF 2', 'group_code' => 'C')); // 14
-				Team::create(array('name' => 'Ørland 2', 'group_code' => 'C')); // 15
-				Team::create(array('name' => 'Leksvik', 'group_code' => 'C')); // 16
+        Team::create(array('name' => 'Ørland BK', 'group_code' => 'C')); // 9
+        Team::create(array('name' => 'Orkanger', 'group_code' => 'C')); // 10
+        Team::create(array('name' => 'Leik', 'group_code' => 'C')); // 11
+        Team::create(array('name' => 'FK Fosen 3', 'group_code' => 'C')); // 12
+
+
+        Team::create(array('name' => 'Nardo FK 1', 'group_code' => 'A')); 
+        Team::create(array('name' => 'Melhus IL', 'group_code' => 'A')); 
+        Team::create(array('name' => 'Ørland', 'group_code' => 'A')); 
+        Team::create(array('name' => 'Strindheim IL 3', 'group_code' => 'A')); 
+        Team::create(array('name' => 'Tiller IL 2', 'group_code' => 'A')); 
+
+        Team::create(array('name' => 'Strindheim IL 1', 'group_code' => 'B')); 
+        Team::create(array('name' => 'Sverresborg', 'group_code' => 'B')); 
+        Team::create(array('name' => 'Rissa IL', 'group_code' => 'B')); 
+        Team::create(array('name' => 'Tiller IL 1', 'group_code' => 'B')); 
+
+        Team::create(array('name' => 'Ranheim', 'group_code' => 'C')); 
+        Team::create(array('name' => 'Flatås IL', 'group_code' => 'C')); 
+        Team::create(array('name' => 'Strindheim IL 2', 'group_code' => 'C')); 
+        Team::create(array('name' => 'Nardo FK 2', 'group_code' => 'C')); 
+
     }
 }
 
@@ -158,57 +181,110 @@ class MatchesTableSeeder extends Seeder {
         DB::table('matches')->delete();
 
         $tournament_id = 1;
-        $team_id = 15;
+        $team_id = 17;
 
-        $this->generateMatch($tournament_id, '09:30', 1, 'A', $team_id, $team_id + 2);
-        $this->generateMatch($tournament_id, '09:50', 1, 'A', $team_id + 1, $team_id + 3);
+        $this->generateMatch($tournament_id, '09:00', 1, 'A', $team_id + 3, $team_id + 4);
+        $this->generateMatch($tournament_id, '09:20', 1, 'A', $team_id + 1, $team_id + 2);
 
-        $this->generateMatch($tournament_id, '10:10', 1, 'B', $team_id + 4, $team_id + 6);
-        $this->generateMatch($tournament_id, '10:30', 1, 'B', $team_id + 5, $team_id + 7);
+        $this->generateMatch($tournament_id, '09:40', 1, 'B', $team_id + 5, $team_id + 6);
+        $this->generateMatch($tournament_id, '10:00', 1, 'B', $team_id + 7, $team_id + 8);
 
-        $this->generateMatch($tournament_id, '10:50', 1, 'C', $team_id + 8, $team_id + 10);
-        $this->generateMatch($tournament_id, '11:10', 1, 'C', $team_id + 9, $team_id + 11);
-
-        $this->generateMatch($tournament_id, '11:30', 1, 'D', $team_id + 12, $team_id + 14);
-        $this->generateMatch($tournament_id, '11:50', 1, 'D', $team_id + 13, $team_id + 15);
+        $this->generateMatch($tournament_id, '10:20', 1, 'C', $team_id + 9, $team_id + 12);
+        $this->generateMatch($tournament_id, '10:40', 1, 'C', $team_id + 10, $team_id + 11);
 
 
-        $this->generateMatch($tournament_id, '12:10', 1, 'A', $team_id, $team_id + 1);
-        $this->generateMatch($tournament_id, '12:30', 1, 'A', $team_id + 3, $team_id + 2);
+        $this->generateMatch($tournament_id, '11:00', 1, 'A', $team_id + 1, $team_id + 4);
+        $this->generateMatch($tournament_id, '11:20', 1, 'A', $team_id + 2, $team_id + 3);
 
-        $this->generateMatch($tournament_id, '12:50', 1, 'B', $team_id + 4, $team_id + 1 + 4);
-        $this->generateMatch($tournament_id, '13:10', 1, 'B', $team_id + 3 + 4, $team_id + 2 + 4);
+        $this->generateMatch($tournament_id, '11:40', 1, 'B', $team_id + 5, $team_id + 8);
+        $this->generateMatch($tournament_id, '12:00', 1, 'B', $team_id + 6, $team_id + 7);
 
-        $this->generateMatch($tournament_id, '13:30', 1, 'C', $team_id + 8, $team_id + 1 + 8);
-        $this->generateMatch($tournament_id, '13:50', 1, 'C', $team_id + 3 + 8, $team_id + 2 + 8);
-
-        $this->generateMatch($tournament_id, '14:10', 1, 'D', $team_id + 12, $team_id + 1 + 12);
-        $this->generateMatch($tournament_id, '14:30', 1, 'D', $team_id + 3 + 12, $team_id + 2 + 12);
+        $this->generateMatch($tournament_id, '12:20', 1, 'C', $team_id + 9, $team_id + 11);
+        $this->generateMatch($tournament_id, '12:40', 1, 'C', $team_id + 10, $team_id + 12);
 
 
-        $this->generateMatch($tournament_id, '14:50', 1, 'A', $team_id + 3, $team_id);
-        $this->generateMatch($tournament_id, '15:10', 1, 'A', $team_id + 2, $team_id + 1);
+        $this->generateMatch($tournament_id, '13:00', 1, 'A', $team_id + 1, $team_id + 3);
+        $this->generateMatch($tournament_id, '13:20', 1, 'A', $team_id + 2, $team_id + 4);
 
-        $this->generateMatch($tournament_id, '15:30', 1, 'B', $team_id + 3 + 4, $team_id + 4);
-        $this->generateMatch($tournament_id, '15:50', 1, 'B', $team_id + 2 + 4, $team_id + 1 + 4);
+        $this->generateMatch($tournament_id, '13:40', 1, 'B', $team_id + 5, $team_id + 7);
+        $this->generateMatch($tournament_id, '14:00', 1, 'B', $team_id + 6, $team_id + 8);
 
-        $this->generateMatch($tournament_id, '16:10', 1, 'C', $team_id + 3 + 8, $team_id + 8);
-        $this->generateMatch($tournament_id, '16:30', 1, 'C', $team_id + 2 + 8, $team_id + 1 + 8);
-
-        $this->generateMatch($tournament_id, '16:50', 1, 'D', $team_id + 3 + 12, $team_id + 12);
-        $this->generateMatch($tournament_id, '17:10', 1, 'D', $team_id + 2 + 12, $team_id + 1 + 12);
+        $this->generateMatch($tournament_id, '14:20', 1, 'C', $team_id + 9, $team_id + 10);
+        $this->generateMatch($tournament_id, '14:40', 1, 'C', $team_id + 11, $team_id + 12);
 
 
-        $this->generateMatch($tournament_id, '17:30', 1, 'Q1', 1, 4);
-        $this->generateMatch($tournament_id, '17:50', 1, 'Q2', 5, 8);
+        $this->generateMatch($tournament_id, '15:00', 1, 'Q1', 1, 6);
+        $this->generateMatch($tournament_id, '15:20', 1, 'Q2', 3, 16);
 
-        $this->generateMatch($tournament_id, '18:10', 1, 'Q3', 3, 2);
-        $this->generateMatch($tournament_id, '18:30', 1, 'Q4', 7, 6);
+        $this->generateMatch($tournament_id, '15:40', 1, 'Q3', 5, 15);
+        $this->generateMatch($tournament_id, '16:00', 1, 'Q4', 2, 4);
 
-        $this->generateMatch($tournament_id, '18:50', 1, 'S1', 9, 10);
-        $this->generateMatch($tournament_id, '19:10', 1, 'S2', 11, 12);
+        $this->generateMatch($tournament_id, '16:20', 1, 'S1', 9, 10);
+        $this->generateMatch($tournament_id, '16:40', 1, 'S2', 11, 12);
 
-        $this->generateMatch($tournament_id, '19:45', 1, 'F', 13, 14);
+        $this->generateMatch($tournament_id, '17:10', 1, 'F', 13, 14);
+
+        $tournament_id = 2;
+        $team_id = 29;
+
+        $this->generateMatch($tournament_id, '09:00', 1, 'A', $team_id + 1, $team_id + 3);
+        $this->generateMatch($tournament_id, '09:20', 1, 'A', $team_id + 2, $team_id + 4);
+
+        $this->generateMatch($tournament_id, '09:40', 1, 'B', $team_id + 6, $team_id + 7);
+        $this->generateMatch($tournament_id, '10:00', 1, 'B', $team_id + 8, $team_id + 9);
+
+        $this->generateMatch($tournament_id, '10:20', 1, 'C', $team_id + 10, $team_id + 11);
+        $this->generateMatch($tournament_id, '10:40', 1, 'C', $team_id + 12, $team_id + 13);
+
+
+        $this->generateMatch($tournament_id, '11:00', 1, 'A', $team_id + 1, $team_id + 2);
+        $this->generateMatch($tournament_id, '11:20', 1, 'A', $team_id + 3, $team_id + 5);
+
+        $this->generateMatch($tournament_id, '11:40', 1, 'C', $team_id + 10, $team_id + 12);
+        $this->generateMatch($tournament_id, '12:00', 1, 'C', $team_id + 11, $team_id + 13);
+
+        $this->generateMatch($tournament_id, '12:20', 1, 'B', $team_id + 6, $team_id + 9);
+        $this->generateMatch($tournament_id, '12:40', 1, 'B', $team_id + 7, $team_id + 8);
+
+
+        $this->generateMatch($tournament_id, '13:00', 1, 'A', $team_id + 1, $team_id + 4);
+        $this->generateMatch($tournament_id, '13:20', 1, 'A', $team_id + 2, $team_id + 5);
+
+        $this->generateMatch($tournament_id, '13:40', 1, 'C', $team_id + 10, $team_id + 13);
+        $this->generateMatch($tournament_id, '14:00', 1, 'C', $team_id + 11, $team_id + 12);
+
+        $this->generateMatch($tournament_id, '14:20', 1, 'A', $team_id + 1, $team_id + 5);
+        $this->generateMatch($tournament_id, '14:40', 1, 'A', $team_id + 3, $team_id + 4);
+
+
+        
+        $this->generateMatch($tournament_id, '15:00', 1, 'B', $team_id + 6, $team_id + 8);
+        $this->generateMatch($tournament_id, '15:20', 1, 'B', $team_id + 7, $team_id + 9);
+
+        $this->generateMatch($tournament_id, '15:40', 1, 'A', $team_id + 2, $team_id + 3);
+        $this->generateMatch($tournament_id, '16:00', 1, 'A', $team_id + 4, $team_id + 5);
+
+
+
+        $this->generateMatch($tournament_id, '16:20', 1, 'S1', 5, 17);
+        $this->generateMatch($tournament_id, '16:40', 1, 'S2', 1, 3);
+
+        $this->generateMatch($tournament_id, '17:10', 1, 'F', 13, 14);
+
+
+
+
+
+        // $this->generateMatch($tournament_id, '15:00', 1, 'Q1', 1, 4);
+        // $this->generateMatch($tournament_id, '15:20', 1, 'Q2', 5, 8);
+
+        // $this->generateMatch($tournament_id, '15:40', 1, 'Q3', 3, 2);
+        // $this->generateMatch($tournament_id, '16:00', 1, 'Q4', 7, 6);
+
+        // $this->generateMatch($tournament_id, '16:20', 1, 'S1', 9, 10);
+        // $this->generateMatch($tournament_id, '16:40', 1, 'S2', 11, 12);
+
+        // $this->generateMatch($tournament_id, '17:10', 1, 'F', 13, 14);
 
     }
 
