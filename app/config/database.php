@@ -55,7 +55,7 @@ return array(
 		'mysql' => array(
 			'driver'    => 'mysql',
 			'host'      => 'mysql',
-			'database'  => 'turnering_julecup2018',
+			'database'  => 'default',
 			'username'  => 'root',
 			'password'  => 'root',
 			'charset'   => 'utf8',

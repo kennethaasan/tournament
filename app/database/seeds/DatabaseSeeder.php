@@ -64,22 +64,22 @@ class TournamentTableSeeder extends Seeder {
         DB::table('tournaments')->delete();
 
         Tournament::create(array(
-            'name' => 'Vanvikan Indoor G14',
-            'date' => '2020-02-29',
+            'name' => 'Vanvikan Julecup 2022',
+            'date' => '2022-12-30',
             'location' => 'Vanvikanhallen'
         ));
 
-        Tournament::create(array(
-            'name' => 'Vanvikan Indoor G16',
-            'date' => '2020-02-29',
-            'location' => 'Vanvikanhallen'
-        ));
+        // Tournament::create(array(
+        //     'name' => 'Vanvikan Indoor G16',
+        //     'date' => '2020-02-29',
+        //     'location' => 'Vanvikanhallen'
+        // ));
 
-        Tournament::create(array(
-            'name' => 'Vanvikan Indoor J17',
-            'date' => '2020-03-01',
-            'location' => 'Vanvikanhallen'
-        ));
+        // Tournament::create(array(
+        //     'name' => 'Vanvikan Indoor J17',
+        //     'date' => '2020-03-01',
+        //     'location' => 'Vanvikanhallen'
+        // ));
 
     }
 }
@@ -90,98 +90,104 @@ class TeamsTableSeeder extends Seeder {
     {
         DB::table('teams')->delete();
 
-        Team::create(array('name' => 'Vinner gruppe A')); //1
-        Team::create(array('name' => '2. plass gruppe A')); //2
+        // Team::create(array('name' => 'Vinner gruppe A')); //1
+        // Team::create(array('name' => '2. plass gruppe A')); //2
 
-        Team::create(array('name' => 'Vinner gruppe B')); //3
-        Team::create(array('name' => '2. plass gruppe B')); //4
+        // Team::create(array('name' => 'Vinner gruppe B')); //3
+        // Team::create(array('name' => '2. plass gruppe B')); //4
 
-        Team::create(array('name' => 'Vinner gruppe C')); //5
-        Team::create(array('name' => '2. plass gruppe C')); //6
+        // Team::create(array('name' => 'Vinner gruppe C')); //5
+        // Team::create(array('name' => '2. plass gruppe C')); //6
 
-        Team::create(array('name' => 'Vinner gruppe D')); //7
-        Team::create(array('name' => '2. plass gruppe D')); //8
+        // Team::create(array('name' => 'Vinner gruppe D')); //7
+        // Team::create(array('name' => '2. plass gruppe D')); //8
 
-        Team::create(array('name' => 'Vinner Q1')); //9
-        Team::create(array('name' => 'Vinner Q2')); //10
-        Team::create(array('name' => 'Vinner Q3')); //11
-        Team::create(array('name' => 'Vinner Q4')); //12
+        // Team::create(array('name' => 'Vinner Q1')); //9
+        // Team::create(array('name' => 'Vinner Q2')); //10
+        // Team::create(array('name' => 'Vinner Q3')); //11
+        // Team::create(array('name' => 'Vinner Q4')); //12
 
-        Team::create(array('name' => 'Vinner S1')); //13
-        Team::create(array('name' => 'Vinner S2')); //14
+        // Team::create(array('name' => 'Vinner S1')); //13
+        // Team::create(array('name' => 'Vinner S2')); //14
 
-        Team::create(array('name' => 'Tapende lag S1')); //15
-        Team::create(array('name' => 'Tapende lag S2')); //16
+        // Team::create(array('name' => 'Tapende lag S1')); //15
+        // Team::create(array('name' => 'Tapende lag S2')); //16
 
-        Team::create(array('name' => '3. plass gruppe A')); //17
-        Team::create(array('name' => '4. plass gruppe A')); //18
+        // Team::create(array('name' => '3. plass gruppe A')); //17
+        // Team::create(array('name' => '4. plass gruppe A')); //18
 
-        Team::create(array('name' => '3. plass gruppe B')); //19
-        Team::create(array('name' => '4. plass gruppe B')); //20
+        // Team::create(array('name' => '3. plass gruppe B')); //19
+        // Team::create(array('name' => '4. plass gruppe B')); //20
 
-        Team::create(array('name' => 'Beste tredjeplass')); //21
-        Team::create(array('name' => 'Nest beste tredjeplass')); //22
-
-
-
-        Team::create(array('name' => 'Astor FK 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Leksvik IL 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'SPKL Freidig 2', 'group_code' => 'A'));
-        Team::create(array('name' => 'Malvik IL 2', 'group_code' => 'A'));
-        Team::create(array('name' => 'Astor FK 4', 'group_code' => 'A'));
-
-        Team::create(array('name' => 'Stadsbygd/Vanvik 1', 'group_code' => 'B'));
-        Team::create(array('name' => 'Astor FK 2', 'group_code' => 'B'));
-        Team::create(array('name' => 'Leksvik IL 2', 'group_code' => 'B'));
-        Team::create(array('name' => 'SPKL Freidig 3', 'group_code' => 'B'));
-
-        Team::create(array('name' => 'Malvik IL 1', 'group_code' => 'C'));
-        Team::create(array('name' => 'SPKL Freidig 1', 'group_code' => 'C'));
-        Team::create(array('name' => 'Astor FK 3', 'group_code' => 'C'));
-        Team::create(array('name' => 'Stadsbygd/Vanvik 2', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Beste tredjeplass')); //21
+        // Team::create(array('name' => 'Nest beste tredjeplass')); //22
 
 
 
-        Team::create(array('name' => 'Nardo FK 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Leksvik IL 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Flatås IL 2', 'group_code' => 'A'));
-        Team::create(array('name' => 'Malvik IL 2', 'group_code' => 'A'));
-        Team::create(array('name' => 'Vanvik 3', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Astor FK 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Leksvik IL 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'SPKL Freidig 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Malvik IL 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Astor FK 4', 'group_code' => 'A'));
 
-        Team::create(array('name' => 'Vanvik 1', 'group_code' => 'B'));
-        Team::create(array('name' => 'FK Fosen', 'group_code' => 'B'));
-        Team::create(array('name' => 'Skaun BK 2', 'group_code' => 'B'));
-        Team::create(array('name' => 'Nardo FK 3', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Stadsbygd/Vanvik 1', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Astor FK 2', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Leksvik IL 2', 'group_code' => 'B'));
+        // Team::create(array('name' => 'SPKL Freidig 3', 'group_code' => 'B'));
+        // Team::create(array('name' => 'SPKL Freidig 3', 'group_code' => 'B'));
 
-        Team::create(array('name' => 'Skaun BK 1', 'group_code' => 'C'));
-        Team::create(array('name' => 'Flatås IL 1', 'group_code' => 'C'));
-        Team::create(array('name' => 'Nardo FK 2', 'group_code' => 'C'));
-        Team::create(array('name' => 'Leksvik IL 2', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Malvik IL 1', 'group_code' => 'C'));
+        // Team::create(array('name' => 'SPKL Freidig 1', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Astor FK 3', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Stadsbygd/Vanvik 2', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Stadsbygd/Vanvik 2', 'group_code' => 'C'));
 
-        Team::create(array('name' => 'Malvik IL 1', 'group_code' => 'D'));
-        Team::create(array('name' => 'Buvik IL', 'group_code' => 'D'));
-        Team::create(array('name' => 'Vanvik 2', 'group_code' => 'D'));
-        Team::create(array('name' => 'Nardo FK 4', 'group_code' => 'D'));
+        $a = array("Stadsbygd", "Rissa");
+
+        foreach ($a as &$teamName) {
+            Team::create(array('name' => $teamName, 'group_code' => 'A'));
+        }
+
+        // Team::create(array('name' => 'Nardo FK 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Leksvik IL 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Flatås IL 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Malvik IL 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Vanvik 3', 'group_code' => 'A'));
+
+        // Team::create(array('name' => 'Vanvik 1', 'group_code' => 'B'));
+        // Team::create(array('name' => 'FK Fosen', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Skaun BK 2', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Nardo FK 3', 'group_code' => 'B'));
+
+        // Team::create(array('name' => 'Skaun BK 1', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Flatås IL 1', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Nardo FK 2', 'group_code' => 'C'));
+        // Team::create(array('name' => 'Leksvik IL 2', 'group_code' => 'C'));
+
+        // Team::create(array('name' => 'Malvik IL 1', 'group_code' => 'D'));
+        // Team::create(array('name' => 'Buvik IL', 'group_code' => 'D'));
+        // Team::create(array('name' => 'Vanvik 2', 'group_code' => 'D'));
+        // Team::create(array('name' => 'Nardo FK 4', 'group_code' => 'D'));
 
 
 
-        Team::create(array('name' => 'Gimse IL 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Gimse IL 2', 'group_code' => 'A'));
-        Team::create(array('name' => 'Stadsbygd IL', 'group_code' => 'A'));
-        Team::create(array('name' => 'Åfjord 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Åfjord 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Gimse IL 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Gimse IL 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Stadsbygd IL', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Åfjord 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Åfjord 2', 'group_code' => 'A'));
 
 
 
-        Team::create(array('name' => 'Stadsbygd IL 1', 'group_code' => 'A'));
-        Team::create(array('name' => 'Skaun BK', 'group_code' => 'A'));
-        Team::create(array('name' => 'SPKL Freidig', 'group_code' => 'A'));
-        Team::create(array('name' => 'Kattem IL 2', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Stadsbygd IL 1', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Skaun BK', 'group_code' => 'A'));
+        // Team::create(array('name' => 'SPKL Freidig', 'group_code' => 'A'));
+        // Team::create(array('name' => 'Kattem IL 2', 'group_code' => 'A'));
 
-        Team::create(array('name' => 'Kattem IL 1', 'group_code' => 'B'));
-        Team::create(array('name' => 'Trygg/Lade', 'group_code' => 'B'));
-        Team::create(array('name' => 'Stadsbygd IL 2', 'group_code' => 'B'));
-        Team::create(array('name' => 'Kattem IL 3', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Kattem IL 1', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Trygg/Lade', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Stadsbygd IL 2', 'group_code' => 'B'));
+        // Team::create(array('name' => 'Kattem IL 3', 'group_code' => 'B'));
     }
 }
 
