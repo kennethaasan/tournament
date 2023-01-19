@@ -92,7 +92,7 @@ class TeamsTableSeeder extends Seeder {
         Team::create(array('name' => 'Leksvik Oldboys', 'group_code' => 'A'));
         Team::create(array('name' => 'Nødlandslaget', 'group_code' => 'A'));
         Team::create(array('name' => 'Lajet', 'group_code' => 'A'));
-        Team::create(array('name' => 'Fitteplogen', 'group_code' => 'A'));
+        Team::create(array('name' => 'Marvin å gjengen', 'group_code' => 'A'));
 
         Team::create(array('name' => 'Strømstøttepasning', 'group_code' => 'B'));
         Team::create(array('name' => 'Team Ness&Northug', 'group_code' => 'B'));
