@@ -74,10 +74,16 @@ class TournamentTableSeeder extends Seeder {
         DB::table('tournaments')->delete();
 
         Tournament::create(array(
-            'name' => 'Vanvikan Julecup 2022',
-            'date' => '2022-12-30',
+            'name' => 'Vanvikan Indoor 2023 Herrer',
+            'date' => '2023-01-21',
             'location' => 'Vanvikanhallen'
         ));
+
+        Tournament::create(array(
+          'name' => 'Vanvikan Indoor 2023 Damer',
+          'date' => '2023-01-22',
+          'location' => 'Vanvikanhallen'
+      ));
 
     }
 }
@@ -88,33 +94,49 @@ class TeamsTableSeeder extends Seeder {
     {
         DB::table('teams')->delete();
 
-        Team::create(array('name' => 'Kjeks og Ballmiss', 'group_code' => 'A'));
-        Team::create(array('name' => 'Leksvik Oldboys', 'group_code' => 'A'));
-        Team::create(array('name' => 'Nødlandslaget', 'group_code' => 'A'));
-        Team::create(array('name' => 'Lajet', 'group_code' => 'A'));
-        Team::create(array('name' => 'Marvin å gjengen', 'group_code' => 'A'));
+        Team::create(array('name' => 'Vanvik IL 1', 'group_code' => 'A'));
+        Team::create(array('name' => 'UIF Bjørgan', 'group_code' => 'A'));
+        Team::create(array('name' => 'Lensvik IL 1', 'group_code' => 'A'));
+        Team::create(array('name' => 'Ørland BK 2', 'group_code' => 'A'));
+        Team::create(array('name' => 'Rissa IL 2', 'group_code' => 'A')); // 5
 
-        Team::create(array('name' => 'Strømstøttepasning', 'group_code' => 'B'));
-        Team::create(array('name' => 'Team Ness&Northug', 'group_code' => 'B'));
-        Team::create(array('name' => 'Hil/Fevåg United', 'group_code' => 'B'));
-        Team::create(array('name' => 'BPKS FC', 'group_code' => 'B'));
-        Team::create(array('name' => 'Lord FC', 'group_code' => 'B'));
+        Team::create(array('name' => 'Ørland BK 1', 'group_code' => 'B'));
+        Team::create(array('name' => 'Malvik IL', 'group_code' => 'B'));
+        Team::create(array('name' => 'Stjørna IL', 'group_code' => 'B'));
+        Team::create(array('name' => 'Neset FK 2', 'group_code' => 'B'));
+        Team::create(array('name' => 'FK Fosen 2', 'group_code' => 'B')); // 10
 
-        Team::create(array('name' => 'Posten09', 'group_code' => 'C'));
-        Team::create(array('name' => 'Jerv', 'group_code' => 'C'));
-        Team::create(array('name' => 'SGG', 'group_code' => 'C'));
-        Team::create(array('name' => 'Unge Legender', 'group_code' => 'C'));
-        Team::create(array('name' => 'Team Elpro', 'group_code' => 'C'));
+        Team::create(array('name' => 'Neset FK 1', 'group_code' => 'C'));
+        Team::create(array('name' => 'FK Fosen 1', 'group_code' => 'C'));
+        Team::create(array('name' => 'Rissa IL 1', 'group_code' => 'C'));
+        Team::create(array('name' => 'Vanvik IL 2', 'group_code' => 'C'));
+        Team::create(array('name' => 'Lensvik IL 2', 'group_code' => 'C')); // 15
 
-        Team::create(array('name' => 'Kråkvåg IL', 'group_code' => 'D'));
-        Team::create(array('name' => 'Inter ya nan', 'group_code' => 'D'));
-        Team::create(array('name' => 'Hammarstrand Rodelklubb', 'group_code' => 'D'));
-        Team::create(array('name' => 'Argentequilla', 'group_code' => 'D'));
-        Team::create(array('name' => 'Ølsøykrysset FK', 'group_code' => 'D'));
+        Team::create(array('name' => 'Vinner A', 'group_code' => 'C')); // 16
+        Team::create(array('name' => 'Vinner B', 'group_code' => 'C')); // 17
+        Team::create(array('name' => 'Vinner C', 'group_code' => 'C')); // 18
+        Team::create(array('name' => 'Beste 2. plass', 'group_code' => 'C')); // 19
 
-        Team::create(array('name' => 'Henta fra over alt', 'group_code' => 'W'));
-				Team::create(array('name' => 'Nederlaget', 'group_code' => 'W'));
-        Team::create(array('name' => 'Beir ennj Nødlandslaget', 'group_code' => 'W'));
+
+        Team::create(array('name' => 'Melhus/Gimse 1', 'group_code' => 'A')); // 20
+        Team::create(array('name' => 'Charlottenlund SK', 'group_code' => 'A'));
+        Team::create(array('name' => 'Stadsbygd IL 1', 'group_code' => 'A'));
+        Team::create(array('name' => 'Levanger FK 2', 'group_code' => 'A'));
+        Team::create(array('name' => 'KIL/Hemne 2', 'group_code' => 'A'));
+
+        Team::create(array('name' => 'Nardo FK 1', 'group_code' => 'B')); // 25
+        Team::create(array('name' => 'Sverresborg Fotball', 'group_code' => 'B'));
+        Team::create(array('name' => 'Sokna IL', 'group_code' => 'B'));
+        Team::create(array('name' => 'FK Fosen', 'group_code' => 'B'));
+        Team::create(array('name' => 'FK Fosen 2', 'group_code' => 'B'));
+
+        Team::create(array('name' => 'KIL/Hemne 1', 'group_code' => 'C')); // 30
+        Team::create(array('name' => 'Levanger FK 1', 'group_code' => 'C'));
+        Team::create(array('name' => 'Nardo FK 2', 'group_code' => 'C'));
+        Team::create(array('name' => 'Stadsbygd IL 2', 'group_code' => 'C')); // 33
+
+        Team::create(array('name' => 'S1', 'group_code' => 'C')); // 34
+        Team::create(array('name' => 'S2', 'group_code' => 'C')); // 35
     }
 }
 
@@ -142,200 +164,114 @@ class MatchesTableSeeder extends Seeder {
 
     public function run() {
 
+
         DB::table('matches')->delete();
 
-				// 1
-				// 2-3
-				// 4-5
+				$this->generateMatch(1, '09:00', 1, 'B', 6, 8);
+				$this->generateMatch(1, '09:20', 1, 'B', 7, 10);
 
-				// 2
-				// 1-5
-				// 3-4
+				$this->generateMatch(1, '09:40', 1, 'A', 1, 5);
+				$this->generateMatch(1, '10:00', 1, 'A', 2, 4);
 
-				// 3
-				// 1-4
-				// 2-5
-
-				// 4
-				// 1-2
-				// 3-5
-
-				// 5
-				// 1-3
-				// 2-4
-
-				$this->generateMatch(1, '10:00', 1, 'A', 1, 4);
-				$this->generateMatch(1, '10:00', 2, 'A', 2, 5);
-
-				$this->generateMatch(1, '10:15', 1, 'B', 1+5, 4+5);
-        $this->generateMatch(1, '10:15', 2, 'B', 2+5, 5+5);
-
-				$this->generateMatch(1, '10:30', 1, 'C', 2+10, 3+10);
-        $this->generateMatch(1, '10:30', 2, 'C', 4+10, 5+10);
-
-				$this->generateMatch(1, '10:45', 1, 'D', 1+15, 4+15);
-        $this->generateMatch(1, '10:45', 2, 'D', 2+15, 5+15);
+				$this->generateMatch(1, '10:20', 1, 'C', 12, 13);
+				$this->generateMatch(1, '10:40', 1, 'C', 11, 14);
 
 
-				$this->generateMatch(1, '11:00', 1, 'A', 1, 3);
-				$this->generateMatch(1, '11:00', 2, 'A', 4, 5);
+        $this->generateMatch(1, '11:00', 1, 'B', 6, 10);
+				$this->generateMatch(1, '11:20', 1, 'B', 7, 9);
 
-				$this->generateMatch(1, '11:15', 1, 'B', 1+5, 3+5);
-				$this->generateMatch(1, '11:15', 2, 'B', 4+5, 5+5);
-				//
-				$this->generateMatch(1, '11:30', 1, 'C', 1+10, 5+10);
-				$this->generateMatch(1, '11:30', 2, 'C', 3+10, 4+10);
-				//
-				$this->generateMatch(1, '11:45', 1, 'D', 1+15, 3+15);
-				$this->generateMatch(1, '11:45', 2, 'D', 4+15, 5+15);
+				$this->generateMatch(1, '11:40', 1, 'A', 5, 2);
+				$this->generateMatch(1, '12:00', 1, 'A', 3, 1);
+
+				$this->generateMatch(1, '12:20', 1, 'C', 12, 11);
+				$this->generateMatch(1, '12:40', 1, 'C', 13, 15);
 
 
-        $this->generateMatch(1, '12:00', 1, 'W', 1+20, 2+20);
-				
+        $this->generateMatch(1, '13:00', 1, 'B', 9, 6);
+				$this->generateMatch(1, '13:20', 1, 'B', 8, 10);
 
-        $this->generateMatch(1, '12:15', 1, 'A', 1, 2);
-				$this->generateMatch(1, '12:15', 2, 'A', 3, 4);
-				//
-				$this->generateMatch(1, '12:30', 1, 'B', 1+5, 2+5);
-				$this->generateMatch(1, '12:30', 2, 'B', 3+5, 4+5);
-				//
-				$this->generateMatch(1, '12:45', 1, 'C', 1+10, 4+10);
-				$this->generateMatch(1, '12:45', 2, 'C', 2+10, 5+10);
-				//
-				$this->generateMatch(1, '13:00', 1, 'D', 1+15, 2+15);
-				$this->generateMatch(1, '13:00', 2, 'D', 3+15, 4+15);
+				$this->generateMatch(1, '13:40', 1, 'A', 5, 4);
+				$this->generateMatch(1, '14:00', 1, 'A', 3, 2);
 
-				
-        $this->generateMatch(1, '13:15', 1, 'W', 1+20, 3+20);
+				$this->generateMatch(1, '14:20', 1, 'C', 12, 14);
+				$this->generateMatch(1, '14:40', 1, 'C', 11, 15);
 
 
-				$this->generateMatch(1, '13:30', 1, 'A', 1, 5);
-        $this->generateMatch(1, '13:30', 2, 'A', 2, 3);
-				//
-        $this->generateMatch(1, '13:45', 1, 'B', 1+5, 5+5);
-        $this->generateMatch(1, '13:45', 2, 'B', 2+5, 3+5);
-				//
-        $this->generateMatch(1, '14:00', 1, 'C', 1+10, 2+10);
-        $this->generateMatch(1, '14:00', 2, 'C', 3+10, 5+10);
-				//
-        $this->generateMatch(1, '14:15', 1, 'D', 1+15, 5+15);
-        $this->generateMatch(1, '14:15', 2, 'D', 2+15, 3+15);
+        $this->generateMatch(1, '15:00', 1, 'B', 7, 6);
+				$this->generateMatch(1, '15:20', 1, 'B', 9, 8);
+
+				$this->generateMatch(1, '15:40', 1, 'A', 1, 4);
+				$this->generateMatch(1, '16:00', 1, 'A', 3, 5);
+
+				$this->generateMatch(1, '16:20', 1, 'C', 12, 15);
+				$this->generateMatch(1, '16:40', 1, 'C', 13, 14);
 
 
-				$this->generateMatch(1, '14:30', 1, 'W', 2+20, 3+20);
+        $this->generateMatch(1, '17:00', 1, 'B', 9, 10);
+				$this->generateMatch(1, '17:20', 1, 'B', 7, 8);
+
+				$this->generateMatch(1, '17:40', 1, 'A', 1, 2);
+				$this->generateMatch(1, '18:00', 1, 'A', 3, 4);
+
+				$this->generateMatch(1, '18:20', 1, 'C', 11, 13);
+				$this->generateMatch(1, '18:40', 1, 'C', 14, 15);
 
 
-				$this->generateMatch(1, '14:45', 1, 'A', 2, 4);
-				$this->generateMatch(1, '14:45', 2, 'A', 3, 5);
-				//
-				$this->generateMatch(1, '15:00', 1, 'B', 2+5, 4+5);
-				$this->generateMatch(1, '15:00', 2, 'B', 3+5, 5+5);
-				//
-				$this->generateMatch(1, '15:15', 1, 'C', 1+10, 3+10);
-				$this->generateMatch(1, '15:15', 2, 'C', 2+10, 4+10);
-				//
-				$this->generateMatch(1, '15:30', 1, 'D', 2+15, 4+15);
-				$this->generateMatch(1, '15:30', 2, 'D', 3+15, 5+15);
-				
+        $this->generateMatch(1, '19:00', 1, 'S1', 17, 18);
+				$this->generateMatch(1, '19:20', 1, 'S2', 16, 19);
+				$this->generateMatch(1, '20:00', 1, 'F', 34, 35);
 
-        $this->generateMatch(1, '15:45', 1, 'W', 1+20, 2+20);
+        // ----------------------------------------------------------------------------------------
+
+        $this->generateMatch(2, '09:20', 1, 'A', 21, 22);
+				$this->generateMatch(2, '09:40', 1, 'A', 24, 23);
+
+				$this->generateMatch(2, '10:00', 1, 'B', 25, 26);
+				$this->generateMatch(2, '10:20', 1, 'B', 28, 27);
+
+				$this->generateMatch(2, '10:40', 1, 'C', 32, 33);
+				$this->generateMatch(2, '11:00', 1, 'C', 30, 31);
 
 
-				$this->generateMatch(1, '16:00', 1, 'Q1', null, null);
-        $this->generateMatch(1, '16:00', 2, 'Q2', null, null);
+        $this->generateMatch(2, '11:20', 1, 'A', 20, 22);
+				$this->generateMatch(2, '11:40', 1, 'A', 24, 21);
 
-        $this->generateMatch(1, '16:15', 1, 'Q3', null, null);
-        $this->generateMatch(1, '16:15', 2, 'Q4', null, null);
+				$this->generateMatch(2, '12:00', 1, 'B', 28, 26);
+				$this->generateMatch(2, '12:20', 1, 'B', 29, 25);
 
-        $this->generateMatch(1, '16:30', 1, 'W', 1+20, 3+20);
 
-        $this->generateMatch(1, '16:45', 1, 'S1', null, null);
-        $this->generateMatch(1, '16:45', 2, 'S2', null, null);
+        $this->generateMatch(2, '12:40', 1, 'A', 21, 20);
+				$this->generateMatch(2, '13:00', 1, 'A', 23, 24);
 
-        $this->generateMatch(1, '17:00', 1, 'W', 2+20, 3+20);
+				$this->generateMatch(2, '13:20', 1, 'B', 25, 28);
+				$this->generateMatch(2, '13:40', 1, 'B', 27, 29);
 
-        $this->generateMatch(1, '17:15', 1, 'F', null, null);
+        $this->generateMatch(2, '14:00', 1, 'C', 30, 32);
+				$this->generateMatch(2, '14:20', 1, 'C', 31, 33);
+
+
+        $this->generateMatch(2, '14:40', 1, 'A', 21, 24);
+				$this->generateMatch(2, '15:00', 1, 'A', 22, 24);
+
+				$this->generateMatch(2, '15:20', 1, 'B', 25, 27);
+				$this->generateMatch(2, '15:40', 1, 'B', 26, 29);
+
+        $this->generateMatch(2, '16:00', 1, 'C', 30, 33);
+				$this->generateMatch(2, '16:20', 1, 'C', 31, 32);
+
+
+        $this->generateMatch(2, '16:40', 1, 'A', 20, 24);
+				$this->generateMatch(2, '17:00', 1, 'A', 22, 23);
+
+				$this->generateMatch(2, '17:20', 1, 'B', 28, 29);
+				$this->generateMatch(2, '17:40', 1, 'B', 26, 27);
 
 
 
 
-
-
-
-        // $this->generateMatch(1, '11:00', 1, 'A', 1, 4);
-        // $this->generateMatch(1, '11:00', 2, 'A', 2, 5);
-				//
-        // $this->generateMatch(1, '11:15', 1, 'B', 1+5, 4+5);
-        // $this->generateMatch(1, '11:15', 2, 'B', 2+5, 5+5);
-				//
-        // $this->generateMatch(1, '11:30', 1, 'C', 1+10, 4+10);
-        // $this->generateMatch(1, '11:30', 2, 'C', 2+10, 5+10);
-				//
-        // $this->generateMatch(1, '11:45', 1, 'D', 1+15, 4+15);
-        // $this->generateMatch(1, '11:45', 2, 'D', 2+15, 5+15);
-				//
-				//
-        // $this->generateMatch(1, '12:00', 1, 'A', 1, 3);
-        // $this->generateMatch(1, '12:00', 2, 'A', 4, 5);
-				//
-        // $this->generateMatch(1, '12:15', 1, 'B', 1+5, 3+5);
-        // $this->generateMatch(1, '12:15', 2, 'B', 4+5, 5+5);
-				//
-        // $this->generateMatch(1, '12:30', 1, 'C', 1+10, 3+10);
-        // $this->generateMatch(1, '12:30', 2, 'C', 4+10, 5+10);
-				//
-        // $this->generateMatch(1, '12:45', 1, 'D', 1+15, 3+15);
-        // $this->generateMatch(1, '12:45', 2, 'D', 4+15, 5+15);
-				//
-				//
-        // $this->generateMatch(1, '13:00', 1, 'A', 1, 2);
-        // $this->generateMatch(1, '13:00', 2, 'A', 3, 4);
-				//
-        // $this->generateMatch(1, '13:15', 1, 'B', 1+5, 2+5);
-        // $this->generateMatch(1, '13:15', 2, 'B', 3+5, 4+5);
-				//
-        // $this->generateMatch(1, '13:30', 1, 'C', 1+10, 2+10);
-        // $this->generateMatch(1, '13:30', 2, 'C', 3+10, 4+10);
-				//
-        // $this->generateMatch(1, '13:45', 1, 'D', 1+15, 2+15);
-        // $this->generateMatch(1, '13:45', 2, 'D', 3+15, 4+15);
-				//
-				//
-        // $this->generateMatch(1, '14:00', 1, 'A', 1, 5);
-        // $this->generateMatch(1, '14:00', 2, 'A', 2, 3);
-				//
-        // $this->generateMatch(1, '14:15', 1, 'B', 1+5, 5+5);
-        // $this->generateMatch(1, '14:15', 2, 'B', 2+5, 3+5);
-				//
-        // $this->generateMatch(1, '14:30', 1, 'C', 1+10, 5+10);
-        // $this->generateMatch(1, '14:30', 2, 'C', 2+10, 3+10);
-				//
-        // $this->generateMatch(1, '14:45', 1, 'D', 1+15, 5+15);
-        // $this->generateMatch(1, '14:45', 2, 'D', 2+15, 3+15);
-				//
-				//
-        // $this->generateMatch(1, '15:00', 1, 'A', 2, 4);
-        // $this->generateMatch(1, '15:00', 2, 'A', 3, 5);
-				//
-        // $this->generateMatch(1, '15:15', 1, 'B', 2+5, 4+5);
-        // $this->generateMatch(1, '15:15', 2, 'B', 3+5, 5+5);
-				//
-        // $this->generateMatch(1, '15:30', 1, 'C', 2+10, 4+10);
-        // $this->generateMatch(1, '15:30', 2, 'C', 3+10, 5+10);
-				//
-        // $this->generateMatch(1, '15:45', 1, 'D', 2+15, 4+15);
-        // $this->generateMatch(1, '15:45', 2, 'D', 3+15, 5+15);
-
-        //$this->generateMatch(1, '16:00', 1, 'Q1', null, null);
-        //$this->generateMatch(1, '16:00', 2, 'Q2', null, null);
-
-        //$this->generateMatch(1, '16:15', 1, 'Q3', null, null);
-        //$this->generateMatch(1, '16:15', 2, 'Q4', null, null);
-
-        //$this->generateMatch(1, '16:45', 1, 'S1', null, null);
-        //$this->generateMatch(1, '16:45', 2, 'S2', null, null);
-
-        //$this->generateMatch(1, '17:15', 1, 'F', null, null);
+        $this->generateMatch(2, '19:00', 1, 'S1', 17, 18);
+				$this->generateMatch(2, '19:20', 1, 'S2', 16, 19);
+				$this->generateMatch(2, '20:00', 1, 'F', 34, 35);
 
     }
 

@@ -21,3 +21,10 @@ goal(id, match_id, player_id)
 --- 
 Docker
 https://laradock.io/
+
+
+# docker-compose up -d nginx mysql phpmyadmin workspace 
+# docker-compose exec workspace bash
+# add "extension=mcrypt.so" to "vim /etc/php/7.2/cli/php.ini"
+# php -v
+# php artisan migrate:refresh && php artisan db:seed
