@@ -64,8 +64,8 @@ class TournamentTableSeeder extends Seeder {
         DB::table('tournaments')->delete();
 
         Tournament::create(array(
-            'name' => 'Vanvikan Julecup 2022',
-            'date' => '2022-12-30',
+            'name' => 'Vanvikan Julecup 2023',
+            'date' => '2023-12-30',
             'location' => 'Vanvikanhallen'
         ));
 

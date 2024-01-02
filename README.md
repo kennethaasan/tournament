@@ -21,3 +21,22 @@ goal(id, match_id, player_id)
 --- 
 Docker
 https://laradock.io/
+
+Follow install instructions
+
+Set in .env
+
+APP_CODE_PATH_HOST=../tournament
+WORKSPACE_COMPOSER_VERSION=1
+
+Use PHP 5.6
+
+docker-compose exec workspace bash
+
+run
+
+composer install
+
+php artisan migrate:install
+
+php artisan migrate:refresh && php artisan db:seed
