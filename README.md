@@ -28,3 +28,7 @@ https://laradock.io/
 # add "extension=mcrypt.so" to "vim /etc/php/7.2/cli/php.ini"
 # php -v
 # php artisan migrate:refresh && php artisan db:seed
+
+phpmyadmin
+http://localhost:8081
+use server: "mysql", user: "default" and password: "secret"
