@@ -3,7 +3,7 @@
 class MatchesController extends ApiController {
 
 
-	private $group_codes = array('A', 'B', 'C', 'D', 'W');
+	private $group_codes = array('A', 'B', 'C', 'D', 'E', 'W');
 
 	/**
 	 * Display a listing of the resource.
