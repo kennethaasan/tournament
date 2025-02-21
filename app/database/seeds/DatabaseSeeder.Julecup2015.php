@@ -74,9 +74,27 @@ class TournamentTableSeeder extends Seeder {
         DB::table('tournaments')->delete();
 
         Tournament::create(array(
-            'name' => 'Vanvikan Julecup 2024',
-            'date' => '2024-12-30',
+            'name' => 'Vanvikan Indoor 2025 G14',
+            'date' => '2025-02-22',
             'location' => 'Vanvikanhallen'
+        ));
+
+        Tournament::create(array(
+          'name' => 'Vanvikan Indoor 2025 G16',
+          'date' => '2025-02-22',
+          'location' => 'Vanvikanhallen'
+        ));
+
+        Tournament::create(array(
+            'name' => 'Vanvikan Indoor 2025 J14',
+            'date' => '2025-02-23',
+            'location' => 'Vanvikanhallen'
+        ));
+
+        Tournament::create(array(
+          'name' => 'Vanvikan Indoor 2025 J17',
+          'date' => '2025-02-23',
+          'location' => 'Vanvikanhallen'
         ));
 
     }
@@ -88,59 +106,101 @@ class TeamsTableSeeder extends Seeder {
     {
         DB::table('teams')->delete();
 
-        Team::create(array('name' => 'Posten 09', 'group_code' => 'A'));
-        Team::create(array('name' => 'Frp’s Verste Frykt FC', 'group_code' => 'A'));
-        Team::create(array('name' => 'Skåle Mål', 'group_code' => 'A'));
-        Team::create(array('name' => 'Kipping FC', 'group_code' => 'A'));
-        Team::create(array('name' => 'PJANKOW IL', 'group_code' => 'A'));
+        $teams = [
+            'A' => [
+                // G14
+                'Stadsbygd/Vanvik/Rissa 1',
+                'Åfjord 2',
+                'Inderøy 2',
+                'Melhus/Gauldal 3',
 
-        Team::create(array('name' => 'Kjeks & Ballmiss', 'group_code' => 'B'));
-        Team::create(array('name' => 'FC SKROVA', 'group_code' => 'B'));
-        Team::create(array('name' => 'Anne Frankfurt', 'group_code' => 'B'));
-        Team::create(array('name' => 'Stjørnas Glade Gutter', 'group_code' => 'B'));
-        Team::create(array('name' => 'Liggeunderlaget', 'group_code' => 'B'));
+                // G16
+                'Rissa/Stadsbygd/Vanvik 1',
+                'Oppdal 3',
+                'Åfjord',
+                'Klæbu',
+                'Romolslia 2',
 
-        Team::create(array('name' => 'Inter Ya Nan', 'group_code' => 'C'));
-        Team::create(array('name' => 'Jerv', 'group_code' => 'C'));
-        Team::create(array('name' => 'Team Storsve&Jr', 'group_code' => 'C'));
-        Team::create(array('name' => 'Leksvik Oldboys', 'group_code' => 'C'));
-        Team::create(array('name' => 'Tors Disipler', 'group_code' => 'C'));
+                // J14
+                'Vanvik/Stadsbygd/Rissa 1',
+                'Nidelv/Utleira 2',
+                'Melhus 2',
+                'Stjørna/Hil/Fevåg',
+                'Tiller',
 
-        Team::create(array('name' => 'Joga Bonito', 'group_code' => 'D'));
-        Team::create(array('name' => 'Glørsk BK', 'group_code' => 'D'));
-        Team::create(array('name' => 'Guttelim', 'group_code' => 'D'));
-        Team::create(array('name' => 'Samba De Fosen', 'group_code' => 'D'));
-        
-        Team::create(array('name' => 'Redda BK', 'group_code' => 'E'));
-        Team::create(array('name' => 'Tuttisfrutti FC', 'group_code' => 'E'));
-        Team::create(array('name' => 'Servi FC', 'group_code' => 'E'));
-        Team::create(array('name' => 'Mannschaft', 'group_code' => 'E'));
+                // J17
+                // Duplicate team name from above
+                // 'Vanvik/Stadsbygd/Rissa 1',
+                'Romolslia',
+                'FK Fosen 1',
+                'FK Fosen 2',
+                'Leksvik'
+            ],
+            'B' => [
+                // G14
+                'Stadsbygd/Vanvik/Rissa 2',
+                'Afjord 1',
+                'Sokna 1',
+                'Melhus/Gauldal 2',
 
-        Team::create(array('name' => 'Røkla', 'group_code' => 'W'));
-        Team::create(array('name' => 'Stadsbygd damelag', 'group_code' => 'W'));
-        Team::create(array('name' => 'ROSENCROCS', 'group_code' => 'W'));
+                // G16
+                'Rissa/Stadsbygd/Vanvik 3',
+                'Oppdal 1',
+                'Stjørna/Hil/Fevåg 2',
+                'FK Fosen 2',
 
-        Team::create(array('name' => 'Vinner gruppe A')); 
-        
-        Team::create(array('name' => 'Vinner gruppe B')); 
+                // J14
+                'Vanvik/Stadsbygd/Rissa 2',
+                'Nidelv/Utleira 1',
+                'Melhus 1',
+                'Melhus 3',
+                'Lensvik',
+            ],
+            'C' => [
+                // G14
+                'Sokna 2',
+                'Inderøy 1',
+                'Melhus/Gauldal 4',
+                'Melhus/Gauldal 1',
 
-        Team::create(array('name' => 'Vinner gruppe C')); 
-        
-        Team::create(array('name' => 'Vinner gruppe D')); 
-        
-        Team::create(array('name' => 'Vinner gruppe E'));
+                // G16
+                'Rissa/Stadsbygd/Vanvik 2',
+                'Oppdal 2',
+                'Stjørna/Hil/Fevåg 1',
+                'FK Fosen 1',
+                'Romolslia 1',
+            ],
+        ];
 
-        Team::create(array('name' => 'Andreplass'));
-        Team::create(array('name' => 'Andreplass'));
-        Team::create(array('name' => 'Andreplass'));
+        foreach ($teams as $group => $teamNames) {
+            foreach ($teamNames as $teamName) {
+                Team::create([
+                    'name' => $teamName,
+                    'group_code' => $group,
+                ]);
+            }
+        }
 
-        Team::create(array('name' => 'Vinner Q1')); 
-        Team::create(array('name' => 'Vinner Q2')); 
-        Team::create(array('name' => 'Vinner Q3')); 
-        Team::create(array('name' => 'Vinner Q4')); 
+        $placeholderTeams = [
+            'Vinner gruppe A',
+            'Vinner gruppe B',
+            'Vinner gruppe C',
+            'Vinner gruppe D',
+            'Beste toer',
+            '2. plass gruppe A',
+            '2. plass gruppe B',
+            '3. plass gruppe A',
+            '4. plass gruppe A',
+            'Vinner SF1',
+            'Vinner SF2',
+            'Tapende lag SF1',
+            'Tapende lag SF2'
+        ];
 
-        Team::create(array('name' => 'Vinner S1')); 
-        Team::create(array('name' => 'Vinner S2')); 
+        foreach ($placeholderTeams as $teamName) {
+            Team::create(array('name' => $teamName));
+        }
+
     }
 }
 
@@ -170,203 +230,687 @@ class MatchesTableSeeder extends Seeder {
 
         DB::table('matches')->delete();
 
-				// 1
-				// 2-3
-				// 4-5
+        $g14Matches = [
+            [
+                'time' => '09:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 1',
+                'awayTeam' => 'Åfjord 2'
+            ],
+            [
+                'time' => '09:00',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 2',
+                'awayTeam' => 'Åfjord 1'
+            ],
+            [
+                'time' => '09:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Inderøy 2',
+                'awayTeam' => 'Melhus/Gauldal 3'
+            ],
+            [
+                'time' => '09:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Sokna 1',
+                'awayTeam' => 'Melhus/Gauldal 2'
+            ],
+            [
+                'time' => '09:40',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Sokna 2',
+                'awayTeam' => 'Inderøy 1'
+            ],
+            [
+                'time' => '09:40',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Melhus/Gauldal 4',
+                'awayTeam' => 'Melhus/Gauldal 1'
+            ],
+            [
+                'time' => '10:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Åfjord 2',
+                'awayTeam' => 'Inderøy 2'
+            ],
+            [
+                'time' => '10:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Melhus/Gauldal 3',
+                'awayTeam' => 'Stadsbygd/Vanvik/Rissa 1'
+            ],
+            [
+                'time' => '10:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Åfjord 1',
+                'awayTeam' => 'Sokna 1'
+            ],
+            [
+                'time' => '10:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Melhus/Gauldal 2',
+                'awayTeam' => 'Stadsbygd/Vanvik/Rissa 2'
+            ],
+            [
+                'time' => '10:40',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Inderøy 1',
+                'awayTeam' => 'Melhus/Gauldal 4'
+            ],
+            [
+                'time' => '10:40',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Melhus/Gauldal 1',
+                'awayTeam' => 'Sokna 2'
+            ],
+            [
+                'time' => '11:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 1',
+                'awayTeam' => 'Inderøy 2'
+            ],
+            [
+                'time' => '11:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Melhus/Gauldal 3',
+                'awayTeam' => 'Åfjord 2'
+            ],
+            [
+                'time' => '11:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 2',
+                'awayTeam' => 'Sokna 1'
+            ],
+            [
+                'time' => '11:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Melhus/Gauldal 2',
+                'awayTeam' => 'Åfjord 1'
+            ],
+            [
+                'time' => '11:40',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Sokna 2',
+                'awayTeam' => 'Melhus/Gauldal 4'
+            ],
+            [
+                'time' => '11:40',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Melhus/Gauldal 1',
+                'awayTeam' => 'Inderøy 1'
+            ],
+            [
+                'time' => '12:10',
+                'field' => 1,
+                'group' => 'S1',
+                'homeTeam' => 'Vinner gruppe A',
+                'awayTeam' => 'Vinner gruppe B'
+            ],
+            [
+                'time' => '12:10',
+                'field' => 2,
+                'group' => 'S2',
+                'homeTeam' => 'Vinner gruppe C',
+                'awayTeam' => 'Beste toer'
+            ],
+            [
+                'time' => '12:40',
+                'field' => 1,
+                'group' => 'F',
+                'homeTeam' => 'Vinner SF1',
+                'awayTeam' => 'Vinner SF2'
+            ],
+            [
+                'time' => '12:40',
+                'field' => 2,
+                'group' => 'BF',
+                'homeTeam' => 'Tapende lag SF1',
+                'awayTeam' => 'Tapende lag SF2'
+            ],
+        ];
 
-				// 2
-				// 1-5
-				// 3-4
+        $g16Matches = [
+            [
+                'time' => '13:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 1',
+                'awayTeam' => 'Oppdal 3'
+            ],
+            [
+                'time' => '13:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 3',
+                'awayTeam' => 'Oppdal 1'
+            ],
+            [
+                'time' => '13:40',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 2',
+                'awayTeam' => 'Oppdal 2'
+            ],
+            [
+                'time' => '13:40',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Klæbu',
+                'awayTeam' => 'Åfjord'
+            ],
+            [
+                'time' => '14:00',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'FK Fosen 1',
+                'awayTeam' => 'Stjørna/Hil/Fevåg 1'
+            ],
+            [
+                'time' => '14:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Romolslia 2',
+                'awayTeam' => 'Stadsbygd/Vanvik/Rissa 1'
+            ],
+            [
+                'time' => '14:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'FK Fosen 2',
+                'awayTeam' => 'Rissa/Stadsbygd/Vanvik 3'
+            ],
+            [
+                'time' => '14:20',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Romolslia 1',
+                'awayTeam' => 'Rissa/Stadsbygd/Vanvik 2'
+            ],
+            [
+                'time' => '14:40',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Oppdal 3',
+                'awayTeam' => 'Klæbu'
+            ],
+            [
+                'time' => '14:40',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Oppdal 1',
+                'awayTeam' => 'Stjørna/Hil/Fevåg 2'
+            ],
+            [
+                'time' => '15:00',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Oppdal 2',
+                'awayTeam' => 'FK Fosen 1'
+            ],
+            [
+                'time' => '15:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Romolslia 2',
+                'awayTeam' => 'Åfjord'
+            ],
+            [
+                'time' => '15:20',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Romolslia 1',
+                'awayTeam' => 'Stjørna/Hil/Fevåg 1'
+            ],
+            [
+                'time' => '15:20',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 1',
+                'awayTeam' => 'Klæbu'
+            ],
+            [
+                'time' => '15:40',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 3',
+                'awayTeam' => 'Stjørna/Hil/Fevåg 2'
+            ],
+            [
+                'time' => '15:40',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Rissa/Stadsbygd/Vanvik 2',
+                'awayTeam' => 'FK Fosen 1'
+            ],
+            [
+                'time' => '16:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Åfjord',
+                'awayTeam' => 'Oppdal 3'
+            ],
+            [
+                'time' => '16:00',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Stjørna/Hil/Fevåg 1',
+                'awayTeam' => 'Oppdal 2'
+            ],
+            [
+                'time' => '16:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Klæbu',
+                'awayTeam' => 'Romolslia 2'
+            ],
+            [
+                'time' => '16:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Stjørna/Hil/Fevåg 2',
+                'awayTeam' => 'FK Fosen 2'
+            ],
+            [
+                'time' => '16:40',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'FK Fosen 1',
+                'awayTeam' => 'Romolslia 1'
+            ],
+            [
+                'time' => '16:40',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Åfjord',
+                'awayTeam' => 'Rissa/Stadsbygd/Vanvik 1'
+            ],
+            [
+                'time' => '17:00',
+                'field' => 1,
+                'group' => 'C',
+                'homeTeam' => 'Stjørna/Hil/Fevåg 1',
+                'awayTeam' => 'Rissa/Stadsbygd/Vanvik 2'
+            ],
+            [
+                'time' => '17:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Oppdal 3',
+                'awayTeam' => 'Romolslia 2'
+            ],
+            [
+                'time' => '17:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Oppdal 1',
+                'awayTeam' => 'FK Fosen 2'
+            ],
+            [
+                'time' => '17:20',
+                'field' => 2,
+                'group' => 'C',
+                'homeTeam' => 'Oppdal 2',
+                'awayTeam' => 'Romolslia 1'
+            ],
+            [
+                'time' => '17:40',
+                'field' => 1,
+                'group' => 'S1',
+                'homeTeam' => 'Vinner gruppe A',
+                'awayTeam' => 'Vinner gruppe B'
+            ],
+            [
+                'time' => '17:40',
+                'field' => 2,
+                'group' => 'S2',
+                'homeTeam' => 'Vinner gruppe C',
+                'awayTeam' => 'Beste toer'
+            ],
+            [
+                'time' => '18:10',
+                'field' => 1,
+                'group' => 'F',
+                'homeTeam' => 'Vinner SF1',
+                'awayTeam' => 'Vinner SF2'
+            ],
+            [
+                'time' => '18:10',
+                'field' => 2,
+                'group' => 'BF',
+                'homeTeam' => 'Tapende lag SF1',
+                'awayTeam' => 'Tapende lag SF2'
+            ]
+        ];
 
-				// 3
-				// 1-4
-				// 2-5
+        $j14Matches = [
+            [
+                'time' => '09:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 2',
+                'awayTeam' => 'Nidelv/Utleira 1'
+            ],
+            [
+                'time' => '09:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Melhus 1',
+                'awayTeam' => 'Melhus 3'
+            ],
+            [
+                'time' => '09:40',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 1',
+                'awayTeam' => 'Nidelv/Utleira 2'
+            ],
+            [
+                'time' => '09:40',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Melhus 2',
+                'awayTeam' => 'Stjørna/Hil/Fevåg'
+            ],
+            [
+                'time' => '10:00',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Lensvik',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 2'
+            ],
+            [
+                'time' => '10:00',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Nidelv/Utleira 1',
+                'awayTeam' => 'Melhus 1'
+            ],
+            [
+                'time' => '10:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Tiller',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 1'
+            ],
+            [
+                'time' => '10:20',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Nidelv/Utleira 2',
+                'awayTeam' => 'Melhus 2'
+            ],
+            [
+                'time' => '10:40',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Melhus 3',
+                'awayTeam' => 'Lensvik'
+            ],
+            [
+                'time' => '10:40',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 2',
+                'awayTeam' => 'Melhus 1'
+            ],
+            [
+                'time' => '11:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Stjørna/Hil/Fevåg',
+                'awayTeam' => 'Tiller'
+            ],
+            [
+                'time' => '11:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 1',
+                'awayTeam' => 'Melhus 2'
+            ],
+            [
+                'time' => '11:20',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Lensvik',
+                'awayTeam' => 'Nidelv/Utleira 1'
+            ],
+            [
+                'time' => '11:20',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Melhus 3',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 2'
+            ],
+            [
+                'time' => '12:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Tiller',
+                'awayTeam' => 'Nidelv/Utleira 2'
+            ],
+            [
+                'time' => '12:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Stjørna/Hil/Fevåg',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 1'
+            ],
+            [
+                'time' => '12:40',
+                'field' => 1,
+                'group' => 'B',
+                'homeTeam' => 'Nidelv/Utleira 1',
+                'awayTeam' => 'Melhus 3'
+            ],
+            [
+                'time' => '12:40',
+                'field' => 2,
+                'group' => 'B',
+                'homeTeam' => 'Melhus 1',
+                'awayTeam' => 'Lensvik'
+            ],
+            [
+                'time' => '13:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Nidelv/Utleira 2',
+                'awayTeam' => 'Stjørna/Hil/Fevåg'
+            ],
+            [
+                'time' => '13:20',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Melhus 2',
+                'awayTeam' => 'Tiller'
+            ],
+            [
+                'time' => '14:00',
+                'field' => 1,
+                'group' => 'S1',
+                'homeTeam' => 'Vinner gruppe A',
+                'awayTeam' => '2. plass gruppe B'
+            ],
+            [
+                'time' => '14:00',
+                'field' => 2,
+                'group' => 'S2',
+                'homeTeam' => 'Vinner gruppe B',
+                'awayTeam' => '2. plass gruppe A'
+            ],
+            [
+                'time' => '14:40',
+                'field' => 1,
+                'group' => 'F',
+                'homeTeam' => 'Vinner SF1',
+                'awayTeam' => 'Vinner SF2'
+            ],
+            [
+                'time' => '14:40',
+                'field' => 2,
+                'group' => 'BF',
+                'homeTeam' => 'Tapende lag SF1',
+                'awayTeam' => 'Tapende lag SF2'
+            ]
+        ];
 
-				// 4
-				// 1-2
-				// 3-5
+        $j17Matches = [
+            [
+                'time' => '11:40',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 1',
+                'awayTeam' => 'Romolslia'
+            ],
+            [
+                'time' => '11:40',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'FK Fosen 1',
+                'awayTeam' => 'FK Fosen 2'
+            ],
+            [
+                'time' => '12:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Leksvik',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 1'
+            ],
+            [
+                'time' => '12:20',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Romolslia',
+                'awayTeam' => 'FK Fosen 1'
+            ],
+            [
+                'time' => '13:00',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'FK Fosen 2',
+                'awayTeam' => 'Leksvik'
+            ],
+            [
+                'time' => '13:00',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 1',
+                'awayTeam' => 'FK Fosen 1'
+            ],
+            [
+                'time' => '13:40',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Romolslia',
+                'awayTeam' => 'Leksvik'
+            ],
+            [
+                'time' => '13:40',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'FK Fosen 2',
+                'awayTeam' => 'Vanvik/Stadsbygd/Rissa 1'
+            ],
+            [
+                'time' => '14:20',
+                'field' => 1,
+                'group' => 'A',
+                'homeTeam' => 'Romolslia',
+                'awayTeam' => 'FK Fosen 2'
+            ],
+            [
+                'time' => '14:20',
+                'field' => 2,
+                'group' => 'A',
+                'homeTeam' => 'Leksvik',
+                'awayTeam' => 'FK Fosen 1'
+            ],
+            [
+                'time' => '15:00',
+                'field' => 1,
+                'group' => 'F',
+                'homeTeam' => 'Vinner gruppe A',
+                'awayTeam' => '2. plass gruppe A'
+            ],
+            [
+                'time' => '15:00',
+                'field' => 2,
+                'group' => 'BF',
+                'homeTeam' => '3. plass gruppe A',
+                'awayTeam' => '4. plass gruppe A'
+            ]
+        ];
 
-				// 5
-				// 1-3
-				// 2-4
+        $this->generateMatches(1, $g14Matches);
+        $this->generateMatches(2, $g16Matches);
+        $this->generateMatches(3, $j14Matches);
+        $this->generateMatches(4, $j17Matches);
+    }
 
-				$this->generateMatch(1, '10:00', 1, 'A', 1, 4);
-				$this->generateMatch(1, '10:00', 2, 'A', 2, 5);
+    private function getTeamId($teamName, $groupCode) {
+        if (in_array($groupCode, ['A', 'B', 'C', 'D', 'E', 'W'])) {
+            $team = Team::where('name', $teamName)
+                ->where('group_code', $groupCode)
+                ->first();
+        } else {
+            $team = Team::where('name', $teamName)->first();
+        }
 
-				$this->generateMatch(1, '10:15', 1, 'B', 1+5, 4+5);
-        $this->generateMatch(1, '10:15', 2, 'B', 2+5, 5+5);
+        if (!$team) {
+            echo 'Could not find team: ' . $teamName . "\n";
+            throw new Exception('Could not find team: ' . $teamName);
+        }
+        
+        return $team;
+    }
 
-				$this->generateMatch(1, '10:30', 1, 'C', 1+10, 4+10);
-        $this->generateMatch(1, '10:30', 2, 'C', 2+10, 5+10);
+    private function generateMatches($tournament_id, $matches) {
+        foreach ($matches as $match) {
+            $homeTeam = $this->getTeamId($match['homeTeam'], $match['group']);
+            $awayTeam = $this->getTeamId($match['awayTeam'], $match['group']);
+            
+            echo $homeTeam->name . ' vs ' . $awayTeam->name . "\n";
+            echo $homeTeam->id . ' vs ' . $awayTeam->id . "\n";
 
-        $this->generateMatch(1, '10:45', 1, 'A', 1, 3);
-        $this->generateMatch(1, '10:45', 2, 'A', 4, 5);
+            if (!$homeTeam) {
+                echo 'Could not find home team: ' . $match['homeTeam'] . "\n";
+                throw new Exception('Could not find home team: ' . $match['homeTeam']);
+            }
 
-        $this->generateMatch(1, '11:00', 1, 'B', 1+5, 3+5);
-        $this->generateMatch(1, '11:00', 2, 'B', 4+5, 5+5);
+            if (!$awayTeam) {
+                echo 'Could not find away team: ' . $match['awayTeam'] . "\n";
+                throw new Exception('Could not find away team: ' . $match['awayTeam']);
+            }
 
-        $this->generateMatch(1, '11:15', 1, 'C', 1+10, 3+10);
-        $this->generateMatch(1, '11:15', 2, 'C', 4+10, 5+10);
-
-        $this->generateMatch(1, '11:30', 1, 'D', 1+15, 4+15);
-        $this->generateMatch(1, '11:30', 2, 'D', 2+15, 3+15);
-
-        $this->generateMatch(1, '11:45', 1, 'E', 1+19, 4+19);
-        $this->generateMatch(1, '11:45', 2, 'E', 2+19, 3+19);
-
-        $this->generateMatch(1, '12:00', 1, 'W', 1+23, 2+23);
-
-        $this->generateMatch(1, '12:15', 1, 'A', 1, 2);
-        $this->generateMatch(1, '12:15', 2, 'A', 3, 4);
-
-        $this->generateMatch(1, '12:30', 1, 'B', 1+5, 2+5);
-        $this->generateMatch(1, '12:30', 2, 'B', 3+5, 4+5);
-
-        $this->generateMatch(1, '12:45', 1, 'C', 1+10, 2+10);
-        $this->generateMatch(1, '12:45', 2, 'C', 3+10, 4+10);
-
-        $this->generateMatch(1, '13:00', 1, 'D', 1+15, 2+15);
-        $this->generateMatch(1, '13:00', 2, 'D', 3+15, 4+15);
-
-        $this->generateMatch(1, '13:15', 1, 'E', 1+19, 2+19);
-        $this->generateMatch(1, '13:15', 2, 'E', 3+19, 4+19);
-
-        $this->generateMatch(1, '13:30', 1, 'W', 1+23, 3+23);
-
-        $this->generateMatch(1, '13:45', 1, 'A', 1, 5);
-        $this->generateMatch(1, '13:45', 2, 'A', 2, 3);
-
-        $this->generateMatch(1, '14:00', 1, 'B', 1+5, 5+5);
-        $this->generateMatch(1, '14:00', 2, 'B', 2+5, 3+5);
-
-        $this->generateMatch(1, '14:15', 1, 'C', 1+10, 5+10);
-        $this->generateMatch(1, '14:15', 2, 'C', 2+10, 3+10);
-
-        $this->generateMatch(1, '14:30', 1, 'D', 1+15, 3+15);
-        $this->generateMatch(1, '14:30', 2, 'D', 2+15, 4+15);
-
-        $this->generateMatch(1, '14:45', 1, 'E', 1+19, 3+19);
-        $this->generateMatch(1, '14:45', 2, 'E', 2+19, 4+19);
-
-        $this->generateMatch(1, '15:00', 1, 'W', 2+23, 3+23);
-
-        $this->generateMatch(1, '15:15', 1, 'A', 2, 4);
-        $this->generateMatch(1, '15:15', 2, 'A', 3, 5);
-
-        $this->generateMatch(1, '15:30', 1, 'B', 2+5, 4+5);
-        $this->generateMatch(1, '15:30', 2, 'B', 3+5, 5+5);
-
-        $this->generateMatch(1, '15:45', 1, 'C', 2+10, 4+10);
-        $this->generateMatch(1, '15:45', 2, 'C', 3+10, 5+10);
-
-        $this->generateMatch(1, '16:00', 1, 'W', 1+23, 2+23);
-
-        $this->generateMatch(1, '16:15', 1, 'Q1', 1+26, 6+26);
-        $this->generateMatch(1, '16:15', 2, 'Q2', 2+26, 7+26);
-
-        $this->generateMatch(1, '16:30', 1, 'Q3', 3+26, 8+26);
-        $this->generateMatch(1, '16:30', 2, 'Q4', 4+26, 5+26);
-
-        $this->generateMatch(1, '16:45', 1, 'W', 1+23, 3+23);
-
-        $this->generateMatch(1, '17:00', 1, 'S1', 9+26, 10+26);
-        $this->generateMatch(1, '17:00', 2, 'S2', 11+26, 12+26);
-
-        $this->generateMatch(1, '17:15', 1, 'W', 2+23, 3+23);
-
-        $this->generateMatch(1, '17:30', 1, 'F', 13+26, 14+26);
-
-
-
-				// $this->generateMatch(1, '10:45', 1, 'D', 1+15, 4+15);
-        // $this->generateMatch(1, '10:45', 2, 'D', 2+15, 5+15);
-
-        // $this->generateMatch(1, '11:00', 1, 'W', 1+20, 4+20);
-        // $this->generateMatch(1, '11:00', 2, 'W', 2+20, 5+20);
-
-
-				// $this->generateMatch(1, '11:15', 1, 'A', 1, 3);
-				// $this->generateMatch(1, '11:15', 2, 'A', 4, 5);
-
-				// $this->generateMatch(1, '11:30', 1, 'B', 1+5, 3+5);
-				// $this->generateMatch(1, '11:30', 2, 'B', 4+5, 5+5);
-				// //
-				// $this->generateMatch(1, '11:45', 1, 'C', 1+10, 5+10);
-				// $this->generateMatch(1, '11:45', 2, 'C', 3+10, 4+10);
-				// //
-				// $this->generateMatch(1, '12:00', 1, 'D', 1+15, 3+15);
-				// $this->generateMatch(1, '12:00', 2, 'D', 4+15, 5+15);
-
-        // $this->generateMatch(1, '12:15', 1, 'W', 1+20, 3+20);
-				// $this->generateMatch(1, '12:15', 2, 'W', 4+20, 5+20);
-
-
-        // $this->generateMatch(1, '12:30', 1, 'A', 1, 2);
-				// $this->generateMatch(1, '12:30', 2, 'A', 3, 4);
-				// //
-				// $this->generateMatch(1, '12:45', 1, 'B', 1+5, 2+5);
-				// $this->generateMatch(1, '12:45', 2, 'B', 3+5, 4+5);
-				// //
-				// $this->generateMatch(1, '13:00', 1, 'C', 1+10, 4+10);
-				// $this->generateMatch(1, '13:00', 2, 'C', 2+10, 5+10);
-				// //
-				// $this->generateMatch(1, '13:15', 1, 'D', 1+15, 2+15);
-				// $this->generateMatch(1, '13:15', 2, 'D', 3+15, 4+15);
-
-        // $this->generateMatch(1, '13:30', 1, 'W', 1+20, 2+20);
-				// $this->generateMatch(1, '13:30', 2, 'W', 3+20, 4+20);
-
-				
-				// $this->generateMatch(1, '13:45', 1, 'A', 1, 5);
-        // $this->generateMatch(1, '13:45', 2, 'A', 2, 3);
-				// //
-        // $this->generateMatch(1, '14:00', 1, 'B', 1+5, 5+5);
-        // $this->generateMatch(1, '14:00', 2, 'B', 2+5, 3+5);
-				// //
-        // $this->generateMatch(1, '14:15', 1, 'C', 1+10, 2+10);
-        // $this->generateMatch(1, '14:15', 2, 'C', 3+10, 5+10);
-				// //
-        // $this->generateMatch(1, '14:30', 1, 'D', 1+15, 5+15);
-        // $this->generateMatch(1, '14:30', 2, 'D', 2+15, 3+15);
-
-        // $this->generateMatch(1, '14:45', 1, 'W', 1+20, 5+20);
-        // $this->generateMatch(1, '14:45', 2, 'W', 2+20, 3+20);
-
-
-				// $this->generateMatch(1, '15:00', 1, 'A', 2, 4);
-				// $this->generateMatch(1, '15:00', 2, 'A', 3, 5);
-				// //
-				// $this->generateMatch(1, '15:15', 1, 'B', 2+5, 4+5);
-				// $this->generateMatch(1, '15:15', 2, 'B', 3+5, 5+5);
-				// //
-				// $this->generateMatch(1, '15:30', 1, 'C', 1+10, 3+10);
-				// $this->generateMatch(1, '15:30', 2, 'C', 2+10, 4+10);
-				// //
-				// $this->generateMatch(1, '15:45', 1, 'D', 2+15, 4+15);
-				// $this->generateMatch(1, '15:45', 2, 'D', 3+15, 5+15);
-				
-        // $this->generateMatch(1, '16:00', 1, 'W', 2+20, 4+20);
-				// $this->generateMatch(1, '16:00', 2, 'W', 3+20, 5+20);
-
-
-				// $this->generateMatch(1, '16:15', 1, 'Q1', 1+25, 6+25);
-        // $this->generateMatch(1, '16:15', 2, 'Q2', 3+25, 8+25);
-
-        // $this->generateMatch(1, '16:30', 1, 'Q3', 5+25, 2+25);
-        // $this->generateMatch(1, '16:30', 2, 'Q4', 7+25, 4+25);
-
-        // $this->generateMatch(1, '16:45', 1, 'F', 9+25, 10+25);
-
-        // $this->generateMatch(1, '17:00', 1, 'S1', 11+25, 12+25);
-        // $this->generateMatch(1, '17:00', 2, 'S2', 13+25, 14+25);
-
-        // $this->generateMatch(1, '17:15', 1, 'F', 15+25, 16+25);
-
+            $this->generateMatch(
+                $tournament_id, 
+                $match['time'], 
+                $match['field'], 
+                $match['group'], 
+                $homeTeam->id,
+                $awayTeam->id
+            );
+        }
     }
 
     private function generateMatch($tournament_id, $kickoff_at, $field, $match_code, $hometeam_id, $awayteam_id) {
-        $faker = Faker::create();
-
         Match::create(array(
             'tournament_id' => $tournament_id,
             'kickoff_at'    => $kickoff_at,
