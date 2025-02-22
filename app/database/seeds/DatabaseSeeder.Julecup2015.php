@@ -428,7 +428,7 @@ class MatchesTableSeeder extends Seeder {
                 'field' => 2,
                 'group' => 'A',
                 'homeTeam' => 'Romolslia 2',
-                'awayTeam' => 'Stadsbygd/Vanvik/Rissa 1'
+                'awayTeam' => 'Rissa/Stadsbygd/Vanvik 1'
             ],
             [
                 'time' => '14:20',
@@ -619,7 +619,7 @@ class MatchesTableSeeder extends Seeder {
                 'time' => '09:40',
                 'field' => 1,
                 'group' => 'A',
-                'homeTeam' => 'Stadsbygd/Vanvik/Rissa 1',
+                'homeTeam' => 'Vanvik/Stadsbygd/Rissa 1',
                 'awayTeam' => 'Nidelv/Utleira 2'
             ],
             [
