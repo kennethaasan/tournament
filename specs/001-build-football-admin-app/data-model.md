@@ -129,7 +129,7 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | --------------- | ------------- | ------------------------------------------------------ | ----------------------------------------------- |
 | `id`            | `uuid`        | PK                                                     |                                                 |
 | `email`         | `citext`      | Not Null                                              | Sent to prospective user                        |
-| `role`          | `text`        | Enum (`admin`, `tournament_admin`, `team_manager`)     | Matches RBAC layer                              |
+| `role`          | `text`        | Enum (`admin`, `competition_admin`, `team_manager`)    | Matches RBAC layer                              |
 | `scope_type`    | `text`        | Enum (`global`, `competition`, `edition`, `team`)      |                                                 |
 | `scope_id`      | `uuid`        | Nullable (null for global invites)                     | References scope table                          |
 | `invited_by`    | `uuid`        | FK -> `users.id`, Not Null                            | Sender                                          |
@@ -144,7 +144,7 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | ------------- | ------------- | ----------------------------------------------------- | -------------------------------------- |
 | `id`          | `uuid`        | PK                                                    |                                         |
 | `user_id`     | `uuid`        | FK -> `users.id`, Not Null                            |                                         |
-| `role`        | `text`        | Enum (`admin`, `tournament_admin`, `team_manager`)    |                                         |
+| `role`        | `text`        | Enum (`admin`, `competition_admin`, `team_manager`)   |                                         |
 | `scope_type`  | `text`        | Enum (`global`, `competition`, `edition`, `team`)     |                                         |
 | `scope_id`    | `uuid`        | Nullable                                              | Null for global role                    |
 | `granted_by`  | `uuid`        | FK -> `users.id`, Nullable                            | Populated for delegated grants          |

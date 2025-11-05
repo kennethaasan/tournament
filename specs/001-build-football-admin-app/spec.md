@@ -52,13 +52,13 @@
 ### Primary User Stories
 
 1. **Global Admin**: wants to create competitions, spin up new editions, assign edition administrators, and oversee platform health.
-2. **Edition Administrator (`tournament_admin`)**: wants to configure an edition’s stages, schedule matches quickly, manage results, and control the public scoreboard.
+2. **Edition Administrator (`competition_admin`)**: wants to configure an edition’s stages, schedule matches quickly, manage results, and control the public scoreboard.
 3. **Team Manager**: wants to maintain a reusable team roster, register that team into editions, manage competition-specific squads, and stay informed about schedules and score updates.
 4. **Spectator / Venue Staff**: wants a real-time big-screen experience showing live scores, upcoming matches, and top scorers without needing to log in.
 
 ### Acceptance Scenarios
 
-1. **Invite Role Peer**: Given an authenticated user with role `tournament_admin` on Edition A, when they invite a colleague by email, then the colleague receives an invitation, accepts it, and is granted the `tournament_admin` role for that edition only.
+1. **Invite Role Peer**: Given an authenticated user with role `competition_admin` on Edition A, when they invite a colleague by email, then the colleague receives an invitation, accepts it, and is granted the `competition_admin` role for that edition only.
 2. **Competition & Edition Creation**: Given a global admin, when they create a competition with baseline metadata and then create an edition under it with year/slug, timezone, registration window, and scoreboard theme, then the competition appears in the admin list, the edition shows default stages (empty), and the public landing page is reachable via its slug.
 3. **Round-Robin Wizard**: Given an edition configured for group stage play, when the edition admin selects entries, time slots, and venues, then the wizard generates a full round-robin schedule that can be reviewed, edited, and published in one action.
 4. **Knockout Bracket**: Given a hybrid edition with completed group standings, when the admin seeds the top entries into a knockout bracket, then the bracket auto-populates quarterfinals/semifinals/final (supporting byes) and future round placeholders reference winners of prior matches.
@@ -88,7 +88,7 @@
 
 ### Authentication & Roles
 
-- **FR-001**: The system MUST support invite-based onboarding with email verification for the roles `admin`, `tournament_admin` (edition admin), and `team_manager`.
+- **FR-001**: The system MUST support invite-based onboarding with email verification for the roles `admin`, `competition_admin` (edition admin), and `team_manager`.
 - **FR-002**: Users MUST be able to invite additional users into the same role they hold (scope-aware): global admins invite admins, edition admins invite peers for editions they manage, and team managers invite co-managers for their teams.
 - **FR-003**: Role-based access control MUST restrict data visibility and actions to the appropriate scope (global for admins, per-competition/per-edition for edition admins, per-team for team managers).
 - **FR-004**: The platform MUST enforce session management with automatic sign-out on credential revocation and provide device/session listings for administrators.
