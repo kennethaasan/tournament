@@ -1,0 +1,34 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: no-commit-to-branch
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-toml
+  - repo: local
+    hooks:
+      - id: biome-check
+        name: biome check
+        entry: npm run lint
+        language: system
+        pass_filenames: false
+      - id: typecheck
+        name: typescript --noEmit
+        entry: npm run tsc
+        language: system
+        pass_filenames: false
+        files: "\\.(ts|tsx)$"
+      - id: terraform-fmt
+        name: terraform fmt
+        entry: terraform fmt -check -recursive
+        language: system
+        pass_filenames: false
+        files: "^iac/.*\\.tf$"
+      - id: tflint
+        name: tflint
+        entry: tflint --minimum-failure-severity=error
+        language: system
+        pass_filenames: false
+        files: "^iac/"
