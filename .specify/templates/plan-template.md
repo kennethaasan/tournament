@@ -31,7 +31,14 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- [ ] **Quality-Driven TypeScript Craft** - Identify the files impacted, list required lint/type/build
+  scripts, outline error-handling expectations, and describe how reviewers will verify compliance.
+- [ ] **Evidence-Backed Testing Discipline** - Specify the unit/integration/E2E suites to extend,
+  naming target files and coverage thresholds; note any contract or seeding prerequisites.
+- [ ] **Inclusive, Consistent Experience** - Describe the accessible UX patterns to reuse, confirm
+  keyboard and screen-reader behaviors, and flag design tokens or components that must be updated.
+- [ ] **Performance-Conscious Delivery** - Define quantitative budgets (p95 latency, bundle size,
+  LCP, etc.), measurement methods, and rollback plans if targets are missed.
 
 ## Project Structure
 

@@ -20,6 +20,10 @@
   - Demonstrated to users independently
 -->
 
+For each story, list the automated test suites (unit, integration, E2E/Playwright) that will prove it,
+note accessibility checkpoints (roles, labels, keyboard flows), and capture performance expectations
+where relevant.
+
 ### User Story 1 - [Brief Title] (Priority: P1)
 
 [Describe this user journey in plain language]
@@ -74,6 +78,8 @@
 
 - What happens when [boundary condition]?
 - How does system handle [error scenario]?
+- How do accessibility requirements hold up under [assistive-technology scenario]?
+- What is the behavior when performance budgets (e.g., render time, bundle size) are stressed?
 
 ## Requirements *(mandatory)*
 
@@ -95,6 +101,17 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Non-Functional Requirements *(Constitution Required)*
+
+- **NFR-001 (Quality-Driven TypeScript Craft)**: [Lint/type/build obligations, logging strategy, error
+  handling expectations]
+- **NFR-002 (Evidence-Backed Testing Discipline)**: [Target Vitest suites, Playwright coverage, CI
+  thresholds, contract/regression tests]
+- **NFR-003 (Inclusive, Consistent Experience)**: [Accessibility expectations, reusable components,
+  Tailwind tokens, content patterns]
+- **NFR-004 (Performance-Conscious Delivery)**: [Performance budgets, instrumentation plan, caching
+  strategy, rollback thresholds]
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
@@ -113,3 +130,4 @@
 - **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
 - **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
 - **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+- **SC-005**: [Constitution audit metric, e.g., "Vitest + Playwright suites pass with >= current coverage", "<200 ms server render", "All new UI passes keyboard navigation audit"]
