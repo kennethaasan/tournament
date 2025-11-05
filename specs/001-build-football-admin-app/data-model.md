@@ -1,372 +1,457 @@
 # Phase 1: Data Model
 
-**Status**: Drafted (2025-11-05)
-
-This data model targets PostgreSQL with Drizzle ORM. All primary keys are UUID v7 strings (`uuid_generate_v7()` via database extension or generated in application code).
+**Status**: Drafted (2025-11-05)  
+**Scope**: Modern football administration platform (Next.js + Drizzle + PostgreSQL)  
+**Key Principle**: All persistent identifiers are UUID v7 strings (`uuid_generate_v7()` via database extension or generated in application code).
 
 ---
 
 ## Conceptual Diagram
 
 ```
-        +-----------------+          +-----------------+
-        |     users       |          |  role_invitations|
-        |-----------------|          |-----------------|
-        | id (PK)         |<>------->| id (PK)         |
-        | email           |          | role            |
-        | ...             |          | scope_type/id   |
-        +-----------------+          +-----------------+
-                  |                         ^
-                  |                         |
-         +-----------------+                |
-         |   user_roles    |<---------------+
-         |-----------------|
-         | id (PK)         |      +--------------------+
-         | user_id (FK)    |      |    tournaments     |
-         | role            |      |--------------------|
-         | scope_type/id   |----->| id (PK)            |
-         | granted_by      |      | name, slug, ...    |
-         | ...             |      +--------------------+
-                                         |
-               +-------------------------+-------------------------+
-               |                         |                         |
-    +--------------------+    +--------------------+    +--------------------+
-    | tournament_phases  |    |     fields         |    | scoreboard_settings |
-    |--------------------|    |--------------------|    |--------------------|
-    | id (PK)            |    | id (PK)            |    | tournament_id (PK) |
-    | tournament_id (FK) |    | tournament_id (FK) |    | theme jsonb        |
-    | phase_type         |    | label, notes       |    | rotation config    |
-    | order_index        |    | availability       |    +--------------------+
-    +---------+----------+    +---------+----------+
-              |                         |
-      +-------------------+          +-------------------+
-      |   phase_groups    |          |  team_registrations|
-      |-------------------|          |-------------------|
-      | id (PK)           |          | id (PK)           |
-      | phase_id (FK)     |          | tournament_id (FK)|
-      | code, name        |          | team_name, ...    |
-      | advancement_rules |          | status            |
-      +---------+---------+          +---------+---------+
-                |                              |
-         +--------------------+      +--------------------+
-         |       teams        |      |   team_roles       |
-         |--------------------|      |--------------------|
-         | id (PK)            |<---->| id (PK)            |
-         | tournament_id (FK) |      | team_id (FK)       |
-         | phase_group_id FK  |      | user_id (FK)       |
-         | name, colors       |      | role (manager)     |
-    +----+---------+----------+      | invited_by         |
-    |              |                 +--------------------+
-    |      +-------------------+
-    |      |     players       |
-    |      |-------------------|
-    |      | id (PK)           |
-    +----->| team_id (FK)      |
-           | jersey_number     |
-           | paid, status      |
-           +-------------------+
+        +--------------+          +-------------------+
+        |    users     |<>--------| role_invitations  |
+        |--------------|          |-------------------|
+        | id (PK)      |          | id (PK)           |
+        | email        |          | email             |
+        | ...          |          | role              |
+        +--------------+          | scope_type/id     |
+               |                  +---------+---------+
+               |                            ^
+        +--------------+                    |
+        |  user_roles  |<-------------------+
+        |--------------|
+        | id (PK)      |       +---------------------+
+        | user_id (FK) |       |    competitions     |
+        | role         |       |---------------------|
+        | scope_type/id|-----> | id (PK)             |
+        +--------------+       | name, slug, ...     |
+                                +----------+----------+
+                                           |
+                                +----------+----------+
+                                |       editions      |
+                                |---------------------|
+                                | id (PK)             |
+                                | competition_id (FK) |
+                                | label, slug, ...    |
+                                +----+-----------+----+
+                                     |           |
+                        +------------+           +--------------------+
+                        |                                    |
+              +--------------------+            +---------------------+
+              |      stages        |            |       venues        |
+              |--------------------|            |---------------------|
+              | id (PK)            |            | id (PK)             |
+              | edition_id (FK)    |            | edition_id (FK)     |
+              | stage_type         |            | name, slug, ...     |
+              +----+---------------+            +---------------------+
+                   |
+        +----------+-----------+
+        |                      |
++---------------+   +-------------------+
+|    groups     |   |     brackets      |
+|---------------|   |-------------------|
+| id (PK)       |   | id (PK)           |
+| stage_id (FK) |   | stage_id (FK)     |
+| code, name    |   | bracket_type, ... |
++------+--------+   +---------+---------+
+       |                          |
++------+--------+        +-------+---------+
+|   rounds      |        |      matches    |
+|---------------|        |-----------------|
+| id (PK)       |        | id (PK)         |
+| stage_id (FK) |        | edition_id (FK) |
+| group_id FK   |        | stage/group/... |
+| label, order  |        | home_entry_id   |
++---------------+        | away_entry_id   |
+                         | venue_id, ...   |
+                         +---+---------+---+
+                             |         |
+             +---------------+         +-------------------+
+             |                                      |
+    +---------------+                    +----------------------+
+    |    entries    |                    |     match_events     |
+    |---------------|                    |----------------------|
+    | id (PK)       |                    | id (PK)              |
+    | edition_id FK |                    | match_id (FK)        |
+    | team_id (FK)  |                    | appearance_id (FK)   |
+    | status, ...   |                    | event_type, minute   |
+    +-------+-------+                    +----------------------+
+            |
+    +-------+--------+        +------------------+
+    |     squads     |        |   appearances    |
+    |----------------|        |------------------|
+    | id (PK)        |        | id (PK)          |
+    | entry_id (FK)  |        | match_id (FK)    |
+    | locked_at      |        | squad_member_id  |
+    +-------+--------+        | minutes_played   |
+            |                 +------------------+
+   +--------+---------+
+   |   squad_members  |
+   |------------------|
+   | id (PK)          |
+   | squad_id (FK)    |
+   | person_id (FK)   |
+   | jersey_number    |
+   +--------+---------+
+            |
+   +--------+---------+
+   |  persons         |
+   |------------------|
+   | id (PK)          |
+   | name fields...   |
+   +------------------+
 
-                      +--------------------+
-                      |      matches       |
-                      |--------------------|
-                      | id (PK)            |
-                      | tournament_id (FK) |
-                      | phase_id / group   |
-                      | home_team_id (FK)  |
-                      | away_team_id (FK)  |
-                      | field_id (FK)      |
-                      | schedule/status    |
-                      +----------+---------+
-                                 |
-                      +--------------------+
-                      |   match_events     |
-                      |--------------------|
-                      | id (PK)            |
-                      | match_id (FK)      |
-                      | event_type         |
-                      | player_id (FK)     |
-                      | assist_player_id   |
-                      | minute, data       |
-                      +--------------------+
-
-Additional supporting entities: `notifications`, `audit_logs`.
+Additional supporting entities: `team_memberships`, `notifications`, `event_feed`, `audit_logs`.
 ```
 
 ---
 
 ## Table Specifications
 
-### `users`
+### Access & Identity
 
-| Column          | Type         | Constraints                                    | Notes                                       |
-| --------------- | ------------ | ---------------------------------------------- | ------------------------------------------- |
-| `id`            | `uuid`       | PK                                             | UUID v7                                     |
-| `email`         | `citext`     | Unique, Not Null                               | Case-insensitive                            |
-| `password_hash` | `text`       | Not Null                                       | Managed by better-auth                      |
-| `display_name`  | `text`       | Not Null                                       | Internal/admin display                      |
-| `locale`        | `text`       | Default `nb-NO`                                | Determines default UI language              |
-| `created_at`    | `timestamptz`| Default `now()`                                |                                             |
-| `updated_at`    | `timestamptz`| Default `now()`                                |                                             |
+#### `users`
 
-### `user_roles`
+| Column        | Type         | Constraints                                    | Notes                                |
+| ------------- | ------------ | ---------------------------------------------- | ------------------------------------ |
+| `id`          | `uuid`       | PK                                             | UUID v7                              |
+| `email`       | `citext`     | Unique, Not Null                               | Case-insensitive                     |
+| `hashed_pwd`  | `text`       | Nullable                                       | Null when SSO-only                   |
+| `full_name`   | `text`       | Nullable                                       | Display in admin UI                  |
+| `locale`      | `text`       | Default `nb-NO`                                | User preference                      |
+| `created_at`  | `timestamptz`| Default `now()`                                |                                      |
+| `updated_at`  | `timestamptz`| Default `now()`                                |                                      |
 
-| Column        | Type         | Constraints                                    | Notes                                                   |
-| ------------- | ------------ | ---------------------------------------------- | ------------------------------------------------------- |
-| `id`          | `uuid`       | PK                                             |                                                         |
-| `user_id`     | `uuid`       | FK -> `users.id`, Not Null                     |                                                         |
-| `role`        | `text`       | Enum (`admin`, `tournament_admin`, `team_manager`) |                                                         |
-| `scope_type`  | `text`       | Enum (`global`, `tournament`, `team`)          |                                                         |
-| `scope_id`    | `uuid`       | Nullable (required for scoped roles)           | References tournament/team depending on scope           |
-| `granted_by`  | `uuid`       | FK -> `users.id`, Not Null                     | Audit trail                                             |
-| `created_at`  | `timestamptz`| Default `now()`                                |                                                         |
+#### `role_invitations`
 
-### `role_invitations`
+| Column          | Type          | Constraints                                            | Notes                                           |
+| --------------- | ------------- | ------------------------------------------------------ | ----------------------------------------------- |
+| `id`            | `uuid`        | PK                                                     |                                                 |
+| `email`         | `citext`      | Not Null                                              | Sent to prospective user                        |
+| `role`          | `text`        | Enum (`admin`, `tournament_admin`, `team_manager`)     | Matches RBAC layer                              |
+| `scope_type`    | `text`        | Enum (`global`, `competition`, `edition`, `team`)      |                                                 |
+| `scope_id`      | `uuid`        | Nullable (null for global invites)                     | References scope table                          |
+| `invited_by`    | `uuid`        | FK -> `users.id`, Not Null                            | Sender                                          |
+| `token`         | `text`        | Unique, Not Null                                      | Invitation acceptance token                     |
+| `expires_at`    | `timestamptz` | Not Null                                              |                                                  |
+| `accepted_at`   | `timestamptz` | Nullable                                              |                                                  |
+| `created_at`    | `timestamptz` | Default `now()`                                       |                                                  |
 
-| Column       | Type         | Constraints                                    | Notes                                   |
-| ------------ | ------------ | ---------------------------------------------- | --------------------------------------- |
-| `id`         | `uuid`       | PK                                             | Invitation token                        |
-| `email`      | `citext`     | Not Null                                      | Recipient email                         |
-| `role`       | `text`       | Enum as above                                 |                                           |
-| `scope_type` | `text`       | As above                                      |                                           |
-| `scope_id`   | `uuid`       | Nullable                                      |                                           |
-| `status`     | `text`       | Enum (`pending`, `accepted`, `expired`, `revoked`) |                                           |
-| `expires_at` | `timestamptz`| Not Null                                      |                                           |
-| `invited_by` | `uuid`       | FK -> `users.id`                              |                                           |
-| `created_at` | `timestamptz`| Default `now()`                               |                                           |
-| `accepted_at`| `timestamptz`| Nullable                                      |                                           |
+#### `user_roles`
 
-### `tournaments`
+| Column        | Type          | Constraints                                           | Notes                                  |
+| ------------- | ------------- | ----------------------------------------------------- | -------------------------------------- |
+| `id`          | `uuid`        | PK                                                    |                                         |
+| `user_id`     | `uuid`        | FK -> `users.id`, Not Null                            |                                         |
+| `role`        | `text`        | Enum (`admin`, `tournament_admin`, `team_manager`)    |                                         |
+| `scope_type`  | `text`        | Enum (`global`, `competition`, `edition`, `team`)     |                                         |
+| `scope_id`    | `uuid`        | Nullable                                              | Null for global role                    |
+| `granted_by`  | `uuid`        | FK -> `users.id`, Nullable                            | Populated for delegated grants          |
+| `created_at`  | `timestamptz` | Default `now()`                                       |                                         |
 
-| Column              | Type          | Constraints                         | Notes                                             |
-| ------------------- | ------------- | ----------------------------------- | ------------------------------------------------- |
-| `id`                | `uuid`        | PK                                  |                                                   |
-| `name`              | `text`        | Not Null                            |                                                   |
-| `slug`              | `citext`      | Unique, Not Null                    | Public URL identifier                             |
-| `description`       | `text`        | Nullable                            |                                                   |
-| `location`          | `text`        | Nullable                            | Venue/city                                        |
-| `timezone`          | `text`        | Not Null                            | IANA timezone                                    |
-| `registration_open` | `timestamptz` | Nullable                            | Start of registration window                      |
-| `registration_close`| `timestamptz` | Nullable                            | End of registration window                        |
-| `status`            | `text`        | Enum (`draft`, `published`, `archived`) |                                           |
-| `contact_email`     | `citext`      | Nullable                            |                                                   |
-| `created_by`        | `uuid`        | FK -> `users.id`                    |                                                   |
-| `created_at`        | `timestamptz` | Default `now()`                     |                                                   |
-| `updated_at`        | `timestamptz` | Default `now()`                     |                                                   |
+### Competition Structure
 
-### `scoreboard_settings`
+#### `competitions`
 
-| Column             | Type     | Constraints               | Notes                                                  |
-| ------------------ | -------- | ------------------------- | ------------------------------------------------------ |
-| `tournament_id`    | `uuid`   | PK, FK -> `tournaments.id`| One-to-one                                             |
-| `theme`            | `jsonb`  | Not Null                  | Stores colors, typography, logo references             |
-| `modules`          | `jsonb`  | Not Null                  | Enabled sections and rotation order                    |
-| `auto_rotate_secs` | `int`    | Default 8                 | Enforced minimum of 2                                  |
-| `updated_by`       | `uuid`   | FK -> `users.id`          |                                                         |
-| `updated_at`       | `timestamptz`| Default `now()`       |                                                         |
+| Column              | Type          | Constraints                         | Notes                                        |
+| ------------------- | ------------- | ----------------------------------- | -------------------------------------------- |
+| `id`                | `uuid`        | PK                                  |                                              |
+| `name`              | `text`        | Not Null                            | Public name                                  |
+| `slug`              | `text`        | Unique, Not Null                    | For URLs (`/competitions/{slug}`)            |
+| `default_timezone`  | `text`        | Not Null                            | Olson string                                 |
+| `description`       | `text`        | Nullable                            | Markdown/HTML snippet                        |
+| `primary_color`     | `text`        | Nullable                            | Hex string                                   |
+| `secondary_color`   | `text`        | Nullable                            |                                              |
+| `archived_at`       | `timestamptz` | Nullable                            | Soft archive                                 |
+| `created_at`        | `timestamptz` | Default `now()`                     |                                              |
+| `updated_at`        | `timestamptz` | Default `now()`                     |                                              |
 
-### `tournament_phases`
+#### `editions`
 
-| Column         | Type          | Constraints                     | Notes                                         |
-| -------------- | ------------- | ------------------------------- | --------------------------------------------- |
-| `id`           | `uuid`        | PK                              |                                               |
-| `tournament_id`| `uuid`        | FK -> `tournaments.id`          |                                               |
-| `phase_type`   | `text`        | Enum (`group`, `knockout`)      |                                               |
-| `name`         | `text`        | Not Null                        | Displayed label                               |
-| `order_index`  | `int`         | Not Null                        | Phase ordering                                |
-| `config`       | `jsonb`       | Nullable                        | Phase-specific settings (e.g., tie-break rules)|
-| `locked_at`    | `timestamptz` | Nullable                        | Scheduling freeze                             |
+| Column                 | Type          | Constraints                                         | Notes                                         |
+| ---------------------- | ------------- | --------------------------------------------------- | --------------------------------------------- |
+| `id`                   | `uuid`        | PK                                                  |                                               |
+| `competition_id`       | `uuid`        | FK -> `competitions.id`, Not Null                   |                                               |
+| `label`                | `text`        | Not Null                                            | Display label (“2025”, “Spring Cup”)          |
+| `slug`                 | `text`        | Unique per competition (`competitions.slug + slug`) | Edition URL                                   |
+| `timezone`             | `text`        | Not Null                                            | Olson string                                  |
+| `status`               | `text`        | Enum (`draft`, `published`, `archived`)             |                                               |
+| `registration_opens_at`| `timestamptz` | Nullable                                            |                                               |
+| `registration_closes_at`| `timestamptz`| Nullable                                            |                                               |
+| `contact_email`        | `citext`      | Nullable                                            |                                               |
+| `contact_phone`        | `text`        | Nullable                                            |                                               |
+| `primary_venue_id`     | `uuid`        | FK -> `venues.id`, Nullable                         | Default scoreboard venue                      |
+| `created_at`           | `timestamptz` | Default `now()`                                     |                                               |
+| `updated_at`           | `timestamptz` | Default `now()`                                     |                                               |
 
-### `phase_groups`
+#### `edition_settings`
 
-| Column        | Type          | Constraints                     | Notes                                 |
-| ------------- | ------------- | ------------------------------- | ------------------------------------- |
-| `id`          | `uuid`        | PK                              |                                       |
-| `phase_id`    | `uuid`        | FK -> `tournament_phases.id`    |                                       |
-| `code`        | `text`        | Not Null                        | e.g., A, B, Q1                        |
-| `name`        | `text`        | Nullable                        |                                       |
-| `advancement_rules` | `jsonb` | Nullable                        | e.g., top 2 advance                   |
-| `order_index` | `int`         | Not Null                        |                                       |
+| Column              | Type          | Constraints                         | Notes                                              |
+| ------------------- | ------------- | ----------------------------------- | -------------------------------------------------- |
+| `edition_id`        | `uuid`        | PK, FK -> `editions.id`             | One-to-one settings row                            |
+| `scoreboard_theme`  | `jsonb`       | Not Null                            | Colors, backgrounds, assets                        |
+| `scoreboard_rotation_seconds` | `integer` | Default `5`, CHECK >= 2     | UI safeguards                                      |
+| `registration_requirements`    | `jsonb`  | Nullable                        | Medical forms, categories                          |
+| `ruleset_notes`     | `text`        | Nullable                            | Markdown for staff                                 |
 
-### `fields`
+#### `stages`
 
-| Column         | Type          | Constraints                | Notes                                  |
-| -------------- | ------------- | -------------------------- | -------------------------------------- |
-| `id`           | `uuid`        | PK                         |                                        |
-| `tournament_id`| `uuid`        | FK -> `tournaments.id`     |                                        |
-| `label`        | `text`        | Not Null                   | Display name (“Bane 1”)                |
-| `location`     | `text`        | Nullable                   | Address/description                    |
-| `surface`      | `text`        | Nullable                   |                                         |
-| `availability` | `tsrange[]`   | Nullable                   | Optional time slots for scheduling     |
-| `created_at`   | `timestamptz` | Default `now()`            |                                        |
+| Column           | Type          | Constraints                                     | Notes                                               |
+| ---------------- | ------------- | ----------------------------------------------- | --------------------------------------------------- |
+| `id`             | `uuid`        | PK                                              |                                                     |
+| `edition_id`     | `uuid`        | FK -> `editions.id`, Not Null                   |                                                     |
+| `name`           | `text`        | Not Null                                        | “Gruppespill”, “Sluttspill”                         |
+| `stage_type`     | `text`        | Enum (`group`, `knockout`)                      |                                                     |
+| `order_index`    | `integer`     | Not Null                                        | Stage ordering                                      |
+| `published_at`   | `timestamptz` | Nullable                                        | Stage visible to public                             |
+| `config`         | `jsonb`       | Nullable                                        | Stage-specific options (points schema, progression) |
+| `created_at`     | `timestamptz` | Default `now()`                                 |                                                     |
 
-### `team_registrations`
+#### `groups`
 
-| Column          | Type          | Constraints                           | Notes                                         |
-| --------------- | ------------- | ------------------------------------- | --------------------------------------------- |
-| `id`            | `uuid`        | PK                                    |                                               |
-| `tournament_id` | `uuid`        | FK -> `tournaments.id`, Not Null      |                                               |
-| `team_name`     | `text`        | Not Null                              |                                               |
-| `short_name`    | `text`        | Nullable                              |                                               |
-| `colors`        | `jsonb`       | Nullable                              | Home/away kits                                |
-| `contact_name`  | `text`        | Not Null                              |                                               |
-| `contact_email` | `citext`      | Not Null                              |                                               |
-| `notes`         | `text`        | Nullable                              |                                               |
-| `status`        | `text`        | Enum (`pending`, `approved`, `rejected`, `withdrawn`) |                     |
-| `submitted_by`  | `uuid`        | FK -> `users.id`, Not Null            | Team manager                                  |
-| `reviewed_by`   | `uuid`        | FK -> `users.id`, Nullable            | Tournament admin                              |
-| `reviewed_at`   | `timestamptz` | Nullable                              |                                               |
-| `created_at`    | `timestamptz` | Default `now()`                       |                                               |
+| Column             | Type          | Constraints                             | Notes                                       |
+| ------------------ | ------------- | --------------------------------------- | ------------------------------------------- |
+| `id`               | `uuid`        | PK                                      |                                             |
+| `stage_id`         | `uuid`        | FK -> `stages.id`, Not Null             |                                             |
+| `code`             | `text`        | Not Null                                | “A”, “B”, ...                               |
+| `name`             | `text`        | Nullable                                | Display name                                |
+| `round_robin_mode` | `text`        | Enum (`single`, `double`)               |                                             |
+| `advancement_rules`| `jsonb`       | Nullable                                | Structured instructions for progression     |
+| `created_at`       | `timestamptz` | Default `now()`                         |                                             |
 
-### `teams`
+#### `brackets`
 
-| Column            | Type          | Constraints                           | Notes                                              |
-| ----------------- | ------------- | ------------------------------------- | -------------------------------------------------- |
-| `id`              | `uuid`        | PK                                    |                                                    |
-| `tournament_id`   | `uuid`        | FK -> `tournaments.id`, Not Null      |                                                    |
-| `phase_group_id`  | `uuid`        | FK -> `phase_groups.id`, Nullable     | Current group/seeding                              |
-| `registration_id` | `uuid`        | FK -> `team_registrations.id`, Nullable | Link to original submission                      |
-| `name`            | `text`        | Not Null                              |                                                    |
-| `short_name`      | `text`        | Nullable                              |                                                    |
-| `primary_color`   | `text`        | Nullable                              | HEX                                               |
-| `secondary_color` | `text`        | Nullable                              |                                                    |
-| `status`          | `text`        | Enum (`draft`, `active`, `eliminated`) |                                                   |
-| `created_at`      | `timestamptz` | Default `now()`                       |                                                    |
+| Column            | Type          | Constraints                              | Notes                                              |
+| ----------------- | ------------- | ---------------------------------------- | -------------------------------------------------- |
+| `id`              | `uuid`        | PK                                       |                                                    |
+| `stage_id`        | `uuid`        | FK -> `stages.id`, Not Null              |                                                    |
+| `bracket_type`    | `text`        | Enum (`single_elimination`, `double_elimination`) | Phase one uses single elimination           |
+| `third_place_match`| `boolean`    | Default `false`                          |                                                    |
+| `config`          | `jsonb`       | Nullable                                 | Bracket size, seeding info                         |
+| `created_at`      | `timestamptz` | Default `now()`                          |                                                    |
 
-### `team_roles`
+#### `rounds`
 
-| Column        | Type          | Constraints                           | Notes                               |
-| ------------- | ------------- | ------------------------------------- | ----------------------------------- |
-| `id`          | `uuid`        | PK                                    |                                     |
-| `team_id`     | `uuid`        | FK -> `teams.id`, Not Null            |                                     |
-| `user_id`     | `uuid`        | FK -> `users.id`, Not Null            |                                     |
-| `role`        | `text`        | Enum (`manager`, `coach`)             | Extendable                          |
-| `invited_by`  | `uuid`        | FK -> `users.id`, Nullable            |                                     |
-| `created_at`  | `timestamptz` | Default `now()`                       |                                     |
+| Column            | Type          | Constraints                                   | Notes                                       |
+| ----------------- | ------------- | --------------------------------------------- | ------------------------------------------- |
+| `id`              | `uuid`        | PK                                            |                                             |
+| `stage_id`        | `uuid`        | FK -> `stages.id`, Not Null                   |                                             |
+| `group_id`        | `uuid`        | FK -> `groups.id`, Nullable                   | For group matchdays                         |
+| `bracket_side`    | `text`        | Enum (`winners`, `losers`), Nullable          | Only for double elimination future use      |
+| `label`           | `text`        | Not Null                                      | “Runde 1”, “Kvartfinale”                     |
+| `order_index`     | `integer`     | Not Null                                      |                                             |
+| `created_at`      | `timestamptz` | Default `now()`                               |                                             |
 
-### `players`
+#### `venues`
 
-| Column         | Type          | Constraints                             | Notes                                        |
-| -------------- | ------------- | --------------------------------------- | -------------------------------------------- |
-| `id`           | `uuid`        | PK                                      |                                              |
-| `team_id`      | `uuid`        | FK -> `teams.id`, Not Null              |                                              |
-| `first_name`   | `text`        | Not Null                                |                                              |
-| `last_name`    | `text`        | Not Null                                |                                              |
-| `display_name` | `text`        | Not Null                                | Display on scoreboard                        |
-| `jersey_number`| `int`         | Not Null                                | Unique constraint `(team_id, jersey_number)` |
-| `position`     | `text`        | Nullable                                |                                              |
-| `date_of_birth`| `date`        | Nullable                                |                                              |
-| `paid`         | `boolean`     | Default `false`                         |                                              |
-| `availability` | `text`        | Enum (`available`, `doubtful`, `injured`, `suspended`) | |
-| `created_at`   | `timestamptz` | Default `now()`                         |                                              |
+| Column           | Type          | Constraints                          | Notes                                           |
+| ---------------- | ------------- | ------------------------------------ | ----------------------------------------------- |
+| `id`             | `uuid`        | PK                                   |                                                 |
+| `edition_id`     | `uuid`        | FK -> `editions.id`, Nullable        | Null if reusable across competition             |
+| `competition_id` | `uuid`        | FK -> `competitions.id`, Nullable    | At least one of edition or competition set      |
+| `name`           | `text`        | Not Null                             |                                                 |
+| `slug`           | `text`        | Unique per competition/edition       |                                                 |
+| `address`        | `text`        | Nullable                             |                                                 |
+| `notes`          | `text`        | Nullable                             | Special instructions                            |
+| `timezone`       | `text`        | Nullable                             | Override if different from edition timezone     |
+| `created_at`     | `timestamptz` | Default `now()`                      |                                                 |
 
-### `matches`
+### Participants & Membership
 
-| Column             | Type          | Constraints                             | Notes                                                 |
-| ------------------ | ------------- | --------------------------------------- | ----------------------------------------------------- |
-| `id`               | `uuid`        | PK                                      |                                                       |
-| `tournament_id`    | `uuid`        | FK -> `tournaments.id`, Not Null        |                                                       |
-| `phase_id`         | `uuid`        | FK -> `tournament_phases.id`, Nullable  |                                                       |
-| `phase_group_id`   | `uuid`        | FK -> `phase_groups.id`, Nullable       |                                                       |
-| `round_number`     | `int`         | Nullable                                |                                                       |
-| `match_code`       | `text`        | Not Null                                | Legacy codes (A, B, Q1...)                            |
-| `home_team_id`     | `uuid`        | FK -> `teams.id`, Nullable              |                                                       |
-| `away_team_id`     | `uuid`        | FK -> `teams.id`, Nullable              |                                                       |
-| `home_placeholder` | `text`        | Nullable                                | For unassigned seeds (“Winner Q1”)                    |
-| `away_placeholder` | `text`        | Nullable                                |                                                       |
-| `field_id`         | `uuid`        | FK -> `fields.id`, Nullable             |                                                       |
-| `kickoff_at`       | `timestamptz` | Nullable                                |                                                       |
-| `duration_minutes` | `int`         | Default 25                              |                                                       |
-| `status`           | `text`        | Enum (`draft`, `scheduled`, `live`, `final`, `forfeit`, `cancelled`, `postponed`) |   |
-| `score_home`       | `int`         | Nullable                                |                                                       |
-| `score_away`       | `int`         | Nullable                                |                                                       |
-| `score_et_home`    | `int`         | Nullable                                | Extra time                                            |
-| `score_et_away`    | `int`         | Nullable                                |                                                       |
-| `score_pk_home`    | `int`         | Nullable                                | Penalty shootout                                     |
-| `score_pk_away`    | `int`         | Nullable                                |                                                       |
-| `notes`            | `text`        | Nullable                                |                                                       |
-| `published_at`     | `timestamptz` | Nullable                                | When visible externally                               |
-| `updated_by`       | `uuid`        | FK -> `users.id`, Nullable              |                                                       |
-| `updated_at`       | `timestamptz` | Default `now()`                         |                                                       |
+#### `teams`
 
-### `match_events`
+| Column            | Type          | Constraints                             | Notes                                          |
+| ----------------- | ------------- | --------------------------------------- | ---------------------------------------------- |
+| `id`              | `uuid`        | PK                                      |                                                |
+| `name`            | `text`        | Not Null                                |                                                |
+| `short_name`      | `text`        | Nullable                                |                                                |
+| `primary_color`   | `text`        | Nullable                                | HEX string                                     |
+| `secondary_color` | `text`        | Nullable                                |                                                |
+| `home_city`       | `text`        | Nullable                                | Optional metadata                              |
+| `logo_url`        | `text`        | Nullable                                |                                                |
+| `created_at`      | `timestamptz` | Default `now()`                         |                                                |
+| `updated_at`      | `timestamptz` | Default `now()`                         |                                                |
 
-| Column             | Type          | Constraints                             | Notes                                             |
-| ------------------ | ------------- | --------------------------------------- | ------------------------------------------------- |
-| `id`               | `uuid`        | PK                                      |                                                   |
-| `match_id`         | `uuid`        | FK -> `matches.id`, Not Null            |                                                   |
-| `event_type`       | `text`        | Enum (`goal`, `own_goal`, `penalty_goal`, `penalty_miss`, `yellow_card`, `red_card`) | |
-| `minute`           | `int`         | Not Null                                |                                                   |
-| `stoppage_time`    | `int`         | Nullable                                |                                                   |
-| `team_id`          | `uuid`        | FK -> `teams.id`, Nullable              |                                                   |
-| `player_id`        | `uuid`        | FK -> `players.id`, Nullable            |                                                   |
-| `assist_player_id` | `uuid`        | FK -> `players.id`, Nullable            |                                                   |
-| `created_by`       | `uuid`        | FK -> `users.id`, Not Null              |                                                   |
-| `created_at`       | `timestamptz` | Default `now()`                         |                                                   |
+#### `persons`
 
-### `score_confirmations`
+| Column          | Type          | Constraints                          | Notes                                      |
+| --------------- | ------------- | ------------------------------------ | ------------------------------------------ |
+| `id`            | `uuid`        | PK                                   |                                            |
+| `first_name`    | `text`        | Not Null                             |                                            |
+| `last_name`     | `text`        | Nullable                             | Supports single-name players               |
+| `display_name`  | `text`        | Nullable                             | Defaults to `first_name last_name`         |
+| `birthdate`     | `date`        | Nullable                             |                                            |
+| `country_code`  | `text`        | Nullable                             | ISO alpha-2                                |
+| `preferred_position` | `text`   | Nullable                             | e.g., `GK`, `FW`                           |
+| `created_at`    | `timestamptz` | Default `now()`                      |                                            |
 
-| Column         | Type          | Constraints                           | Notes                                         |
-| -------------- | ------------- | ------------------------------------- | --------------------------------------------- |
-| `id`           | `uuid`        | PK                                    |                                               |
-| `match_id`     | `uuid`        | FK -> `matches.id`, Not Null          |                                               |
-| `team_id`      | `uuid`        | FK -> `teams.id`, Not Null            |                                               |
-| `submitted_by` | `uuid`        | FK -> `users.id`, Not Null            | Team manager                                  |
-| `status`       | `text`        | Enum (`pending`, `confirmed`, `disputed`, `expired`) |                     |
-| `comment`      | `text`        | Nullable                              |                                               |
-| `resolved_by`  | `uuid`        | FK -> `users.id`, Nullable            | Tournament admin                              |
-| `resolved_at`  | `timestamptz` | Nullable                              |                                               |
-| `created_at`   | `timestamptz` | Default `now()`                       |                                               |
+#### `team_memberships`
 
-### `notifications`
+| Column        | Type          | Constraints                                       | Notes                                             |
+| ------------- | ------------- | ------------------------------------------------- | ------------------------------------------------- |
+| `id`          | `uuid`        | PK                                                |                                                   |
+| `team_id`     | `uuid`        | FK -> `teams.id`, Not Null                        |                                                   |
+| `person_id`   | `uuid`        | FK -> `persons.id`, Not Null                      |                                                   |
+| `role`        | `text`        | Enum (`player`, `coach`, `manager`, `staff`)      | Extendable                                        |
+| `status`      | `text`        | Enum (`active`, `inactive`)                       |                                                   |
+| `started_on`  | `date`        | Nullable                                          |                                                   |
+| `ended_on`    | `date`        | Nullable                                          |                                                   |
+| `notes`       | `text`        | Nullable                                          |                                                   |
+| `created_at`  | `timestamptz` | Default `now()`                                   |                                                   |
 
-| Column       | Type          | Constraints                           | Notes                                |
-| ------------ | ------------- | ------------------------------------- | ------------------------------------ |
-| `id`         | `uuid`        | PK                                    |                                      |
-| `user_id`    | `uuid`        | FK -> `users.id`, Not Null            | Recipient                            |
-| `type`       | `text`        | Enum (`schedule_change`, `score_finalized`, `score_dispute`, `role_invite`) | |
-| `payload`    | `jsonb`       | Not Null                              | Structured data                      |
-| `read_at`    | `timestamptz` | Nullable                              |                                      |
-| `created_at` | `timestamptz` | Default `now()`                       |                                      |
+#### `entries`
 
-### `event_feed`
+| Column           | Type          | Constraints                                                             | Notes                                      |
+| ---------------- | ------------- | ----------------------------------------------------------------------- | ------------------------------------------ |
+| `id`             | `uuid`        | PK                                                                      |                                            |
+| `edition_id`     | `uuid`        | FK -> `editions.id`, Not Null                                           |                                            |
+| `team_id`        | `uuid`        | FK -> `teams.id`, Not Null                                              |                                            |
+| `status`         | `text`        | Enum (`pending`, `approved`, `rejected`, `withdrawn`)                   |                                            |
+| `submitted_by`   | `uuid`        | FK -> `users.id`, Not Null                                              | Team manager                               |
+| `submitted_at`   | `timestamptz` | Default `now()`                                                         |                                            |
+| `reviewed_by`    | `uuid`        | FK -> `users.id`, Nullable                                              | Edition admin                              |
+| `reviewed_at`    | `timestamptz` | Nullable                                                                |                                            |
+| `category`       | `text`        | Nullable                                                                | Age group / division                       |
+| `notes`          | `text`        | Nullable                                                                | Internal commentary                         |
 
-| Column         | Type          | Constraints                           | Notes                                         |
-| -------------- | ------------- | ------------------------------------- | --------------------------------------------- |
-| `id`           | `uuid`        | PK                                    | Feed cursor                                   |
-| `tournament_id`| `uuid`        | FK -> `tournaments.id`, Nullable      | Null for global events                        |
-| `entity_type`  | `text`        | Enum (`match`, `match_event`, `registration`, `notification`) | |
-| `entity_id`    | `uuid`        | Not Null                              | References target entity                      |
-| `action`       | `text`        | Enum (`created`, `updated`, `deleted`) |                                              |
-| `snapshot`     | `jsonb`       | Not Null                              | Data needed for consumers                     |
-| `created_at`   | `timestamptz` | Default `now()`                       |                                               |
+#### `squads`
 
-### `audit_logs`
+| Column        | Type          | Constraints                             | Notes                                        |
+| ------------- | ------------- | --------------------------------------- | -------------------------------------------- |
+| `id`          | `uuid`        | PK                                      |                                              |
+| `entry_id`    | `uuid`        | FK -> `entries.id`, Not Null            |                                              |
+| `label`       | `text`        | Nullable                                | e.g., “Kamptropp A”                          |
+| `locked_at`   | `timestamptz` | Nullable                                | Edition admin lock                            |
+| `created_at`  | `timestamptz` | Default `now()`                         |                                              |
+| `updated_at`  | `timestamptz` | Default `now()`                         |                                              |
 
-| Column       | Type          | Constraints                           | Notes                                |
-| ------------ | ------------- | ------------------------------------- | ------------------------------------ |
-| `id`         | `uuid`        | PK                                    |                                      |
-| `actor_id`   | `uuid`        | FK -> `users.id`, Nullable            | System actions may be null           |
-| `scope_type` | `text`        | Enum (`tournament`, `team`, `match`, `user`) |                                |
-| `scope_id`   | `uuid`        | Nullable                              |                                      |
-| `action`     | `text`        | Not Null                              | e.g., `match.score.update`           |
-| `metadata`   | `jsonb`       | Not Null                              | Before/after snapshot                |
-| `created_at` | `timestamptz` | Default `now()`                       |                                      |
+#### `squad_members`
+
+| Column            | Type          | Constraints                                        | Notes                                            |
+| ----------------- | ------------- | -------------------------------------------------- | ------------------------------------------------ |
+| `id`              | `uuid`        | PK                                                 |                                                  |
+| `squad_id`        | `uuid`        | FK -> `squads.id`, Not Null                        |                                                  |
+| `person_id`       | `uuid`        | FK -> `persons.id`, Not Null                       | Person must have active team membership          |
+| `jersey_number`   | `integer`     | Nullable                                           | Unique per squad (enforced via partial index)    |
+| `position`        | `text`        | Nullable                                           |                                                  |
+| `availability`    | `text`        | Enum (`available`, `doubtful`, `injured`, `suspended`) |                                             |
+| `notes`           | `text`        | Nullable                                           |                                                  |
+| `created_at`      | `timestamptz` | Default `now()`                                    |                                                  |
+
+### Matches & Statistics
+
+#### `matches`
+
+| Column             | Type          | Constraints                                                            | Notes                                                |
+| ------------------ | ------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
+| `id`               | `uuid`        | PK                                                                     |                                                      |
+| `edition_id`       | `uuid`        | FK -> `editions.id`, Not Null                                          |                                                      |
+| `stage_id`         | `uuid`        | FK -> `stages.id`, Not Null                                            |                                                      |
+| `group_id`         | `uuid`        | FK -> `groups.id`, Nullable                                            |                                                      |
+| `bracket_id`       | `uuid`        | FK -> `brackets.id`, Nullable                                          |                                                      |
+| `round_id`         | `uuid`        | FK -> `rounds.id`, Nullable                                            |                                                      |
+| `home_entry_id`    | `uuid`        | FK -> `entries.id`, Not Null                                           |                                                      |
+| `away_entry_id`    | `uuid`        | FK -> `entries.id`, Not Null                                           |                                                      |
+| `venue_id`         | `uuid`        | FK -> `venues.id`, Nullable                                            |                                                      |
+| `code`             | `text`        | Nullable                                                               | e.g., “A1”, “QF1”                                   |
+| `kickoff_at`       | `timestamptz` | Nullable                                                               |                                                      |
+| `status`           | `text`        | Enum (`scheduled`, `live`, `final`, `cancelled`, `postponed`)          |                                                      |
+| `home_score`       | `integer`     | Default `0`                                                            |                                                      |
+| `away_score`       | `integer`     | Default `0`                                                            |                                                      |
+| `home_extra_time`  | `integer`     | Nullable                                                               |                                                      |
+| `away_extra_time`  | `integer`     | Nullable                                                               |                                                      |
+| `home_penalties`   | `integer`     | Nullable                                                               |                                                      |
+| `away_penalties`   | `integer`     | Nullable                                                               |                                                      |
+| `outcome`          | `text`        | Enum (`home_win`, `away_win`, `draw`, `forfeit`, `cancelled`)          |                                                      |
+| `notes`            | `text`        | Nullable                                                               | Operational notes                                    |
+| `published_at`     | `timestamptz` | Nullable                                                               |                                                      |
+| `created_at`       | `timestamptz` | Default `now()`                                                        |                                                      |
+| `updated_at`       | `timestamptz` | Default `now()`                                                        |                                                      |
+
+#### `appearances`
+
+| Column            | Type          | Constraints                                          | Notes                                          |
+| ----------------- | ------------- | ---------------------------------------------------- | ---------------------------------------------- |
+| `id`              | `uuid`        | PK                                                   |                                                |
+| `match_id`        | `uuid`        | FK -> `matches.id`, Not Null                         |                                                |
+| `squad_member_id` | `uuid`        | FK -> `squad_members.id`, Not Null                   |                                                |
+| `team_side`       | `text`        | Enum (`home`, `away`)                                | Derived from entry membership                   |
+| `started`         | `boolean`     | Default `false`                                      | Lineups formally deferred; start flag still useful |
+| `minutes_played`  | `integer`     | Nullable                                             | Calculated downstream                          |
+| `entered_at_minute` | `integer`   | Nullable                                             |                                                |
+| `created_at`      | `timestamptz` | Default `now()`                                      |                                                |
+
+#### `match_events`
+
+| Column             | Type          | Constraints                                                              | Notes                                         |
+| ------------------ | ------------- | ------------------------------------------------------------------------ | --------------------------------------------- |
+| `id`               | `uuid`        | PK                                                                       |                                               |
+| `match_id`         | `uuid`        | FK -> `matches.id`, Not Null                                             |                                               |
+| `appearance_id`    | `uuid`        | FK -> `appearances.id`, Nullable                                         | Null for administrative events                |
+| `team_side`        | `text`        | Enum (`home`, `away`)                                                    |                                               |
+| `event_type`       | `text`        | Enum (`goal`, `own_goal`, `penalty_goal`, `assist`, `yellow_card`, `red_card`) | Phase-one events                      |
+| `minute`           | `integer`     | Nullable                                                                 |                                               |
+| `stoppage_time`    | `integer`     | Nullable                                                                 |                                               |
+| `related_member_id`| `uuid`        | FK -> `squad_members.id`, Nullable                                       | e.g., assist provider                         |
+| `metadata`         | `jsonb`       | Not Null Default `{}`                                                    | Extra info (penalty shootout order, reason)   |
+| `created_at`       | `timestamptz` | Default `now()`                                                          |                                               |
+
+### Collaboration & Audit
+
+#### `notifications`
+
+| Column           | Type          | Constraints                                    | Notes                                      |
+| ---------------- | ------------- | ---------------------------------------------- | ------------------------------------------ |
+| `id`             | `uuid`        | PK                                             |                                            |
+| `user_id`        | `uuid`        | FK -> `users.id`, Not Null                     |                                            |
+| `type`           | `text`        | Enum (`entry_status`, `schedule_change`, `score_finalized`, `score_disputed`) | |
+| `payload`        | `jsonb`       | Not Null                                       |                                            |
+| `read_at`        | `timestamptz` | Nullable                                       |                                            |
+| `created_at`     | `timestamptz` | Default `now()`                                |                                            |
+
+#### `event_feed`
+
+| Column        | Type          | Constraints                                                           | Notes                                         |
+| ------------- | ------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| `id`          | `uuid`        | PK                                                                    | Feed cursor                                   |
+| `edition_id`  | `uuid`        | FK -> `editions.id`, Nullable                                         | Null for cross-edition events                 |
+| `entity_type` | `text`        | Enum (`match`, `match_event`, `entry`, `notification`)                | Extendable                                    |
+| `entity_id`   | `uuid`        | Not Null                                                              | References target entity                      |
+| `action`      | `text`        | Enum (`created`, `updated`, `deleted`)                                |                                               |
+| `snapshot`    | `jsonb`       | Not Null                                                              | Data required by polling consumers            |
+| `created_at`  | `timestamptz` | Default `now()`                                                       |                                               |
+
+#### `audit_logs`
+
+| Column        | Type          | Constraints                                                      | Notes                                        |
+| ------------- | ------------- | ---------------------------------------------------------------- | -------------------------------------------- |
+| `id`          | `uuid`        | PK                                                               |                                              |
+| `actor_id`    | `uuid`        | FK -> `users.id`, Nullable                                       | System actions may be null                   |
+| `scope_type`  | `text`        | Enum (`competition`, `edition`, `team`, `match`, `user`)         |                                              |
+| `scope_id`    | `uuid`        | Nullable                                                         |                                              |
+| `action`      | `text`        | Not Null                                                         | e.g., `edition.stage.update`                 |
+| `metadata`    | `jsonb`       | Not Null                                                         | Before/after payload                         |
+| `created_at`  | `timestamptz` | Default `now()`                                                  |                                              |
 
 ---
 
-## Derived/Computed Views
+## Derived / Computed Views
 
-- **`standings_view`**: Materialized view per tournament/phase group computing matches played, wins/draws/losses, goals for/against, goal differential, points, fair play deductions, tie-break order.
-- **`top_scorers_view`**: Aggregates `match_events` where `event_type` in (`goal`, `penalty_goal`) grouped by player, sorted by total goals, assists.
-- **`upcoming_matches_view`**: Filters matches by scheduled status and future `kickoff_at`, ordered for scoreboard display.
+- **`edition_standings_view`**: Materialized standings per edition/group using `matches`, honoring advancement rules, goal differential, goals scored, head-to-head mini-table, and fair play deductions.
+- **`edition_top_scorers_view`**: Aggregates `match_events` where `event_type` in (`goal`, `penalty_goal`) grouped by `person_id`, exposing goals, assists, and matches played.
+- **`edition_schedule_view`**: Filters `matches` with upcoming `kickoff_at`, ordered by venue and start time for scoreboard and notification feeds.
 
 ---
 
-## Data Integrity Constraints
+## Data Integrity Constraints & Enforcement
 
-- Enforce `CHECK` constraints ensuring `score_pk_*` values exist only when `status = 'final'` and match marked as penalty shootout.
-- Disallow `match_events` referencing players not in `home_team_id` or `away_team_id`.
-- Cascading rules: deleting a tournament removes dependent records (phases, teams, matches). Soft-delete not required in phase one; archival handled via `status`.
+- Partial unique index `UNIQUE(squad_id, jersey_number)` filtered where `jersey_number IS NOT NULL` to guarantee unique squad numbers.
+- `team_memberships` must exist (via FK) before a `squad_member` referencing the person is inserted; enforced through deferred check using trigger or application guard.
+- `matches.home_entry_id` and `matches.away_entry_id` must reference entries approved (`status = 'approved'`); enforce via trigger checking `entries.status`.
+- `match_events` referencing `appearance_id` must belong to the same `match_id`; enforced via FK with `MATCH SIMPLE` and check constraint.
+- Cascades: deleting an edition removes dependent stages, groups, brackets, rounds, matches, entries, squads, squad members, appearances, and match events. Teams and persons remain reusable and are not cascaded.
+- Official assignments, lineups, and two-legged ties are intentionally deferred; placeholder tables are not created in phase one.
+- Audit log triggers capture mutations on `matches`, `entries`, `stages`, `scoreboard_theme`, and `user_roles`.
 
-No outstanding data model questions remain; schema supports required functionality and anticipated extensions (referees, messaging).
-
+No outstanding questions remain for phase one. Future iterations will introduce tie aggregates, lineup tables, and referee assignments when the corresponding features enter scope.

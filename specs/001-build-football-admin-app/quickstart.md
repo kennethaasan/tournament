@@ -2,7 +2,7 @@
 
 **Status**: Drafted (2025-11-05)
 
-This guide outlines the expected local development workflow for the modern football tournament administration application once implementation aligns with the specification.
+This guide outlines the expected local development workflow for the modern football competition administration application once implementation aligns with the specification.
 
 ---
 
@@ -57,13 +57,13 @@ docker run --name tournament-db \
 ```bash
 npm run db:generate   # drizzle-kit generate (placeholder)
 npm run db:migrate    # apply latest migrations
-npm run seed          # seed sample tournaments, teams, matches (idempotent)
+npm run seed          # seed sample competitions, editions, teams, matches (idempotent)
 ```
 
 The seed should create:
-- One draft tournament with demo data for admin flows.
-- One published tournament with matches for scoreboard testing.
-- Default users (admin, tournament admin, team manager) with known credentials.
+- One competition with both a draft and a published edition for admin flows.
+- Sample entries, squads, and matches tied to the published edition for scoreboard testing.
+- Default users (global admin, edition admin, team manager) with known credentials.
 
 ---
 
@@ -74,7 +74,7 @@ npm run dev
 ```
 
 - App routes available at `http://localhost:3000`.
-- Public scoreboard example at `http://localhost:3000/turnering/{slug}/scoreboard`.
+- Public scoreboard example at `http://localhost:3000/competitions/{competitionSlug}/{editionSlug}/scoreboard`.
 - API endpoints under `/api/*` (protected as appropriate).
 
 ---
@@ -94,7 +94,7 @@ npm run spectral     # OpenAPI contract lint
 ## 6. Useful Demo Credentials (per seed)
 
 - Global Admin: `admin@example.com` / `Password123!`
-- Tournament Admin: `turnering@example.com` / `Password123!`
+- Edition Admin: `edition-admin@example.com` / `Password123!`
 - Team Manager: `lagleder@example.com` / `Password123!`
 
 (Update with actual values once seeding implemented.)
@@ -111,4 +111,3 @@ npm run spectral     # OpenAPI contract lint
 ---
 
 Future updates to this guide should reference concrete script names as the implementation matures.
-

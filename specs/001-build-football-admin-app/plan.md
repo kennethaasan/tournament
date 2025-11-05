@@ -1,4 +1,4 @@
-# Implementation Plan: Modern Football Tournament Administration App
+# Implementation Plan: Modern Football Competition Administration App
 
 **Branch**: `001-build-football-admin-app` | **Date**: 2025-11-05 | **Spec**: [./spec.md](./spec.md)  
 **Input**: Feature specification from `/specs/001-build-football-admin-app/spec.md`
@@ -21,7 +21,7 @@
 
 ## Summary
 
-Rewrite the 2014 Laravel + Angular tournament admin into a modern Next.js TypeScript application with multi-format scheduling, self-service onboarding, configurable scoreboard, and real-time polling. Scope includes end-to-end experience for admins, tournament admins, team managers, and public spectators while maintaining Norwegian Bokmål UI and English code/logging.
+Replace the 2014 Laravel + Angular tournament system with a modern Next.js TypeScript platform that models competitions as recurring umbrellas and editions as individual occurrences. Deliver multi-format scheduling, self-service team onboarding, reusable team/person records, edition-specific squads, configurable scoreboard experiences, and polling-driven real-time updates. Serve global admins, edition admins, team managers, and public spectators while keeping UI in Norwegian Bokmål and code/logging in English.
 
 ---
 
@@ -61,28 +61,28 @@ No blockers identified; proceed to implementation phases when ready.
    - Establish app layout, localization plumbing, and design tokens (including scoreboard theme variables).
 
 2. **Domain & API (Backend-first)**
-   - Implement Drizzle schema + migrations for core tables.
-   - Expose OpenAPI-spec’d endpoints for tournaments, teams, players, matches, match events, registrations, notifications, scoreboard.
+   - Implement Drizzle schema + migrations for competitions, editions, entries, squads, matches, and supporting tables.
+   - Expose OpenAPI-spec’d endpoints for competitions/editions, teams, persons, entries, squads, matches, match events, notifications, and scoreboard configuration.
    - Integrate role-based guards with better-auth.
-   - Seed scripts for demo data.
+   - Seed scripts for demo data covering multiple competitions and editions.
 
 3. **Scheduling & Statistics Engines**
-   - Build round-robin generator and knockout bracket services.
+   - Build round-robin generator and knockout bracket services that operate on editions/stages.
    - Implement standings/top-scorer calculators with Vitest coverage.
-   - Wire event feed mechanism (delta cursor).
+   - Wire event feed mechanism (delta cursor) scoped to editions.
 
 4. **Admin Interfaces (Authenticated UI)**
-   - Global admin dashboard (tournaments list, role management).
-   - Tournament admin workspace (phases, field config, match editor, scoreboard settings).
+   - Global admin dashboard (competitions list, edition creation, role management).
+   - Edition admin workspace (stage management, venue configuration, entry approval, match editor, scoreboard settings).
    - Score confirmation review queue.
 
 5. **Team Manager Experience**
-   - Team registration flow.
-   - Roster management (players CRUD, payment status, availability).
+   - Team registration flow reusing persistent team records.
+   - Squad management (select members from team memberships, assign jersey numbers).
    - Schedule/results views with notifications.
 
 6. **Public Surfaces**
-   - Tournament landing page (schedule, standings, top scorers).
+   - Edition landing page (schedule, standings, top scorers, venues).
    - Big-screen scoreboard with configurable modules, polling, auto-rotate.
 
 7. **Quality Gates**
@@ -101,11 +101,10 @@ No blockers identified; proceed to implementation phases when ready.
 
 - Schema & migrations (Phase 2) block all downstream implementation.
 - Role-based auth must be in place before UI routes (Phases 4/5).
-- Scheduling services needed prior to match UI to avoid rework.
+- Scheduling services need edition data in place prior to match UI work.
 - Event feed must be stable before scoreboard and notification features.
 - Localization resources should be set early to avoid English hardcoding.
 
 ---
 
 Implementation tasks will be enumerated once `/tasks` is invoked, reusing patterns from the `mattis` modernization.
-
