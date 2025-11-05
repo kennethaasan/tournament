@@ -2,13 +2,13 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: tournament
-      POSTGRES_PASSWORD: tournament
-      POSTGRES_DB: tournament
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "tournament"]
+      test: ["CMD", "pg_isready", "-U", "app"]
       interval: 10s
       timeout: 5s
       retries: 5
