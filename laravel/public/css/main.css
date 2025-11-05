@@ -1,0 +1,22 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body {
+    padding-top: 90px;
+    padding-bottom: 20px;
+}
+
+.match-info {
+	width: 10%;
+}
+
+table > tbody > tr > td {
+	vertical-align: middle !important;
+}
+
+.ui-select-container button {
+	text-align: left !important;
+}

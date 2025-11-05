@@ -1,0 +1,69 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+body {
+	background: url("../img/bg_main_ny.jpg");
+	margin-left: 0px;
+	margin-top: 0px;
+	margin-right: 0px;
+	margin-bottom: 0px;
+	background-color: #3681b6;
+	background-repeat: no-repeat;
+}
+
+.container-fluid {
+	padding-top: 10px;
+
+    padding-right: 70px;
+    padding-left: 70px;
+}
+
+.panel {
+	background-color: rgba(0, 0, 0, 0);
+	border-radius: 0;
+}
+
+.panel-default > .panel-heading {
+	background-color: rgba(0, 0, 0, 0.6);
+	color: white;
+}
+
+.table thead tr {
+	background-color: rgba(0, 0, 0, 0.1);
+}
+
+.table {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.table tbody tr:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+.table tbody tr:nth-child(odd) {
+	background-color: rgba(0, 0, 0, 0.3);
+}
+
+.table td ,
+.table th {
+	line-height: 1 !important;
+	font-size: 12px !important;
+}
+
+.table > thead > tr > th,
+.table > tbody > tr > td {
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border: none;
+}
+
+.team {
+	width: 40%;
+}
+
+.player {
+	width: 90%;
+}

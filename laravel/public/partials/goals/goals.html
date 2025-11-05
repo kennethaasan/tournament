@@ -1,0 +1,40 @@
+<div ng-include="'partials/helpers/loading.html'"></div>
+
+<div class="row" ng-hide="loading">
+
+    <div class="col-md-10">
+        <div class="input-group">
+            <div class="input-group-addon"><span class="fa fa-search"></span></div>
+            <input type="text" ng-model="searchText" class="form-control" id="search" placeholder="Søk"/>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <a class="btn btn-block btn-primary" href="#maal/ny">Nytt mål</a>
+    </div>
+
+    <div class="col-md-12">
+        <table class="table">
+            <thead>
+                <tr>
+                    <td colspan="4"><h3>Alle målene</h3></td>
+                </tr>
+                <tr>
+                    <th>Kamp</th>
+                    <th>Spiller</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="goal in goals | filter:searchText">
+                    <td>{{ goal.match.match_code }}: {{ goal.match.hometeam }} - {{ goal.match.awayteam }}</td>
+                    <td>{{ goal.player }}</td>
+                    <td class="text-right">
+                        <a class="btn btn-sm btn-danger" ng-click="deleteGoal(goal)">Slett</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
