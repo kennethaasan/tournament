@@ -21,7 +21,7 @@
 
 ## Summary
 
-Replace the 2014 Laravel + Angular tournament system with a modern Next.js TypeScript platform that models competitions as recurring umbrellas and editions as individual occurrences. Deliver multi-format scheduling, self-service team onboarding, reusable team/person records, edition-specific squads, configurable scoreboard experiences, and polling-driven real-time updates. Serve global admins, edition admins, team managers, and public spectators while keeping UI in Norwegian Bokmål and code/logging in English.
+Replace the 2014 Laravel + Angular tournament system with a modern Next.js TypeScript platform that models competitions as recurring umbrellas and editions as individual occurrences. Deliver self-service competition creation (auto-assigning organizers as competition admins), multi-format scheduling, reusable team/person records, edition-specific squads, configurable scoreboard experiences, and polling-driven real-time updates. Serve organizers, global admins, edition admins, team managers, and public spectators while keeping UI in Norwegian Bokmål and code/logging in English.
 
 ---
 
@@ -31,9 +31,9 @@ Replace the 2014 Laravel + Angular tournament system with a modern Next.js TypeS
 - **Frameworks**: Next.js 16 (App Router), React 19, Tailwind CSS 4, Shadcn.
 - **Auth**: better-auth (email invite, password, MFA-ready).
 - **Database**: PostgreSQL + Drizzle ORM, UUID v7 primary keys.
-- **Tooling**: Biome (lint/format), Vitest, Playwright, Spectral, pino logging.
+- **Tooling**: Biome (lint/format), Vitest, Playwright, Spectral, pino logging, OpenAPI 3.2 contract tooling with Problem Details compliance.
 - **Deployment Target**: TBD (likely Vercel/AWS); plan accommodates serverless or containerized hosting.
-- **Internationalization**: Norwegian Bokmål UI strings via resource files; English API/logs.
+- **Internationalization**: Norwegian Bokmål UI strings hard-coded in source (phase-one constraint); English API/logs.
 - **Real-time**: Polling endpoints with delta feeds.
 
 ---
@@ -73,12 +73,13 @@ No blockers identified; proceed to implementation phases when ready.
 
 4. **Admin Interfaces (Authenticated UI)**
    - Global admin dashboard (competitions list, edition creation, role management).
-   - Edition admin workspace (stage management, venue configuration, entry approval, match editor, scoreboard settings).
-   - Score confirmation review queue.
+   - Competition & edition admin workspace (competition settings, stage management, venue configuration, entry approval, match editor, scoreboard settings).
+   - Score dispute review queue.
 
 5. **Team Manager Experience**
    - Team registration flow reusing persistent team records.
    - Squad management (select members from team memberships, assign jersey numbers).
+   - Admin assist tools so competition admins can create teams and squads on behalf of participants.
    - Schedule/results views with notifications.
 
 6. **Public Surfaces**
@@ -103,7 +104,7 @@ No blockers identified; proceed to implementation phases when ready.
 - Role-based auth must be in place before UI routes (Phases 4/5).
 - Scheduling services need edition data in place prior to match UI work.
 - Event feed must be stable before scoreboard and notification features.
-- Localization resources should be set early to avoid English hardcoding.
+- Localization copy lives alongside components for now; plan manual QA passes to keep Norwegian Bokmål consistent.
 
 ---
 

@@ -86,7 +86,7 @@ npm run lint         # biome + typegen
 npm run tsc          # standalone type check (if separate script added)
 npm test             # Vitest unit/integration (with coverage)
 npx playwright test  # Playwright E2E suite
-npm run spectral     # OpenAPI contract lint
+npm run spectral     # OpenAPI 3.2 contract lint (Problem Details & project rules)
 ```
 
 ---
@@ -107,6 +107,7 @@ npm run spectral     # OpenAPI contract lint
 - Use `npm run test:watch` (to be added) for iterative Vitest runs.
 - Use `npm run test:e2e` for Playwright UI validation.
 - Regenerate OpenAPI clients via `npm run openapi:generate` after contract changes.
+- Norwegian Bokmål copy is hard-coded in source for now; text updates require code changes.
 
 ---
 

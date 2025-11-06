@@ -150,6 +150,8 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | `granted_by`  | `uuid`        | FK -> `users.id`, Nullable                            | Populated for delegated grants          |
 | `created_at`  | `timestamptz` | Default `now()`                                       |                                         |
 
+Self-service competition creation writes a `user_roles` row with `role = 'competition_admin'`, `scope_type = 'competition'`, `scope_id = competitions.id`, and `granted_by = user_id` to capture automatic organizer assignment.
+
 ### Competition Structure
 
 #### `competitions`
@@ -308,7 +310,7 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | `edition_id`     | `uuid`        | FK -> `editions.id`, Not Null                                           |                                            |
 | `team_id`        | `uuid`        | FK -> `teams.id`, Not Null                                              |                                            |
 | `status`         | `text`        | Enum (`pending`, `approved`, `rejected`, `withdrawn`)                   |                                            |
-| `submitted_by`   | `uuid`        | FK -> `users.id`, Not Null                                              | Team manager                               |
+| `submitted_by`   | `uuid`        | FK -> `users.id`, Not Null                                              | Team manager or competition admin acting on behalf |
 | `submitted_at`   | `timestamptz` | Default `now()`                                                         |                                            |
 | `reviewed_by`    | `uuid`        | FK -> `users.id`, Nullable                                              | Edition admin                              |
 | `reviewed_at`    | `timestamptz` | Nullable                                                                |                                            |
@@ -322,9 +324,11 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | `id`          | `uuid`        | PK                                      |                                              |
 | `entry_id`    | `uuid`        | FK -> `entries.id`, Not Null            |                                              |
 | `label`       | `text`        | Nullable                                | e.g., “Kamptropp A”                          |
-| `locked_at`   | `timestamptz` | Nullable                                | Edition admin lock                            |
+| `locked_at`   | `timestamptz` | Nullable                                | Edition/competition admin lock                 |
 | `created_at`  | `timestamptz` | Default `now()`                         |                                              |
 | `updated_at`  | `timestamptz` | Default `now()`                         |                                              |
+
+Competition admins can create teams, entries, and squads on behalf of participating clubs; audit logs must capture when an admin performs these actions instead of a team manager.
 
 #### `squad_members`
 

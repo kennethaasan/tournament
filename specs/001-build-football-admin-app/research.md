@@ -62,8 +62,8 @@ This document captures technology choices and architectural direction for the mo
 
 ## 9. Internationalization
 
-- **Decision**: `next-intl` (or native Next.js i18n routing) with translation files keyed in US English, values in Norwegian Bokmål.
-- **Rationale**: Allows UI copy to live in resource files while keeping code in English. Supports runtime editing by loading competition/edition-specific overrides from the database.
+- **Decision**: Hard-code Norwegian Bokmål copy directly in React components and server responses for phase one while scaffolding utilities that will later migrate to `next-intl`.
+- **Rationale**: Matches the updated requirement to keep localized strings in source control for now; still allows us to wrap copy helpers so that introducing runtime translation files later is low-friction.
 
 ## 10. Logging & Observability
 
@@ -73,8 +73,8 @@ This document captures technology choices and architectural direction for the mo
 
 ## 11. Testing & Quality Gates
 
-- **Decision**: Vitest (unit/integration), Playwright (E2E), Spectral (OpenAPI lint), Biome (lint/format).
-- **Rationale**: Aligns with project tooling; ensures contracts, roles, and accessibility regressions are caught early. Reuse testing patterns from `mattis` repo.
+- **Decision**: Vitest (unit/integration), Playwright (E2E), Spectral (OpenAPI lint), Biome (lint/format) with OpenAPI 3.2 contract validation and RFC 9457 Problem Details assertions.
+- **Rationale**: Aligns with project tooling; ensures contracts, roles, and accessibility regressions are caught early while enforcing consistent error payloads. Reuse testing patterns from `mattis` repo.
 
 ---
 
