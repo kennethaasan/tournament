@@ -102,7 +102,7 @@ lessons from the `mattis` reference application (e.g., `/tmp/mattis/src/lib/*`, 
 ## 10. Notifications & Messaging
 
 - **Decision**: Store notifications in Postgres, expose them via the polling feed, and trigger email
-  digests through background jobs (queue via BullMQ + Redis when load warrants).
+  digests through Amazon Simple Email Service (Amazon SES).
 - **Rationale**: Provides immediate in-app feedback with optional email, aligns with deferring SMS,
   and mirrors `mattis/tests/integration/notifications` coverage expectations.
 - **Alternatives considered**: Direct email-only notifications (fails in-app requirement);

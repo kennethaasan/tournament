@@ -40,7 +40,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 Use the provided Compose file (to be added alongside implementation) or spin up PostgreSQL manually:
 
 ```bash
-docker compose up -d postgres redis
+docker compose up -d postgres
 # or
 docker run --name tournament-db \
   -e POSTGRES_PASSWORD=postgres \

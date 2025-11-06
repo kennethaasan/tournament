@@ -21,9 +21,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Align local tooling and environment baselines required by quickstart.md.
 
-- [ ] T001 Create environment template with required placeholders in `.env.example`.
-- [ ] T002 Expand Docker compose with Postgres 17 and Redis services plus persistent volumes in `compose.yaml`.
-- [ ] T003 Update npm scripts for linting, type-checking, testing, contracts, database, and seeding workflows in `package.json`.
+- [X] T001 Create environment template with required placeholders in `.env.example`.
+- [X] T002 Expand Docker compose with Postgres 17 service plus persistent volumes in `compose.yaml`.
+- [X] T003 Update npm scripts for linting, type-checking, testing, contracts, database, and seeding workflows in `package.json`.
 
 ---
 
@@ -31,15 +31,15 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 
-- [ ] T004 Generate Drizzle configuration targeting the Postgres container and migrations output in `drizzle.config.ts`.
-- [ ] T005 Implement reusable Postgres client and transaction helpers in `src/server/db/client.ts`.
-- [ ] T006 [P] Define shared database enums, timestamp helpers, and base schema utilities in `src/server/db/schema/shared.ts`.
-- [ ] T007 Configure structured logging with correlation context in `src/lib/logger/pino.ts`.
-- [ ] T008 Add ProblemDetails error types and Result helper utilities in `src/lib/errors/problem.ts`.
-- [ ] T009 Build API handler wrapper enforcing auth, logging, and RFC 9457 error translation in `src/server/api/handler.ts`.
-- [ ] T010 [P] Scaffold better-auth server configuration with role guards in `src/server/auth/index.ts`.
-- [ ] T011 [P] Add OpenAPI type generation pipeline using `openapi-typescript` (https://openapi-ts.dev/introduction) to produce shared types for API handlers and UI clients, integrating `openapi-fetch` and Zod validation in `src/lib/api/client.ts`.
-- [ ] T012 Raise Vitest coverage thresholds to ≥85% and align reporters in `vitest.config.ts`.
+- [X] T004 Generate Drizzle configuration targeting the Postgres container and migrations output in `drizzle.config.ts`.
+- [X] T005 Implement reusable Postgres client and transaction helpers in `src/server/db/client.ts`.
+- [X] T006 [P] Define shared database enums, timestamp helpers, and base schema utilities in `src/server/db/schema/shared.ts`.
+- [X] T007 Configure structured logging with correlation context in `src/lib/logger/pino.ts`.
+- [X] T008 Add ProblemDetails error types and Result helper utilities in `src/lib/errors/problem.ts`.
+- [X] T009 Build API handler wrapper enforcing auth, logging, and RFC 9457 error translation in `src/server/api/handler.ts`.
+- [X] T010 [P] Scaffold better-auth server configuration with role guards in `src/server/auth/index.ts`.
+- [X] T011 [P] Add OpenAPI type generation pipeline using `openapi-typescript` (https://openapi-ts.dev/introduction) to produce shared types for API handlers and UI clients, integrating `openapi-fetch` and Zod validation in `src/lib/api/client.ts`.
+- [X] T012 Raise Vitest coverage thresholds to ≥85% and align reporters in `vitest.config.ts`.
 
 **Checkpoint**: Foundation ready—user story implementation can now begin in parallel.
 
