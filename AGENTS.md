@@ -20,3 +20,10 @@ AGENT QUICK REFERENCE
 18. The canonical API contract lives at /openapi.yaml — keep it in sync when backend behaviour changes.
 19. Regenerate OpenAPI typings with `npm run openapi:generate` after editing the contract, and use `apiClient` from `@/lib/api/client` (powered by openapi-fetch) for typed requests. Prefer pulling API-facing TS types from the generated OpenAPI components instead of `z.infer`.
 20. Never touch any code in the `/laravel` folder; it's legacy and is not maintained anymore.
+
+## Active Technologies
+- TypeScript 5 on Node.js 22 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack (001-build-football-admin-app)
+- PostgreSQL via Drizzle ORM with UUID v7 identifiers (001-build-football-admin-app)
+
+## Recent Changes
+- 001-build-football-admin-app: Added TypeScript 5 on Node.js 22 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack

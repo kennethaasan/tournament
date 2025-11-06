@@ -1,111 +1,92 @@
-# Implementation Plan: Modern Football Competition Administration App
+# Implementation Plan: Modern Football Tournament Administration App
 
-**Branch**: `001-build-football-admin-app` | **Date**: 2025-11-05 | **Spec**: [./spec.md](./spec.md)  
+**Branch**: `001-build-football-admin-app` | **Date**: 2025-11-06 | **Spec**: [/specs/001-build-football-admin-app/spec.md](/specs/001-build-football-admin-app/spec.md)
 **Input**: Feature specification from `/specs/001-build-football-admin-app/spec.md`
 
----
-
-## Execution Flow (Spec-kit `/plan` Scope)
-
-```
-1. Load feature specification.
-2. Confirm guardrails from AGENTS.md and instructions/ (Tailwind, Shadcn, Biome, TypeScript 5, Node 22, UUID v7).
-3. Produce research decisions (this document references /research.md).
-4. Finalize data model outline (see /data-model.md).
-5. Draft quickstart expectations (see /quickstart.md).
-6. Identify implementation phases & dependencies (below).
-7. Stop – ready for `/tasks` once build phase begins.
-```
-
----
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Replace the 2014 Laravel + Angular tournament system with a modern Next.js TypeScript platform that models competitions as recurring umbrellas and editions as individual occurrences. Deliver self-service competition creation (auto-assigning organizers as competition admins), multi-format scheduling, reusable team/person records, edition-specific squads, configurable scoreboard experiences, and polling-driven real-time updates. Serve organizers, global admins, edition admins, team managers, and public spectators while keeping UI in Norwegian Bokmål and code/logging in English.
-
----
+Build a Next.js 16 (App Router) platform that replaces the legacy Laravel administration tool with modular domain slices (competitions, editions, teams, matches, notifications) modeled after the `mattis` reference architecture. Leverage server components for public surfaces, secure dashboards behind better-auth RBAC, and encapsulate scheduling, statistics, and polling workflows in dedicated service layers to keep UI flows thin and reusable.
 
 ## Technical Context
 
-- **Language/Runtime**: TypeScript (ES2022), Node.js 22 (per `.nvmrc`).
-- **Frameworks**: Next.js 16 (App Router), React 19, Tailwind CSS 4, Shadcn.
-- **Auth**: better-auth (email invite, password, MFA-ready).
-- **Database**: PostgreSQL + Drizzle ORM, UUID v7 primary keys.
-- **Tooling**: Biome (lint/format), Vitest, Playwright, Spectral, pino logging, OpenAPI 3.2 contract tooling with Problem Details compliance.
-- **Deployment Target**: TBD (likely Vercel/AWS); plan accommodates serverless or containerized hosting.
-- **Internationalization**: Norwegian Bokmål UI strings hard-coded in source (phase-one constraint); English API/logs.
-- **Real-time**: Polling endpoints with delta feeds.
+**Language/Version**: TypeScript 5 on Node.js 22 with React 19 server/client components  
+**Primary Dependencies**: Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack  
+**Storage**: PostgreSQL via Drizzle ORM with UUID v7 identifiers  
+**Testing**: Vitest (unit/integration), Playwright (E2E), Spectral (OpenAPI), Biome (lint/format), npm scripts (`npm run lint`, `npm run tsc`, `npm run test`, `npm run build`)  
+**Target Platform**: Web (Next.js server + edge-friendly APIs) deployed to Node 22 environment  
+**Project Type**: Web application (Next.js repo with shared domain modules)  
+**Performance Goals**: Polling endpoints ≤200 ms p95 with ≤10 active matches; public pages <2 s LCP; 99.0 % uptime budget  
+**Constraints**: Enforce WCAG 2.2 AA, avoid console logging, maintain RFC 9457 error payloads, UI copy in Norwegian Bokmål  
+**Scale/Scope**: Support up to 2 concurrent editions, multi-stage tournaments, self-service onboarding, scoreboard display module, notifications center
 
----
+## Constitution Check
 
-## Compliance / Guardrails Check
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- ✅ **Style & Formatting**: Biome enforced; 2-space indentation.
-- ✅ **Imports**: Type-only imports, grouped ordering.
-- ✅ **Error Handling**: No swallowed errors; use `Result`/throw with actionable messages; log via pino (no `console`).
-- ✅ **Secrets**: `.env` pattern respected; `.env.example` maintained.
-- ✅ **Generated Code**: Avoid editing `dist/`, `.next/`, `reports/`, migrations.
-- ✅ **Legacy Folder**: `/laravel` remains untouched.
-- ✅ **UUID v7**: Mandated in data model.
-- ✅ **Localization**: NB UI text; English code/logs.
+- [x] **Quality-Driven TypeScript Craft** — Scope covers domain modules under `src/modules/*`, API handlers in `src/server/api`, and UI routes in `src/app/(dashboard|public)`. Mandatory `npm run lint`, `npm run tsc`, and `npm run build` before review; propagate failures through typed `Result` helpers or thrown `Error` instances logged via pino. Data contracts captured in `/specs/001-build-football-admin-app/contracts/openapi.yaml` align with Drizzle schemas in `data-model.md`.
+- [x] **Evidence-Backed Testing Discipline** — Plan includes Vitest suites alongside modules (`src/modules/**/__tests__`), integration checks for scheduling/statistics services, Playwright specs for onboarding/scheduling/scoreboard, and Spectral + contract tests for OpenAPI changes; `research.md` and `data-model.md` enumerate seeding assumptions so `npm run seed` prepares fixtures before integration/E2E runs.
+- [x] **Inclusive, Consistent Experience** — Reuse mattis-inspired layout primitives in `src/ui/components`, adhere to Tailwind tokens, enforce keyboard navigation and screen-reader announcements for dashboards and scoreboard overlays, centralize Bokmål copy helpers to avoid drift. Accessibility touchpoints are embedded in scoreboard payload definitions and quickstart guidance.
+- [x] **Performance-Conscious Delivery** — Budgets: admin dashboards <500 ms TTFB, scoreboard polling ≤200 ms p95 with ETag caching, bundle budgets tracked via Next.js analyzer; rollback strategy relies on feature flags per module and configurable polling intervals if targets slip, with metrics surfaced via OpenTelemetry (see `research.md`).
 
-No blockers identified; proceed to implementation phases when ready.
+## Project Structure
 
----
+### Documentation (this feature)
 
-## Phase Outline
+```text
+specs/001-build-football-admin-app/
+├── plan.md              # This file (/speckit.plan output)
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output (OpenAPI slices)
+└── tasks.md             # Phase 2 output (/speckit.tasks)
+```
 
-1. **Foundation**
-   - Initialize Tailwind/Shadcn (if not already).
-   - Configure better-auth, Drizzle Postgres client, and pino logger.
-   - Establish app layout, localization plumbing, and design tokens (including scoreboard theme variables).
+### Source Code (repository root)
+```text
+src/
+├── app/
+│   ├── (public)/         # Edition landing, scoreboard, registration
+│   ├── (dashboard)/      # Authenticated admin + team manager flows
+│   └── api/              # Route handlers delegating to server services
+├── modules/
+│   ├── competitions/
+│   ├── editions/
+│   ├── matches/
+│   ├── notifications/
+│   ├── teams/
+│   └── users/
+├── server/
+│   ├── api/
+│   ├── auth/
+│   ├── db/
+│   └── services/
+├── ui/
+│   ├── components/
+│   ├── hooks/
+│   └── layouts/
+├── lib/
+│   ├── configs/
+│   ├── logger/
+│   └── utils/
+```
 
-2. **Domain & API (Backend-first)**
-   - Implement Drizzle schema + migrations for competitions, editions, entries, squads, matches, and supporting tables.
-   - Expose OpenAPI-spec’d endpoints for competitions/editions, teams, persons, entries, squads, matches, match events, notifications, and scoreboard configuration.
-   - Integrate role-based guards with better-auth.
-   - Seed scripts for demo data covering multiple competitions and editions.
+Vitest suites live in `__tests__` directories colocated with their source modules (for example `src/modules/matches/__tests__`).
 
-3. **Scheduling & Statistics Engines**
-   - Build round-robin generator and knockout bracket services that operate on editions/stages.
-   - Implement standings/top-scorer calculators with Vitest coverage.
-   - Wire event feed mechanism (delta cursor) scoped to editions.
+```text
+e2e/
+└── specs/
+```
 
-4. **Admin Interfaces (Authenticated UI)**
-   - Global admin dashboard (competitions list, edition creation, role management).
-   - Competition & edition admin workspace (competition settings, stage management, venue configuration, entry approval, match editor, scoreboard settings).
-   - Score dispute review queue.
+**Structure Decision**: Single Next.js workspace with feature-first domain modules mirroring `mattis` layering. `src/modules/*` encapsulates business logic, `src/server` centralizes adapters (auth, db, api), and `src/ui` hosts reusable presentation primitives shared across route groups in `src/app`.
 
-5. **Team Manager Experience**
-   - Team registration flow reusing persistent team records.
-   - Squad management (select members from team memberships, assign jersey numbers).
-   - Admin assist tools so competition admins can create teams and squads on behalf of participants.
-   - Schedule/results views with notifications.
+## Complexity Tracking
 
-6. **Public Surfaces**
-   - Edition landing page (schedule, standings, top scorers, venues).
-   - Big-screen scoreboard with configurable modules, polling, auto-rotate.
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-7. **Quality Gates**
-   - Contract tests (OpenAPI), integration tests (Vitest), E2E (Playwright).
-   - Accessibility audits (axe, Playwright).
-   - Performance checks for polling endpoints.
-
-8. **Observability & Ops**
-   - Monitoring dashboard (metrics/events).
-   - Audit log viewer.
-   - CI/CD pipelines (lint, test, build).
-
----
-
-## Dependencies & Sequencing Notes
-
-- Schema & migrations (Phase 2) block all downstream implementation.
-- Role-based auth must be in place before UI routes (Phases 4/5).
-- Scheduling services need edition data in place prior to match UI work.
-- Event feed must be stable before scoreboard and notification features.
-- Localization copy lives alongside components for now; plan manual QA passes to keep Norwegian Bokmål consistent.
-
----
-
-Implementation tasks will be enumerated once `/tasks` is invoked, reusing patterns from the `mattis` modernization.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |

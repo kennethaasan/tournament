@@ -1,6 +1,6 @@
 # Phase 1: Data Model
 
-**Status**: Drafted (2025-11-05)  
+**Status**: Updated (2025-11-06)  
 **Scope**: Modern football administration platform (Next.js + Drizzle + PostgreSQL)  
 **Key Principle**: All persistent identifiers are UUID v7 strings (`uuid_generate_v7()` via database extension or generated in application code).
 
