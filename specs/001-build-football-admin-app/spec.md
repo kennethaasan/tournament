@@ -23,6 +23,9 @@
 - Q: Should the platform support automated email/SMS delivery for notifications beyond basic email (e.g., SMS for urgent schedule changes)? → A: Stick to in-app + email notifications; defer SMS entirely.
 - Q: What uptime target should the platform meet in phase one? → A: 99.0% monthly uptime (≤7h18m downtime).
 
+### Session 2025-11-06
+- Q: Should the scoreboard polling endpoint require authentication or keys for read access? → A: Keep it public and unauthenticated because it only exposes public scoreboard data and simplifies venue display setup.
+
 ---
 
 ## Domain Vocabulary
@@ -145,7 +148,7 @@
 
 ### Notifications & Collaboration
 
-- **FR-060**: A poll-based feed endpoint MUST return match, schedule, and registration changes since a provided cursor to power dashboards and the scoreboard.
+- **FR-060**: A poll-based feed endpoint MUST return match, schedule, and registration changes since a provided cursor to power dashboards and the scoreboard, and it MUST be publicly accessible without authentication or API keys while remaining read-only.
 - **FR-061**: Team managers MUST receive in-app notifications (and optional email digests) for entry approvals, match schedule changes, score finalizations, and disputed results resolutions.
 - **FR-062**: Edition admins SHOULD receive alerts when score disputes remain unresolved beyond a configurable SLA.
 - **FR-063**: SMS delivery is out of scope for phase one; notification channels are limited to in-app and email.
