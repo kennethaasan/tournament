@@ -1,0 +1,34 @@
+# Build artifacts
+dist/
+build/
+.next/
+
+# Dependencies
+node_modules/
+
+# Tests and coverage
+coverage/
+reports/
+playwright/
+test-results/
+playwright-report/
+blob-report/
+e2e/
+
+# Tooling and config
+.specify/
+.codex/
+Dockerfile*
+.dockerignore
+.gitignore
+compose.yaml
+
+# Env and local state
+.env*
+!.env.example
+!.env.production
+
+# Logs and misc
+*.log
+.DS_Store
+tmp/

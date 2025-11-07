@@ -129,7 +129,7 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | --------------- | ------------- | ------------------------------------------------------ | ----------------------------------------------- |
 | `id`            | `uuid`        | PK                                                     |                                                 |
 | `email`         | `citext`      | Not Null                                              | Sent to prospective user                        |
-| `role`          | `text`        | Enum (`admin`, `competition_admin`, `team_manager`)    | Matches RBAC layer                              |
+| `role`          | `text`        | Enum (`global_admin`, `competition_admin`, `team_manager`)    | Matches RBAC layer                              |
 | `scope_type`    | `text`        | Enum (`global`, `competition`, `edition`, `team`)      |                                                 |
 | `scope_id`      | `uuid`        | Nullable (null for global invites)                     | References scope table                          |
 | `invited_by`    | `uuid`        | FK -> `users.id`, Not Null                            | Sender                                          |
@@ -144,7 +144,7 @@ Additional supporting entities: `team_memberships`, `notifications`, `event_feed
 | ------------- | ------------- | ----------------------------------------------------- | -------------------------------------- |
 | `id`          | `uuid`        | PK                                                    |                                         |
 | `user_id`     | `uuid`        | FK -> `users.id`, Not Null                            |                                         |
-| `role`        | `text`        | Enum (`admin`, `competition_admin`, `team_manager`)   |                                         |
+| `role`        | `text`        | Enum (`global_admin`, `competition_admin`, `team_manager`)   |                                         |
 | `scope_type`  | `text`        | Enum (`global`, `competition`, `edition`, `team`)     |                                         |
 | `scope_id`    | `uuid`        | Nullable                                              | Null for global role                    |
 | `granted_by`  | `uuid`        | FK -> `users.id`, Nullable                            | Populated for delegated grants          |
@@ -401,6 +401,19 @@ Competition admins can create teams, entries, and squads on behalf of participat
 | `metadata`         | `jsonb`       | Not Null Default `{}`                                                    | Extra info (penalty shootout order, reason)   |
 | `created_at`       | `timestamptz` | Default `now()`                                                          |                                               |
 
+#### `match_disputes`
+
+| Column         | Type          | Constraints                                      | Notes                                            |
+| -------------- | ------------- | ------------------------------------------------ | ------------------------------------------------ |
+| `id`           | `uuid`        | PK                                               |                                                  |
+| `match_id`     | `uuid`        | FK -> `matches.id`, Not Null                     |                                                  |
+| `entry_id`     | `uuid`        | FK -> `entries.id`, Not Null                     | Dispute submitted by this edition entry          |
+| `status`       | `text`        | Enum (`open`, `resolved`, `dismissed`)           | Open by default                                  |
+| `reason`       | `text`        | Not Null                                        | Team-provided justification                      |
+| `resolution_notes` | `text`    | Nullable                                        | Admin follow-up                                  |
+| `resolved_at`  | `timestamptz` | Nullable                                        | Timestamp when status became non-open            |
+| `created_at`   | `timestamptz` | Default `now()`                                 |                                                  |
+
 ### Collaboration & Audit
 
 #### `notifications`
@@ -425,6 +438,18 @@ Competition admins can create teams, entries, and squads on behalf of participat
 | `action`      | `text`        | Enum (`created`, `updated`, `deleted`)                                |                                               |
 | `snapshot`    | `jsonb`       | Not Null                                                              | Data required by polling consumers            |
 | `created_at`  | `timestamptz` | Default `now()`                                                       |                                               |
+
+#### `scoreboard_highlights`
+
+| Column             | Type          | Constraints                                    | Notes                                                        |
+| ------------------ | ------------- | ---------------------------------------------- | ------------------------------------------------------------ |
+| `id`               | `uuid`        | PK                                             |                                                              |
+| `edition_id`       | `uuid`        | FK -> `editions.id`, Not Null                  | Highlight scoped to a single edition                         |
+| `message`          | `text`        | Not Null                                      | Overlay copy displayed on the public scoreboard              |
+| `duration_seconds` | `integer`     | Not Null                                      | Requested lifespan; UI enforces bounds (5–600 seconds)       |
+| `expires_at`       | `timestamptz` | Not Null                                      | Highlight inactive once current time ≥ this timestamp        |
+| `created_by`       | `uuid`        | FK -> `users.id`, Nullable                     | Null when triggered by automation                           |
+| `created_at`       | `timestamptz` | Default `now()`                                |                                                              |
 
 #### `audit_logs`
 

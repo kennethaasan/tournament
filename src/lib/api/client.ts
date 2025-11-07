@@ -1,7 +1,7 @@
 import createClient, { type ClientOptions } from "openapi-fetch";
 import { z } from "zod";
-import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 import type { paths } from "@/lib/api/generated/openapi";
+import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 
 const DEFAULT_BASE_URL = process.env.NEXT_PUBLIC_APP_URL
   ? `${process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/api`
@@ -14,8 +14,8 @@ export const problemDetailsSchema = z
     status: z.number(),
     detail: z.string().optional(),
     instance: z.string().optional(),
-    errors: z.record(z.array(z.string())).optional(),
-    meta: z.record(z.unknown()).optional(),
+    errors: z.record(z.string(), z.array(z.string())).optional(),
+    meta: z.record(z.string(), z.unknown()).optional(),
   })
   .strict();
 
@@ -51,10 +51,10 @@ export function unwrapResponse<T>(shape: ResponseShape<T>): T {
   if (shape.error) {
     const parsed = problemDetailsSchema.safeParse(shape.error);
     if (parsed.success) {
-      throw createProblem(parsed.data satisfies ProblemDetails);
+      throw createProblem(parsed.data as ProblemDetails);
     }
 
-    throw createProblem({
+    const problem: ProblemDetails = {
       type: "about:blank",
       title: shape.response.statusText || "Request failed",
       status: shape.response.status || 500,
@@ -62,18 +62,22 @@ export function unwrapResponse<T>(shape: ResponseShape<T>): T {
         typeof shape.error === "string"
           ? shape.error
           : shape.error instanceof Error
-          ? shape.error.message
-          : undefined,
-    });
+            ? shape.error.message
+            : undefined,
+    };
+
+    throw createProblem(problem);
   }
 
   if (shape.data === undefined) {
-    throw createProblem({
+    const problem: ProblemDetails = {
       type: "about:blank",
       title: "No response body",
       status: shape.response.status || 500,
       detail: "Expected a response body but received none.",
-    });
+    };
+
+    throw createProblem(problem);
   }
 
   return shape.data;

@@ -177,6 +177,64 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
 
+  accessibility:
+    name: Accessibility
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://app:app@postgres:5432/app
+    steps:
+      - *node-checkout
+      - *node-setup
+      - *node-install-dependencies
+      - *copy-example-env
+
+      - name: Seed database
+        run: npm run seed
+
+      - name: Build application
+        run: npm run build
+
+      - name: Start Next.js server
+        run: |
+          npm run start > .next-server.log 2>&1 &
+          echo $! > .next-server.pid
+
+      - name: Wait for server
+        run: npx wait-on http://127.0.0.1:3000
+
+      - name: Run Pa11y CI
+        run: npm run test:accessibility
+
+      - name: Upload Pa11y logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pa11y-server-logs
+          path: .next-server.log
+          if-no-files-found: ignore
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ -f .next-server.pid ]; then
+            kill "$(cat .next-server.pid)" || true
+          fi
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -233,6 +291,7 @@ jobs:
       - unit-tests
       - infra
       - e2e
+      - accessibility
       - build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production

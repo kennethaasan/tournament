@@ -76,6 +76,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionDetail'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
   /api/competitions/{competition_id}/editions:
@@ -101,6 +103,21 @@ paths:
         '409':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}:
+    get:
+      tags: [competitions]
+      summary: Fetch edition scoreboard configuration
+      operationId: get_edition_scoreboard
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Edition scoreboard configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
     patch:
       tags: [competitions]
       summary: Update edition settings
@@ -119,7 +136,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Edition'
+                $ref: '#/components/schemas/EditionScoreboardView'
         '403':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/stages:
@@ -165,6 +182,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenerationJob'
         '422':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/scoreboard/highlights:
+    post:
+      tags: [competitions]
+      summary: Trigger a scoreboard highlight overlay
+      operationId: trigger_scoreboard_highlight
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerScoreboardHighlightRequest'
+      responses:
+        '201':
+          description: Highlight activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags: [competitions]
+      summary: Clear the active scoreboard highlight
+      operationId: clear_scoreboard_highlight
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Highlight cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/matches:
     get:
@@ -251,6 +311,44 @@ paths:
                 $ref: '#/components/schemas/Team'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}:
+    get:
+      tags: [teams]
+      summary: Fetch a team's roster
+      operationId: get_team_roster
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: Team roster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamRoster'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}/members:
+    post:
+      tags: [teams]
+      summary: Add a member to a team roster
+      operationId: add_team_member
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTeamMemberRequest'
+      responses:
+        '201':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/teams/{team_id}/entries:
     post:
       tags: [teams]
@@ -274,10 +372,10 @@ paths:
         '400':
           $ref: '#/components/responses/ProblemDetails'
   /api/entries/{entry_id}/squads:
-    post:
+    put:
       tags: [teams]
-      summary: Create an edition-specific squad
-      operationId: create_squad
+      summary: Ensure squad exists and optionally lock it
+      operationId: upsert_squad
       parameters:
         - $ref: '#/components/parameters/EntryId'
       requestBody:
@@ -285,19 +383,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateSquadRequest'
+              $ref: '#/components/schemas/UpdateSquadRequest'
       responses:
-        '201':
-          description: Squad created
+        '200':
+          description: Squad state updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Squad'
   /api/squads/{squad_id}/members:
-    put:
+    post:
       tags: [teams]
-      summary: Replace squad membership list
-      operationId: replace_squad_members
+      summary: Add or update a squad member
+      operationId: add_squad_member
       parameters:
         - $ref: '#/components/parameters/SquadId'
       requestBody:
@@ -305,16 +403,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReplaceSquadMembersRequest'
+              $ref: '#/components/schemas/AddSquadMemberRequest'
       responses:
         '200':
-          description: Squad updated
+          description: Member saved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Squad'
-        '422':
-          $ref: '#/components/responses/ProblemDetails'
+                $ref: '#/components/schemas/SquadMember'
   /api/notifications:
     get:
       tags: [notifications]
@@ -626,6 +722,8 @@ components:
           type: integer
           minimum: 2
           default: 5
+        scoreboard_theme:
+          $ref: '#/components/schemas/ScoreboardTheme'
         published_at:
           type: string
           format: date-time
@@ -671,6 +769,38 @@ components:
           type: string
           format: uri
           nullable: true
+    EditionScoreboardHighlight:
+      type: object
+      required: [message, expires_at, remaining_seconds]
+      properties:
+        message:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        remaining_seconds:
+          type: integer
+          minimum: 0
+    EditionScoreboardView:
+      type: object
+      required: [edition, highlight]
+      properties:
+        edition:
+          $ref: '#/components/schemas/Edition'
+        highlight:
+          $ref: '#/components/schemas/EditionScoreboardHighlight'
+          nullable: true
+    TriggerScoreboardHighlightRequest:
+      type: object
+      required: [message, duration_seconds]
+      properties:
+        message:
+          type: string
+          maxLength: 160
+        duration_seconds:
+          type: integer
+          minimum: 5
+          maximum: 600
     RegistrationWindow:
       type: object
       required: [opens_at, closes_at]
@@ -913,31 +1043,86 @@ components:
           format: email
     Team:
       type: object
-      required: [id, name]
+      required: [id, name, slug]
       properties:
         id:
           type: string
           format: uuid
         name:
           type: string
-        club_identifier:
+        slug:
+          type: string
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        contact_phone:
           type: string
           nullable: true
-        manager_id:
-          type: string
-          format: uuid
     CreateTeamRequest:
       type: object
       required: [name]
       properties:
         name:
           type: string
-        club_identifier:
+        slug:
           type: string
           nullable: true
-        manager_email:
+        contact_email:
           type: string
           format: email
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+    AddTeamMemberRequest:
+      type: object
+      required: [first_name, last_name]
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        preferred_name:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [player, coach, manager, staff]
+    TeamMember:
+      type: object
+      required: [membership_id, person]
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        person:
+          $ref: '#/components/schemas/Person'
+        role:
+          type: string
+        status:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+          nullable: true
+        left_at:
+          type: string
+          format: date-time
+          nullable: true
+    TeamRoster:
+      type: object
+      required: [team, members]
+      properties:
+        team:
+          $ref: '#/components/schemas/Team'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
     Entry:
       type: object
       required: [id, team_id, edition_id, status]
@@ -953,16 +1138,17 @@ components:
           format: uuid
         status:
           type: string
-          enum: [pending, approved, rejected]
-        seeded_group_code:
+          enum: [pending, approved, rejected, withdrawn]
+        notes:
           type: string
           nullable: true
-        created_at:
+        submitted_at:
           type: string
           format: date-time
+          nullable: true
     RegisterEntryRequest:
       type: object
-      required: [edition_id, notes]
+      required: [edition_id]
       properties:
         edition_id:
           type: string
@@ -970,6 +1156,7 @@ components:
         notes:
           type: string
           maxLength: 2000
+          nullable: true
     Squad:
       type: object
       required: [id, entry_id, locked_at]
@@ -988,25 +1175,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SquadMember'
-    CreateSquadRequest:
+    UpdateSquadRequest:
       type: object
-      required: [members]
       properties:
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/SquadMemberInput'
-    ReplaceSquadMembersRequest:
-      type: object
-      required: [members]
-      properties:
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/SquadMemberInput'
+        lock:
+          type: boolean
     SquadMember:
       type: object
-      required: [id, squad_id, person]
+      required: [id, squad_id, person_id]
       properties:
         id:
           type: string
@@ -1014,30 +1190,43 @@ components:
         squad_id:
           type: string
           format: uuid
-        person:
-          $ref: '#/components/schemas/Person'
-        jersey_number:
-          type: integer
-          minimum: 1
-        availability:
+        membership_id:
           type: string
-          enum: [available, doubtful, injured, suspended]
-    SquadMemberInput:
-      type: object
-      required: [person_id, jersey_number]
-      properties:
+          format: uuid
+          nullable: true
         person_id:
           type: string
           format: uuid
         jersey_number:
           type: integer
-          minimum: 1
+          nullable: true
+        position:
+          type: string
+          nullable: true
         availability:
           type: string
           enum: [available, doubtful, injured, suspended]
         notes:
           type: string
-          maxLength: 500
+          nullable: true
+    AddSquadMemberRequest:
+      type: object
+      required: [membership_id]
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        jersey_number:
+          type: integer
+          nullable: true
+        position:
+          type: string
+          nullable: true
+        availability:
+          type: string
+          enum: [available, doubtful, injured, suspended]
+        notes:
+          type: string
           nullable: true
     Person:
       type: object

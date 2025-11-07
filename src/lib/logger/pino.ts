@@ -17,7 +17,8 @@ type ContextInput = Partial<Omit<CorrelationContext, "correlationId">> & {
 const storage = new AsyncLocalStorage<CorrelationContext>();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-const logLevel = process.env.PINO_LOG_LEVEL ?? (isDevelopment ? "debug" : "info");
+const logLevel =
+  process.env.PINO_LOG_LEVEL ?? (isDevelopment ? "debug" : "info");
 
 const baseLoggerOptions: LoggerOptions = {
   level: logLevel,
@@ -57,9 +58,13 @@ export function getCorrelationContext(): CorrelationContext | undefined {
   return storage.getStore();
 }
 
-export function withCorrelationContext<T>(context: ContextInput, handler: () => T): T {
+export function withCorrelationContext<T>(
+  context: ContextInput,
+  handler: () => T,
+): T {
   const existing = storage.getStore();
-  const correlationId = context.correlationId ?? existing?.correlationId ?? randomUUID();
+  const correlationId =
+    context.correlationId ?? existing?.correlationId ?? randomUUID();
   const nextContext: CorrelationContext = {
     correlationId,
     requestId: context.requestId ?? existing?.requestId,
@@ -85,7 +90,11 @@ export function addContext(values: Partial<CorrelationContext>): void {
     return;
   }
 
-  storage.enterWith({ ...current, ...values, correlationId: values.correlationId ?? current.correlationId });
+  storage.enterWith({
+    ...current,
+    ...values,
+    correlationId: values.correlationId ?? current.correlationId,
+  });
 }
 
 export function childLogger(bindings: Record<string, unknown>): Logger {

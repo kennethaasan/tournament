@@ -1,8 +1,17 @@
 import { randomUUID } from "node:crypto";
-import { NextResponse, type NextRequest } from "next/server";
-import { ensureProblem, createProblem, type ProblemDetails } from "@/lib/errors/problem";
+import { type NextRequest, NextResponse } from "next/server";
+import {
+  createProblem,
+  ensureProblem,
+  type ProblemDetails,
+} from "@/lib/errors/problem";
 import { childLogger, withCorrelationContext } from "@/lib/logger/pino";
-import { getSession, requireRoles, type AuthContext } from "@/server/auth";
+import {
+  type AuthContext,
+  getSession,
+  type Role,
+  requireRoles,
+} from "@/server/auth";
 
 type RouteParams = Record<string, string | string[]>;
 
@@ -13,11 +22,13 @@ type HandlerContext<TParams extends RouteParams> = {
   auth: AuthContext | null;
 };
 
-type RouteHandler<TParams extends RouteParams> = (context: HandlerContext<TParams>) => Promise<NextResponse>;
+type RouteHandler<TParams extends RouteParams> = (
+  context: HandlerContext<TParams>,
+) => Promise<NextResponse>;
 
 type HandlerOptions = {
   requireAuth?: boolean;
-  roles?: string[];
+  roles?: Role[];
 };
 
 function unauthorizedProblem(): ProblemDetails {
@@ -29,12 +40,17 @@ function unauthorizedProblem(): ProblemDetails {
   };
 }
 
-export function createApiHandler<TParams extends RouteParams>(
-  handler: RouteHandler<TParams>,
-  options: HandlerOptions = {},
-) {
-  return async (request: NextRequest, { params }: { params: TParams }) => {
-    const correlationId = request.headers.get("x-correlation-id") ?? randomUUID();
+export function createApiHandler<
+  TParams extends RouteParams = Record<string, never>,
+>(handler: RouteHandler<TParams>, options: HandlerOptions = {}) {
+  return async (
+    request: NextRequest,
+    context: { params: Promise<TParams> },
+  ): Promise<NextResponse> => {
+    const params = await context.params;
+
+    const correlationId =
+      request.headers.get("x-correlation-id") ?? randomUUID();
     const requestId = request.headers.get("x-request-id") ?? correlationId;
     const startTime = Date.now();
 
@@ -73,7 +89,10 @@ export function createApiHandler<TParams extends RouteParams>(
 
         response.headers.set("x-correlation-id", correlationId);
 
-        logger.info({ durationMs: Date.now() - startTime, status: response.status }, "request_completed");
+        logger.info(
+          { durationMs: Date.now() - startTime, status: response.status },
+          "request_completed",
+        );
 
         return response;
       } catch (error) {
@@ -81,7 +100,10 @@ export function createApiHandler<TParams extends RouteParams>(
 
         const status = Number.isFinite(problem.status) ? problem.status : 500;
 
-        logger.error({ status, type: problem.type, detail: problem.detail }, "request_failed");
+        logger.error(
+          { status, type: problem.type, detail: problem.detail },
+          "request_failed",
+        );
 
         const response = NextResponse.json(problem, { status });
         response.headers.set("x-correlation-id", correlationId);

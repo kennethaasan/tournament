@@ -53,22 +53,22 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 1 (Required)
 
-- [ ] T013 [P] [US1] Add contract tests for invitations and competition creation in `src/modules/identity/__tests__/contracts/invitations.contract.test.ts`.
-- [ ] T014 [P] [US1] Add integration test covering self-service competition onboarding in `src/modules/competitions/__tests__/integration/organizer-self-service.test.ts`.
+- [X] T013 [P] [US1] Add contract tests for invitations and competition creation in `src/modules/identity/__tests__/contracts/invitations.contract.test.ts`.
+- [X] T014 [P] [US1] Add integration test covering self-service competition onboarding in `src/modules/competitions/__tests__/integration/organizer-self-service.test.ts`.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement identity tables (`users`, `role_invitations`, `user_roles`) in `src/server/db/schema/identity.ts`.
-- [ ] T016 [P] [US1] Implement competition tables (`competitions`, `editions`, `edition_settings`, `venues`) in `src/server/db/schema/competitions.ts`.
-- [ ] T017 [US1] Build invite acceptance and role assignment services in `src/modules/identity/service.ts`.
-- [ ] T018 [US1] Build competition and edition domain services with scoreboard validation in `src/modules/competitions/service.ts`.
-- [ ] T019 [US1] Implement `POST /api/auth/invitations` handler in `src/app/api/auth/invitations/route.ts`.
-- [ ] T020 [US1] Implement `POST /api/competitions` handler in `src/app/api/competitions/route.ts`.
-- [ ] T021 [US1] Implement `POST /api/competitions/[competitionId]/editions` handler in `src/app/api/competitions/[competitionId]/editions/route.ts`.
-- [ ] T022 [US1] Build organizer signup page and invite acceptance flow in `src/app/(public)/auth/organizer-signup/page.tsx`.
-- [ ] T023 [US1] Build competition creation dashboard surface in `src/app/(dashboard)/competitions/new/page.tsx`.
-- [ ] T024 [US1] Implement scoreboard theme form component with WCAG validation in `src/ui/components/scoreboard/theme-form.tsx`.
-- [ ] T025 [US1] Build edition creation dashboard page integrating scoreboard settings in `src/app/(dashboard)/competitions/[competitionId]/editions/new/page.tsx`.
+- [X] T015 [P] [US1] Implement identity tables (`users`, `role_invitations`, `user_roles`) in `src/server/db/schema/identity.ts`.
+- [X] T016 [P] [US1] Implement competition tables (`competitions`, `editions`, `edition_settings`, `venues`) in `src/server/db/schema/competitions.ts`.
+- [X] T017 [US1] Build invite acceptance and role assignment services in `src/modules/identity/service.ts`.
+- [X] T018 [US1] Build competition and edition domain services with scoreboard validation in `src/modules/competitions/service.ts`.
+- [X] T019 [US1] Implement `POST /api/auth/invitations` handler in `src/app/api/auth/invitations/route.ts`.
+- [X] T020 [US1] Implement `POST /api/competitions` handler in `src/app/api/competitions/route.ts`.
+- [X] T021 [US1] Implement `POST /api/competitions/[competitionId]/editions` handler in `src/app/api/competitions/[competitionId]/editions/route.ts`.
+- [X] T022 [US1] Build organizer signup page and invite acceptance flow in `src/app/public/auth/organizer-signup/page.tsx`.
+- [X] T023 [US1] Build competition creation dashboard surface in `src/app/dashboard/competitions/new/page.tsx`.
+- [X] T024 [US1] Implement scoreboard theme form component with WCAG validation in `src/ui/components/scoreboard/theme-form.tsx`.
+- [X] T025 [US1] Build edition creation dashboard page integrating scoreboard settings in `src/app/dashboard/competitions/[competitionId]/editions/new/page.tsx`.
 
 **Checkpoint**: Self-service competition onboarding is fully functional and independently testable.
 
@@ -82,17 +82,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (Required)
 
-- [ ] T026 [P] [US2] Add contract tests for `GET /api/competitions/{competition_id}` enforcing admin scope in `src/modules/admin/__tests__/contracts/competition-detail.contract.test.ts`.
-- [ ] T027 [P] [US2] Add integration test for global admin dashboard data aggregation in `src/modules/admin/__tests__/integration/global-admin-dashboard.test.ts`.
+ - [X] T026 [P] [US2] Add contract tests for `GET /api/competitions/{competition_id}` enforcing admin scope in `src/modules/admin/__tests__/contracts/competition-detail.contract.test.ts`.
+ - [X] T027 [P] [US2] Add integration test for global admin dashboard data aggregation in `src/modules/admin/__tests__/integration/global-admin-dashboard.test.ts`.
 
 ### Implementation for User Story 2
 
-- [ ] T028 [P] [US2] Implement audit and notification schema slices in `src/server/db/schema/audit.ts`.
-- [ ] T029 [US2] Build global admin service aggregating competitions, roles, and metrics in `src/modules/admin/service.ts`.
-- [ ] T030 [US2] Implement admin competition detail handler (`GET`) in `src/app/api/competitions/[competitionId]/route.ts`.
-- [ ] T031 [US2] Build global admin overview dashboard in `src/app/(dashboard)/admin/overview/page.tsx`.
-- [ ] T032 [US2] Build audit log review surface with filters in `src/app/(dashboard)/admin/audit/page.tsx`.
-- [ ] T033 [US2] Emit analytics events for admin use cases in `src/server/observability/events.ts`.
+ - [X] T028 [P] [US2] Implement audit and notification schema slices in `src/server/db/schema/audit.ts`.
+ - [X] T029 [US2] Build global admin service aggregating competitions, roles, and metrics in `src/modules/admin/service.ts`.
+ - [X] T030 [US2] Implement admin competition detail handler (`GET`) in `src/app/api/competitions/[competitionId]/route.ts`.
+ - [X] T031 [US2] Build global admin overview dashboard in `src/app/dashboard/admin/overview/page.tsx`.
+ - [X] T032 [US2] Build audit log review surface with filters in `src/app/dashboard/admin/audit/page.tsx`.
+ - [X] T033 [US2] Emit analytics events for admin use cases in `src/server/observability/events.ts`.
 
 **Checkpoint**: Global admin oversight works independently once US1 foundation exists.
 
@@ -106,20 +106,20 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (Required)
 
-- [ ] T034 [P] [US3] Add contract tests for `POST /api/editions/{edition_id}/stages` in `src/modules/editions/__tests__/contracts/create-stage.contract.test.ts`.
-- [ ] T035 [P] [US3] Add integration test for the round-robin scheduling wizard in `src/modules/scheduling/__tests__/integration/round-robin-wizard.test.ts`.
+- [X] T034 [P] [US3] Add contract tests for `POST /api/editions/{edition_id}/stages` in `src/modules/editions/__tests__/contracts/create-stage.contract.test.ts`.
+- [X] T035 [P] [US3] Add integration test for the round-robin scheduling wizard in `src/modules/scheduling/__tests__/integration/round-robin-wizard.test.ts`.
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Add stage, group, bracket, and round schemas in `src/server/db/schema/stages.ts`.
-- [ ] T037 [P] [US3] Add match and match event schemas in `src/server/db/schema/matches.ts`.
-- [ ] T038 [US3] Implement round-robin scheduling service in `src/modules/scheduling/round-robin-service.ts`.
-- [ ] T039 [US3] Implement knockout bracket builder service in `src/modules/scheduling/bracket-service.ts`.
-- [ ] T040 [US3] Implement `POST /api/editions/[editionId]/stages` handler in `src/app/api/editions/[editionId]/stages/route.ts`.
-- [ ] T041 [US3] Implement `POST /api/editions/[editionId]/matches/bulk` handler in `src/app/api/editions/[editionId]/matches/bulk/route.ts`.
-- [ ] T042 [US3] Implement `PATCH /api/matches/[matchId]` handler for results in `src/app/api/matches/[matchId]/route.ts`.
-- [ ] T043 [US3] Build scheduling dashboard with stage builder UI in `src/app/(dashboard)/editions/[editionId]/schedule/page.tsx`.
-- [ ] T044 [US3] Build scoreboard control panel with highlight overlays in `src/app/(dashboard)/editions/[editionId]/scoreboard/page.tsx`.
+- [X] T036 [P] [US3] Add stage, group, bracket, and round schemas in `src/server/db/schema/stages.ts`.
+- [X] T037 [P] [US3] Add match and match event schemas in `src/server/db/schema/matches.ts`.
+- [X] T038 [US3] Implement round-robin scheduling service in `src/modules/scheduling/round-robin-service.ts`.
+- [X] T039 [US3] Implement knockout bracket builder service in `src/modules/scheduling/bracket-service.ts`.
+- [X] T040 [US3] Implement `POST /api/editions/[editionId]/stages` handler in `src/app/api/editions/[editionId]/stages/route.ts`.
+- [X] T041 [US3] Implement `POST /api/editions/[editionId]/matches/bulk` handler in `src/app/api/editions/[editionId]/matches/bulk/route.ts`.
+- [X] T042 [US3] Implement `PATCH /api/matches/[matchId]` handler for results in `src/app/api/matches/[matchId]/route.ts`.
+- [X] T043 [US3] Build scheduling dashboard with stage builder UI in `src/app/dashboard/editions/[editionId]/schedule/page.tsx`.
+- [X] T044 [US3] Build scoreboard control panel with highlight overlays in `src/app/dashboard/editions/[editionId]/scoreboard/page.tsx`.
 
 **Checkpoint**: Edition administration flows are independently testable once US1 is available.
 
@@ -133,23 +133,23 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 4 (Required)
 
-- [ ] T045 [P] [US4] Add contract tests for `POST /api/teams/{team_id}/entries` in `src/modules/teams/__tests__/contracts/team-entry.contract.test.ts`.
-- [ ] T046 [P] [US4] Add integration test for team manager dashboard flows in `src/modules/teams/__tests__/integration/team-manager-dashboard.test.ts`.
+- [X] T045 [P] [US4] Add contract tests for `POST /api/teams/{team_id}/entries` in `src/modules/teams/__tests__/contracts/team-entry.contract.test.ts`.
+- [X] T046 [P] [US4] Add integration test for team manager dashboard flows in `src/modules/teams/__tests__/integration/team-manager-dashboard.test.ts`.
 
 ### Implementation for User Story 4
 
-- [ ] T047 [P] [US4] Implement team, person, and membership schemas in `src/server/db/schema/teams.ts`.
-- [ ] T048 [P] [US4] Implement entry and squad schemas in `src/server/db/schema/entries.ts`.
-- [ ] T049 [US4] Build team roster service (teams, persons, memberships) in `src/modules/teams/service.ts`.
-- [ ] T050 [US4] Build entry and squad service with validation in `src/modules/entries/service.ts`.
-- [ ] T051 [US4] Implement `POST /api/teams` handler in `src/app/api/teams/route.ts`.
-- [ ] T052 [US4] Implement `POST /api/teams/[teamId]/entries` handler in `src/app/api/teams/[teamId]/entries/route.ts`.
-- [ ] T053 [US4] Implement `PUT /api/entries/[entryId]/squads` handler in `src/app/api/entries/[entryId]/squads/route.ts`.
-- [ ] T054 [US4] Implement `POST /api/squads/[squadId]/members` handler in `src/app/api/squads/[squadId]/members/route.ts`.
-- [ ] T055 [US4] Implement `POST /api/matches/[matchId]/disputes` handler in `src/app/api/matches/[matchId]/disputes/route.ts`.
-- [ ] T056 [US4] Build team roster management UI in `src/app/(dashboard)/teams/[teamId]/roster/page.tsx`.
-- [ ] T057 [US4] Build edition entry and squad UI in `src/app/(dashboard)/teams/[teamId]/entries/page.tsx`.
-- [ ] T058 [US4] Build notification center with poll-based feed in `src/app/(dashboard)/notifications/page.tsx`.
+- [X] T047 [P] [US4] Implement team, person, and membership schemas in `src/server/db/schema/teams.ts`.
+- [X] T048 [P] [US4] Implement entry and squad schemas in `src/server/db/schema/entries.ts`.
+- [X] T049 [US4] Build team roster service (teams, persons, memberships) in `src/modules/teams/service.ts`.
+- [X] T050 [US4] Build entry and squad service with validation in `src/modules/entries/service.ts`.
+- [X] T051 [US4] Implement `POST /api/teams` handler in `src/app/api/teams/route.ts`.
+- [X] T052 [US4] Implement `POST /api/teams/[teamId]/entries` handler in `src/app/api/teams/[teamId]/entries/route.ts`.
+- [X] T053 [US4] Implement `PUT /api/entries/[entryId]/squads` handler in `src/app/api/entries/[entryId]/squads/route.ts`.
+- [X] T054 [US4] Implement `POST /api/squads/[squadId]/members` handler in `src/app/api/squads/[squadId]/members/route.ts`.
+- [X] T055 [US4] Implement `POST /api/matches/[matchId]/disputes` handler in `src/app/api/matches/[matchId]/disputes/route.ts`.
+- [X] T056 [US4] Build team roster management UI in `src/app/dashboard/teams/[teamId]/roster/page.tsx`.
+- [X] T057 [US4] Build edition entry and squad UI in `src/app/dashboard/teams/[teamId]/entries/page.tsx`.
+- [X] T058 [US4] Build notification center with poll-based feed in `src/app/dashboard/notifications/page.tsx`.
 
 **Checkpoint**: Team manager workflows are independently testable with previously delivered stories.
 
@@ -163,17 +163,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 5 (Required)
 
-- [ ] T059 [P] [US5] Add contract tests for `GET /api/public/editions/{edition_slug}/scoreboard` in `src/modules/public/__tests__/contracts/scoreboard.contract.test.ts`.
-- [ ] T060 [P] [US5] Add integration test for event feed polling in `src/modules/public/__tests__/integration/event-feed.test.ts`.
+- [X] T059 [P] [US5] Add contract tests for `GET /api/public/editions/{edition_slug}/scoreboard` in `src/modules/public/__tests__/contracts/scoreboard.contract.test.ts`.
+- [X] T060 [P] [US5] Add integration test for event feed polling in `src/modules/public/__tests__/integration/event-feed.test.ts`.
 
 ### Implementation for User Story 5
 
-- [ ] T061 [P] [US5] Implement scoreboard query service aggregating standings and leaders in `src/modules/public/scoreboard-service.ts`.
-- [ ] T062 [US5] Implement `GET /api/public/editions/[editionSlug]/scoreboard` handler in `src/app/api/public/editions/[editionSlug]/scoreboard/route.ts`.
-- [ ] T063 [US5] Implement `GET /api/public/events` handler in `src/app/api/public/events/route.ts`.
-- [ ] T064 [US5] Build public scoreboard page with streaming sections in `src/app/(public)/competitions/[competitionSlug]/[editionSlug]/scoreboard/page.tsx`.
-- [ ] T065 [US5] Build reusable scoreboard layout components in `src/ui/components/scoreboard/scoreboard-layout.tsx`.
-- [ ] T066 [US5] Implement TanStack Query polling hook in `src/ui/hooks/useScoreboardPoll.ts`.
+- [X] T061 [P] [US5] Implement scoreboard query service aggregating standings and leaders in `src/modules/public/scoreboard-service.ts`.
+- [X] T062 [US5] Implement `GET /api/public/editions/[editionSlug]/scoreboard` handler in `src/app/api/public/editions/[...editionSlug]/scoreboard/route.ts`.
+- [X] T063 [US5] Implement `GET /api/public/events` handler in `src/app/api/public/events/route.ts`.
+- [X] T064 [US5] Build public scoreboard page with streaming sections in `src/app/public/competitions/[competitionSlug]/[editionSlug]/scoreboard/page.tsx`.
+- [X] T065 [US5] Build reusable scoreboard layout components in `src/ui/components/scoreboard/scoreboard-layout.tsx`.
+- [X] T066 [US5] Implement TanStack Query polling hook in `src/ui/hooks/useScoreboardPoll.ts`.
 
 **Checkpoint**: Public scoreboard experience is independently testable and deployable once upstream stories exist.
 
@@ -183,12 +183,12 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Hardening, documentation, and quality gates after story delivery.
 
-- [ ] T067 Implement idempotent seed runner for competitions, editions, teams, and matches in `scripts/seed.ts`.
-- [ ] T068 [P] Add Playwright scoreboard scenario covering polling and overlays in `e2e/specs/scoreboard.spec.ts`.
-- [ ] T069 [P] Add Playwright organizer onboarding journey in `e2e/specs/organizer-onboarding.spec.ts`.
-- [ ] T070 Refresh quickstart instructions with final commands in `specs/001-build-football-admin-app/quickstart.md`.
-- [ ] T071 Add accessibility regression tests using axe in `src/ui/__tests__/accessibility.test.tsx`.
-- [ ] T072 Add performance budget verification script for polling endpoints in `scripts/check-performance.ts`.
+- [X] T067 Implement idempotent seed runner for competitions, editions, teams, and matches in `scripts/seed.ts`.
+- [X] T068 [P] Add Playwright scoreboard scenario covering polling and overlays in `e2e/specs/scoreboard.spec.ts`.
+- [X] T069 [P] Add Playwright organizer onboarding journey in `e2e/specs/organizer-onboarding.spec.ts`.
+- [X] T070 Refresh quickstart instructions with final commands in `specs/001-build-football-admin-app/quickstart.md`.
+- [X] T071 Add accessibility regression tests using Pa11y in `src/ui/__tests__/accessibility.test.tsx` and configure `pa11y-ci` to run inside GitHub Actions.
+- [X] T072 Add performance budget verification script for polling endpoints in `scripts/check-performance.ts`.
 
 ---
 

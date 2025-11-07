@@ -64,6 +64,7 @@ The seed should create:
 - One competition with both a draft and a published edition for admin flows.
 - Sample entries, squads, and matches tied to the published edition for scoreboard testing.
 - Default users (global admin, edition admin, team manager) with known credentials.
+- A public scoreboard demo available at `http://localhost:3000/competitions/oslo-cup/2025/scoreboard`.
 
 ---
 
@@ -86,8 +87,19 @@ npm run lint         # biome + typegen
 npm run tsc          # standalone type check (if separate script added)
 npm test             # Vitest unit/integration (with coverage)
 npx playwright test  # Playwright E2E suite
+npm run test:accessibility # Pa11y CI against organizer + scoreboard
 npm run spectral     # OpenAPI 3.2 contract lint (Problem Details & project rules)
 ```
+
+## 6. Performance Budgets
+
+Validate polling budgets with:
+
+```bash
+npm run check-performance
+```
+
+By default this hits the scoreboard (`/api/public/editions/oslo-cup/2025/scoreboard`) and event feed (`/api/public/events`) endpoints three times each, ensuring the worst request stays within 250 ms and 200 ms respectively. Override the base URL or budgets with `PERF_*` env vars when testing against other environments. Use CLI flags for more control, e.g. `npm run check-performance -- --runs=5 --json`.
 
 ---
 
@@ -97,7 +109,7 @@ npm run spectral     # OpenAPI 3.2 contract lint (Problem Details & project rule
 - Edition Admin: `edition-admin@example.com` / `Password123!`
 - Team Manager: `lagleder@example.com` / `Password123!`
 
-(Update with actual values once seeding implemented.)
+Seeding also provisions Oslo Cup (2025 published, 2026 draft), four demo teams with rosters, staged matches for the scoreboard, and an active highlight overlay so the Pa11y/Playwright checks can observe live changes.
 
 ---
 
