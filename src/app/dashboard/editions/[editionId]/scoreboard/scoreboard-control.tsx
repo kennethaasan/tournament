@@ -63,6 +63,22 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
     return Math.max(activeHighlight.remaining_seconds, 0);
   }, [activeHighlight]);
 
+  const applySummary = useCallback((summary: EditionScoreboardResponse) => {
+    setEditionLabel(summary.edition.label);
+    setRotationSeconds(summary.edition.scoreboard_rotation_seconds.toString());
+    setTheme({
+      primaryColor:
+        summary.edition.scoreboard_theme.primary_color ??
+        DEFAULT_THEME.primaryColor,
+      secondaryColor:
+        summary.edition.scoreboard_theme.secondary_color ??
+        DEFAULT_THEME.secondaryColor,
+      backgroundImageUrl:
+        summary.edition.scoreboard_theme.background_image_url ?? null,
+    });
+    setActiveHighlight(summary.highlight);
+  }, []);
+
   const loadScoreboardSummary = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
@@ -95,22 +111,6 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   useEffect(() => {
     void loadScoreboardSummary();
   }, [loadScoreboardSummary]);
-
-  const applySummary = useCallback((summary: EditionScoreboardResponse) => {
-    setEditionLabel(summary.edition.label);
-    setRotationSeconds(summary.edition.scoreboard_rotation_seconds.toString());
-    setTheme({
-      primaryColor:
-        summary.edition.scoreboard_theme.primary_color ??
-        DEFAULT_THEME.primaryColor,
-      secondaryColor:
-        summary.edition.scoreboard_theme.secondary_color ??
-        DEFAULT_THEME.secondaryColor,
-      backgroundImageUrl:
-        summary.edition.scoreboard_theme.background_image_url ?? null,
-    });
-    setActiveHighlight(summary.highlight);
-  }, []);
 
   async function handleSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

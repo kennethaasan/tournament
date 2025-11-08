@@ -111,7 +111,7 @@ export function parseCompositeEditionSlug(value: string): {
   if (rest.length === 0) {
     return {
       competitionSlug: null,
-      editionSlug: first,
+      editionSlug: first ?? "",
     };
   }
 
@@ -264,9 +264,9 @@ export function fromApiScoreboardPayload(
       entryId: scorer.entry_id,
       name: scorer.name ?? "",
       goals: scorer.goals,
-      assists: scorer.assists,
-      yellowCards: scorer.yellow_cards,
-      redCards: scorer.red_cards,
+      assists: scorer.assists ?? 0,
+      yellowCards: scorer.yellow_cards ?? 0,
+      redCards: scorer.red_cards ?? 0,
     })),
     rotation: payload.rotation.length ? payload.rotation : DEFAULT_ROTATION,
     overlayMessage,

@@ -1403,6 +1403,7 @@ export interface operations {
           "application/json": components["schemas"]["ScoreboardPayload"];
         };
       };
+      404: components["responses"]["ProblemDetails"];
     };
   };
   get_event_feed: {
@@ -1428,6 +1429,7 @@ export interface operations {
           "application/json": components["schemas"]["EventFeed"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
     };
   };
 }

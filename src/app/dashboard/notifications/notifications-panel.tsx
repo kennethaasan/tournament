@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type NotificationItem = {
   id: string;
@@ -19,11 +19,7 @@ export function NotificationsPanel() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void fetchNotifications();
-  }, [fetchNotifications]);
-
-  async function fetchNotifications() {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -45,7 +41,11 @@ export function NotificationsPanel() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    void fetchNotifications();
+  }, [fetchNotifications]);
 
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
@@ -58,7 +58,9 @@ export function NotificationsPanel() {
         </div>
         <button
           type="button"
-          onClick={() => fetchNotifications()}
+          onClick={() => {
+            void fetchNotifications();
+          }}
           className="rounded-md border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
           disabled={loading}
         >

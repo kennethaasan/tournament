@@ -470,6 +470,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScoreboardPayload'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/public/events:
     get:
       tags: [public]
@@ -489,6 +491,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventFeed'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
 components:
   parameters:
     CompetitionId:

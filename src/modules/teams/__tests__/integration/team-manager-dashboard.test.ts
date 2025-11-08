@@ -145,7 +145,7 @@ describe("Team manager dashboard flows", () => {
 
     expect(team.slug).toBe("oslo-vikinger");
 
-    const captain = await addRosterMember({
+    const manager = await addRosterMember({
       teamId: team.id,
       person: {
         firstName: "Kari",
@@ -153,7 +153,7 @@ describe("Team manager dashboard flows", () => {
         preferredName: "Kaptein",
         country: "NO",
       },
-      role: "captain",
+      role: "manager",
     });
 
     await addRosterMember({
@@ -168,7 +168,7 @@ describe("Team manager dashboard flows", () => {
     expect(roster.team.id).toBe(team.id);
     expect(roster.members).toHaveLength(2);
     expect(roster.members.map((member) => member.role)).toEqual(
-      expect.arrayContaining(["captain", "player"]),
+      expect.arrayContaining(["manager", "player"]),
     );
 
     const entry = await createEntry({
@@ -185,7 +185,7 @@ describe("Team manager dashboard flows", () => {
 
     const squadMember = await addSquadMember({
       squadId: squad.id,
-      membershipId: captain.membershipId,
+      membershipId: manager.membershipId,
       jerseyNumber: 10,
       position: "Midtbane",
       availability: "available",
@@ -339,7 +339,9 @@ function createInsertBuilder(
     return inserted;
   };
 
-  return {
+  const promise = Promise.resolve().then(() => execute());
+
+  return Object.assign(promise, {
     returning: async () => execute(),
     onConflictDoNothing: (config: { target: unknown }) =>
       createInsertBuilder(tableName, rows, store, {
@@ -352,11 +354,7 @@ function createInsertBuilder(
         targetColumns: normalizeTarget(config.target),
         set: config.set,
       }),
-    then: (
-      resolve: (value: Row[]) => unknown,
-      reject?: (reason: unknown) => unknown,
-    ) => Promise.resolve(execute()).then(resolve, reject),
-  };
+  });
 }
 
 function normalizeTarget(target: unknown): string[] {

@@ -480,8 +480,10 @@ function buildTopScorers(
     const key = `${event.entryId}:${event.personId}`;
     const name = buildPersonName(event.firstName, event.lastName);
 
-    if (!scorers.has(key)) {
-      scorers.set(key, {
+    let scorer = scorers.get(key);
+
+    if (!scorer) {
+      scorer = {
         personId: event.personId,
         entryId: event.entryId,
         name,
@@ -489,10 +491,9 @@ function buildTopScorers(
         assists: 0,
         yellowCards: 0,
         redCards: 0,
-      });
+      } satisfies ScoreboardTopScorer;
+      scorers.set(key, scorer);
     }
-
-    const scorer = scorers.get(key)!;
 
     switch (event.eventType) {
       case "goal":

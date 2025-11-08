@@ -274,7 +274,6 @@ type SeededEdition = InferSelectModel<typeof editions>;
 type SeededEntry = InferSelectModel<typeof entries>;
 type SeededSquad = InferSelectModel<typeof squads>;
 type SeededMatch = InferSelectModel<typeof matches>;
-type SeededUser = InferSelectModel<typeof users>;
 
 type EntryDirectory = Map<string, { entry: SeededEntry; team: SeededTeam }>;
 type SquadDirectory = Map<string, { squad: SeededSquad; entry: SeededEntry }>;

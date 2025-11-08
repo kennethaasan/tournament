@@ -8,8 +8,10 @@ type EventFeedResponse = NonNullable<
 
 describe("OpenAPI contract › GET /api/public/events", () => {
   it("accepts an optional cursor query parameter", () => {
-    expectTypeOf<EventFeedGet["parameters"]["query"]>().toEqualTypeOf<{
-      cursor?: string | undefined;
+    expectTypeOf<
+      NonNullable<EventFeedGet["parameters"]["query"]>
+    >().toEqualTypeOf<{
+      cursor?: components["parameters"]["EventCursor"];
     }>();
   });
 

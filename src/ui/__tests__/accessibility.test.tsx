@@ -8,6 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { AxeMatchers } from "vitest-axe";
 import { axe } from "vitest-axe";
+import "vitest-axe/extend-expect";
 import { toHaveNoViolations } from "vitest-axe/dist/matchers.js";
 import { ScoreboardThemeForm } from "@/ui/components/scoreboard/theme-form";
 
@@ -20,7 +21,8 @@ vi.mock("@/server/db/client", () => ({
 expect.extend({ toHaveNoViolations });
 
 declare module "vitest" {
-  interface Assertion<_T = any> extends AxeMatchers {}
+  // biome-ignore lint/suspicious/noExplicitAny: declaration must match Vitest's signature
+  interface Assertion<T = any> extends AxeMatchers, Record<never, T> {}
   interface AsymmetricMatchersContaining extends AxeMatchers {}
 }
 

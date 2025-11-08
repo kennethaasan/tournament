@@ -95,7 +95,7 @@ async function listEventsFromDatabase({
   cursor?: Cursor;
   limit: number;
 }): Promise<EventFeedRow[]> {
-  let query = db
+  const baseQuery = db
     .select({
       id: eventFeed.id,
       createdAt: eventFeed.createdAt,
@@ -104,23 +104,31 @@ async function listEventsFromDatabase({
       action: eventFeed.action,
       snapshot: eventFeed.snapshot,
     })
-    .from(eventFeed)
+    .from(eventFeed);
+
+  const filteredQuery = cursor
+    ? baseQuery.where(
+        or(
+          gt(eventFeed.createdAt, cursor.createdAt),
+          and(
+            eq(eventFeed.createdAt, cursor.createdAt),
+            gt(eventFeed.id, cursor.id),
+          ),
+        ),
+      )
+    : baseQuery;
+
+  const rows = await filteredQuery
     .orderBy(asc(eventFeed.createdAt), asc(eventFeed.id))
     .limit(limit);
 
-  if (cursor) {
-    const condition = or(
-      gt(eventFeed.createdAt, cursor.createdAt),
-      and(
-        eq(eventFeed.createdAt, cursor.createdAt),
-        gt(eventFeed.id, cursor.id),
-      ),
-    );
-
-    query = query.where(condition);
-  }
-
-  return query;
+  return rows.map(
+    (row) =>
+      ({
+        ...row,
+        snapshot: sanitizeSnapshot(row.snapshot),
+      }) satisfies EventFeedRow,
+  );
 }
 
 function mapRowToEnvelope(row: EventFeedRow): EventEnvelope {

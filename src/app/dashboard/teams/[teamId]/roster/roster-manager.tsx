@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type RosterResponse = {
   team: {
@@ -42,11 +42,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  useEffect(() => {
-    void refreshRoster();
-  }, [refreshRoster]);
-
-  async function refreshRoster() {
+  const refreshRoster = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -65,7 +61,11 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [teamId]);
+
+  useEffect(() => {
+    void refreshRoster();
+  }, [refreshRoster]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

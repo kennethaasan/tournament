@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/api/client";
 
 type StageGroup = {
@@ -74,7 +74,9 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const [startAt, setStartAt] = useState<string>("");
   const [matchDuration, setMatchDuration] = useState<string>("60");
   const [breakMinutes, setBreakMinutes] = useState<string>("15");
-  const [venueInputs, setVenueInputs] = useState<string[]>([""]);
+  const [venueInputs, setVenueInputs] = useState<
+    Array<{ key: string; value: string }>
+  >(() => [{ key: createKey(), value: "" }]);
   const [groupEntryInputs, setGroupEntryInputs] = useState<
     Record<string, string>
   >({});
@@ -98,10 +100,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   );
 
   useEffect(() => {
-    loadStages();
-  }, [loadStages]);
-
-  useEffect(() => {
     if (!generationStageId && stages.length > 0) {
       setGenerationStageId(stages[0]?.id ?? "");
     }
@@ -121,7 +119,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     }
   }, [selectedStage]);
 
-  async function loadStages() {
+  const loadStages = useCallback(async () => {
     setIsLoadingStages(true);
     setStageLoadError(null);
 
@@ -177,7 +175,11 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     } finally {
       setIsLoadingStages(false);
     }
-  }
+  }, [editionId]);
+
+  useEffect(() => {
+    void loadStages();
+  }, [loadStages]);
 
   function updateStageForm<K extends keyof StageFormState>(
     field: K,
@@ -310,12 +312,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
 
   function updateVenue(index: number, value: string) {
     setVenueInputs((prev) =>
-      prev.map((venue, idx) => (idx === index ? value : venue)),
+      prev.map((venue, idx) => (idx === index ? { ...venue, value } : venue)),
     );
   }
 
   function addVenueRow() {
-    setVenueInputs((prev) => [...prev, ""]);
+    setVenueInputs((prev) => [...prev, { key: createKey(), value: "" }]);
   }
 
   function removeVenueRow(index: number) {
@@ -395,7 +397,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       }
 
       const venues = venueInputs
-        .map((venue) => venue.trim())
+        .map((venue) => venue.value.trim())
         .filter((venue) => venue.length > 0);
 
       if (venues.length === 0) {
@@ -928,10 +930,10 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
 
               <div className="space-y-3">
                 {venueInputs.map((venue, index) => (
-                  <div key={`venue-${index}`} className="flex gap-3">
+                  <div key={venue.key} className="flex gap-3">
                     <input
                       type="text"
-                      value={venue}
+                      value={venue.value}
                       onChange={(event) =>
                         updateVenue(index, event.target.value)
                       }
