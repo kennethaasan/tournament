@@ -1,0 +1,1410 @@
+openapi: 3.1.0
+info:
+  title: Tournament Administration API (Phase One)
+  version: 0.1.0
+  description: >-
+    REST contract for the modern football tournament administration application. Covers admin,
+    team manager, and public scoreboard surfaces required for phase one delivery.
+servers:
+  - url: https://api.tournament.local
+    description: Local development
+tags:
+  - name: auth
+    description: Authentication and invitations
+  - name: competitions
+    description: Competition and edition management
+  - name: scheduling
+    description: Scheduling and results workflows
+  - name: teams
+    description: Team and squad management
+  - name: notifications
+    description: Notification center APIs
+  - name: public
+    description: Public scoreboard and event feeds
+paths:
+  /api/auth/invitations:
+    post:
+      tags: [auth]
+      summary: Invite a new organizer or team manager
+      operationId: create_invitation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvitationRequest'
+      responses:
+        '201':
+          description: Invitation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invitation'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/competitions:
+    post:
+      tags: [competitions]
+      summary: Create a new competition and initial edition
+      operationId: create_competition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompetitionRequest'
+      responses:
+        '201':
+          description: Competition and draft edition created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionWithEdition'
+        '422':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/competitions/{competition_id}:
+    get:
+      tags: [competitions]
+      summary: Fetch competition with editions and roles
+      operationId: get_competition
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      responses:
+        '200':
+          description: Competition detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionDetail'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/competitions/{competition_id}/editions:
+    post:
+      tags: [competitions]
+      summary: Create a new edition inside a competition
+      operationId: create_edition
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEditionRequest'
+      responses:
+        '201':
+          description: Edition created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Edition'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}:
+    get:
+      tags: [competitions]
+      summary: Fetch edition scoreboard configuration
+      operationId: get_edition_scoreboard
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Edition scoreboard configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+    patch:
+      tags: [competitions]
+      summary: Update edition settings
+      operationId: update_edition
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEditionRequest'
+      responses:
+        '200':
+          description: Edition updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/stages:
+    post:
+      tags: [competitions]
+      summary: Create a stage (group or knockout)
+      operationId: create_stage
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStageRequest'
+      responses:
+        '201':
+          description: Stage created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stage'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/matches/bulk:
+    post:
+      tags: [scheduling]
+      summary: Generate matches for selected stage
+      operationId: generate_matches
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateMatchesRequest'
+      responses:
+        '202':
+          description: Match generation accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenerationJob'
+        '422':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/scoreboard/highlights:
+    post:
+      tags: [competitions]
+      summary: Trigger a scoreboard highlight overlay
+      operationId: trigger_scoreboard_highlight
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TriggerScoreboardHighlightRequest'
+      responses:
+        '201':
+          description: Highlight activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags: [competitions]
+      summary: Clear the active scoreboard highlight
+      operationId: clear_scoreboard_highlight
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Highlight cleared
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/matches:
+    get:
+      tags: [scheduling]
+      summary: List matches with filters
+      operationId: list_matches
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+        - $ref: '#/components/parameters/StageIdOptional'
+        - $ref: '#/components/parameters/MatchStatus'
+      responses:
+        '200':
+          description: Matches for edition
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Match'
+  /api/matches/{match_id}:
+    patch:
+      tags: [scheduling]
+      summary: Update match details or result
+      operationId: update_match
+      parameters:
+        - $ref: '#/components/parameters/MatchId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMatchRequest'
+      responses:
+        '200':
+          description: Match updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/matches/{match_id}/disputes:
+    post:
+      tags: [scheduling]
+      summary: Submit a dispute for a finalized match
+      operationId: submit_dispute
+      parameters:
+        - $ref: '#/components/parameters/MatchId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDisputeRequest'
+      responses:
+        '201':
+          description: Dispute recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dispute'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/teams:
+    post:
+      tags: [teams]
+      summary: Create or import a reusable team
+      operationId: create_team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTeamRequest'
+      responses:
+        '201':
+          description: Team created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}:
+    get:
+      tags: [teams]
+      summary: Fetch a team's roster
+      operationId: get_team_roster
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      responses:
+        '200':
+          description: Team roster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamRoster'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}/members:
+    post:
+      tags: [teams]
+      summary: Add a member to a team roster
+      operationId: add_team_member
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTeamMemberRequest'
+      responses:
+        '201':
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}/entries:
+    post:
+      tags: [teams]
+      summary: Register a team into an edition (self-service onboarding)
+      operationId: register_entry
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterEntryRequest'
+      responses:
+        '201':
+          description: Entry created awaiting approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/entries/{entry_id}/squads:
+    put:
+      tags: [teams]
+      summary: Ensure squad exists and optionally lock it
+      operationId: upsert_squad
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSquadRequest'
+      responses:
+        '200':
+          description: Squad state updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Squad'
+  /api/squads/{squad_id}/members:
+    post:
+      tags: [teams]
+      summary: Add or update a squad member
+      operationId: add_squad_member
+      parameters:
+        - $ref: '#/components/parameters/SquadId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddSquadMemberRequest'
+      responses:
+        '200':
+          description: Member saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquadMember'
+  /api/notifications:
+    get:
+      tags: [notifications]
+      summary: List notifications for the authenticated user
+      operationId: list_notifications
+      parameters:
+        - $ref: '#/components/parameters/NotificationCursor'
+      responses:
+        '200':
+          description: Notifications feed
+          headers:
+            ETag:
+              description: Cache validator for notification feed
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  next_cursor:
+                    type: string
+                    nullable: true
+    patch:
+      tags: [notifications]
+      summary: Bulk mark notifications as read
+      operationId: mark_notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkNotificationsRequest'
+      responses:
+        '204':
+          description: Notifications updated
+  /api/public/editions/{edition_slug}/scoreboard:
+    get:
+      tags: [public]
+      summary: Fetch public scoreboard payload for big-screen display
+      operationId: get_scoreboard
+      parameters:
+        - $ref: '#/components/parameters/EditionSlug'
+      responses:
+        '200':
+          description: Scoreboard payload
+          headers:
+            ETag:
+              description: Cache validator for scoreboard polling
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoreboardPayload'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/public/events:
+    get:
+      tags: [public]
+      summary: Poll-based event feed for real-time updates
+      operationId: get_event_feed
+      parameters:
+        - $ref: '#/components/parameters/EventCursor'
+      responses:
+        '200':
+          description: Incremental event payload
+          headers:
+            ETag:
+              description: Cache validator for event feed
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventFeed'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+components:
+  parameters:
+    CompetitionId:
+      name: competition_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EditionId:
+      name: edition_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    StageIdOptional:
+      name: stage_id
+      in: query
+      schema:
+        type: string
+        format: uuid
+      description: Filter matches for a specific stage
+    MatchStatus:
+      name: status
+      in: query
+      schema:
+        $ref: '#/components/schemas/MatchStatus'
+    MatchId:
+      name: match_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TeamId:
+      name: team_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    EntryId:
+      name: entry_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SquadId:
+      name: squad_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    NotificationCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Continue notification pagination
+    EditionSlug:
+      name: edition_slug
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Combination of competition + edition slug (e.g. oslo-cup/2025)
+    EventCursor:
+      name: cursor
+      in: query
+      schema:
+        type: string
+      description: Cursor token for incremental events
+  responses:
+    ProblemDetails:
+      description: Problem Details error payload
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+  schemas:
+    ProblemDetails:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    Invitation:
+      type: object
+      required: [id, email, role, scope]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [global_admin, competition_admin, team_manager]
+        scope:
+          type: object
+          required: [type]
+          properties:
+            type:
+              type: string
+              enum: [global, competition, edition, team]
+            id:
+              type: string
+              format: uuid
+              nullable: true
+        expires_at:
+          type: string
+          format: date-time
+    CreateInvitationRequest:
+      type: object
+      required: [email, role, scope]
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [global_admin, competition_admin, team_manager]
+        scope:
+          $ref: '#/components/schemas/InvitationScope'
+        message:
+          type: string
+          maxLength: 500
+    InvitationScope:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [global, competition, edition, team]
+        id:
+          type: string
+          format: uuid
+          nullable: true
+    CompetitionWithEdition:
+      type: object
+      required: [competition, edition]
+      properties:
+        competition:
+          $ref: '#/components/schemas/Competition'
+        edition:
+          $ref: '#/components/schemas/Edition'
+    CompetitionDetail:
+      allOf:
+        - $ref: '#/components/schemas/Competition'
+        - type: object
+          properties:
+            editions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Edition'
+            administrators:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserSummary'
+    Competition:
+      type: object
+      required: [id, name, slug, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        primary_venue_id:
+          type: string
+          format: uuid
+          nullable: true
+        scoreboard_theme:
+          $ref: '#/components/schemas/ScoreboardTheme'
+        created_at:
+          type: string
+          format: date-time
+    CreateCompetitionRequest:
+      type: object
+      required: [name, slug, default_edition]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        default_edition:
+          $ref: '#/components/schemas/CreateEditionRequest'
+    Edition:
+      type: object
+      required: [id, competition_id, label, slug, status, registration_window]
+      properties:
+        id:
+          type: string
+          format: uuid
+        competition_id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        slug:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, archived]
+        format:
+          type: string
+          enum: [round_robin, knockout, hybrid]
+        registration_window:
+          $ref: '#/components/schemas/RegistrationWindow'
+        scoreboard_rotation_seconds:
+          type: integer
+          minimum: 2
+          default: 5
+        scoreboard_theme:
+          $ref: '#/components/schemas/ScoreboardTheme'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+    CreateEditionRequest:
+      type: object
+      required: [label, slug, format, registration_window]
+      properties:
+        label:
+          type: string
+        slug:
+          type: string
+        format:
+          type: string
+          enum: [round_robin, knockout, hybrid]
+        registration_window:
+          $ref: '#/components/schemas/RegistrationWindow'
+        scoreboard_theme:
+          $ref: '#/components/schemas/ScoreboardTheme'
+    UpdateEditionRequest:
+      type: object
+      properties:
+        label:
+          type: string
+        status:
+          type: string
+          enum: [draft, published, archived]
+        scoreboard_rotation_seconds:
+          type: integer
+          minimum: 2
+        scoreboard_theme:
+          $ref: '#/components/schemas/ScoreboardTheme'
+    ScoreboardTheme:
+      type: object
+      properties:
+        primary_color:
+          type: string
+          pattern: '^#([A-Fa-f0-9]{6})$'
+        secondary_color:
+          type: string
+          pattern: '^#([A-Fa-f0-9]{6})$'
+        background_image_url:
+          type: string
+          format: uri
+          nullable: true
+    EditionScoreboardHighlight:
+      type: object
+      required: [message, expires_at, remaining_seconds]
+      properties:
+        message:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        remaining_seconds:
+          type: integer
+          minimum: 0
+    EditionScoreboardView:
+      type: object
+      required: [edition, highlight]
+      properties:
+        edition:
+          $ref: '#/components/schemas/Edition'
+        highlight:
+          $ref: '#/components/schemas/EditionScoreboardHighlight'
+          nullable: true
+    TriggerScoreboardHighlightRequest:
+      type: object
+      required: [message, duration_seconds]
+      properties:
+        message:
+          type: string
+          maxLength: 160
+        duration_seconds:
+          type: integer
+          minimum: 5
+          maximum: 600
+    RegistrationWindow:
+      type: object
+      required: [opens_at, closes_at]
+      properties:
+        opens_at:
+          type: string
+          format: date-time
+        closes_at:
+          type: string
+          format: date-time
+    Stage:
+      type: object
+      required: [id, edition_id, name, stage_type]
+      properties:
+        id:
+          type: string
+          format: uuid
+        edition_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        stage_type:
+          type: string
+          enum: [group, bracket]
+        order:
+          type: integer
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+    CreateStageRequest:
+      type: object
+      required: [name, stage_type]
+      properties:
+        name:
+          type: string
+        stage_type:
+          type: string
+          enum: [group, bracket]
+        groups:
+          type: array
+          description: Required for group stages
+          items:
+            $ref: '#/components/schemas/CreateGroupRequest'
+    Group:
+      type: object
+      required: [id, code, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        standings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Standing'
+    CreateGroupRequest:
+      type: object
+      required: [code, name]
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+    GenerateMatchesRequest:
+      type: object
+      required: [stage_id, algorithm]
+      properties:
+        stage_id:
+          type: string
+          format: uuid
+        algorithm:
+          type: string
+          enum: [round_robin_circle, knockout_seeded]
+        options:
+          type: object
+          additionalProperties: true
+    GenerationJob:
+      type: object
+      required: [job_id, status]
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, completed, failed]
+    Match:
+      type: object
+      required: [id, edition_id, status, kickoff_at, home_entry_id, away_entry_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        edition_id:
+          type: string
+          format: uuid
+        stage_id:
+          type: string
+          format: uuid
+          nullable: true
+        group_id:
+          type: string
+          format: uuid
+          nullable: true
+        round_label:
+          type: string
+        status:
+          $ref: '#/components/schemas/MatchStatus'
+        kickoff_at:
+          type: string
+          format: date-time
+        venue_id:
+          type: string
+          format: uuid
+          nullable: true
+        home_entry_id:
+          type: string
+          format: uuid
+        away_entry_id:
+          type: string
+          format: uuid
+        home_score:
+          $ref: '#/components/schemas/ScoreBreakdown'
+        away_score:
+          $ref: '#/components/schemas/ScoreBreakdown'
+        outcome:
+          type: string
+          enum: [home_win, away_win, draw, forfeit_home, forfeit_away, cancelled, postponed]
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchEvent'
+    MatchStatus:
+      type: string
+      enum: [scheduled, in_progress, finalized, disputed]
+    ScoreBreakdown:
+      type: object
+      properties:
+        regulation:
+          type: integer
+          minimum: 0
+        extra_time:
+          type: integer
+          minimum: 0
+        penalties:
+          type: integer
+          minimum: 0
+    MatchEvent:
+      type: object
+      required: [id, match_id, event_type, minute]
+      properties:
+        id:
+          type: string
+          format: uuid
+        match_id:
+          type: string
+          format: uuid
+        squad_member_id:
+          type: string
+          format: uuid
+          nullable: true
+        event_type:
+          type: string
+          enum: [goal, own_goal, penalty_goal, assist, yellow_card, red_card]
+        minute:
+          type: integer
+          minimum: 0
+        stoppage_time:
+          type: integer
+          minimum: 0
+          nullable: true
+    UpdateMatchRequest:
+      type: object
+      properties:
+        kickoff_at:
+          type: string
+          format: date-time
+        venue_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/MatchStatus'
+        score:
+          type: object
+          properties:
+            home:
+              $ref: '#/components/schemas/ScoreBreakdown'
+            away:
+              $ref: '#/components/schemas/ScoreBreakdown'
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchEvent'
+        admin_notes:
+          type: string
+          maxLength: 2000
+    CreateDisputeRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          maxLength: 2000
+    Dispute:
+      type: object
+      required: [id, match_id, submitted_by, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        match_id:
+          type: string
+          format: uuid
+        submitted_by:
+          $ref: '#/components/schemas/UserSummary'
+        status:
+          type: string
+          enum: [open, resolved, rejected]
+        created_at:
+          type: string
+          format: date-time
+        resolution_notes:
+          type: string
+          nullable: true
+    UserSummary:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    Team:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+    CreateTeamRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+    AddTeamMemberRequest:
+      type: object
+      required: [first_name, last_name]
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        preferred_name:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [player, coach, manager, staff]
+    TeamMember:
+      type: object
+      required: [membership_id, person]
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        person:
+          $ref: '#/components/schemas/Person'
+        role:
+          type: string
+        status:
+          type: string
+        joined_at:
+          type: string
+          format: date-time
+          nullable: true
+        left_at:
+          type: string
+          format: date-time
+          nullable: true
+    TeamRoster:
+      type: object
+      required: [team, members]
+      properties:
+        team:
+          $ref: '#/components/schemas/Team'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+    Entry:
+      type: object
+      required: [id, team_id, edition_id, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        team_id:
+          type: string
+          format: uuid
+        edition_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, approved, rejected, withdrawn]
+        notes:
+          type: string
+          nullable: true
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+    RegisterEntryRequest:
+      type: object
+      required: [edition_id]
+      properties:
+        edition_id:
+          type: string
+          format: uuid
+        notes:
+          type: string
+          maxLength: 2000
+          nullable: true
+    Squad:
+      type: object
+      required: [id, entry_id, locked_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        entry_id:
+          type: string
+          format: uuid
+        locked_at:
+          type: string
+          format: date-time
+          nullable: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/SquadMember'
+    UpdateSquadRequest:
+      type: object
+      properties:
+        lock:
+          type: boolean
+    SquadMember:
+      type: object
+      required: [id, squad_id, person_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        squad_id:
+          type: string
+          format: uuid
+        membership_id:
+          type: string
+          format: uuid
+          nullable: true
+        person_id:
+          type: string
+          format: uuid
+        jersey_number:
+          type: integer
+          nullable: true
+        position:
+          type: string
+          nullable: true
+        availability:
+          type: string
+          enum: [available, doubtful, injured, suspended]
+        notes:
+          type: string
+          nullable: true
+    AddSquadMemberRequest:
+      type: object
+      required: [membership_id]
+      properties:
+        membership_id:
+          type: string
+          format: uuid
+        jersey_number:
+          type: integer
+          nullable: true
+        position:
+          type: string
+          nullable: true
+        availability:
+          type: string
+          enum: [available, doubtful, injured, suspended]
+        notes:
+          type: string
+          nullable: true
+    Person:
+      type: object
+      required: [id, full_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        role:
+          type: string
+          enum: [player, coach, staff]
+    Notification:
+      type: object
+      required: [id, type, created_at, read]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            [entry_approved, schedule_changed, match_finalized, dispute_resolved, announcement]
+        created_at:
+          type: string
+          format: date-time
+        read:
+          type: boolean
+        payload:
+          type: object
+          additionalProperties: true
+    MarkNotificationsRequest:
+      type: object
+      required: [notification_ids]
+      properties:
+        notification_ids:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: uuid
+    ScoreboardPayload:
+      type: object
+      required: [edition, matches, standings, top_scorers, rotation]
+      properties:
+        edition:
+          $ref: '#/components/schemas/Edition'
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScoreboardMatch'
+        standings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Standing'
+        top_scorers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopScorer'
+        rotation:
+          type: array
+          description: Configured rotation sections for big-screen display
+          items:
+            type: string
+            enum: [live_matches, upcoming, standings, top_scorers]
+    ScoreboardMatch:
+      type: object
+      required: [id, status, kickoff_at, home, away]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/MatchStatus'
+        kickoff_at:
+          type: string
+          format: date-time
+        home:
+          $ref: '#/components/schemas/ScoreboardSide'
+        away:
+          $ref: '#/components/schemas/ScoreboardSide'
+        highlight:
+          type: string
+          nullable: true
+          description: Optional admin-triggered overlay message
+    ScoreboardSide:
+      type: object
+      required: [entry_id, name, score]
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        score:
+          type: integer
+    Standing:
+      type: object
+      required: [entry_id, played, won, drawn, lost, goals_for, goals_against, points]
+      properties:
+        entry_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        played:
+          type: integer
+        won:
+          type: integer
+        drawn:
+          type: integer
+        lost:
+          type: integer
+        goals_for:
+          type: integer
+        goals_against:
+          type: integer
+        goal_difference:
+          type: integer
+        points:
+          type: integer
+        fair_play_score:
+          type: integer
+          nullable: true
+    TopScorer:
+      type: object
+      required: [person_id, entry_id, goals]
+      properties:
+        person_id:
+          type: string
+          format: uuid
+        entry_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        goals:
+          type: integer
+        assists:
+          type: integer
+        yellow_cards:
+          type: integer
+        red_cards:
+          type: integer
+    EventFeed:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventEnvelope'
+        next_cursor:
+          type: string
+          nullable: true
+    EventEnvelope:
+      type: object
+      required: [id, type, occurred_at, payload]
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            [match_updated, match_finalized, schedule_changed, entry_status_changed, notification]
+        occurred_at:
+          type: string
+          format: date-time
+        payload:
+          type: object
+          additionalProperties: true

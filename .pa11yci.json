@@ -1,0 +1,14 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "wait": 1500,
+    "timeout": 20000,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox"]
+    }
+  },
+  "urls": [
+    "http://127.0.0.1:3000/auth/organizer-signup",
+    "http://127.0.0.1:3000/competitions/oslo-cup/2025/scoreboard"
+  ]
+}

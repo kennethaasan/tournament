@@ -5,6 +5,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
+    setupFiles: ["./src/test/setup.ts"],
     projects: [
       {
         extends: true,
@@ -29,15 +30,17 @@ export default defineConfig({
     reporters: ["verbose"],
     coverage: {
       enabled: true,
+      provider: "v8",
       reportOnFailure: true,
-      reporter: ["text", "text-summary", "json-summary", "json"],
+      reporter: ["text", "text-summary", "json-summary", "lcov", "html"],
+      reportsDirectory: "./reports/coverage",
       include: ["src/**/*.{ts,tsx}"],
       thresholds: {
         global: {
-          statements: 20,
-          functions: 20,
-          branches: 20,
-          lines: 20,
+          statements: 85,
+          functions: 85,
+          branches: 85,
+          lines: 85,
         },
       },
     },
