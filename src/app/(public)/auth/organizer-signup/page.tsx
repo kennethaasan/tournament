@@ -45,16 +45,16 @@ const faqs: Array<{ question: string; answer: string }> = [
 
 export default function OrganizerSignupPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-white">
+    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-slate-950 dark:to-background">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 py-16">
-        <section className="space-y-6 rounded-2xl border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100/40">
-          <p className="inline-flex items-center rounded-full bg-blue-100 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
+        <section className="space-y-6 rounded-2xl border border-blue-100 dark:border-blue-900 bg-card p-8 shadow-lg shadow-blue-100/40 dark:shadow-none">
+          <p className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
             Selvbetjent onboarding
           </p>
-          <h1 className="text-3xl font-bold tracking-tight text-blue-950 md:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
             Bli turneringsarrangør på noen få minutter
           </h1>
-          <p className="text-lg text-blue-900/80">
+          <p className="text-lg text-muted-foreground">
             Plattformen hjelper deg med registrering, kampoppsett, resultater og
             storskjermvisning. Følg stegene under for å be om invitasjon og
             opprette din første utgave.
@@ -65,22 +65,22 @@ export default function OrganizerSignupPage() {
           {steps.map((step) => (
             <article
               key={step.title}
-              className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="rounded-xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
-              <h2 className="text-lg font-semibold text-zinc-900">
+              <h2 className="text-lg font-semibold text-foreground">
                 {step.title}
               </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-600">
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 {step.description}
               </p>
             </article>
           ))}
         </section>
 
-        <section className="grid gap-6 rounded-2xl border border-zinc-100 bg-zinc-950 px-8 py-10 text-zinc-50 md:grid-cols-[2fr,1fr] md:items-center">
+        <section className="grid gap-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-primary px-8 py-10 text-primary-foreground md:grid-cols-[2fr,1fr] md:items-center">
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold">Klar til å sette i gang?</h2>
-            <p className="text-sm text-zinc-200">
+            <p className="text-sm text-primary-foreground/80">
               Når du har mottatt invitasjonen, kan du logge inn og opprette
               konkurransen. Du kan også teste storskjermtema, registrere lag og
               sette opp kampoppsettet.
@@ -89,13 +89,13 @@ export default function OrganizerSignupPage() {
           <div className="flex flex-col gap-3 md:justify-self-end">
             <Link
               href="/"
-              className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200"
+              className="inline-flex items-center justify-center rounded-full bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary-foreground/90"
             >
               Logg inn / bruk invitasjon
             </Link>
             <a
               href="mailto:support@tournament.local?subject=Invitasjon%20til%20ny%20turnering"
-              className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-full border border-primary-foreground/40 px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-foreground/10"
             >
               Kontakt support
             </a>
@@ -103,19 +103,21 @@ export default function OrganizerSignupPage() {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold text-zinc-900">
+          <h2 className="text-2xl font-semibold text-foreground">
             Vanlige spørsmål
           </h2>
           <dl className="grid gap-4 md:grid-cols-3">
             {faqs.map((faq) => (
               <div
                 key={faq.question}
-                className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
+                className="rounded-xl border border-border bg-card p-6 shadow-sm"
               >
-                <dt className="text-sm font-semibold text-zinc-900">
+                <dt className="text-sm font-semibold text-foreground">
                   {faq.question}
                 </dt>
-                <dd className="mt-2 text-sm text-zinc-600">{faq.answer}</dd>
+                <dd className="mt-2 text-sm text-muted-foreground">
+                  {faq.answer}
+                </dd>
               </div>
             ))}
           </dl>

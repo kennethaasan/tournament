@@ -18,7 +18,8 @@
       "!**/laravel",
       "!**/.codex",
       "!**/.vscode",
-      "!**/instructions"
+      "!**/instructions",
+      "!src/app/globals.css"
     ]
   },
   "formatter": {
