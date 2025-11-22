@@ -27,7 +27,7 @@
     "docker:compose:up": "docker-compose up -d && sleep 10 && npm run seed",
     "docker:compose:down": "docker-compose down -v",
     "docker:compose:reset": "npm run docker:compose:down && npm run docker:compose:up",
-    "seed": "tsx scripts/seed.ts",
+    "seed": "npm run db:migrate && tsx ./scripts/seed.ts",
     "check-performance": "tsx scripts/check-performance.ts"
   },
   "dependencies": {
