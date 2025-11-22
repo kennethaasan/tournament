@@ -82,7 +82,7 @@ describe("Accessibility", () => {
         timeout: 15000,
         chromeLaunchConfig: {
           args: ["--no-sandbox", "--disable-setuid-sandbox"],
-        // biome-ignore lint/suspicious/noExplicitAny: no types in dependency
+          // biome-ignore lint/suspicious/noExplicitAny: no types in dependency
         } as any,
       });
 
