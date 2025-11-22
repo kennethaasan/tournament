@@ -1,14 +1,15 @@
 import "dotenv/config";
 import { defineConfig, devices } from "@playwright/test";
+import { env } from "./src/env";
 
 const BASE_URL = "http://localhost:3000";
 
 export default defineConfig({
   testDir: "e2e/",
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!env.CI,
   retries: 1,
-  workers: process.env.CI ? 1 : undefined,
+  workers: env.CI ? 1 : undefined,
   timeout: 30_000,
   expect: {
     timeout: 10_000,
@@ -38,7 +39,7 @@ export default defineConfig({
   webServer: {
     command: "npm run start",
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !env.CI,
     timeout: 10_000,
   },
 });

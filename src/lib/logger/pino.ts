@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
 import pino, { type Logger, type LoggerOptions } from "pino";
+import { env } from "@/env";
 
 type CorrelationContext = {
   correlationId: string;
@@ -16,9 +17,8 @@ type ContextInput = Partial<Omit<CorrelationContext, "correlationId">> & {
 
 const storage = new AsyncLocalStorage<CorrelationContext>();
 
-const isDevelopment = process.env.NODE_ENV !== "production";
-const logLevel =
-  process.env.PINO_LOG_LEVEL ?? (isDevelopment ? "debug" : "info");
+const isDevelopment = env.NODE_ENV !== "production";
+const logLevel = env.PINO_LOG_LEVEL;
 
 const baseLoggerOptions: LoggerOptions = {
   level: logLevel,

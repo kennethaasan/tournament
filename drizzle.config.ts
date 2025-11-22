@@ -1,16 +1,13 @@
 import "dotenv/config";
 import { defineConfig } from "drizzle-kit";
-
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is required to run Drizzle commands");
-}
+import { env } from "./src/env";
 
 export default defineConfig({
   dialect: "postgresql",
   schema: ["./src/server/db/schema/**/*.ts"],
   out: "./drizzle",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    url: env.DATABASE_URL,
   },
   casing: "snake_case",
 });

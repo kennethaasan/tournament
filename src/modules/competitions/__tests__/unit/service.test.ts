@@ -4,11 +4,6 @@ import { ProblemError } from "@/lib/errors/problem";
 let internal: typeof import("@/modules/competitions/service")["__internal"];
 
 beforeAll(async () => {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL =
-      "postgres://postgres:postgres@localhost:5432/tournament_test";
-  }
-
   ({ __internal: internal } = await import("@/modules/competitions/service"));
 });
 
