@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { customType, pgEnum, timestamp, uuid } from "drizzle-orm/pg-core";
+import { v7 } from "uuid";
 
 type TimestampMode = "date" | "string";
 
@@ -119,7 +120,9 @@ export const citext = customType<{ data: string; driverData: string }>({
 });
 
 export const uuidPrimaryKey = (name = "id") =>
-  uuid(name).primaryKey().default(sql`uuid_generate_v7()`);
+  uuid(name)
+    .primaryKey()
+    .$defaultFn(() => v7());
 
 export const timestampTz = (name: string) =>
   timestamp(name, { withTimezone: true, mode: TIMESTAMP_MODE });

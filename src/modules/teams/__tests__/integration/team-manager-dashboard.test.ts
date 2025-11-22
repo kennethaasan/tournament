@@ -40,7 +40,6 @@ beforeEach(async () => {
     id: COMPETITION_ID,
     name: "Test Competition",
     slug: "test-competition",
-    ownerId: "00000000-0000-0000-0000-000000000000",
     defaultTimezone: "Europe/Oslo",
   });
 
@@ -58,7 +57,6 @@ beforeEach(async () => {
     id: STAGE_ID,
     editionId: EDITION_ID,
     name: "Main Stage",
-    slug: "main-stage",
     stageType: "group",
     orderIndex: 1,
   });

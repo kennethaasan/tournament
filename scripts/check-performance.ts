@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { performance } from "node:perf_hooks";
+import { env } from "../src/env";
 
 type EndpointDefinition = {
   label: string;
@@ -22,29 +23,29 @@ type CliOptions = {
 };
 
 const BASE_URL =
-  process.env.PERF_BASE_URL?.replace(/\/$/, "") ??
-  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
+  env.PERF_BASE_URL?.replace(/\/$/, "") ??
+  env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ??
   "http://localhost:3000";
 
-const COMPETITION_SLUG = process.env.PERF_COMPETITION_SLUG || "oslo-cup";
-const EDITION_SLUG = process.env.PERF_EDITION_SLUG || "2025";
+const COMPETITION_SLUG = env.PERF_COMPETITION_SLUG;
+const EDITION_SLUG = env.PERF_EDITION_SLUG;
 
 const ENDPOINTS: EndpointDefinition[] = [
   {
     label: "Scoreboard",
     path: `/api/public/editions/${COMPETITION_SLUG}/${EDITION_SLUG}/scoreboard`,
-    budgetMs: Number(process.env.PERF_SCOREBOARD_BUDGET_MS ?? 250),
+    budgetMs: env.PERF_SCOREBOARD_BUDGET_MS,
   },
   {
     label: "Event feed",
     path: "/api/public/events",
-    budgetMs: Number(process.env.PERF_EVENT_FEED_BUDGET_MS ?? 200),
+    budgetMs: env.PERF_EVENT_FEED_BUDGET_MS,
   },
 ];
 
 function parseCliOptions(): CliOptions {
   const defaults: CliOptions = {
-    runs: Number(process.env.PERF_RUNS ?? 3),
+    runs: env.PERF_RUNS,
     json: false,
   };
 

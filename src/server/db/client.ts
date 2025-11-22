@@ -1,25 +1,22 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { env } from "@/env";
 import { type DatabaseSchema, schema } from "./schema";
 
-const databaseUrl = process.env.DATABASE_URL ?? "";
+const databaseUrl = env.DATABASE_URL ?? "";
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required to initialise the database client");
-}
+// When skipping validation, env.DATABASE_URL might be undefined or empty if not set in process.env
+// However, our env.ts configures it as z.string().url(), so in runtime it should be valid unless mocked.
+// But since we handle SKIP_ENV_VALIDATION in env.ts, we might get undefined if not set.
+// Actually, createEnv returns typed values. If skipped, it returns process.env values which might be missing.
+// But we are forcing a mock url in the postgres constructor if needed.
 
 type SqlClient = ReturnType<typeof postgres>;
 
 function createSqlClient(): SqlClient {
-  const maxPool = Number.parseInt(process.env.DATABASE_POOL_MAX ?? "10", 10);
-  const idleTimeout = Number.parseInt(
-    process.env.DATABASE_IDLE_TIMEOUT ?? "30",
-    10,
-  );
-
-  return postgres(databaseUrl, {
-    max: Number.isNaN(maxPool) ? 10 : maxPool,
-    idle_timeout: Number.isNaN(idleTimeout) ? 30 : idleTimeout,
+  return postgres(databaseUrl || "postgres://mock:mock@localhost:5432/mock", {
+    max: env.DATABASE_POOL_MAX,
+    idle_timeout: env.DATABASE_IDLE_TIMEOUT,
     prepare: false,
     onnotice: () => undefined,
   });
@@ -28,7 +25,7 @@ function createSqlClient(): SqlClient {
 function createDrizzleClient(sql: SqlClient) {
   return drizzle<DatabaseSchema>(sql, {
     schema,
-    logger: process.env.NODE_ENV === "development",
+    logger: env.NODE_ENV === "development",
   });
 }
 

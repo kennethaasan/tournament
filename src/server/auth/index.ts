@@ -3,15 +3,16 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
 import type { NextRequest } from "next/server";
+import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
 import { logger } from "@/lib/logger/pino";
 import { db } from "@/server/db/client";
 import { type roleScopeEnum, schema } from "@/server/db/schema";
 
 export const auth = betterAuth({
-  secret: requireEnv("BETTER_AUTH_SECRET"),
+  secret: env.BETTER_AUTH_SECRET,
   email: {
-    sender: requireEnv("BETTER_AUTH_EMAIL_SENDER"),
+    sender: env.BETTER_AUTH_EMAIL_SENDER,
   },
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -22,7 +23,7 @@ export const auth = betterAuth({
   trustedOrigins: () => resolveTrustedOrigins(),
   session: {
     cookieCache: {
-      enabled: process.env.NODE_ENV !== "test",
+      enabled: env.NODE_ENV !== "test",
     },
     expiresIn: 60 * 60 * 24 * 180, // 180 days
   },
@@ -108,22 +109,12 @@ export function userHasRole(context: AuthContext | null, role: Role): boolean {
   );
 }
 
-function requireEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`${key} must be set`);
-  }
-
-  return value;
-}
-
 function resolveTrustedOrigins(): string[] {
-  const defaults = [
-    "http://localhost:3000",
-    process.env.NEXT_PUBLIC_APP_URL,
-  ].filter(Boolean) as string[];
+  const defaults = ["http://localhost:3000", env.NEXT_PUBLIC_APP_URL].filter(
+    Boolean,
+  ) as string[];
 
-  const additional = (process.env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
+  const additional = (env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
     .split(",")
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);

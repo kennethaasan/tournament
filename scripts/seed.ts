@@ -185,7 +185,7 @@ const MATCH_PLAN = [
   {
     code: "seed-match-1",
     homeSlug: "oslo-nord",
-    awaySlug: "oslo-sor",
+    awaySlug: "oslo-s-r",
     status: "in_progress",
     kickoffOffset: -20,
     homeScore: 2,
@@ -193,7 +193,7 @@ const MATCH_PLAN = [
   },
   {
     code: "seed-match-2",
-    homeSlug: "bergen-bla",
+    homeSlug: "bergen-bl",
     awaySlug: "trondheim-lyn",
     status: "scheduled",
     kickoffOffset: 30,
@@ -203,7 +203,7 @@ const MATCH_PLAN = [
   {
     code: "seed-match-3",
     homeSlug: "oslo-nord",
-    awaySlug: "bergen-bla",
+    awaySlug: "bergen-bl",
     status: "finalized",
     kickoffOffset: -180,
     homeScore: 3,
@@ -220,7 +220,7 @@ const MATCH_EVENTS = [
   },
   {
     matchCode: "seed-match-1",
-    playerKey: "oslo-sor:10",
+    playerKey: "oslo-s-r:10",
     type: "goal",
     minute: 38,
   },
@@ -238,7 +238,7 @@ const MATCH_EVENTS = [
   },
   {
     matchCode: "seed-match-3",
-    playerKey: "bergen-bla:11",
+    playerKey: "bergen-bl:11",
     type: "goal",
     minute: 75,
   },
@@ -350,6 +350,7 @@ async function upsertCompetition(client: DatabaseExecutor) {
         description: COMPETITION.description,
         primaryColor: COMPETITION.primaryColor,
         secondaryColor: COMPETITION.secondaryColor,
+        updatedAt: new Date(),
       },
     })
     .returning();
@@ -385,6 +386,7 @@ async function upsertEditions(client: DatabaseExecutor, competitionId: string) {
           format: editionConfig.format,
           timezone: editionConfig.timezone,
           status: editionConfig.status,
+          updatedAt: new Date(),
         },
       })
       .returning();
@@ -405,6 +407,7 @@ async function upsertEditions(client: DatabaseExecutor, competitionId: string) {
         set: {
           scoreboardRotationSeconds: editionConfig.scoreboard.rotation,
           scoreboardTheme: editionConfig.scoreboard.theme,
+          updatedAt: new Date(),
         },
       });
 
@@ -471,6 +474,7 @@ async function upsertTeams(client: DatabaseExecutor) {
           name: definition.name,
           contactEmail: definition.contactEmail,
           contactPhone: definition.contactPhone,
+          updatedAt: new Date(),
         },
       })
       .returning();
@@ -508,6 +512,7 @@ async function upsertEntries(
           status: "approved",
           submittedAt: new Date(),
           approvedAt: new Date(),
+          updatedAt: new Date(),
         },
       })
       .returning();
@@ -798,6 +803,7 @@ async function seedUsers(
         set: {
           fullName: userDefinition.fullName,
           hashedPassword: passwordHash,
+          updatedAt: new Date(),
         },
       })
       .returning();

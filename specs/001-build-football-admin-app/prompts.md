@@ -78,3 +78,11 @@ New requirements:
 /speckit.plan
 
 Focus on good architecture and code structure. Make sure to separate concerns properly, and use best practices. Make sure we follow DRY principles. Use the https://github.com/kennethaasan/mattis repo as a reference. You are allowed to write tests after implmentation if that is easier.
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Fix the broken tests (npm test). Ensure the tests are set up the same way as https://github.com/kennethaasan/mattis/blob/main/tests/setup.ts to mock a database
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+
