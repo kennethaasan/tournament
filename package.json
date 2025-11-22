@@ -19,8 +19,12 @@
     "spectral:ci": "spectral lint openapi.yaml --format json",
     "openapi:generate": "openapi-typescript specs/001-build-football-admin-app/contracts/openapi.yaml -o src/lib/api/generated/openapi.ts",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
-    "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
+    "db:migrate": "node -r dotenv/config node_modules/drizzle-kit/bin.js migrate --config drizzle.config.ts",
+    "db:push": "drizzle-kit push --config drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config drizzle.config.ts",
+    "docker:compose:up": "docker-compose up -d && sleep 10 && npm run seed",
+    "docker:compose:down": "docker-compose down -v",
+    "docker:compose:reset": "npm run docker:compose:down && npm run docker:compose:up",
     "seed": "tsx scripts/seed.ts",
     "check-performance": "tsx scripts/check-performance.ts"
   },
