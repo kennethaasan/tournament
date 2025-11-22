@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "npm run typegen && next build",
+    "package:lambda": "./scripts/package-lambda.sh",
+    "build:lambda": "npm run build && npm run package:lambda",
     "start": "next start",
     "lint": "npm run typegen && biome check",
     "format": "biome format --write",

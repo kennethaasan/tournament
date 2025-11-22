@@ -1,6 +1,8 @@
 import { type AuditLogEntry, listAuditLogs } from "@/modules/admin/service";
 import { auditScopeTypeEnum } from "@/server/db/schema/shared";
 
+export const dynamic = "force-dynamic";
+
 type AuditSearchParams = {
   scopeType?: string;
   scopeId?: string;

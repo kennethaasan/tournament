@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChangeEvent, useCallback, useMemo } from "react";
-import { __internal } from "@/modules/competitions/service";
+import { computeContrastRatio } from "@/lib/colors";
 
 export type ScoreboardThemeFormValue = {
   primaryColor: string;
@@ -24,10 +24,7 @@ export function ScoreboardThemeForm({
 }: ScoreboardThemeFormProps) {
   const ratio = useMemo(() => {
     try {
-      return __internal.computeContrastRatio(
-        value.primaryColor,
-        value.secondaryColor,
-      );
+      return computeContrastRatio(value.primaryColor, value.secondaryColor);
     } catch {
       return 0;
     }

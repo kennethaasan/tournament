@@ -1,5 +1,7 @@
 import { getGlobalAdminOverview } from "@/modules/admin/service";
 
+export const dynamic = "force-dynamic";
+
 const numberFormatter = new Intl.NumberFormat("nb-NO");
 const datetimeFormatter = new Intl.DateTimeFormat("nb-NO", {
   dateStyle: "medium",
