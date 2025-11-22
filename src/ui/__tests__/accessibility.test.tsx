@@ -80,6 +80,9 @@ describe("Accessibility", () => {
         includeWarnings: false,
         includeNotices: false,
         timeout: 15000,
+        chromeLaunchConfig: {
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+        },
       });
 
       expect(results.issues).toHaveLength(0);
