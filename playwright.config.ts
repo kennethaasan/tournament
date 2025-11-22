@@ -37,7 +37,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run start:standalone",
+    command: "npm run start",
     url: BASE_URL,
     reuseExistingServer: !env.CI,
     timeout: 10_000,

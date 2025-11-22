@@ -8,7 +8,6 @@
     "package:lambda": "./scripts/package-lambda.sh",
     "build:lambda": "npm run build && npm run package:lambda",
     "start": "next start",
-    "start:standalone": "PORT=${PORT:-3000} node .next/standalone/server.js",
     "lint": "npm run typegen && biome check .",
     "format": "biome check --write .",
     "typegen": "next typegen",
