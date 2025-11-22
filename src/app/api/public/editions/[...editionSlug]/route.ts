@@ -10,9 +10,18 @@ type RouteParams = {
 
 export const GET = createApiHandler<RouteParams>(
   async ({ params, request }) => {
-    const editionSlug = Array.isArray(params.editionSlug)
-      ? params.editionSlug.join("/")
-      : params.editionSlug;
+    const slugs = Array.isArray(params.editionSlug)
+      ? params.editionSlug
+      : [params.editionSlug];
+
+    if (slugs[slugs.length - 1] !== "scoreboard") {
+      return NextResponse.json(
+        { title: "Not found", status: 404, type: "about:blank" },
+        { status: 404 },
+      );
+    }
+
+    const editionSlug = slugs.slice(0, -1).join("/");
 
     const scoreboard = await getPublicScoreboard({
       compositeSlug: editionSlug,
