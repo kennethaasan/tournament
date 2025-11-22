@@ -140,6 +140,26 @@ paths:
         '403':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/stages:
+    get:
+      tags: [competitions]
+      summary: List stages for an edition
+      operationId: list_stages
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Edition stages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stage'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
     post:
       tags: [competitions]
       summary: Create a stage (group or knockout)
@@ -836,6 +856,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Group'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
     CreateStageRequest:
       type: object
       required: [name, stage_type]

@@ -97,7 +97,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** List stages for an edition */
+    get: operations["list_stages"];
     put?: never;
     /** Create a stage (group or knockout) */
     post: operations["create_stage"];
@@ -484,6 +485,8 @@ export interface components {
       stage_type: "group" | "bracket";
       order?: number;
       groups?: components["schemas"]["Group"][];
+      /** Format: date-time */
+      published_at?: string | null;
     };
     CreateStageRequest: {
       name: string;
@@ -982,6 +985,31 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
+        };
+      };
+      403: components["responses"]["ProblemDetails"];
+    };
+  };
+  list_stages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Edition stages */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            stages?: components["schemas"]["Stage"][];
+          };
         };
       };
       403: components["responses"]["ProblemDetails"];

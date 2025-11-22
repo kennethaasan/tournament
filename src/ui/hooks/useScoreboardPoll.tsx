@@ -2,7 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
-import type { components } from "@/lib/api/generated/openapi";
+import {
+  fetchPublicScoreboard,
+  publicScoreboardQueryKey,
+} from "@/lib/api/scoreboard-client";
 import {
   buildEditionSlug,
   fromApiScoreboardPayload,
@@ -23,28 +26,9 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
   );
 
   return useQuery({
-    queryKey: ["scoreboard", editionPath],
+    queryKey: publicScoreboardQueryKey(editionPath),
     queryFn: async ({ signal }) => {
-      const response = await fetch(
-        `/api/public/editions/${editionPath}/scoreboard`,
-        {
-          signal,
-          headers: {
-            Accept: "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        const detail = await safeRead(response);
-        throw new Error(
-          detail ||
-            "Kunne ikke hente scoreboard-data. Prøv å laste siden på nytt.",
-        );
-      }
-
-      const payload =
-        (await response.json()) as components["schemas"]["ScoreboardPayload"];
+      const payload = await fetchPublicScoreboard(editionPath, { signal });
       const parsed = fromApiScoreboardPayload(payload);
       mergeEntryDirectory(entryDirectory.current, parsed);
       return {
@@ -65,20 +49,6 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
     refetchOnWindowFocus: false,
     refetchIntervalInBackground: true,
   });
-}
-
-async function safeRead(response: Response): Promise<string | null> {
-  try {
-    const body = await response.clone().json();
-    if (body && typeof body === "object" && "detail" in body) {
-      return (
-        ((body as { detail?: unknown }).detail as string | undefined) ?? null
-      );
-    }
-    return await response.text();
-  } catch {
-    return null;
-  }
 }
 
 function mergeEntryDirectory(

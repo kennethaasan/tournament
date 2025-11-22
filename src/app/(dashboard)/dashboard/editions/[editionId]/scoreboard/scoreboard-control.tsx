@@ -1,29 +1,19 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  clearScoreboardHighlight,
+  type EditionScoreboardView,
+  editionScoreboardQueryKey,
+  fetchEditionScoreboard,
+  triggerScoreboardHighlight,
+  updateEditionScoreboard,
+} from "@/lib/api/scoreboard-client";
 import {
   ScoreboardThemeForm,
   type ScoreboardThemeFormValue,
 } from "@/ui/components/scoreboard/theme-form";
-
-type EditionScoreboardResponse = {
-  edition: {
-    id: string;
-    label: string;
-    status: string;
-    scoreboard_rotation_seconds: number;
-    scoreboard_theme: {
-      primary_color: string;
-      secondary_color: string;
-      background_image_url: string | null;
-    };
-  };
-  highlight: {
-    message: string;
-    expires_at: string;
-    remaining_seconds: number;
-  } | null;
-};
 
 type ScoreboardControlProps = {
   editionId: string;
@@ -36,7 +26,7 @@ const DEFAULT_THEME: ScoreboardThemeFormValue = {
 };
 
 export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [loadError, setLoadError] = useState<string | null>(null);
   const [editionLabel, setEditionLabel] = useState("");
 
@@ -44,16 +34,15 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const [theme, setTheme] = useState<ScoreboardThemeFormValue>(DEFAULT_THEME);
   const [settingsSuccess, setSettingsSuccess] = useState<string | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
-  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   const [highlightMessage, setHighlightMessage] = useState("");
   const [highlightDuration, setHighlightDuration] = useState("30");
   const [highlightSuccess, setHighlightSuccess] = useState<string | null>(null);
   const [highlightError, setHighlightError] = useState<string | null>(null);
-  const [isSubmittingHighlight, setIsSubmittingHighlight] = useState(false);
 
-  const [activeHighlight, setActiveHighlight] =
-    useState<EditionScoreboardResponse["highlight"]>(null);
+  const [activeHighlight, setActiveHighlight] = useState<
+    EditionScoreboardView["highlight"] | null
+  >(null);
 
   const highlightCountdown = useMemo(() => {
     if (!activeHighlight) {
@@ -63,58 +52,116 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
     return Math.max(activeHighlight.remaining_seconds, 0);
   }, [activeHighlight]);
 
-  const applySummary = useCallback((summary: EditionScoreboardResponse) => {
+  const applySummary = useCallback((summary: EditionScoreboardView) => {
     setEditionLabel(summary.edition.label);
     setRotationSeconds(summary.edition.scoreboard_rotation_seconds.toString());
     setTheme({
       primaryColor:
-        summary.edition.scoreboard_theme.primary_color ??
+        summary.edition.scoreboard_theme?.primary_color ??
         DEFAULT_THEME.primaryColor,
       secondaryColor:
-        summary.edition.scoreboard_theme.secondary_color ??
+        summary.edition.scoreboard_theme?.secondary_color ??
         DEFAULT_THEME.secondaryColor,
       backgroundImageUrl:
-        summary.edition.scoreboard_theme.background_image_url ?? null,
+        summary.edition.scoreboard_theme?.background_image_url ?? null,
     });
-    setActiveHighlight(summary.highlight);
+    setActiveHighlight(summary.highlight ?? null);
   }, []);
 
-  const loadScoreboardSummary = useCallback(async () => {
-    setIsLoading(true);
-    setLoadError(null);
-
-    try {
-      const response = await fetch(`/api/editions/${editionId}`, {
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(await extractProblemMessage(response));
-      }
-
-      const payload = (await response.json()) as EditionScoreboardResponse;
-      applySummary(payload);
-    } catch (error) {
-      setLoadError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke hente scoreboard-innstillinger.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [applySummary, editionId]);
+  const scoreboardQuery = useQuery({
+    queryKey: editionScoreboardQueryKey(editionId),
+    queryFn: ({ signal }) => fetchEditionScoreboard(editionId, { signal }),
+    retry: false,
+  });
 
   useEffect(() => {
-    void loadScoreboardSummary();
-  }, [loadScoreboardSummary]);
+    if (scoreboardQuery.data) {
+      applySummary(scoreboardQuery.data);
+      setLoadError(null);
+    }
+    if (scoreboardQuery.error) {
+      setLoadError(
+        scoreboardQuery.error instanceof Error
+          ? scoreboardQuery.error.message
+          : "Kunne ikke hente scoreboard-innstillinger.",
+      );
+    }
+  }, [applySummary, scoreboardQuery.data, scoreboardQuery.error]);
+
+  const settingsMutation = useMutation({
+    mutationFn: (input: {
+      rotationSeconds: number;
+      theme: ScoreboardThemeFormValue;
+    }) =>
+      updateEditionScoreboard(editionId, {
+        scoreboard_rotation_seconds: input.rotationSeconds,
+        scoreboard_theme: {
+          primary_color: input.theme.primaryColor,
+          secondary_color: input.theme.secondaryColor,
+          background_image_url: input.theme.backgroundImageUrl,
+        },
+      }),
+    onSuccess: (data) => {
+      applySummary(data);
+      queryClient.setQueryData(editionScoreboardQueryKey(editionId), data);
+      setSettingsSuccess("Scoreboard-innstillinger er oppdatert.");
+      setSettingsError(null);
+    },
+    onError: (error) => {
+      setSettingsError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere scoreboard-innstillingene.",
+      );
+    },
+  });
+
+  const highlightMutation = useMutation({
+    mutationFn: (input: { message: string; durationSeconds: number }) =>
+      triggerScoreboardHighlight(editionId, {
+        message: input.message,
+        duration_seconds: input.durationSeconds,
+      }),
+    onSuccess: (data) => {
+      applySummary(data);
+      queryClient.setQueryData(editionScoreboardQueryKey(editionId), data);
+      setHighlightSuccess("Highlight er aktivert og vises på storskjermen.");
+      setHighlightError(null);
+      setHighlightMessage("");
+    },
+    onError: (error) => {
+      setHighlightError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke aktivere highlight-overlegget.",
+      );
+    },
+  });
+
+  const clearHighlightMutation = useMutation({
+    mutationFn: () => clearScoreboardHighlight(editionId),
+    onSuccess: (data) => {
+      applySummary(data);
+      queryClient.setQueryData(editionScoreboardQueryKey(editionId), data);
+      setHighlightSuccess("Highlight er fjernet fra storskjermen.");
+      setHighlightError(null);
+    },
+    onError: (error) => {
+      setHighlightError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke fjerne highlight-overlegget.",
+      );
+    },
+  });
+
+  const isLoading = scoreboardQuery.isLoading;
+  const isSavingSettings = settingsMutation.isPending;
+  const isSubmittingHighlight =
+    highlightMutation.isPending || clearHighlightMutation.isPending;
 
   async function handleSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSavingSettings(true);
     setSettingsError(null);
     setSettingsSuccess(null);
 
@@ -124,38 +171,16 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
         throw new Error("Rotasjonstiden må være minst 2 sekunder.");
       }
 
-      const response = await fetch(`/api/editions/${editionId}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          scoreboard_rotation_seconds: parsedRotation,
-          scoreboard_theme: {
-            primary_color: theme.primaryColor,
-            secondary_color: theme.secondaryColor,
-            background_image_url: theme.backgroundImageUrl,
-          },
-        }),
+      await settingsMutation.mutateAsync({
+        rotationSeconds: parsedRotation,
+        theme,
       });
-
-      if (!response.ok) {
-        throw new Error(await extractProblemMessage(response));
-      }
-
-      const payload = (await response.json()) as EditionScoreboardResponse;
-      applySummary(payload);
-      setSettingsSuccess("Scoreboard-innstillinger er oppdatert.");
     } catch (error) {
       setSettingsError(
         error instanceof Error
           ? error.message
           : "Kunne ikke oppdatere scoreboard-innstillingene.",
       );
-    } finally {
-      setIsSavingSettings(false);
     }
   }
 
@@ -163,7 +188,6 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
-    setIsSubmittingHighlight(true);
     setHighlightError(null);
     setHighlightSuccess(null);
 
@@ -182,73 +206,31 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
         throw new Error("Varigheten må være mellom 5 og 600 sekunder.");
       }
 
-      const response = await fetch(
-        `/api/editions/${editionId}/scoreboard/highlights`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            message: trimmed,
-            duration_seconds: durationValue,
-          }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(await extractProblemMessage(response));
-      }
-
-      const payload = (await response.json()) as EditionScoreboardResponse;
-      applySummary(payload);
-      setHighlightSuccess("Highlight er aktivert og vises på storskjermen.");
-      setHighlightMessage("");
+      await highlightMutation.mutateAsync({
+        message: trimmed,
+        durationSeconds: durationValue,
+      });
     } catch (error) {
       setHighlightError(
         error instanceof Error
           ? error.message
           : "Kunne ikke aktivere highlight-overlegget.",
       );
-    } finally {
-      setIsSubmittingHighlight(false);
     }
   }
 
   async function handleHighlightClear() {
-    setIsSubmittingHighlight(true);
     setHighlightError(null);
     setHighlightSuccess(null);
 
     try {
-      const response = await fetch(
-        `/api/editions/${editionId}/scoreboard/highlights`,
-        {
-          method: "DELETE",
-          credentials: "include",
-          headers: {
-            Accept: "application/json",
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(await extractProblemMessage(response));
-      }
-
-      const payload = (await response.json()) as EditionScoreboardResponse;
-      applySummary(payload);
-      setHighlightSuccess("Highlight er fjernet fra storskjermen.");
+      await clearHighlightMutation.mutateAsync();
     } catch (error) {
       setHighlightError(
         error instanceof Error
           ? error.message
           : "Kunne ikke fjerne highlight-overlegget.",
       );
-    } finally {
-      setIsSubmittingHighlight(false);
     }
   }
 
@@ -490,16 +472,4 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
       </div>
     </main>
   );
-}
-
-async function extractProblemMessage(response: Response): Promise<string> {
-  try {
-    const payload = (await response.json()) as {
-      title?: string;
-      detail?: string;
-    };
-    return payload.title ?? payload.detail ?? response.statusText;
-  } catch {
-    return response.statusText || "Ukjent feil";
-  }
 }

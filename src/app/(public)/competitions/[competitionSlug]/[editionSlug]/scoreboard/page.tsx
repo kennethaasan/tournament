@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { getPublicScoreboard } from "@/modules/public/scoreboard-service";
 import type { components } from "@/lib/api/generated/openapi";
+import { getPublicScoreboard } from "@/modules/public/scoreboard-service";
 import {
   DEFAULT_ROTATION,
   fromApiScoreboardPayload,

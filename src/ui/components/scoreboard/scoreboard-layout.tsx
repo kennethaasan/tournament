@@ -1,11 +1,10 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   DEFAULT_ROTATION,
-  buildEditionSlug,
   type ScoreboardData,
   type ScoreboardMatch,
   type ScoreboardStanding,

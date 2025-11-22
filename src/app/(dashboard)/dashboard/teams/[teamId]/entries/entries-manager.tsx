@@ -1,22 +1,19 @@
 "use client";
 
+import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
+import {
+  addSquadMember,
+  type EntryWithSquad,
+  registerTeamEntry,
+  updateSquadLock,
+} from "@/lib/api/teams-client";
 
 type EntriesManagerProps = {
   teamId: string;
 };
 
-type EntryPayload = {
-  entry: {
-    id: string;
-    edition_id: string;
-    status: string;
-  };
-  squad: {
-    id: string;
-    locked_at: string | null;
-  };
-};
+type EntryPayload = EntryWithSquad;
 
 export function EntriesManager({ teamId }: EntriesManagerProps) {
   const [entryForm, setEntryForm] = useState({
@@ -25,9 +22,6 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
   });
   const [entryInfo, setEntryInfo] = useState<EntryPayload | null>(null);
   const [entryError, setEntryError] = useState<string | null>(null);
-  const [entrySubmitting, setEntrySubmitting] = useState(false);
-
-  const [squadLocking, setSquadLocking] = useState(false);
   const [squadError, setSquadError] = useState<string | null>(null);
 
   const [memberForm, setMemberForm] = useState({
@@ -35,67 +29,73 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
     jerseyNumber: "",
     position: "",
   });
-  const [memberSubmitting, setMemberSubmitting] = useState(false);
   const [memberError, setMemberError] = useState<string | null>(null);
   const [memberSuccess, setMemberSuccess] = useState<string | null>(null);
+  const entryMutation = useMutation({
+    mutationFn: (payload: { editionId: string; notes?: string }) =>
+      registerTeamEntry(teamId, {
+        edition_id: payload.editionId,
+        notes: payload.notes,
+      }),
+  });
+  const squadLockMutation = useMutation({
+    mutationFn: (lock: boolean) => {
+      if (!entryInfo?.entry.id) {
+        throw new Error("Entry mangler; oppdater siden og prøv igjen.");
+      }
+      return updateSquadLock(entryInfo.entry.id, lock);
+    },
+  });
+  const squadMemberMutation = useMutation({
+    mutationFn: (payload: {
+      squadId: string;
+      membershipId: string;
+      jerseyNumber: string;
+      position: string;
+    }) =>
+      addSquadMember(payload.squadId, {
+        membership_id: payload.membershipId,
+        jersey_number: payload.jerseyNumber
+          ? Number(payload.jerseyNumber)
+          : undefined,
+        position: payload.position || undefined,
+      }),
+  });
+  const entrySubmitting = entryMutation.isPending;
+  const squadLocking = squadLockMutation.isPending;
+  const memberSubmitting = squadMemberMutation.isPending;
 
   async function handleEntrySubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setEntrySubmitting(true);
     setEntryError(null);
 
     try {
-      const response = await fetch(`/api/teams/${teamId}/entries`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          edition_id: entryForm.editionId,
-          notes: entryForm.notes,
-        }),
+      const notes = entryForm.notes.trim();
+      const payload = await entryMutation.mutateAsync({
+        editionId: entryForm.editionId,
+        notes: notes.length > 0 ? notes : undefined,
       });
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      const payload = (await response.json()) as EntryPayload;
       setEntryInfo(payload);
     } catch (err) {
       setEntryError(
         err instanceof Error ? err.message : "Kunne ikke opprette påmelding.",
       );
-    } finally {
-      setEntrySubmitting(false);
     }
   }
 
   async function handleLockChange(lock: boolean) {
-    if (!entryInfo?.entry.id) return;
-    setSquadLocking(true);
+    if (!entryInfo?.entry.id) {
+      return;
+    }
     setSquadError(null);
 
     try {
-      const response = await fetch(
-        `/api/entries/${entryInfo.entry.id}/squads`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lock }),
-        },
-      );
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-      const squad = await response.json();
+      const squad = await squadLockMutation.mutateAsync(lock);
       setEntryInfo((prev) =>
         prev
           ? {
               entry: prev.entry,
-              squad: {
-                id: squad.id,
-                locked_at: squad.locked_at,
-              },
+              squad,
             }
           : prev,
       );
@@ -103,8 +103,6 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       setSquadError(
         err instanceof Error ? err.message : "Kunne ikke oppdatere troppen.",
       );
-    } finally {
-      setSquadLocking(false);
     }
   }
 
@@ -112,29 +110,16 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
     event.preventDefault();
     if (!entryInfo?.squad.id) return;
 
-    setMemberSubmitting(true);
     setMemberError(null);
     setMemberSuccess(null);
 
     try {
-      const response = await fetch(
-        `/api/squads/${entryInfo.squad.id}/members`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            membership_id: memberForm.membershipId,
-            jersey_number: memberForm.jerseyNumber
-              ? Number(memberForm.jerseyNumber)
-              : undefined,
-            position: memberForm.position || undefined,
-          }),
-        },
-      );
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
+      await squadMemberMutation.mutateAsync({
+        squadId: entryInfo.squad.id,
+        membershipId: memberForm.membershipId,
+        jerseyNumber: memberForm.jerseyNumber,
+        position: memberForm.position,
+      });
       setMemberSuccess("Spilleren er lagt til i troppen.");
       setMemberForm({
         membershipId: "",
@@ -145,8 +130,6 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       setMemberError(
         err instanceof Error ? err.message : "Kunne ikke legge til spiller.",
       );
-    } finally {
-      setMemberSubmitting(false);
     }
   }
 
