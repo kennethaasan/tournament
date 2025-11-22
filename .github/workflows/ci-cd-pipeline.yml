@@ -126,7 +126,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.56.0-noble
     services:
-      postgres:
+      postgres: &postgres-service
         image: postgres:17
         ports:
           - 5432:5432
@@ -157,10 +157,12 @@ jobs:
         name: Copy .env.example to .env
         run: cp .env.example .env
 
-      - name: Seed database
+      - &seed-database
+        name: Seed database
         run: npm run seed
 
-      - name: Build application
+      - &build-application
+        name: Build application
         run: npm run build
 
       - name: Run Playwright tests
@@ -182,19 +184,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     services:
-      postgres:
-        image: postgres:17
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: app
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: app
-        options: >-
-          --health-cmd "pg_isready -U app -d app"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+      postgres: *postgres-service
     env:
       DATABASE_URL: postgresql://app:app@postgres:5432/app
     steps:
@@ -203,11 +193,9 @@ jobs:
       - *node-install-dependencies
       - *copy-example-env
 
-      - name: Seed database
-        run: npm run seed
+      - *seed-database
 
-      - name: Build application
-        run: npm run build
+      - *build-application
 
       - name: Start Next.js server
         run: |
