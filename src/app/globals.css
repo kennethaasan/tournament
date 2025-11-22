@@ -1,8 +1,4 @@
-@import "tailwindcss";
-
-@plugin "tailwindcss-animate";
-
-@variant dark (&:where(.dark, .dark *));
+@import "./config.css";
 
 :root {
   --background: #ffffff;

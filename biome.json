@@ -19,7 +19,7 @@
       "!**/.codex",
       "!**/.vscode",
       "!**/instructions",
-      "!src/app/globals.css"
+      "!src/app/config.css"
     ]
   },
   "formatter": {
