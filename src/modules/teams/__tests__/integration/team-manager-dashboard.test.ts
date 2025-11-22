@@ -339,10 +339,19 @@ function createInsertBuilder(
     return inserted;
   };
 
-  const promise = Promise.resolve().then(() => execute());
-
-  return Object.assign(promise, {
-    returning: async () => execute(),
+  const builder = {
+    then: (
+      onfulfilled?: (value: Row[]) => unknown,
+      onrejected?: (reason: any) => unknown,
+    ) => {
+      try {
+        const result = execute();
+        return Promise.resolve(result).then(onfulfilled, onrejected);
+      } catch (error) {
+        return Promise.reject(error).then(onfulfilled, onrejected);
+      }
+    },
+    returning: () => builder,
     onConflictDoNothing: (config: { target: unknown }) =>
       createInsertBuilder(tableName, rows, store, {
         strategy: "do_nothing",
@@ -354,7 +363,13 @@ function createInsertBuilder(
         targetColumns: normalizeTarget(config.target),
         set: config.set,
       }),
-  });
+  };
+
+  return builder as unknown as Promise<Row[]> & {
+    returning: () => Promise<Row[]>;
+    onConflictDoNothing: (config: { target: unknown }) => unknown;
+    onConflictDoUpdate: (config: { target: unknown; set: Row }) => unknown;
+  };
 }
 
 function normalizeTarget(target: unknown): string[] {
