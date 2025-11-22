@@ -21,7 +21,7 @@
     "spectral:ci": "spectral lint openapi.yaml --format json",
     "openapi:generate": "openapi-typescript openapi.yaml -o src/lib/api/generated/openapi.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate": "SKIP_ENV_VALIDATION=true drizzle-kit migrate",
     "db:push": "drizzle-kit push --config drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config drizzle.config.ts",
     "docker:compose:up": "docker-compose up -d && sleep 10 && npm run seed",
