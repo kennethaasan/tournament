@@ -63,8 +63,8 @@ export function unwrapResponse<T>(shape: ResponseShape<T>): T {
         typeof shape.error === "string"
           ? shape.error
           : shape.error instanceof Error
-          ? shape.error.message
-          : undefined,
+            ? shape.error.message
+            : undefined,
     };
 
     throw createProblem(problem);
