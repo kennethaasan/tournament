@@ -1,9 +1,11 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import {
   DEFAULT_ROTATION,
+  buildEditionSlug,
   type ScoreboardData,
   type ScoreboardMatch,
   type ScoreboardStanding,
@@ -42,13 +44,28 @@ export function ScoreboardScreen({
   competitionSlug,
   editionSlug,
 }: ScoreboardScreenProps) {
+  const params = useParams<{
+    competitionSlug?: string;
+    editionSlug?: string;
+  }>();
+  const resolvedCompetitionSlug =
+    params?.competitionSlug ??
+    competitionSlug ??
+    initialData.edition.competitionSlug ??
+    null;
+  const resolvedEditionSlug =
+    params?.editionSlug ?? editionSlug ?? initialData.edition.slug;
+
   const query = useScoreboardPoll({
-    competitionSlug,
-    editionSlug,
+    competitionSlug: resolvedCompetitionSlug ?? undefined,
+    editionSlug: resolvedEditionSlug,
     initialData,
   });
 
   const data = query.data ?? initialData;
+  const [overlayText, setOverlayText] = useState<string>(() =>
+    deriveOverlayMessage(data),
+  );
   const theme = data.edition.scoreboardTheme;
   const entryNames = useMemo(
     () => new Map(data.entries.map((entry) => [entry.id, entry.name])),
@@ -66,6 +83,10 @@ export function ScoreboardScreen({
 
   const rotation = data.rotation.length ? data.rotation : DEFAULT_ROTATION;
 
+  useEffect(() => {
+    setOverlayText(deriveOverlayMessage(data));
+  }, [data]);
+
   return (
     <div
       className="min-h-screen"
@@ -76,12 +97,10 @@ export function ScoreboardScreen({
       <div className="mx-auto max-w-6xl px-4 py-10 text-white sm:px-6 lg:px-8">
         <header className="mb-8 flex flex-col gap-4 border-b border-white/20 pb-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-white/70">
-              Public scoreboard
-            </p>
-            <h1 className="text-3xl font-semibold">
+            <h1 className="text-3xl font-semibold">Public scoreboard</h1>
+            <p className="text-lg font-medium text-white/80">
               {data.edition.label} · {data.edition.slug}
-            </h1>
+            </p>
             <p className="text-sm text-white/80">
               Updates every {data.edition.scoreboardRotationSeconds} seconds
             </p>
@@ -98,14 +117,12 @@ export function ScoreboardScreen({
           </div>
         </header>
 
-        {data.overlayMessage ? (
-          <div
-            aria-live="polite"
-            className="mb-8 rounded-2xl border border-white/40 bg-white/10 px-6 py-4 text-center text-lg font-semibold shadow-lg backdrop-blur"
-          >
-            {data.overlayMessage}
-          </div>
-        ) : null}
+        <div
+          aria-live="polite"
+          className="mb-8 rounded-2xl border border-white/40 bg-white/10 px-6 py-4 text-center text-lg font-semibold shadow-lg backdrop-blur"
+        >
+          {overlayText}
+        </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <MatchSection
@@ -192,9 +209,9 @@ type StandingsProps = {
 function StandingsTable({ standings, entryNames }: StandingsProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <header className="border-b border-white/10 px-5 py-3 text-lg font-semibold uppercase tracking-wide text-white">
+      <h2 className="border-b border-white/10 px-5 py-3 text-lg font-semibold uppercase tracking-wide text-white">
         Standings
-      </header>
+      </h2>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm text-white/90">
           <thead>
@@ -257,9 +274,9 @@ function TopScorersList({ scorers, entryNames }: TopScorersProps) {
 
   return (
     <section className="rounded-3xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
-      <header className="mb-4 text-lg font-semibold uppercase tracking-wide text-white">
+      <h2 className="mb-4 text-lg font-semibold uppercase tracking-wide text-white">
         Top scorers
-      </header>
+      </h2>
       {rows.length === 0 ? (
         <p className="text-sm text-white/70">
           No scorers have been recorded yet. Once matches begin, players will
@@ -340,4 +357,12 @@ function formatKickoff(date: Date): string {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function deriveOverlayMessage(data: ScoreboardData): string {
+  return (
+    data.overlayMessage ??
+    data.matches.find((match) => match.highlight)?.highlight ??
+    "Ingen aktive høydepunkt akkurat nå."
+  );
 }
