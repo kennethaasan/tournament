@@ -1,7 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/api/client";
+import {
+  editionStagesQueryKey,
+  fetchEditionStages,
+  type Stage,
+} from "@/lib/api/stages-client";
 
 type StageGroup = {
   id: string;
@@ -30,22 +36,6 @@ type StageFormState = {
   groups: StageFormGroup[];
 };
 
-type StageListResponse = {
-  stages: Array<{
-    id: string;
-    edition_id: string;
-    name: string;
-    stage_type: "group" | "bracket";
-    order: number;
-    published_at: string | null;
-    groups: Array<{
-      id: string;
-      code: string;
-      name: string | null;
-    }>;
-  }>;
-};
-
 type SeedRow = {
   key: string;
   seed: number;
@@ -57,10 +47,6 @@ type ScheduleDashboardProps = {
 };
 
 export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
-  const [stages, setStages] = useState<StageListItem[]>([]);
-  const [isLoadingStages, setIsLoadingStages] = useState(true);
-  const [stageLoadError, setStageLoadError] = useState<string | null>(null);
-
   const [stageForm, setStageForm] = useState<StageFormState>({
     name: "",
     stageType: "group",
@@ -93,9 +79,23 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const [generationSuccess, setGenerationSuccess] = useState<string | null>(
     null,
   );
+  const stagesQuery = useQuery({
+    queryKey: editionStagesQueryKey(editionId),
+    queryFn: ({ signal }) =>
+      fetchEditionStages(editionId, { signal }).then((payload) =>
+        payload
+          .map(toStageListItem)
+          .sort((left, right) => (left.order ?? 0) - (right.order ?? 0)),
+      ),
+  });
+
+  const stages = stagesQuery.data ?? [];
+  const isLoadingStages = stagesQuery.isLoading;
+  const stageLoadError =
+    stagesQuery.error instanceof Error ? stagesQuery.error.message : null;
 
   const selectedStage = useMemo(
-    () => stages.find((stage) => stage.id === generationStageId),
+    () => stages.find((stage) => stage.id === generationStageId) ?? null,
     [stages, generationStageId],
   );
 
@@ -118,68 +118,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setGroupEntryInputs({});
     }
   }, [selectedStage]);
-
-  const loadStages = useCallback(async () => {
-    setIsLoadingStages(true);
-    setStageLoadError(null);
-
-    try {
-      const response = await fetch(`/api/editions/${editionId}/stages`, {
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        let message =
-          "Kunne ikke laste inn eksisterende stadier. Prøv igjen senere.";
-        try {
-          const problem = (await response.json()) as {
-            title?: string;
-            detail?: string;
-          };
-          if (problem.title) {
-            message = problem.title;
-          } else if (problem.detail) {
-            message = problem.detail;
-          }
-        } catch {
-          // ignore JSON parsing errors and use default message
-        }
-        throw new Error(message);
-      }
-
-      const payload = (await response.json()) as StageListResponse;
-      const stageData = payload.stages ?? [];
-      setStages(
-        stageData.map((stage) => ({
-          id: stage.id,
-          name: stage.name,
-          stageType: stage.stage_type === "bracket" ? "knockout" : "group",
-          order: stage.order,
-          publishedAt: stage.published_at,
-          groups: stage.groups.map((group) => ({
-            id: group.id,
-            code: group.code,
-            name: group.name ?? null,
-          })),
-        })),
-      );
-    } catch (error) {
-      setStageLoadError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke hente stadier akkurat nå.",
-      );
-    } finally {
-      setIsLoadingStages(false);
-    }
-  }, [editionId]);
-
-  useEffect(() => {
-    void loadStages();
-  }, [loadStages]);
 
   function updateStageForm<K extends keyof StageFormState>(
     field: K,
@@ -300,7 +238,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         groups:
           stageForm.stageType === "group" ? [createStageFormGroup("A")] : [],
       });
-      await loadStages();
+      await stagesQuery.refetch();
     } catch (error) {
       setStageFormError(
         error instanceof Error ? error.message : "Klarte ikke å lagre stadiet.",
@@ -372,6 +310,21 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       }
       return prev.filter((row) => row.key !== key);
     });
+  }
+
+  function toStageListItem(stage: Stage): StageListItem {
+    return {
+      id: stage.id,
+      name: stage.name,
+      stageType: stage.stage_type === "bracket" ? "knockout" : "group",
+      order: stage.order ?? 0,
+      publishedAt: stage.published_at ?? null,
+      groups: (stage.groups ?? []).map((group) => ({
+        id: group.id,
+        code: group.code,
+        name: group.name ?? null,
+      })),
+    };
   }
 
   async function handleGenerateMatches(

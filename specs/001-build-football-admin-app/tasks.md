@@ -65,7 +65,7 @@ description: "Task list template for feature implementation"
 - [X] T019 [US1] Implement `POST /api/auth/invitations` handler in `src/app/api/auth/invitations/route.ts`.
 - [X] T020 [US1] Implement `POST /api/competitions` handler in `src/app/api/competitions/route.ts`.
 - [X] T021 [US1] Implement `POST /api/competitions/[competitionId]/editions` handler in `src/app/api/competitions/[competitionId]/editions/route.ts`.
-- [X] T022 [US1] Build organizer signup page and invite acceptance flow in `src/app/public/auth/organizer-signup/page.tsx`.
+- [X] T022 [US1] Build organizer signup page and invite acceptance flow in `src/app/(public)/auth/organizer-signup/page.tsx`.
 - [X] T023 [US1] Build competition creation dashboard surface in `src/app/dashboard/competitions/new/page.tsx`.
 - [X] T024 [US1] Implement scoreboard theme form component with WCAG validation in `src/ui/components/scoreboard/theme-form.tsx`.
 - [X] T025 [US1] Build edition creation dashboard page integrating scoreboard settings in `src/app/dashboard/competitions/[competitionId]/editions/new/page.tsx`.
@@ -171,7 +171,7 @@ description: "Task list template for feature implementation"
 - [X] T061 [P] [US5] Implement scoreboard query service aggregating standings and leaders in `src/modules/public/scoreboard-service.ts`.
 - [X] T062 [US5] Implement `GET /api/public/editions/[editionSlug]/scoreboard` handler in `src/app/api/public/editions/[...editionSlug]/scoreboard/route.ts`.
 - [X] T063 [US5] Implement `GET /api/public/events` handler in `src/app/api/public/events/route.ts`.
-- [X] T064 [US5] Build public scoreboard page with streaming sections in `src/app/public/competitions/[competitionSlug]/[editionSlug]/scoreboard/page.tsx`.
+- [X] T064 [US5] Build public scoreboard page with streaming sections in `src/app/(public)/competitions/[competitionSlug]/[editionSlug]/scoreboard/page.tsx`.
 - [X] T065 [US5] Build reusable scoreboard layout components in `src/ui/components/scoreboard/scoreboard-layout.tsx`.
 - [X] T066 [US5] Implement TanStack Query polling hook in `src/ui/hooks/useScoreboardPoll.ts`.
 

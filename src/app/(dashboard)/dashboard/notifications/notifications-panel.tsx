@@ -1,51 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-type NotificationItem = {
-  id: string;
-  type: string;
-  payload: Record<string, unknown>;
-  created_at: string | null;
-  read_at: string | null;
-};
-
-type NotificationsResponse = {
-  notifications: NotificationItem[];
-};
+import { useQuery } from "@tanstack/react-query";
+import {
+  fetchNotifications,
+  notificationsQueryKey,
+} from "@/lib/api/notifications-client";
 
 export function NotificationsPanel() {
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const notificationsQuery = useQuery({
+    queryKey: notificationsQueryKey(),
+    queryFn: ({ signal }) => fetchNotifications({ signal }),
+  });
 
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch("/api/notifications", {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-      const payload = (await response.json()) as NotificationsResponse;
-      setItems(payload.notifications);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Kunne ikke hente varsler akkurat nå.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void fetchNotifications();
-  }, [fetchNotifications]);
+  const items = notificationsQuery.data ?? [];
+  const error =
+    notificationsQuery.error instanceof Error
+      ? notificationsQuery.error.message
+      : null;
 
   return (
     <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
@@ -59,10 +30,10 @@ export function NotificationsPanel() {
         <button
           type="button"
           onClick={() => {
-            void fetchNotifications();
+            void notificationsQuery.refetch();
           }}
           className="rounded-md border border-zinc-200 px-4 py-2 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50"
-          disabled={loading}
+          disabled={notificationsQuery.isFetching}
         >
           Oppdater
         </button>
@@ -74,7 +45,7 @@ export function NotificationsPanel() {
         </div>
       )}
 
-      {loading ? (
+      {notificationsQuery.isLoading ? (
         <p className="text-sm text-zinc-600">Laster varsler …</p>
       ) : items.length === 0 ? (
         <p className="text-sm text-zinc-500">

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-const SCOREBOARD_API = "**/api/public/editions/oslo-cup/2025/scoreboard";
+const SCOREBOARD_API =
+  "**/api/public/competitions/oslo-cup/editions/2025/scoreboard";
 
 type ScoreboardPayload = {
   edition: {

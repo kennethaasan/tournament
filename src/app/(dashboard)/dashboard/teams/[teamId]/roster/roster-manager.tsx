@@ -1,26 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import type { components } from "@/lib/api/generated/openapi";
+import {
+  addTeamMember,
+  fetchTeamRoster,
+  teamRosterQueryKey,
+} from "@/lib/api/teams-client";
 
-type RosterResponse = {
-  team: {
-    id: string;
-    name: string;
-    slug: string;
-    contact_email?: string | null;
-    contact_phone?: string | null;
-  };
-  members: Array<{
-    membership_id: string;
-    person: {
-      id: string;
-      first_name: string;
-      last_name: string;
-      preferred_name?: string | null;
-    };
-    role: string;
-    status: string;
-  }>;
+type TeamMemberRole = components["schemas"]["AddTeamMemberRequest"]["role"];
+type RosterFormState = {
+  firstName: string;
+  lastName: string;
+  preferredName: string;
+  country: string;
+  role: TeamMemberRole;
 };
 
 type RosterManagerProps = {
@@ -28,65 +23,32 @@ type RosterManagerProps = {
 };
 
 export function RosterManager({ teamId }: RosterManagerProps) {
-  const [data, setData] = useState<RosterResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RosterFormState>({
     firstName: "",
     lastName: "",
     preferredName: "",
     country: "",
     role: "player",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const refreshRoster = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/teams/${teamId}`, {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-      const payload = (await response.json()) as RosterResponse;
-      setData(payload);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Klarte ikke å hente spillere.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [teamId]);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    void refreshRoster();
-  }, [refreshRoster]);
+  const rosterQuery = useQuery({
+    queryKey: teamRosterQueryKey(teamId),
+    queryFn: ({ signal }) => fetchTeamRoster(teamId, { signal }),
+  });
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
-    setSubmitError(null);
-    try {
-      const response = await fetch(`/api/teams/${teamId}/members`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: form.firstName,
-          last_name: form.lastName,
-          preferred_name: form.preferredName || null,
-          country: form.country || null,
-          role: form.role,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
+  const addMemberMutation = useMutation({
+    mutationFn: () =>
+      addTeamMember(teamId, {
+        first_name: form.firstName,
+        last_name: form.lastName,
+        preferred_name: form.preferredName || null,
+        country: form.country || null,
+        role: form.role,
+      }),
+    onSuccess: () => {
       setForm({
         firstName: "",
         lastName: "",
@@ -94,17 +56,31 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         country: "",
         role: "player",
       });
-      await refreshRoster();
+      void queryClient.invalidateQueries({
+        queryKey: teamRosterQueryKey(teamId),
+      });
+    },
+  });
+  const isSubmitting = addMemberMutation.isPending;
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitError(null);
+    try {
+      await addMemberMutation.mutateAsync();
     } catch (err) {
       setSubmitError(
         err instanceof Error
           ? err.message
           : "Kunne ikke legge til medlem. Prøv igjen.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   }
+
+  const isLoadingRoster = rosterQuery.isLoading;
+  const rosterError =
+    rosterQuery.error instanceof Error ? rosterQuery.error.message : null;
+  const roster = rosterQuery.data;
 
   return (
     <div className="space-y-8">
@@ -118,15 +94,17 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           </p>
         </header>
 
-        {isLoading ? (
+        {isLoadingRoster ? (
           <p className="text-sm text-zinc-600">Laster laginformasjon …</p>
-        ) : error ? (
-          <p className="text-sm text-red-600">{error}</p>
+        ) : rosterError ? (
+          <p className="text-sm text-red-600">{rosterError}</p>
         ) : (
           <>
             <div className="mb-6 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
-              <p className="font-medium">{data?.team.name}</p>
-              <p className="text-xs text-zinc-500">Team-ID: {data?.team.id}</p>
+              <p className="font-medium">{roster?.team.name}</p>
+              <p className="text-xs text-zinc-500">
+                Team-ID: {roster?.team.id}
+              </p>
             </div>
 
             <table className="w-full table-auto text-left text-sm">
@@ -138,19 +116,16 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 </tr>
               </thead>
               <tbody>
-                {data?.members.map((member) => (
+                {roster?.members.map((member) => (
                   <tr key={member.membership_id} className="border-t">
                     <td className="px-2 py-2 text-zinc-800">
-                      {member.person.first_name} {member.person.last_name}
-                      {member.person.preferred_name
-                        ? ` (${member.person.preferred_name})`
-                        : ""}
+                      {member.person.full_name}
                     </td>
                     <td className="px-2 py-2 text-zinc-600">{member.role}</td>
                     <td className="px-2 py-2 text-zinc-600">{member.status}</td>
                   </tr>
                 ))}
-                {!data?.members.length && (
+                {!roster?.members.length && (
                   <tr>
                     <td
                       className="px-2 py-4 text-center text-sm text-zinc-500"
@@ -279,7 +254,10 @@ export function RosterManager({ teamId }: RosterManagerProps) {
               id="role"
               value={form.role}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, role: event.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  role: event.target.value as TeamMemberRole,
+                }))
               }
               className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >

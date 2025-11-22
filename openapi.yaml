@@ -140,6 +140,26 @@ paths:
         '403':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/stages:
+    get:
+      tags: [competitions]
+      summary: List stages for an edition
+      operationId: list_stages
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Edition stages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Stage'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
     post:
       tags: [competitions]
       summary: Create a stage (group or knockout)
@@ -451,12 +471,13 @@ paths:
       responses:
         '204':
           description: Notifications updated
-  /api/public/editions/{edition_slug}/scoreboard:
+  /api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard:
     get:
       tags: [public]
       summary: Fetch public scoreboard payload for big-screen display
       operationId: get_scoreboard
       parameters:
+        - $ref: '#/components/parameters/CompetitionSlug'
         - $ref: '#/components/parameters/EditionSlug'
       responses:
         '200':
@@ -561,7 +582,13 @@ components:
       required: true
       schema:
         type: string
-      description: Combination of competition + edition slug (e.g. oslo-cup/2025)
+        description: Edition slug (e.g. 2025)
+    CompetitionSlug:
+      name: competition_slug
+      in: path
+      required: true
+      schema:
+        type: string
     EventCursor:
       name: cursor
       in: query
@@ -836,6 +863,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Group'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
     CreateStageRequest:
       type: object
       required: [name, stage_type]

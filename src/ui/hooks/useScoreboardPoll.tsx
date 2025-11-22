@@ -2,9 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRef } from "react";
-import type { components } from "@/lib/api/generated/openapi";
 import {
-  buildEditionSlug,
+  fetchPublicScoreboard,
+  publicScoreboardQueryKey,
+} from "@/lib/api/scoreboard-client";
+import {
   fromApiScoreboardPayload,
   type ScoreboardData,
 } from "@/modules/public/scoreboard-types";
@@ -17,34 +19,18 @@ type UseScoreboardPollOptions = {
 
 export function useScoreboardPoll(options: UseScoreboardPollOptions) {
   const { competitionSlug, editionSlug, initialData } = options;
-  const editionPath = buildEditionSlug(competitionSlug, editionSlug);
   const entryDirectory = useRef(
     new Map(initialData.entries.map((entry) => [entry.id, entry.name])),
   );
 
-  return useQuery({
-    queryKey: ["scoreboard", editionPath],
+  const query = useQuery({
+    queryKey: publicScoreboardQueryKey(competitionSlug, editionSlug),
     queryFn: async ({ signal }) => {
-      const response = await fetch(
-        `/api/public/editions/${editionPath}/scoreboard`,
-        {
-          signal,
-          headers: {
-            Accept: "application/json",
-          },
-        },
+      const payload = await fetchPublicScoreboard(
+        competitionSlug,
+        editionSlug,
+        { signal },
       );
-
-      if (!response.ok) {
-        const detail = await safeRead(response);
-        throw new Error(
-          detail ||
-            "Kunne ikke hente scoreboard-data. Prøv å laste siden på nytt.",
-        );
-      }
-
-      const payload =
-        (await response.json()) as components["schemas"]["ScoreboardPayload"];
       const parsed = fromApiScoreboardPayload(payload);
       mergeEntryDirectory(entryDirectory.current, parsed);
       return {
@@ -62,23 +48,13 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
         initialData.edition.scoreboardRotationSeconds;
       return Math.max(rotation * 1000, 2000);
     },
+    refetchOnMount: "always",
+    staleTime: 0,
     refetchOnWindowFocus: false,
     refetchIntervalInBackground: true,
   });
-}
 
-async function safeRead(response: Response): Promise<string | null> {
-  try {
-    const body = await response.clone().json();
-    if (body && typeof body === "object" && "detail" in body) {
-      return (
-        ((body as { detail?: unknown }).detail as string | undefined) ?? null
-      );
-    }
-    return await response.text();
-  } catch {
-    return null;
-  }
+  return query;
 }
 
 function mergeEntryDirectory(

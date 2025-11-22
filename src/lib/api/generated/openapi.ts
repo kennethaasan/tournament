@@ -97,7 +97,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** List stages for an edition */
+    get: operations["list_stages"];
     put?: never;
     /** Create a stage (group or knockout) */
     post: operations["create_stage"];
@@ -313,7 +314,7 @@ export interface paths {
     patch: operations["mark_notifications"];
     trace?: never;
   };
-  "/api/public/editions/{edition_slug}/scoreboard": {
+  "/api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard": {
     parameters: {
       query?: never;
       header?: never;
@@ -484,6 +485,8 @@ export interface components {
       stage_type: "group" | "bracket";
       order?: number;
       groups?: components["schemas"]["Group"][];
+      /** Format: date-time */
+      published_at?: string | null;
     };
     CreateStageRequest: {
       name: string;
@@ -825,8 +828,8 @@ export interface components {
     SquadId: string;
     /** @description Continue notification pagination */
     NotificationCursor: string;
-    /** @description Combination of competition + edition slug (e.g. oslo-cup/2025) */
     EditionSlug: string;
+    CompetitionSlug: string;
     /** @description Cursor token for incremental events */
     EventCursor: string;
   };
@@ -982,6 +985,31 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
+        };
+      };
+      403: components["responses"]["ProblemDetails"];
+    };
+  };
+  list_stages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Edition stages */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            stages?: components["schemas"]["Stage"][];
+          };
         };
       };
       403: components["responses"]["ProblemDetails"];
@@ -1385,7 +1413,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description Combination of competition + edition slug (e.g. oslo-cup/2025) */
+        competition_slug: components["parameters"]["CompetitionSlug"];
         edition_slug: components["parameters"]["EditionSlug"];
       };
       cookie?: never;

@@ -2,15 +2,16 @@ import { describe, expectTypeOf, it } from "vitest";
 import type { components, paths } from "@/lib/api/generated/openapi";
 
 type ScoreboardGet = NonNullable<
-  paths["/api/public/editions/{edition_slug}/scoreboard"]["get"]
+  paths["/api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard"]["get"]
 >;
 type ScoreboardResponse = NonNullable<
   ScoreboardGet["responses"][200]["content"]["application/json"]
 >;
 
-describe("OpenAPI contract › GET /api/public/editions/{edition_slug}/scoreboard", () => {
+describe("OpenAPI contract › GET /api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard", () => {
   it("requires the edition_slug path parameter", () => {
     expectTypeOf<ScoreboardGet["parameters"]["path"]>().toEqualTypeOf<{
+      competition_slug: components["parameters"]["CompetitionSlug"];
       edition_slug: components["parameters"]["EditionSlug"];
     }>();
   });
