@@ -1,6 +1,7 @@
 import createClient, { type ClientOptions } from "openapi-fetch";
 import { z } from "zod";
 import { env } from "@/env";
+import { withAmzContentSha256Request } from "@/lib/api/amz-content-sha256";
 import type { paths } from "@/lib/api/generated/openapi";
 import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 
@@ -26,6 +27,10 @@ const defaultClientOptions: ClientOptions = {
   baseUrl: DEFAULT_BASE_URL,
   headers: {
     "Content-Type": "application/json",
+  },
+  fetch: async (request: Request) => {
+    const signedRequest = await withAmzContentSha256Request(request);
+    return fetch(signedRequest);
   },
 };
 
