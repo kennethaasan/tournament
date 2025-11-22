@@ -32,8 +32,7 @@ export default defineConfig({
       enabled: true,
       provider: "v8",
       reportOnFailure: true,
-      reporter: ["text", "text-summary", "json-summary", "lcov", "html"],
-      reportsDirectory: "./reports/coverage",
+      reporter: ["text", "text-summary", "json-summary", "json"],
       include: ["src/**/*.{ts,tsx}"],
       thresholds: {
         global: {
