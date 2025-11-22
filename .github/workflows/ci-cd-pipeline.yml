@@ -221,6 +221,7 @@ jobs:
         run: |
           if [ -f .next-server.pid ]; then
             kill "$(cat .next-server.pid)" || true
+          fi
 
   build:
     name: Build

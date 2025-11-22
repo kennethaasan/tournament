@@ -4,9 +4,7 @@ import { env } from "@/env";
 import type { paths } from "@/lib/api/generated/openapi";
 import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 
-const DEFAULT_BASE_URL = env.NEXT_PUBLIC_APP_URL
-  ? `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/api`
-  : "/api";
+const DEFAULT_BASE_URL = env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
 
 export const problemDetailsSchema = z
   .object({
