@@ -4,7 +4,9 @@ import { env } from "@/env";
 import type { paths } from "@/lib/api/generated/openapi";
 import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 
-const DEFAULT_BASE_URL = env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+const DEFAULT_BASE_URL = env.NEXT_PUBLIC_APP_URL
+  ? `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/api`
+  : "/api";
 
 export const problemDetailsSchema = z
   .object({
@@ -61,8 +63,8 @@ export function unwrapResponse<T>(shape: ResponseShape<T>): T {
         typeof shape.error === "string"
           ? shape.error
           : shape.error instanceof Error
-            ? shape.error.message
-            : undefined,
+          ? shape.error.message
+          : undefined,
     };
 
     throw createProblem(problem);

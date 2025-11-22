@@ -9,21 +9,25 @@ export type ScoreboardPayload = components["schemas"]["ScoreboardPayload"];
 export type EditionScoreboardView =
   components["schemas"]["EditionScoreboardView"];
 
-export const publicScoreboardQueryKey = (editionSlug: string) =>
-  ["scoreboard", editionSlug] as const;
+export const publicScoreboardQueryKey = (
+  competitionSlug: string,
+  editionSlug: string,
+) => ["scoreboard", competitionSlug, editionSlug] as const;
 
 export const editionScoreboardQueryKey = (editionId: string) =>
   ["edition", editionId, "scoreboard"] as const;
 
 export async function fetchPublicScoreboard(
+  competitionSlug: string,
   editionSlug: string,
   options: RequestOptions = {},
 ): Promise<ScoreboardPayload> {
   const { data, error, response } = await apiClient.GET(
-    "/api/public/editions/{edition_slug}/scoreboard",
+    "/api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard",
     {
       params: {
         path: {
+          competition_slug: competitionSlug,
           edition_slug: editionSlug,
         },
       },

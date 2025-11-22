@@ -1,13 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   fetchPublicScoreboard,
   publicScoreboardQueryKey,
 } from "@/lib/api/scoreboard-client";
 import {
-  buildEditionSlug,
   fromApiScoreboardPayload,
   type ScoreboardData,
 } from "@/modules/public/scoreboard-types";
@@ -20,15 +19,18 @@ type UseScoreboardPollOptions = {
 
 export function useScoreboardPoll(options: UseScoreboardPollOptions) {
   const { competitionSlug, editionSlug, initialData } = options;
-  const editionPath = buildEditionSlug(competitionSlug, editionSlug);
   const entryDirectory = useRef(
     new Map(initialData.entries.map((entry) => [entry.id, entry.name])),
   );
 
-  return useQuery({
-    queryKey: publicScoreboardQueryKey(editionPath),
+  const query = useQuery({
+    queryKey: publicScoreboardQueryKey(competitionSlug, editionSlug),
     queryFn: async ({ signal }) => {
-      const payload = await fetchPublicScoreboard(editionPath, { signal });
+      const payload = await fetchPublicScoreboard(
+        competitionSlug,
+        editionSlug,
+        { signal },
+      );
       const parsed = fromApiScoreboardPayload(payload);
       mergeEntryDirectory(entryDirectory.current, parsed);
       return {
@@ -46,9 +48,13 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
         initialData.edition.scoreboardRotationSeconds;
       return Math.max(rotation * 1000, 2000);
     },
+    refetchOnMount: "always",
+    staleTime: 0,
     refetchOnWindowFocus: false,
     refetchIntervalInBackground: true,
   });
+
+  return query;
 }
 
 function mergeEntryDirectory(

@@ -471,12 +471,13 @@ paths:
       responses:
         '204':
           description: Notifications updated
-  /api/public/editions/{edition_slug}/scoreboard:
+  /api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard:
     get:
       tags: [public]
       summary: Fetch public scoreboard payload for big-screen display
       operationId: get_scoreboard
       parameters:
+        - $ref: '#/components/parameters/CompetitionSlug'
         - $ref: '#/components/parameters/EditionSlug'
       responses:
         '200':
@@ -581,7 +582,13 @@ components:
       required: true
       schema:
         type: string
-      description: Combination of competition + edition slug (e.g. oslo-cup/2025)
+        description: Edition slug (e.g. 2025)
+    CompetitionSlug:
+      name: competition_slug
+      in: path
+      required: true
+      schema:
+        type: string
     EventCursor:
       name: cursor
       in: query
