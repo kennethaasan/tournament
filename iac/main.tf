@@ -114,6 +114,7 @@ module "cdn" {
   create_origin_access_control = true
   origin_access_control = {
     lambda = {
+      name             = "${local.stack_name}-lambda"
       description      = "Lambda origin access control"
       origin_type      = "lambda"
       signing_behavior = "always"
