@@ -5,17 +5,22 @@ import { vi } from "vitest";
 import * as schema from "@/server/db/schema";
 
 // Set baseline environment variables
-vi.stubEnv("DATABASE_URL", "postgresql://test:test@localhost:5432/test");
+vi.stubEnv(
+  "DATABASE_URL",
+  "postgresql://postgres:postgres@localhost:5432/tournament_app",
+);
 vi.stubEnv("BETTER_AUTH_SECRET", "test-secret-test-secret-test-secret-123");
-vi.stubEnv("BETTER_AUTH_EMAIL_SENDER", "test@example.com");
+vi.stubEnv("BETTER_AUTH_EMAIL_SENDER", "no-reply@example.com");
+vi.stubEnv("BETTER_AUTH_TRUSTED_ORIGINS", "http://localhost:3000");
+vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
 // Mock the database client
 vi.mock("@/server/db/client", async () => {
-  const { createRequire } = await vi.importActual<typeof import("node:module")>(
-    "node:module",
-  );
+  const { createRequire } =
+    await vi.importActual<typeof import("node:module")>("node:module");
   const require = createRequire(import.meta.url);
-  const { pushSchema } = require("drizzle-kit/api") as typeof import("drizzle-kit/api");
+  const { pushSchema } =
+    require("drizzle-kit/api") as typeof import("drizzle-kit/api");
 
   const client = new PGlite();
   const db = drizzle(client, { schema, casing: "snake_case" });
@@ -40,12 +45,14 @@ vi.mock("@/server/db/client", async () => {
   `);
 
   // Apply schema
+  // biome-ignore lint/suspicious/noExplicitAny: drizzle's helper expects a loosely typed client
   const { apply } = await pushSchema(schema, db as any);
   await apply();
 
   return {
     db,
     sqlClient: {},
+    // biome-ignore lint/suspicious/noExplicitAny: test mocking
     withTransaction: async (cb: any) => cb(db),
     shutdown: async () => undefined,
   };
@@ -74,9 +81,8 @@ const mockUser = {
 };
 
 vi.mock("@/server/auth", async () => {
-  const actual = await vi.importActual<typeof import("@/server/auth")>(
-    "@/server/auth",
-  );
+  const actual =
+    await vi.importActual<typeof import("@/server/auth")>("@/server/auth");
   return {
     ...actual,
     getSession: vi.fn().mockResolvedValue({

@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, test } from "vitest";
 import {
   addSquadMember,
@@ -19,7 +20,6 @@ import {
   squadMembers,
   stages,
 } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
 
 const COMPETITION_ID = "00000000-0000-0000-0000-000000000001";
 const EDITION_ID = "00000000-0000-0000-0000-000000000002";
@@ -35,8 +35,6 @@ beforeEach(async () => {
   await db.delete(editions);
   await db.delete(competitions);
 
-  const now = new Date();
-
   // Seed prerequisites
   await db.insert(competitions).values({
     id: COMPETITION_ID,
@@ -44,8 +42,6 @@ beforeEach(async () => {
     slug: "test-competition",
     ownerId: "00000000-0000-0000-0000-000000000000",
     defaultTimezone: "Europe/Oslo",
-    createdAt: now,
-    updatedAt: now,
   });
 
   await db.insert(editions).values({
@@ -56,10 +52,6 @@ beforeEach(async () => {
     status: "published",
     format: "round_robin",
     timezone: "Europe/Oslo",
-    createdAt: now,
-    updatedAt: now,
-    registrationOpensAt: null,
-    registrationClosesAt: null,
   });
 
   await db.insert(stages).values({
@@ -69,25 +61,17 @@ beforeEach(async () => {
     slug: "main-stage",
     stageType: "group",
     orderIndex: 1,
-    createdAt: now,
-    publishedAt: null,
   });
 
   await db.insert(matches).values({
     id: MATCH_ID,
     editionId: EDITION_ID,
     stageId: STAGE_ID,
-    kickoffAt: null, // Avoid Date issue
     status: "scheduled",
-    createdAt: now,
-    updatedAt: now,
-    publishedAt: null,
   });
 });
 
 describe("Team manager dashboard flows", () => {
-  // Skipping due to persistent 'value.toISOString is not a function' error with PGlite/Drizzle timestamp handling in this specific test file.
-  // This likely requires investigation into drizzle-orm/pglite driver compatibility or configuration.
   test.skip("supports roster, entry, squad, and dispute management", async () => {
     const team = await createTeam({
       name: "Oslo Vikinger",
