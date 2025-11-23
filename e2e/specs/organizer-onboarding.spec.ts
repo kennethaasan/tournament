@@ -8,8 +8,15 @@ test.describe("Organizer onboarding", () => {
       page.getByRole("heading", { name: /turneringsarrangør/i }),
     ).toBeVisible();
 
-    const steps = page.getByRole("heading", { level: 2 });
-    await expect(steps).toHaveCount(5);
+    await expect(
+      page.getByRole("heading", { name: /1. Be om invitasjon/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /2. Opprett bruker/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /3. Sett opp konkurransen/i }),
+    ).toBeVisible();
 
     await expect(page.getByRole("link", { name: /Logg inn/i })).toBeVisible();
     await expect(
@@ -35,8 +42,12 @@ test.describe("Organizer onboarding", () => {
     await expect(
       page.getByText(/Invitasjonen er gyldig i 7 dager/i),
     ).toBeVisible();
+    await expect(page.getByText(/Vanlige spørsmål/i)).toBeVisible();
     await expect(
-      page.getByRole("heading", { level: 2, name: /Vanlige spørsmål/i }),
+      page.getByRole("heading", {
+        level: 2,
+        name: /Svar før du inviterer teamet/i,
+      }),
     ).toBeVisible();
   });
 });
