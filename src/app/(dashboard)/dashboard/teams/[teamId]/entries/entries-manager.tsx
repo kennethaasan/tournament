@@ -135,11 +135,11 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
         <h2 className="text-xl font-semibold text-zinc-900">
           Send inn påmelding
         </h2>
-        <p className="mb-6 text-sm text-zinc-600">
+        <p className="mb-6 text-sm text-muted-foreground">
           Oppgi utgave-ID for å registrere laget. Du får tilbake både entry- og
           squad-ID.
         </p>
@@ -169,7 +169,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 }))
               }
               required
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -187,7 +187,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 setEntryForm((prev) => ({ ...prev, notes: event.target.value }))
               }
               rows={3}
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
@@ -201,7 +201,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
         </form>
 
         {entryInfo && (
-          <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+          <div className="mt-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-foreground">
             <p className="font-medium">Entry-ID: {entryInfo.entry.id}</p>
             <p>Tropp-ID: {entryInfo.squad.id}</p>
             <p>Status: {entryInfo.entry.status}</p>
@@ -210,13 +210,13 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       </section>
 
       {entryInfo && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-xl font-semibold text-zinc-900">
                 Administrer tropp
               </h2>
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-muted-foreground">
                 Bruk squad-ID for å låse troppen før turneringsstart.
               </p>
             </div>
@@ -225,7 +225,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 type="button"
                 onClick={() => handleLockChange(false)}
                 disabled={squadLocking}
-                className="rounded-md border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md border border-border px-3 py-2 text-xs font-medium text-foreground shadow-sm hover:bg-card/60 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Åpne tropp
               </button>
@@ -254,11 +254,11 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       )}
 
       {entryInfo && (
-        <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
           <h2 className="text-xl font-semibold text-zinc-900">
             Legg til troppsmedlem
           </h2>
-          <p className="mb-6 text-sm text-zinc-600">
+          <p className="mb-6 text-sm text-muted-foreground">
             Bruk medlems-ID fra lagrosteren for å flytte spillere til denne
             utgaven.
           </p>
@@ -294,7 +294,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                   }))
                 }
                 required
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
 
@@ -316,7 +316,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                       jerseyNumber: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
@@ -337,7 +337,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                       position: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
             </div>

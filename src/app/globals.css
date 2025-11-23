@@ -1,58 +1,66 @@
-@import "./config.css";
+@import "tailwindcss";
+
+@plugin "tailwindcss-animate";
+
+@variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+}
 
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
-  --card: #ffffff;
-  --card-foreground: #09090b;
-  --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #18181b;
-  --primary-foreground: #fafafa;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
-  --destructive: #ef4444;
-  --destructive-foreground: #fafafa;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #18181b;
-  --radius: 0.5rem;
-  --chart-1: #e76e50;
-  --chart-2: #2a9d90;
-  --chart-3: #274754;
-  --chart-4: #e8c468;
-  --chart-5: #f4a462;
+  --background: #0b1021;
+  --foreground: #e5ecff;
+  --card: rgba(255, 255, 255, 0.06);
+  --card-foreground: #e5ecff;
+  --popover: rgba(12, 17, 33, 0.94);
+  --popover-foreground: #e5ecff;
+  --primary: #8ab4ff;
+  --primary-foreground: #0b1021;
+  --secondary: rgba(255, 255, 255, 0.08);
+  --secondary-foreground: #e5ecff;
+  --muted: rgba(255, 255, 255, 0.04);
+  --muted-foreground: #b7c4e2;
+  --accent: rgba(186, 230, 253, 0.12);
+  --accent-foreground: #c6d5ff;
+  --destructive: #f97070;
+  --destructive-foreground: #0b1021;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.24);
+  --ring: #8ab4ff;
+  --radius: 1rem;
+  --chart-1: #7c9eff;
+  --chart-2: #4ce1b6;
+  --chart-3: #f5b971;
+  --chart-4: #c692ff;
+  --chart-5: #ff7c9c;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #09090b;
-  --card-foreground: #fafafa;
-  --popover: #09090b;
-  --popover-foreground: #fafafa;
-  --primary: #fafafa;
-  --primary-foreground: #18181b;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fafafa;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #d4d4d8;
-  --chart-1: #2662d9;
-  --chart-2: #2eb88a;
-  --chart-3: #e88c30;
-  --chart-4: #af57db;
-  --chart-5: #e23670;
+  --background: #05060f;
+  --foreground: #e5ecff;
+  --card: rgba(10, 13, 30, 0.75);
+  --card-foreground: #e5ecff;
+  --popover: rgba(5, 6, 15, 0.96);
+  --popover-foreground: #e5ecff;
+  --primary: #c6d5ff;
+  --primary-foreground: #05060f;
+  --secondary: rgba(255, 255, 255, 0.08);
+  --secondary-foreground: #e5ecff;
+  --muted: rgba(255, 255, 255, 0.05);
+  --muted-foreground: #a8b5d9;
+  --accent: rgba(111, 138, 255, 0.18);
+  --accent-foreground: #e5ecff;
+  --destructive: #f97070;
+  --destructive-foreground: #0b1021;
+  --border: rgba(255, 255, 255, 0.16);
+  --input: rgba(255, 255, 255, 0.28);
+  --ring: #9dc1ff;
+  --chart-1: #9dc1ff;
+  --chart-2: #5fe0c1;
+  --chart-3: #ffce85;
+  --chart-4: #d3a6ff;
+  --chart-5: #ff97b5;
 }
 
 @theme inline {
@@ -91,7 +99,78 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(124, 158, 255, 0.14),
+      transparent 30%
+    ),
+    radial-gradient(circle at 80% 0%, rgba(76, 225, 182, 0.12), transparent 26%),
+    linear-gradient(145deg, rgba(10, 13, 30, 0.9), rgba(5, 6, 15, 0.96));
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.grid-overlay::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size:
+    48px 48px,
+    48px 48px;
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.5),
+    transparent 60%
+  );
+  content: "";
+  z-index: 0;
+}
+
+.page-shell {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(138, 180, 255, 0.14),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 90% 20%,
+      rgba(95, 224, 193, 0.12),
+      transparent 28%
+    ), linear-gradient(180deg, rgba(5, 6, 15, 0.9), rgba(5, 6, 15, 0.96));
+}
+
+.page-padding {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 2.5rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.glass-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+}
+
+.pill {
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0.35rem 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--muted-foreground);
 }
