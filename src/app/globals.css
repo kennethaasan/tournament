@@ -9,6 +9,34 @@
 }
 
 :root {
+  --background: #ffffff;
+  --foreground: #0b1021;
+  --card: #ffffff;
+  --card-foreground: #0b1021;
+  --popover: #ffffff;
+  --popover-foreground: #0b1021;
+  --primary: #002F6C;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #002F6C;
+  --radius: 1rem;
+  --chart-1: #e76e50;
+  --chart-2: #2a9d8f;
+  --chart-3: #264653;
+  --chart-4: #e9c46a;
+  --chart-5: #f4a261;
+}
+
+.dark {
   --background: #0b1021;
   --foreground: #e5ecff;
   --card: rgba(255, 255, 255, 0.06);
@@ -28,39 +56,11 @@
   --border: rgba(255, 255, 255, 0.12);
   --input: rgba(255, 255, 255, 0.24);
   --ring: #8ab4ff;
-  --radius: 1rem;
   --chart-1: #7c9eff;
   --chart-2: #4ce1b6;
   --chart-3: #f5b971;
   --chart-4: #c692ff;
   --chart-5: #ff7c9c;
-}
-
-.dark {
-  --background: #05060f;
-  --foreground: #e5ecff;
-  --card: rgba(10, 13, 30, 0.75);
-  --card-foreground: #e5ecff;
-  --popover: rgba(5, 6, 15, 0.96);
-  --popover-foreground: #e5ecff;
-  --primary: #c6d5ff;
-  --primary-foreground: #05060f;
-  --secondary: rgba(255, 255, 255, 0.08);
-  --secondary-foreground: #e5ecff;
-  --muted: rgba(255, 255, 255, 0.05);
-  --muted-foreground: #a8b5d9;
-  --accent: rgba(111, 138, 255, 0.18);
-  --accent-foreground: #e5ecff;
-  --destructive: #f97070;
-  --destructive-foreground: #0b1021;
-  --border: rgba(255, 255, 255, 0.16);
-  --input: rgba(255, 255, 255, 0.28);
-  --ring: #9dc1ff;
-  --chart-1: #9dc1ff;
-  --chart-2: #5fe0c1;
-  --chart-3: #ffce85;
-  --chart-4: #d3a6ff;
-  --chart-5: #ff97b5;
 }
 
 @theme inline {
@@ -99,6 +99,13 @@
 }
 
 body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.dark body {
   background:
     radial-gradient(
       circle at 20% 20%,
@@ -107,9 +114,6 @@ body {
     ),
     radial-gradient(circle at 80% 0%, rgba(76, 225, 182, 0.12), transparent 26%),
     linear-gradient(145deg, rgba(10, 13, 30, 0.9), rgba(5, 6, 15, 0.96));
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
-  min-height: 100vh;
 }
 
 .grid-overlay::before {
@@ -117,23 +121,38 @@ body {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size:
     48px 48px,
     48px 48px;
   mask-image: radial-gradient(
     circle at center,
-    rgba(255, 255, 255, 0.5),
+    rgba(0, 0, 0, 0.5),
     transparent 60%
   );
   content: "";
   z-index: 0;
 }
 
+.dark .grid-overlay::before {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.5),
+    transparent 60%
+  );
+}
+
 .page-shell {
   position: relative;
   min-height: 100vh;
+  background: var(--background);
+}
+
+.dark .page-shell {
   background:
     radial-gradient(
       circle at 10% 10%,
@@ -159,6 +178,11 @@ body {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.dark .glass-card {
+  background: var(--card);
   box-shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(18px);
 }
@@ -166,11 +190,15 @@ body {
 .pill {
   border-radius: 9999px;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--muted);
   padding: 0.35rem 0.9rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 0.72rem;
   color: var(--muted-foreground);
+}
+
+.dark .pill {
+  background: rgba(255, 255, 255, 0.06);
 }
