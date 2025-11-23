@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
@@ -7,7 +8,7 @@ export type PageHeroProps = {
   title: string;
   description: string;
   actionLabel?: string;
-  actionHref?: string;
+  actionHref?: Route;
 };
 
 export function PageHero({

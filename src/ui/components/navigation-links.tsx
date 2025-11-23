@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "@/ui/components/badge";
@@ -93,7 +94,7 @@ export function NavigationGrid() {
                 variant="ghost"
                 className="rounded-full px-3 text-xs"
               >
-                <Link href={link.href}>Åpne</Link>
+                <Link href={link.href as Route}>Åpne</Link>
               </Button>
             </div>
             <CardTitle className="text-xl text-foreground">

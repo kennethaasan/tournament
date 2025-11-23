@@ -1,5 +1,6 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { navigationLinks } from "@/ui/components/navigation-links";
@@ -25,7 +26,7 @@ export function DashboardHeader() {
             {primaryLinks.map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={link.href as Route}
                 className={`rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:bg-primary/10 hover:text-foreground ${
                   pathname.startsWith(link.href)
                     ? "bg-primary/20 text-foreground"
@@ -43,7 +44,7 @@ export function DashboardHeader() {
             {secondaryLinks.slice(0, 3).map((link) => (
               <Link
                 key={link.href}
-                href={link.href}
+                href={link.href as Route}
                 className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition hover:bg-primary/10 hover:text-foreground ${
                   pathname.startsWith(link.href)
                     ? "bg-primary/20 text-foreground"
