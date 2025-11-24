@@ -169,7 +169,6 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                       updateForm("slug", event.target.value.toLowerCase())
                     }
                     placeholder={generateSlug(form.label)}
-                    required
                   />
                 </FormField>
               </div>

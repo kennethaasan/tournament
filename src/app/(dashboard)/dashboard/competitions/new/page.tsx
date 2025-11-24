@@ -273,7 +273,6 @@ export default function CompetitionCreatePage() {
                       )
                     }
                     placeholder={generateSlug(form.editionLabel)}
-                    required
                   />
                 </FormField>
               </div>

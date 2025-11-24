@@ -24,8 +24,8 @@ export function FormField({
 }: FormFieldProps) {
   const descriptionId = description ? `${htmlFor}-description` : undefined;
 
-  const enhancedChild = isValidElement(children)
-    ? cloneElement(children as ReactElement, {
+  const enhancedChild = isValidElement<{ "aria-describedby"?: string }>(children)
+    ? cloneElement(children as ReactElement<{ "aria-describedby"?: string }>, {
         "aria-describedby":
           [children.props["aria-describedby"], descriptionId]
             .filter(Boolean)
