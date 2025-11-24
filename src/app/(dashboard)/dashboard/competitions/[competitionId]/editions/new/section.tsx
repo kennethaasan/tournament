@@ -122,7 +122,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 pb-16">
+    <main className="min-h-screen bg-card/60 pb-16">
       <div className="mx-auto w-full max-w-4xl px-6 pb-16 pt-14">
         <header className="mb-8 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
@@ -131,14 +131,14 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
           <h1 className="text-3xl font-bold text-zinc-900">
             Opprett ny utgave
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-600">
+          <p className="max-w-2xl text-sm text-muted-foreground">
             Registrer neste sesong eller arrangement for konkurransen. Du kan
             senere legge til lag, kamper og oppdatere storskjermen.
           </p>
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+          <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
             <div className="grid gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <label
@@ -154,7 +154,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   onChange={(event) => updateForm("label", event.target.value)}
                   placeholder="Eksempel: Vårturnering 2026"
                   required
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
@@ -174,7 +174,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   }
                   placeholder={generateSlug(form.label)}
                   required
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
             </div>
@@ -196,7 +196,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                       event.target.value as EditionFormState["format"],
                     )
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 >
                   <option value="round_robin">Seriespill</option>
                   <option value="knockout">Sluttspill</option>
@@ -217,7 +217,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   onChange={(event) =>
                     updateForm("timezone", event.target.value)
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 >
                   {TIMEZONES.map((tz) => (
                     <option key={tz} value={tz}>
@@ -244,7 +244,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   onChange={(event) =>
                     updateForm("rotationSeconds", Number(event.target.value))
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
@@ -263,7 +263,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                     updateForm("registrationOpens", event.target.value)
                   }
                   required
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
             </div>
@@ -283,7 +283,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   updateForm("registrationCloses", event.target.value)
                 }
                 required
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
           </section>
@@ -294,7 +294,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
             disabled={isSubmitting}
           />
 
-          <footer className="space-y-4 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <footer className="space-y-4 rounded-2xl border border-border bg-white p-6 shadow-sm">
             {errorMessage ? (
               <p className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {errorMessage}

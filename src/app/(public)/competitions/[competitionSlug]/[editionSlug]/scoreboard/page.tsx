@@ -17,7 +17,7 @@ type PageParams = {
 };
 
 type PageProps = {
-  params: PageParams;
+  params: Promise<PageParams>;
 };
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const scoreboard = await loadScoreboard(params);
+  const resolvedParams = await params;
+  const scoreboard = await loadScoreboard(resolvedParams);
 
   return {
     title: `${scoreboard.edition.label} · Public scoreboard`,
@@ -34,14 +35,15 @@ export async function generateMetadata({
 }
 
 export default async function ScoreboardPage({ params }: PageProps) {
-  const scoreboard = await loadScoreboard(params);
+  const resolvedParams = await params;
+  const scoreboard = await loadScoreboard(resolvedParams);
 
   return (
     <ScoreboardProviders>
       <ScoreboardScreen
         initialData={scoreboard}
-        competitionSlug={params.competitionSlug}
-        editionSlug={params.editionSlug}
+        competitionSlug={resolvedParams.competitionSlug}
+        editionSlug={resolvedParams.editionSlug}
       />
     </ScoreboardProviders>
   );

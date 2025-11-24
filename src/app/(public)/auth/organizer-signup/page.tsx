@@ -1,5 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Badge } from "@/ui/components/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/ui/components/card";
+import { NavigationGrid } from "@/ui/components/navigation-links";
+import { PageHero } from "@/ui/components/page-hero";
 
 export const metadata: Metadata = {
   title: "Organisatorregistrering",
@@ -45,82 +55,105 @@ const faqs: Array<{ question: string; answer: string }> = [
 
 export default function OrganizerSignupPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-background dark:from-slate-950 dark:to-background">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-12 px-6 py-16">
-        <section className="space-y-6 rounded-2xl border border-blue-100 dark:border-blue-900 bg-card p-8 shadow-lg shadow-blue-100/40 dark:shadow-none">
-          <p className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900/50 px-4 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
-            Selvbetjent onboarding
-          </p>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Bli turneringsarrangør på noen få minutter
-          </h1>
-          <p className="text-lg text-muted-foreground">
-            Plattformen hjelper deg med registrering, kampoppsett, resultater og
-            storskjermvisning. Følg stegene under for å be om invitasjon og
-            opprette din første utgave.
-          </p>
-        </section>
+    <main className="page-shell">
+      <div className="page-padding space-y-10">
+        <PageHero
+          eyebrow="Selvbetjent onboarding"
+          title="Bli turneringsarrangør på noen få minutter"
+          description="Plattformen støtter deg fra invitasjon til publiserte utgaver. Følg stegene, og koble deg på kontrollpanelet uten friksjon."
+          actionHref="/dashboard/admin/overview"
+          actionLabel="Gå til kontrollpanel"
+        />
 
-        <section className="grid gap-6 md:grid-cols-3">
+        <section className="grid gap-4 md:grid-cols-3">
           {steps.map((step) => (
-            <article
+            <Card
               key={step.title}
-              className="rounded-xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="border-border/70 bg-card/70 transition hover:-translate-y-1 hover:border-primary/40"
             >
-              <h2 className="text-lg font-semibold text-foreground">
-                {step.title}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                {step.description}
-              </p>
-            </article>
+              <CardHeader>
+                <Badge
+                  variant="accent"
+                  className="w-fit uppercase tracking-[0.2em]"
+                >
+                  Steg
+                </Badge>
+                <CardTitle className="text-lg text-foreground">
+                  {step.title}
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground">
+                  {step.description}
+                </CardDescription>
+              </CardHeader>
+            </Card>
           ))}
         </section>
 
-        <section className="grid gap-6 rounded-2xl border border-zinc-100 dark:border-zinc-800 bg-primary px-8 py-10 text-primary-foreground md:grid-cols-[2fr,1fr] md:items-center">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Klar til å sette i gang?</h2>
-            <p className="text-sm text-primary-foreground/80">
-              Når du har mottatt invitasjonen, kan du logge inn og opprette
-              konkurransen. Du kan også teste storskjermtema, registrere lag og
-              sette opp kampoppsettet.
-            </p>
+        <Card className="border-primary/40 bg-gradient-to-r from-primary/10 via-card to-card/80">
+          <CardContent className="grid gap-6 p-8 md:grid-cols-[2fr,1fr] md:items-center">
+            <div className="space-y-4">
+              <Badge variant="accent" className="uppercase tracking-[0.24em]">
+                Start nå
+              </Badge>
+              <CardTitle className="text-foreground">
+                Klar til å sette i gang?
+              </CardTitle>
+              <CardDescription>
+                Logg inn med invitasjonen din, eller kontakt support for å få
+                tilsendt en ny. Du kan teste storskjermtema, registrere lag og
+                publisere kampoppsett før kickoff.
+              </CardDescription>
+            </div>
+            <div className="flex flex-col gap-3 md:justify-self-end">
+              <Link
+                href="/"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:bg-primary/90"
+              >
+                Logg inn / bruk invitasjon
+              </Link>
+              <a
+                href="mailto:support@tournament.local?subject=Invitasjon%20til%20ny%20turnering"
+                className="inline-flex items-center justify-center rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition hover:border-primary/60"
+              >
+                Kontakt support
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                Vanlige spørsmål
+              </p>
+              <h2 className="text-2xl font-semibold text-foreground">
+                Svar før du inviterer teamet
+              </h2>
+            </div>
+            <Badge variant="outline">Oppdatert</Badge>
           </div>
-          <div className="flex flex-col gap-3 md:justify-self-end">
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-full bg-primary-foreground px-6 py-3 text-sm font-semibold text-primary transition hover:bg-primary-foreground/90"
-            >
-              Logg inn / bruk invitasjon
-            </Link>
-            <a
-              href="mailto:support@tournament.local?subject=Invitasjon%20til%20ny%20turnering"
-              className="inline-flex items-center justify-center rounded-full border border-primary-foreground/40 px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-foreground/10"
-            >
-              Kontakt support
-            </a>
-          </div>
+          <dl className="grid gap-4 md:grid-cols-3">
+            {faqs.map((faq) => (
+              <Card key={faq.question} className="border-border/70 bg-card/70">
+                <CardHeader>
+                  <CardTitle className="text-sm text-foreground">
+                    {faq.question}
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    {faq.answer}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
+          </dl>
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-semibold text-foreground">
-            Vanlige spørsmål
-          </h2>
-          <dl className="grid gap-4 md:grid-cols-3">
-            {faqs.map((faq) => (
-              <div
-                key={faq.question}
-                className="rounded-xl border border-border bg-card p-6 shadow-sm"
-              >
-                <dt className="text-sm font-semibold text-foreground">
-                  {faq.question}
-                </dt>
-                <dd className="mt-2 text-sm text-muted-foreground">
-                  {faq.answer}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+            Navigasjon
+          </p>
+          <NavigationGrid />
         </section>
       </div>
     </main>

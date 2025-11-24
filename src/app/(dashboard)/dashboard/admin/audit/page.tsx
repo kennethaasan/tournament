@@ -1,5 +1,14 @@
 import { type AuditLogEntry, listAuditLogs } from "@/modules/admin/service";
 import { auditScopeTypeEnum } from "@/server/db/schema/shared";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/ui/components/card";
+import { NavigationGrid } from "@/ui/components/navigation-links";
+import { PageHero } from "@/ui/components/page-hero";
 
 export const dynamic = "force-dynamic";
 
@@ -33,30 +42,29 @@ export default async function AdminAuditPage({
   });
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-16">
-      <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-14">
-        <header className="mb-10 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
-            Administrasjon · Revisjon
-          </p>
-          <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">
-            Revisjonslogg og endringshistorikk
-          </h1>
-          <p className="max-w-3xl text-sm text-slate-600">
-            Filtrer hendelser basert på konkurranse, utgave eller andre
-            domenetyper for å forstå hvem som gjorde endringer og når de ble
-            gjennomført.
-          </p>
-        </header>
+    <div className="space-y-10">
+      <PageHero
+        eyebrow="Administrasjon · Revisjon"
+        title="Revisjonslogg og endringshistorikk"
+        description="Filtrer hendelser basert på konkurranse, utgave eller andre domenetyper for å forstå hvem som gjorde endringer og når."
+      />
 
-        <section className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Card className="border-border/70 bg-card/70">
+        <CardHeader>
+          <CardTitle className="text-foreground">Filtrer hendelser</CardTitle>
+          <CardDescription>
+            Avgrens loggen på tvers av omfangstype, spesifikk ID og antall
+            linjer.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
           <form className="grid gap-4 md:grid-cols-4" method="get">
-            <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+            <label className="flex flex-col gap-1 text-sm font-medium text-foreground">
               Omfangstype
               <select
                 name="scopeType"
                 defaultValue={scopeType ?? ""}
-                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="rounded-lg border border-border bg-background/60 px-3 py-2 text-sm text-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.04)] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
               >
                 <option value="">Alle</option>
                 {scopeTypeOptions.map((option) => (
@@ -67,18 +75,18 @@ export default async function AdminAuditPage({
               </select>
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-medium text-slate-700 md:col-span-2">
+            <label className="flex flex-col gap-1 text-sm font-medium text-foreground md:col-span-2">
               Omfang-ID
               <input
                 type="text"
                 name="scopeId"
                 defaultValue={scopeId ?? ""}
                 placeholder="UUID"
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="rounded-lg border border-border bg-background/60 px-3 py-2 text-sm text-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.04)] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </label>
 
-            <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+            <label className="flex flex-col gap-1 text-sm font-medium text-foreground">
               Antall rader
               <input
                 type="number"
@@ -87,43 +95,40 @@ export default async function AdminAuditPage({
                 max={200}
                 step={10}
                 defaultValue={limit}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="rounded-lg border border-border bg-background/60 px-3 py-2 text-sm text-foreground shadow-[0_0_0_1px_rgba(255,255,255,0.04)] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </label>
 
             <div className="md:col-span-4">
               <button
                 type="submit"
-                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg transition hover:bg-primary/90"
               >
                 Filtrer logg
               </button>
             </div>
           </form>
-        </section>
+        </CardContent>
+      </Card>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <header className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-slate-900">
-                Hendelser
-              </h2>
-              <p className="text-sm text-slate-600">
-                Viser {numberFormatter.format(auditEntries.length)} siste
-                hendelser.
-              </p>
-            </div>
-          </header>
-
+      <Card className="border-border/70 bg-card/80">
+        <CardHeader>
+          <CardTitle className="text-foreground">Hendelser</CardTitle>
+          <CardDescription>
+            Viser {numberFormatter.format(auditEntries.length)} hendelser basert
+            på filtrene over.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
           {auditEntries.length === 0 ? (
-            <p className="rounded-lg border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-500">
+            <p className="rounded-lg border border-dashed border-border/60 px-4 py-8 text-center text-sm text-muted-foreground">
               Ingen hendelser funnet for det valgte filteret.
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full border-separate border-spacing-y-3 text-left text-sm text-slate-700">
+              <table className="min-w-full border-separate border-spacing-y-3 text-left text-sm text-muted-foreground">
                 <thead>
-                  <tr className="text-xs uppercase tracking-wide text-slate-500">
+                  <tr className="text-xs uppercase tracking-wide text-muted-foreground">
                     <th className="px-4 py-2">Tidspunkt</th>
                     <th className="px-4 py-2">Aktør</th>
                     <th className="px-4 py-2">Omfang</th>
@@ -135,33 +140,33 @@ export default async function AdminAuditPage({
                   {auditEntries.map((entry) => (
                     <tr
                       key={entry.id}
-                      className="align-top rounded-xl border border-slate-200 bg-slate-50"
+                      className="align-top rounded-xl border border-border/70 bg-card/60"
                     >
-                      <td className="px-4 py-3 text-slate-900">
+                      <td className="px-4 py-3 text-foreground">
                         {timestampFormatter.format(entry.createdAt)}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-900">
+                        <div className="font-medium text-foreground">
                           {entry.actor.name ?? "System"}
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-muted-foreground">
                           {entry.actor.email ?? "ingen e-post"}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-900">
+                        <div className="font-medium text-foreground">
                           {scopeTypeLabel(entry.scopeType)}
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-muted-foreground">
                           {entry.scopeId ?? "Ingen scope ID"}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-900">
+                        <div className="font-medium text-foreground">
                           {actionLabel(entry.action)} ·{" "}
                           {entityLabel(entry.entityType)}
                         </div>
-                        <div className="text-xs text-slate-500 truncate">
+                        <div className="text-xs text-muted-foreground truncate">
                           {entry.entityId}
                         </div>
                       </td>
@@ -174,9 +179,16 @@ export default async function AdminAuditPage({
               </table>
             </div>
           )}
-        </section>
-      </div>
-    </main>
+        </CardContent>
+      </Card>
+
+      <section className="space-y-4">
+        <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+          Navigasjon
+        </p>
+        <NavigationGrid />
+      </section>
+    </div>
   );
 }
 
@@ -257,9 +269,9 @@ function MetadataPreview({ entry }: { entry: AuditLogEntry }) {
   const content = JSON.stringify(entry.metadata, null, 2);
 
   return (
-    <details className="rounded-lg border border-slate-200 bg-white/70 p-3 text-xs text-slate-600">
-      <summary className="cursor-pointer text-slate-800">Vis detaljer</summary>
-      <pre className="mt-2 whitespace-pre-wrap text-[11px] leading-relaxed text-slate-600">
+    <details className="rounded-lg border border-border bg-background/60 p-3 text-xs text-muted-foreground">
+      <summary className="cursor-pointer text-foreground">Vis detaljer</summary>
+      <pre className="mt-2 whitespace-pre-wrap text-[11px] leading-relaxed text-muted-foreground">
         {content}
       </pre>
     </details>

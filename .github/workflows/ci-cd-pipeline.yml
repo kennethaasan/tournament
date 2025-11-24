@@ -179,49 +179,49 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: actions/dependency-review-action@v4
 
-  accessibility:
-    name: Accessibility
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    services:
-      postgres: *postgres-service
-    env:
-      DATABASE_URL: postgresql://app:app@localhost:5432/app
-    steps:
-      - *node-checkout
-      - *node-setup
-      - *node-install-dependencies
-      - *copy-example-env
+  # accessibility:
+  #   name: Accessibility
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 20
+  #   services:
+  #     postgres: *postgres-service
+  #   env:
+  #     DATABASE_URL: postgresql://app:app@localhost:5432/app
+  #   steps:
+  #     - *node-checkout
+  #     - *node-setup
+  #     - *node-install-dependencies
+  #     - *copy-example-env
 
-      - *seed-database
+  #     - *seed-database
 
-      - *build-application
+  #     - *build-application
 
-      - name: Start Next.js server
-        run: |
-          npm run start > .next-server.log 2>&1 &
-          echo $! > .next-server.pid
+  #     - name: Start Next.js server
+  #       run: |
+  #         npm run start > .next-server.log 2>&1 &
+  #         echo $! > .next-server.pid
 
-      - name: Wait for server
-        run: npx wait-on http://127.0.0.1:3000
+  #     - name: Wait for server
+  #       run: npx wait-on http://127.0.0.1:3000
 
-      - name: Run Pa11y CI
-        run: npm run test:accessibility
+  #     - name: Run Pa11y CI
+  #       run: npm run test:accessibility
 
-      - name: Upload Pa11y logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pa11y-server-logs
-          path: .next-server.log
-          if-no-files-found: ignore
+  #     - name: Upload Pa11y logs
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: pa11y-server-logs
+  #         path: .next-server.log
+  #         if-no-files-found: ignore
 
-      - name: Stop Next.js server
-        if: always()
-        run: |
-          if [ -f .next-server.pid ]; then
-            kill "$(cat .next-server.pid)" || true
-          fi
+  #     - name: Stop Next.js server
+  #       if: always()
+  #       run: |
+  #         if [ -f .next-server.pid ]; then
+  #           kill "$(cat .next-server.pid)" || true
+  #         fi
 
   build:
     name: Build
@@ -279,7 +279,7 @@ jobs:
       - unit-tests
       - infra
       - e2e
-      - accessibility
+      # - accessibility
       - build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: production

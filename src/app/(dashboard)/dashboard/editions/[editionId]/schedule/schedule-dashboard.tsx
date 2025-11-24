@@ -472,7 +472,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 pb-16">
+    <main className="min-h-screen bg-card/60 pb-16">
       <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
         <header className="mb-10 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
@@ -481,19 +481,19 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
             Planlegg stadier og kampoppsett
           </h1>
-          <p className="max-w-3xl text-sm text-zinc-600">
+          <p className="max-w-3xl text-sm text-muted-foreground">
             Opprett gruppespill og sluttspill, legg inn lag per gruppe, og
             generer kampoppsett for turneringen. Når du er fornøyd, kan du
             publisere kampene og varsle lagene.
           </p>
         </header>
 
-        <section className="mb-12 space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
           <header>
             <h2 className="text-xl font-semibold text-zinc-900">
               Opprett nytt stadium
             </h2>
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-muted-foreground">
               Start med å definere struktur for turneringen. Gruppespill krever
               minst én gruppe, mens sluttspill automatisk håndterer byer og
               tredjeplass-kamp hvis du ønsker det.
@@ -536,7 +536,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   }
                   placeholder="Eksempel: Gruppespill A"
                   required
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
@@ -556,7 +556,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       event.target.value as StageFormState["stageType"],
                     )
                   }
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 >
                   <option value="group">Gruppespill</option>
                   <option value="knockout">Sluttspill</option>
@@ -583,12 +583,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   {stageForm.groups.map((group, index) => (
                     <div
                       key={group.key}
-                      className="grid gap-4 rounded-lg border border-zinc-200 p-4 md:grid-cols-[120px,1fr,auto]"
+                      className="grid gap-4 rounded-lg border border-border p-4 md:grid-cols-[120px,1fr,auto]"
                     >
                       <div className="space-y-2">
                         <label
                           htmlFor={`group-code-${group.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-zinc-600"
+                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                         >
                           Kode
                         </label>
@@ -606,14 +606,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           placeholder={String.fromCharCode(65 + index)}
                           maxLength={4}
                           required
-                          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <label
                           htmlFor={`group-name-${group.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-zinc-600"
+                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                         >
                           Navn (valgfritt)
                         </label>
@@ -629,7 +629,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                             )
                           }
                           placeholder="Eksempel: Pulje Nord"
-                          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                         />
                       </div>
 
@@ -666,14 +666,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <h2 className="text-xl font-semibold text-zinc-900">
               Registrerte stadier
             </h2>
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-muted-foreground">
               Oversikt over strukturen for denne utgaven. Etter at kampene er
               generert, kan du publisere dem fra kampadministrasjonen.
             </p>
           </header>
 
           {isLoadingStages ? (
-            <div className="rounded-xl border border-zinc-200 bg-white p-8 text-sm text-zinc-600 shadow-sm">
+            <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
               Laster stadier …
             </div>
           ) : stageLoadError ? (
@@ -684,7 +684,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
               {stageLoadError}
             </div>
           ) : stages.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-sm text-zinc-600 shadow-sm">
+            <div className="rounded-xl border border-dashed border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
               Det er ingen stadier ennå. Opprett et gruppespill eller sluttspill
               for å komme i gang.
             </div>
@@ -693,7 +693,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
               {stages.map((stage) => (
                 <article
                   key={stage.id}
-                  className="space-y-4 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm"
+                  className="space-y-4 rounded-xl border border-border bg-white p-6 shadow-sm"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -706,21 +706,21 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                         {stage.name}
                       </h3>
                     </div>
-                    <span className="rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600">
+                    <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
                       Rekkefølge #{stage.order}
                     </span>
                   </div>
 
                   {stage.stageType === "group" ? (
                     <div className="space-y-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-zinc-600">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         Grupper
                       </p>
-                      <ul className="grid grid-cols-2 gap-2 text-sm text-zinc-700">
+                      <ul className="grid grid-cols-2 gap-2 text-sm text-foreground">
                         {stage.groups.map((group) => (
                           <li
                             key={group.id}
-                            className="flex flex-col rounded border border-zinc-200 px-3 py-2"
+                            className="flex flex-col rounded border border-border px-3 py-2"
                           >
                             <span className="text-xs font-semibold uppercase text-blue-600">
                               Gruppe {group.code}
@@ -737,7 +737,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       </ul>
                     </div>
                   ) : (
-                    <p className="text-sm text-zinc-600">
+                    <p className="text-sm text-muted-foreground">
                       Sluttspillet håndterer automatisk byer og rangerer
                       semifinaletapere til bronsefinalen dersom du velger det i
                       kampgeneratoren.
@@ -758,12 +758,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           )}
         </section>
 
-        <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
           <header>
             <h2 className="text-xl font-semibold text-zinc-900">
               Generer kampoppsett
             </h2>
-            <p className="text-sm text-zinc-600">
+            <p className="text-sm text-muted-foreground">
               Velg et stadium og generer kamper automatisk. Du kan finjustere
               tidspunkt, baner og lag i etterkant via kampadministrasjonen.
             </p>
@@ -800,7 +800,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   id="stage-selection"
                   value={generationStageId}
                   onChange={(event) => setGenerationStageId(event.target.value)}
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 >
                   {stages.map((stage) => (
                     <option key={stage.id} value={stage.id}>
@@ -826,7 +826,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   value={startAt}
                   onChange={(event) => setStartAt(event.target.value)}
                   required
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
             </div>
@@ -845,7 +845,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   min={10}
                   value={matchDuration}
                   onChange={(event) => setMatchDuration(event.target.value)}
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
 
@@ -862,7 +862,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   min={0}
                   value={breakMinutes}
                   onChange={(event) => setBreakMinutes(event.target.value)}
-                  className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                 />
               </div>
             </div>
@@ -891,7 +891,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                         updateVenue(index, event.target.value)
                       }
                       placeholder="F.eks. venue-id eller banenavn"
-                      className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                     <button
                       type="button"
@@ -927,7 +927,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     <div key={group.id} className="space-y-2">
                       <label
                         htmlFor={`group-entry-${group.id}`}
-                        className="text-xs font-medium uppercase tracking-wide text-zinc-600"
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                       >
                         Gruppe {group.code}
                       </label>
@@ -939,7 +939,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                         }
                         placeholder="entry-id-1, entry-id-2, entry-id-3"
                         rows={3}
-                        className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                       />
                     </div>
                   ))}
@@ -971,12 +971,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   {seedRows.map((row) => (
                     <div
                       key={row.key}
-                      className="grid gap-3 rounded border border-zinc-200 p-4 md:grid-cols-[120px,1fr,auto]"
+                      className="grid gap-3 rounded border border-border p-4 md:grid-cols-[120px,1fr,auto]"
                     >
                       <div className="space-y-2">
                         <label
                           htmlFor={`seed-number-${row.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-zinc-600"
+                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                         >
                           Seed
                         </label>
@@ -988,14 +988,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           onChange={(event) =>
                             updateSeedRow(row.key, "seed", event.target.value)
                           }
-                          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <label
                           htmlFor={`seed-entry-${row.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-zinc-600"
+                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                         >
                           Lag-ID (valgfritt)
                         </label>
@@ -1011,7 +1011,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                             )
                           }
                           placeholder="entry-id"
-                          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                         />
                       </div>
 
@@ -1029,14 +1029,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   ))}
                 </div>
 
-                <label className="flex items-center gap-2 text-sm text-zinc-700">
+                <label className="flex items-center gap-2 text-sm text-foreground">
                   <input
                     type="checkbox"
                     checked={includeThirdPlace}
                     onChange={(event) =>
                       setIncludeThirdPlace(event.target.checked)
                     }
-                    className="h-4 w-4 rounded border border-zinc-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 rounded border border-border text-blue-600 focus:ring-blue-500"
                   />
                   Opprett bronsefinale automatisk
                 </label>

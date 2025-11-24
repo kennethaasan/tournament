@@ -84,23 +84,25 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
         <header className="mb-6 space-y-1">
           <h2 className="text-xl font-semibold text-zinc-900">
             Lagopplysninger
           </h2>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted-foreground">
             Hold stallen oppdatert før du sender inn troppen for en utgave.
           </p>
         </header>
 
         {isLoadingRoster ? (
-          <p className="text-sm text-zinc-600">Laster laginformasjon …</p>
+          <p className="text-sm text-muted-foreground">
+            Laster laginformasjon …
+          </p>
         ) : rosterError ? (
           <p className="text-sm text-red-600">{rosterError}</p>
         ) : (
           <>
-            <div className="mb-6 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+            <div className="mb-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-foreground">
               <p className="font-medium">{roster?.team.name}</p>
               <p className="text-xs text-zinc-500">
                 Team-ID: {roster?.team.id}
@@ -121,8 +123,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     <td className="px-2 py-2 text-zinc-800">
                       {member.person.full_name}
                     </td>
-                    <td className="px-2 py-2 text-zinc-600">{member.role}</td>
-                    <td className="px-2 py-2 text-zinc-600">{member.status}</td>
+                    <td className="px-2 py-2 text-muted-foreground">
+                      {member.role}
+                    </td>
+                    <td className="px-2 py-2 text-muted-foreground">
+                      {member.status}
+                    </td>
                   </tr>
                 ))}
                 {!roster?.members.length && (
@@ -141,12 +147,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         )}
       </section>
 
-      <section className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
         <header className="mb-6 space-y-1">
           <h2 className="text-xl font-semibold text-zinc-900">
             Legg til spiller
           </h2>
-          <p className="text-sm text-zinc-600">
+          <p className="text-sm text-muted-foreground">
             Lag en intern spillerprofil. Spilleren kan senere legges til i en
             tropp for en utgave.
           </p>
@@ -181,7 +187,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   }))
                 }
                 required
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
 
@@ -200,7 +206,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   setForm((prev) => ({ ...prev, lastName: event.target.value }))
                 }
                 required
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
           </div>
@@ -223,7 +229,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     preferredName: event.target.value,
                   }))
                 }
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
 
@@ -241,7 +247,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, country: event.target.value }))
                 }
-                className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
               />
             </div>
           </div>
@@ -259,7 +265,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   role: event.target.value as TeamMemberRole,
                 }))
               }
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
             >
               <option value="player">Spiller</option>
               <option value="coach">Trener</option>

@@ -235,7 +235,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-50 pb-16">
+    <main className="min-h-screen bg-card/60 pb-16">
       <div className="mx-auto w-full max-w-5xl px-6 pb-16 pt-12">
         <header className="mb-10 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
@@ -244,14 +244,14 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
           <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
             Kontroller scoreboard for {editionLabel || "utgaven"}
           </h1>
-          <p className="max-w-2xl text-sm text-zinc-600">
+          <p className="max-w-2xl text-sm text-muted-foreground">
             Tilpass farger, rotasjon og highlight-overlegg før du viser
             scoreboardet på arenaen. Endringer trer i kraft umiddelbart.
           </p>
         </header>
 
         {isLoading ? (
-          <div className="rounded-xl border border-zinc-200 bg-white p-8 text-sm text-zinc-600 shadow-sm">
+          <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
             Laster scoreboard-innstillinger …
           </div>
         ) : loadError ? (
@@ -263,12 +263,12 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
           </div>
         ) : (
           <div className="space-y-10">
-            <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+            <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
               <header className="space-y-1">
                 <h2 className="text-xl font-semibold text-zinc-900">
                   Tema og rotasjon
                 </h2>
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-muted-foreground">
                   Sikre at farger dekker WCAG-kravene og juster hvor raskt
                   scoreboarden roterer mellom seksjoner.
                 </p>
@@ -310,7 +310,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                         setRotationSeconds(event.target.value)
                       }
                       required
-                      className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                     <p className="text-xs text-zinc-500">
                       Scoreboarden roterer mellom seksjoner raskere verdier er
@@ -322,7 +322,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                     <p className="text-sm font-medium text-zinc-800">
                       Aktiv highlight
                     </p>
-                    <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-3 text-sm text-zinc-700">
+                    <div className="rounded-lg border border-border bg-card/60 px-3 py-3 text-sm text-foreground">
                       {activeHighlight ? (
                         <div className="space-y-1">
                           <p className="font-medium">
@@ -373,12 +373,12 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
               </form>
             </section>
 
-            <section className="space-y-6 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+            <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
               <header className="space-y-1">
                 <h2 className="text-xl font-semibold text-zinc-900">
                   Highlight-overlegg
                 </h2>
-                <p className="text-sm text-zinc-600">
+                <p className="text-sm text-muted-foreground">
                   Send en kort melding som vises på scoreboarden for å markere
                   viktige øyeblikk. Meldingen forsvinner automatisk når tiden
                   går ut.
@@ -421,7 +421,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                     maxLength={160}
                     rows={3}
                     required
-                    className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                   />
                   <p className="text-xs text-zinc-500">
                     Maks 160 tegn. Vises umiddelbart på scoreboarden.
@@ -446,7 +446,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                         setHighlightDuration(event.target.value)
                       }
                       required
-                      className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                     <p className="text-xs text-zinc-500">
                       Standard er 30 sekunder. Maks 10 minutter.

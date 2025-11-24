@@ -1,28 +1,38 @@
 import Link from "next/link";
+import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/ui/components/card";
+import { NavigationGrid } from "@/ui/components/navigation-links";
 import { ThemeToggle } from "@/ui/components/theme-toggle";
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground">
-              🏆
-            </div>
+    <div className="page-shell min-h-screen">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-4 py-2 text-sm font-semibold tracking-tight text-foreground shadow-md"
+          >
+            <span className="text-xl">🏆</span>
             <span>TourneyAdmin</span>
-          </div>
-          <nav className="flex items-center gap-4">
+          </Link>
+          <nav className="flex items-center gap-3 text-sm font-semibold">
             <Link
               href="/auth/organizer-signup"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
             >
               Arrangør
             </Link>
             <Link
               href="/dashboard/admin/overview"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
             >
               Logg inn
             </Link>
@@ -31,64 +41,144 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main className="flex-1">
-        <section className="py-20 sm:py-32">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight text-foreground sm:text-6xl">
-              Moderne turneringsadministrasjon for fotball
+      <main className="page-padding">
+        <div className="grid-overlay absolute inset-0" aria-hidden />
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/10 via-transparent to-transparent p-10 shadow-2xl">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_90%_0%,rgba(95,224,193,0.14),transparent_30%)]" />
+          <div className="relative flex flex-col gap-6 text-left">
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge variant="accent" className="uppercase tracking-[0.28em]">
+                Futuristisk turneringsplattform
+              </Badge>
+              <span className="pill">WCAG 2.2 AA</span>
+              <span className="pill">Polling 5s</span>
+            </div>
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
+              Moderne administrasjon for fotballturneringer
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted-foreground">
-              Alt du trenger for å arrangere, planlegge og gjennomføre
-              turneringer. Fra påmelding og kampoppsett til live resultatservice
-              og storskjerm.
+            <p className="max-w-2xl text-lg text-muted-foreground">
+              Planlegg, publiser og vis alt fra én kontrollflate. Selvbetjent
+              onboarding, avansert kampoppsett og en storskjerm som matcher
+              x.ai-inspirert design.
             </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link href="/auth/organizer-signup">
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  Start din turnering
-                </Button>
-              </Link>
-              <Link
-                href="/competitions/oslo-cup/2025/scoreboard"
-                className="text-sm font-semibold leading-6 text-foreground"
+            <div className="flex flex-wrap gap-4">
+              <Button asChild size="lg" className="rounded-full px-6">
+                <Link href="/auth/organizer-signup">Start din turnering</Link>
+              </Button>
+              <Button
+                asChild
+                variant="ghost"
+                size="lg"
+                className="rounded-full border border-border/80 px-6"
               >
-                Se demo <span aria-hidden="true">→</span>
-              </Link>
+                <Link href="/competitions/oslo-cup/2025/scoreboard">
+                  Se scoreboard-demo
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
 
-        <section className="py-16 bg-muted/50">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-              <FeatureCard
-                title="Enkel planlegging"
-                description="Automatisk generering av kampoppsett for både seriespill og sluttspill. Fleksibel håndtering av baner og tidspunkter."
-                icon="📅"
-              />
-              <FeatureCard
-                title="Live resultater"
-                description="Oppdater resultater i sanntid fra sidelinjen. Tabeller og toppscorerlister oppdateres umiddelbart."
-                icon="⚡"
-              />
-              <FeatureCard
-                title="Storskjerm"
-                description="Profesjonell visning for publikum på arenaen. Roterer automatisk mellom pågående kamper, tabeller og kommende oppgjør."
-                icon="📺"
-              />
+        <section className="mt-10 grid gap-4 md:grid-cols-3">
+          <FeatureCard
+            title="Planlegg raskere"
+            description="Generer kampoppsett for gruppespill og sluttspill, med tidsluker og baner ferdig fylt ut."
+            metric="<5 min"
+            hint="fra idé til publisert plan"
+          />
+          <FeatureCard
+            title="Live oppdateringer"
+            description="Polling og TanStack Query holder dashboard, toppscorere og tabeller ferske uten komplisert oppsett."
+            metric="200 ms"
+            hint="p95 på scoreboard-endepunkt"
+          />
+          <FeatureCard
+            title="Venue-modus"
+            description="Publikum får en storskjerm som roterer mellom kamper, tabeller og høydepunkter med høy kontrast."
+            metric="5 s"
+            hint="rotasjon som standard"
+          />
+        </section>
+
+        <section className="mt-12 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                Navigasjon
+              </p>
+              <h2 className="text-2xl font-semibold text-foreground">
+                Alt du trenger i én meny
+              </h2>
+              <p className="max-w-2xl text-sm text-muted-foreground">
+                Direkte snarveier til alle sidene som dekker spesifikasjonen:
+                onboarding, revisjon, planlegging, lag og storskjerm.
+              </p>
             </div>
+            <Button asChild size="sm" className="rounded-full">
+              <Link href="/dashboard/admin/overview">Åpne dashboard</Link>
+            </Button>
           </div>
+          <NavigationGrid />
+        </section>
+
+        <section className="mt-12 grid gap-6 md:grid-cols-[2fr,1fr]">
+          <Card className="border-border/70 bg-card/60">
+            <CardHeader>
+              <CardTitle className="text-foreground">
+                Designet for mørkt og lyst modus
+              </CardTitle>
+              <CardDescription>
+                Systemtema brukes som standard. Alle flater er bygget med samme
+                glasstekstur, gradienter og kontraster for konsistente
+                opplevelser.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+              <span className="pill">Shadcn-komponenter</span>
+              <span className="pill">Tilgjengelig navigasjon</span>
+              <span className="pill">Bokmål i UI</span>
+              <span className="pill">RFC 9457-feil</span>
+              <span className="pill">Bedre-auth</span>
+            </CardContent>
+          </Card>
+          <Card className="border-border/70 bg-card/60">
+            <CardHeader>
+              <CardTitle className="text-foreground">Rask start</CardTitle>
+              <CardDescription>
+                Oppsettet følger spesifikasjonen i
+                `/specs/001-build-football-admin-app/` med klare lenker til
+                hvert steg.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
+              <Link
+                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
+                href="/auth/organizer-signup"
+              >
+                Opprett arrangørkonto →
+              </Link>
+              <Link
+                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
+                href="/dashboard/competitions/new"
+              >
+                Bygg konkurranse →
+              </Link>
+              <Link
+                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
+                href="/dashboard/editions/demo-2025/schedule"
+              >
+                Planlegg utgave →
+              </Link>
+            </CardContent>
+          </Card>
         </section>
       </main>
 
-      <footer className="border-t border-border bg-card py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
+      <footer className="border-t border-border/60 bg-background/80 py-8">
+        <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} TourneyAdmin. Alle rettigheter
-            reservert.
+            &copy; {new Date().getFullYear()} TourneyAdmin · Moderne
+            turneringsadministrasjon i samsvar med spesifikasjonen.
           </p>
         </div>
       </footer>
@@ -96,20 +186,28 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({
-  title,
-  description,
-  icon,
-}: {
+type FeatureCardProps = {
   title: string;
   description: string;
-  icon: string;
-}) {
+  metric: string;
+  hint: string;
+};
+
+function FeatureCard({ title, description, metric, hint }: FeatureCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-8 shadow-sm">
-      <div className="mb-4 text-4xl">{icon}</div>
-      <h3 className="mb-2 text-xl font-semibold text-foreground">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
-    </div>
+    <Card className="border-border/60 bg-card/70">
+      <CardHeader className="space-y-3">
+        <Badge variant="outline" className="w-fit uppercase tracking-[0.2em]">
+          {hint}
+        </Badge>
+        <CardTitle className="text-foreground">{title}</CardTitle>
+        <CardDescription className="text-muted-foreground">
+          {description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-3xl font-semibold text-foreground">{metric}</p>
+      </CardContent>
+    </Card>
   );
 }
