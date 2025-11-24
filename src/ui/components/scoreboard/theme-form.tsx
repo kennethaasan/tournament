@@ -2,6 +2,10 @@
 
 import { type ChangeEvent, useCallback, useMemo } from "react";
 import { computeContrastRatio } from "@/lib/colors";
+import { Card, CardContent, CardHeader, CardTitle } from "@/ui/components/card";
+import { FormField } from "@/ui/components/form-field";
+import { Input } from "@/ui/components/input";
+import { Label } from "@/ui/components/label";
 
 export type ScoreboardThemeFormValue = {
   primaryColor: string;
@@ -31,6 +35,8 @@ export function ScoreboardThemeForm({
   }, [value.primaryColor, value.secondaryColor]);
 
   const hasSufficientContrast = ratio >= MIN_CONTRAST;
+  const primaryDescriptionId = "scoreboard-primary-color-hex-description";
+  const secondaryDescriptionId = "scoreboard-secondary-color-hex-description";
 
   const updateValue = useCallback(
     (partial: Partial<ScoreboardThemeFormValue>) => {
@@ -60,159 +66,133 @@ export function ScoreboardThemeForm({
   );
 
   return (
-    <section className="space-y-6 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
-      <header className="space-y-2">
-        <h2 className="text-lg font-semibold text-zinc-900">Skjermtema</h2>
-        <p className="text-sm text-zinc-600">
+    <Card className="space-y-6">
+      <CardHeader>
+        <CardTitle>Skjermtema</CardTitle>
+        <p className="text-sm text-muted-foreground">
           Velg farger og bakgrunnsbilde for storskjermvisningen. Fargekontrasten
           må oppfylle WCAG 2.2 AA (minst 4,5:1).
         </p>
-      </header>
+      </CardHeader>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <div className="space-y-2">
-          <label
-            htmlFor="scoreboard-primary-color"
-            className="text-sm font-medium text-zinc-800"
+      <CardContent className="space-y-6">
+        <div className="grid gap-5 md:grid-cols-2">
+          <FormField
+            htmlFor="scoreboard-primary-color-hex"
+            label="Primærfarge"
+            description="Bruk seks tegn i heksadesimalformat, for eksempel #0B1F3A."
           >
-            Primærfarge
-          </label>
-          <div className="flex items-center gap-3">
-            <input
-              id="scoreboard-primary-color"
-              type="color"
-              value={value.primaryColor}
-              onChange={handleColorChange("primaryColor")}
-              disabled={disabled}
-              className="h-10 w-16 cursor-pointer rounded border border-zinc-300 bg-white"
-            />
-            <input
-              id="scoreboard-primary-color-hex"
-              type="text"
-              inputMode="text"
-              pattern="^#[A-Fa-f0-9]{6}$"
-              value={value.primaryColor}
-              onChange={handleColorChange("primaryColor")}
-              disabled={disabled}
-              className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              aria-describedby="scoreboard-primary-color-help"
-              aria-labelledby="scoreboard-primary-hex-label"
-            />
-            <label
-              id="scoreboard-primary-hex-label"
-              htmlFor="scoreboard-primary-color-hex"
-              className="sr-only"
-            >
-              Primærfarge i hex-format
-            </label>
-          </div>
-          <p
-            id="scoreboard-primary-color-help"
-            className="text-xs text-zinc-500"
+            <div className="flex items-center gap-3">
+              <Input
+                id="scoreboard-primary-color"
+                type="color"
+                value={value.primaryColor}
+                onChange={handleColorChange("primaryColor")}
+                disabled={disabled}
+                className="h-10 w-16 cursor-pointer rounded-md border-input bg-background"
+                aria-describedby={primaryDescriptionId}
+                aria-label="Velg primærfarge"
+              />
+              <Input
+                id="scoreboard-primary-color-hex"
+                type="text"
+                inputMode="text"
+                pattern="^#[A-Fa-f0-9]{6}$"
+                value={value.primaryColor}
+                onChange={handleColorChange("primaryColor")}
+                disabled={disabled}
+                aria-describedby={primaryDescriptionId}
+              />
+              <Label htmlFor="scoreboard-primary-color-hex" className="sr-only">
+                Primærfarge i hex-format
+              </Label>
+            </div>
+          </FormField>
+
+          <FormField
+            htmlFor="scoreboard-secondary-color-hex"
+            label="Sekundærfarge"
+            description="Bruk kontrastfarge for tekst og ikonografi."
           >
-            Bruk seks tegn i heksadesimalformat, for eksempel #0B1F3A.
-          </p>
+            <div className="flex items-center gap-3">
+              <Input
+                id="scoreboard-secondary-color"
+                type="color"
+                value={value.secondaryColor}
+                onChange={handleColorChange("secondaryColor")}
+                disabled={disabled}
+                className="h-10 w-16 cursor-pointer rounded-md border-input bg-background"
+                aria-describedby={secondaryDescriptionId}
+                aria-label="Velg sekundærfarge"
+              />
+              <Input
+                id="scoreboard-secondary-color-hex"
+                type="text"
+                inputMode="text"
+                pattern="^#[A-Fa-f0-9]{6}$"
+                value={value.secondaryColor}
+                onChange={handleColorChange("secondaryColor")}
+                disabled={disabled}
+                aria-describedby={secondaryDescriptionId}
+              />
+              <Label
+                htmlFor="scoreboard-secondary-color-hex"
+                className="sr-only"
+              >
+                Sekundærfarge i hex-format
+              </Label>
+            </div>
+          </FormField>
         </div>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="scoreboard-secondary-color"
-            className="text-sm font-medium text-zinc-800"
-          >
-            Sekundærfarge
-          </label>
-          <div className="flex items-center gap-3">
-            <input
-              id="scoreboard-secondary-color"
-              type="color"
-              value={value.secondaryColor}
-              onChange={handleColorChange("secondaryColor")}
-              disabled={disabled}
-              className="h-10 w-16 cursor-pointer rounded border border-zinc-300 bg-white"
-            />
-            <input
-              id="scoreboard-secondary-color-hex"
-              type="text"
-              inputMode="text"
-              pattern="^#[A-Fa-f0-9]{6}$"
-              value={value.secondaryColor}
-              onChange={handleColorChange("secondaryColor")}
-              disabled={disabled}
-              className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-              aria-describedby="scoreboard-secondary-color-help"
-              aria-labelledby="scoreboard-secondary-hex-label"
-            />
-            <label
-              id="scoreboard-secondary-hex-label"
-              htmlFor="scoreboard-secondary-color-hex"
-              className="sr-only"
-            >
-              Sekundærfarge i hex-format
-            </label>
-          </div>
-          <p
-            id="scoreboard-secondary-color-help"
-            className="text-xs text-zinc-500"
-          >
-            Bruk kontrastfarge for tekst og ikonografi.
-          </p>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label
+        <FormField
           htmlFor="scoreboard-background-url"
-          className="text-sm font-medium text-zinc-800"
+          label="Bakgrunnsbilde (valgfritt)"
+          description="Bruk en offentlig tilgjengelig URL (HTTPS). Bildet skaleres for å dekke bakgrunnen."
         >
-          Bakgrunnsbilde (valgfritt)
-        </label>
-        <input
-          id="scoreboard-background-url"
-          type="url"
-          placeholder="https://eksempel.no/bilde.png"
-          value={value.backgroundImageUrl ?? ""}
-          onChange={handleBackgroundUrlChange}
-          disabled={disabled}
-          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-        />
-        <p className="text-xs text-zinc-500">
-          Bruk en offentlig tilgjengelig URL (HTTPS). Bildet skaleres for å
-          dekke bakgrunnen.
-        </p>
-      </div>
+          <Input
+            id="scoreboard-background-url"
+            type="url"
+            placeholder="https://eksempel.no/bilde.png"
+            value={value.backgroundImageUrl ?? ""}
+            onChange={handleBackgroundUrlChange}
+            disabled={disabled}
+          />
+        </FormField>
 
-      <div
-        className="flex items-center justify-between rounded-md border p-4"
-        style={{
-          background: value.primaryColor,
-          color: value.secondaryColor,
-        }}
-      >
-        <div className="space-y-1">
-          <p className="text-sm font-medium">Forhåndsvisning</p>
-          <p className="text-xs opacity-80">
-            Rotasjon og høydepunkter bruker primærfargen som bakgrunn og
-            sekundærfargen for tekst.
-          </p>
+        <div
+          className="flex items-center justify-between rounded-lg border border-border bg-muted/40 p-4"
+          style={{
+            background: value.primaryColor,
+            color: value.secondaryColor,
+          }}
+        >
+          <div className="space-y-1">
+            <p className="text-sm font-medium">Forhåndsvisning</p>
+            <p className="text-xs opacity-80">
+              Rotasjon og høydepunkter bruker primærfargen som bakgrunn og
+              sekundærfargen for tekst.
+            </p>
+          </div>
+          <div className="rounded bg-background/30 px-2 py-1 text-xs font-semibold backdrop-blur">
+            {ratio.toFixed(2)} : 1
+          </div>
         </div>
-        <div className="rounded bg-white/20 px-2 py-1 text-xs font-semibold backdrop-blur">
-          {ratio.toFixed(2)} : 1
-        </div>
-      </div>
 
-      <output
-        className={`rounded-md border px-3 py-2 text-sm ${
-          hasSufficientContrast
-            ? "border-green-200 bg-green-50 text-green-700"
-            : "border-red-200 bg-red-50 text-red-700"
-        }`}
-        aria-live="polite"
-      >
-        {hasSufficientContrast
-          ? "Kontrasten oppfyller WCAG 2.2 AA."
-          : "Kontrasten er for lav. Juster fargene slik at forholdet blir minst 4,5:1."}
-      </output>
-    </section>
+        <output
+          className={`block rounded-md border px-3 py-2 text-sm ${
+            hasSufficientContrast
+              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"
+              : "border-destructive/40 bg-destructive/10 text-destructive"
+          }`}
+          aria-live="polite"
+        >
+          {hasSufficientContrast
+            ? "Kontrasten oppfyller WCAG 2.2 AA."
+            : "Kontrasten er for lav. Juster fargene slik at forholdet blir minst 4,5:1."}
+        </output>
+      </CardContent>
+    </Card>
   );
 }
 
