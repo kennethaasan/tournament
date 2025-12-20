@@ -2,7 +2,7 @@
 
 **Feature Branch**: `001-build-football-admin-app`  
 **Created**: 2025-11-05  
-**Last Updated**: 2025-11-06  
+**Last Updated**: 2025-12-20  
 **Status**: Draft – 0 open clarifications
 
 **Input (original brief)**: “Build a new football tournament administration application based on the legacy Laravel app in `/laravel`, using the existing Next.js starter as the foundation.”  
@@ -62,9 +62,9 @@
 
 ### Acceptance Scenarios
 
-1. **Invite Role Peer**: Given an authenticated user with role `competition_admin` on Edition A, when they invite a colleague by email, then the colleague receives an invitation, accepts it, and is granted the `competition_admin` role for that edition only.
+1. **Invite Role Peer**: Given an authenticated user with role `competition_admin` on Competition A, when they invite a colleague by email, then the colleague receives an invitation, accepts it, and is granted the `competition_admin` role scoped to Competition A only.
 2. **Self-Service Competition Creation**: Given an authenticated user without any existing scoped roles, when they create a new competition with baseline metadata, then the competition is created, they are automatically granted the `competition_admin` role scoped to that competition, and they gain access to competition settings.
-3. **Edition Creation by Competition Admin**: Given a competition admin for Competition A, when they create an edition under it with year/slug, timezone, registration window, and scoreboard theme, then the edition appears in their workspace with default empty stages and the public landing page is reachable via its slug.
+3. **Edition Creation by Competition Admin**: Given a competition admin for Competition A, when they create an edition under it with year/slug, timezone, registration window, and scoreboard theme, then the edition appears in their workspace with default empty stages and the public landing page (scoreboard route) is reachable via its slug.
 4. **Round-Robin Wizard**: Given an edition configured for group stage play, when the edition admin selects entries, time slots, and venues, then the wizard generates a full round-robin schedule that can be reviewed, edited, and published in one action.
 5. **Knockout Bracket**: Given a hybrid edition with completed group standings, when the admin seeds the top entries into a knockout bracket, then the bracket auto-populates quarterfinals/semifinals/final (supporting byes) and future round placeholders reference winners of prior matches.
 6. **Team Entry Flow**: Given a team manager with a platform account, when they register an existing team as an entry for an open edition, then the submission enters “pending” status and the edition admin is notified to approve or reject it.
@@ -93,11 +93,12 @@
 
 ### Authentication & Roles
 
-- **FR-001**: The system MUST support invite-based onboarding with email verification for the roles `admin`, `competition_admin` (edition admin), and `team_manager`.
-- **FR-002**: Users MUST be able to invite additional users into the same role they hold (scope-aware): global admins invite admins, edition admins invite peers for editions they manage, and team managers invite co-managers for their teams.
-- **FR-003**: Role-based access control MUST restrict data visibility and actions to the appropriate scope (global for admins, per-competition/per-edition for edition admins, per-team for team managers).
+- **FR-001**: The system MUST support invite-based onboarding with email verification for the roles `global_admin`, `competition_admin`, and `team_manager`, while still allowing self-service competition creation without an invite.
+- **FR-002**: Users MUST be able to invite additional users into the same role they hold (scope-aware): global admins invite global admins, competition admins invite peers for competitions they manage, and team managers invite co-managers for their teams.
+- **FR-003**: Role-based access control MUST restrict data visibility and actions to the appropriate scope (global for global admins, per-competition for competition admins, per-team for team managers).
 - **FR-004**: The platform MUST enforce session management with automatic sign-out on credential revocation and provide device/session listings for administrators.
 - **FR-005**: Newly registered users MUST be able to create their first competition and are automatically granted the `competition_admin` role scoped to that competition without needing prior approval.
+- **FR-006**: Invitation acceptance links MUST be delivered by email; dashboards should not expose raw acceptance URLs.
 
 ### Competition & Edition Setup
 
@@ -142,7 +143,7 @@
 - **FR-050**: Group standings MUST follow the ranking order: points (3/1/0), goal differential, goals scored, head-to-head mini-table, and fair play (yellow/red cards) as a final tiebreaker.
 - **FR-051**: Top-scorer leaderboards MUST list at least the top 25 players with ties handled alphabetically, and support filters by group or knockout stage.
 - **FR-052**: Team dashboards MUST summarize results, upcoming matches, and cumulative stats (wins, draws, losses, goals for/against, points).
-- **FR-053**: Each edition MUST expose a public landing page with schedule, results, standings, top scorers, and venue information, accessible without authentication.
+- **FR-053**: Each edition MUST expose a public landing page with schedule, results, standings, top scorers, and venue information, accessible without authentication. The landing view may live on the scoreboard route with a UI toggle for big-screen mode.
 - **FR-054**: The big-screen scoreboard MUST allow configurable sections (e.g., rotating between live matches, upcoming fixtures, standings, top scorers) and display time since last refresh.
 - **FR-055**: Edition admins MUST be able to trigger highlight overlays (e.g., “Finale starter nå”) for the scoreboard, lasting a configurable duration.
 

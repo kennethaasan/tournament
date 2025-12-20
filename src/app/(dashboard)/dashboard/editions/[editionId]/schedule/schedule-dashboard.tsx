@@ -1,8 +1,19 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { apiClient } from "@/lib/api/client";
+import {
+  type EntryReview,
+  editionEntriesQueryKey,
+  fetchEditionEntries,
+  updateEntryStatus,
+} from "@/lib/api/entries-client";
+import {
+  editionScoreboardQueryKey,
+  fetchEditionScoreboard,
+  updateEditionScoreboard,
+} from "@/lib/api/scoreboard-client";
 import {
   editionStagesQueryKey,
   fetchEditionStages,
@@ -47,6 +58,7 @@ type ScheduleDashboardProps = {
 };
 
 export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
+  const queryClient = useQueryClient();
   const [stageForm, setStageForm] = useState<StageFormState>({
     name: "",
     stageType: "group",
@@ -79,6 +91,85 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const [generationSuccess, setGenerationSuccess] = useState<string | null>(
     null,
   );
+
+  const [entryLockMessage, setEntryLockMessage] = useState<string | null>(null);
+  const [entryLockError, setEntryLockError] = useState<string | null>(null);
+  const [entryReviewMessage, setEntryReviewMessage] = useState<string | null>(
+    null,
+  );
+  const [entryReviewError, setEntryReviewError] = useState<string | null>(null);
+  const [decisionReasons, setDecisionReasons] = useState<
+    Record<string, string>
+  >({});
+  const [reviewingEntryId, setReviewingEntryId] = useState<string | null>(null);
+
+  const scoreboardQuery = useQuery({
+    queryKey: editionScoreboardQueryKey(editionId),
+    queryFn: ({ signal }) => fetchEditionScoreboard(editionId, { signal }),
+    staleTime: 30_000,
+  });
+
+  const lockMutation = useMutation({
+    mutationFn: (lock: boolean) =>
+      updateEditionScoreboard(editionId, {
+        entries_locked: lock,
+      }),
+    onSuccess: (data) => {
+      queryClient.setQueryData(editionScoreboardQueryKey(editionId), data);
+      setEntryLockMessage(
+        data.edition.entries_locked_at
+          ? "Påmeldinger er låst for denne utgaven."
+          : "Påmeldinger er åpnet igjen.",
+      );
+      setEntryLockError(null);
+    },
+    onError: (error) => {
+      setEntryLockError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere påmeldingslåsen.",
+      );
+    },
+  });
+
+  const entriesQuery = useQuery({
+    queryKey: editionEntriesQueryKey(editionId),
+    queryFn: ({ signal }) => fetchEditionEntries(editionId, { signal }),
+    staleTime: 30_000,
+  });
+
+  const entryReviewMutation = useMutation({
+    mutationFn: (payload: {
+      entryId: string;
+      status: "approved" | "rejected";
+      reason?: string;
+    }) =>
+      updateEntryStatus(payload.entryId, {
+        status: payload.status,
+        ...(payload.reason ? { reason: payload.reason } : {}),
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(
+        editionEntriesQueryKey(editionId),
+        (current: EntryReview[] | undefined) =>
+          current?.map((item) =>
+            item.entry.id === updated.id
+              ? { ...item, entry: { ...item.entry, ...updated } }
+              : item,
+          ),
+      );
+      setEntryReviewMessage("Påmeldingen er oppdatert.");
+      setEntryReviewError(null);
+    },
+    onError: (error) => {
+      setEntryReviewError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere påmeldingen.",
+      );
+    },
+  });
+
   const stagesQuery = useQuery({
     queryKey: editionStagesQueryKey(editionId),
     queryFn: ({ signal }) =>
@@ -93,6 +184,22 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const isLoadingStages = stagesQuery.isLoading;
   const stageLoadError =
     stagesQuery.error instanceof Error ? stagesQuery.error.message : null;
+
+  const entries = entriesQuery.data ?? [];
+  const entriesLoading = entriesQuery.isLoading;
+  const entriesError =
+    entriesQuery.error instanceof Error ? entriesQuery.error.message : null;
+
+  const scoreboardLoadError =
+    scoreboardQuery.error instanceof Error
+      ? scoreboardQuery.error.message
+      : null;
+  const entriesLockedAt =
+    scoreboardQuery.data?.edition.entries_locked_at ?? null;
+  const entriesLockedAtDate = entriesLockedAt
+    ? new Date(entriesLockedAt)
+    : null;
+  const isLockingEntries = lockMutation.isPending;
 
   const selectedStage = useMemo(
     () => stages.find((stage) => stage.id === generationStageId) ?? null,
@@ -118,6 +225,59 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setGroupEntryInputs({});
     }
   }, [selectedStage]);
+
+  async function handleEntryLockChange(lock: boolean) {
+    setEntryLockError(null);
+    setEntryLockMessage(null);
+
+    try {
+      await lockMutation.mutateAsync(lock);
+    } catch (error) {
+      setEntryLockError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere påmeldingslåsen.",
+      );
+    }
+  }
+
+  async function handleEntryDecision(
+    entryId: string,
+    status: "approved" | "rejected",
+  ) {
+    setEntryReviewError(null);
+    setEntryReviewMessage(null);
+    setReviewingEntryId(entryId);
+
+    try {
+      const reason = decisionReasons[entryId]?.trim();
+      await entryReviewMutation.mutateAsync({
+        entryId,
+        status,
+        reason: reason ? reason : undefined,
+      });
+      setDecisionReasons((prev) => ({
+        ...prev,
+        [entryId]: "",
+      }));
+    } catch (error) {
+      setEntryReviewError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere påmeldingen.",
+      );
+    } finally {
+      setReviewingEntryId(null);
+    }
+  }
+
+  function statusLabel(status: string) {
+    if (status === "approved") return "Godkjent";
+    if (status === "rejected") return "Avvist";
+    if (status === "pending") return "Venter";
+    if (status === "withdrawn") return "Trukket";
+    return status;
+  }
 
   function updateStageForm<K extends keyof StageFormState>(
     field: K,
@@ -487,6 +647,214 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             publisere kampene og varsle lagene.
           </p>
         </header>
+
+        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+          <header className="space-y-1">
+            <h2 className="text-xl font-semibold text-zinc-900">
+              Påmeldingslås
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Lås nye påmeldinger når kampoppsettet er i ferd med å publiseres
+              for å unngå endringer i laglisten.
+            </p>
+          </header>
+
+          {entryLockMessage && (
+            <output
+              aria-live="polite"
+              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            >
+              {entryLockMessage}
+            </output>
+          )}
+
+          {entryLockError && (
+            <div
+              role="alert"
+              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {entryLockError}
+            </div>
+          )}
+
+          {scoreboardQuery.isLoading ? (
+            <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+              Laster påmeldingsstatus …
+            </div>
+          ) : scoreboardLoadError ? (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {scoreboardLoadError}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-foreground">
+                Status:{" "}
+                <span className="font-medium">
+                  {entriesLockedAtDate
+                    ? `Låst ${entriesLockedAtDate.toLocaleString("no-NB")}`
+                    : "Åpen"}
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleEntryLockChange(false)}
+                  disabled={!entriesLockedAtDate || isLockingEntries}
+                  className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-card/60 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Åpne påmeldinger
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleEntryLockChange(true)}
+                  disabled={Boolean(entriesLockedAtDate) || isLockingEntries}
+                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  Lås påmeldinger
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+          <header className="space-y-1">
+            <h2 className="text-xl font-semibold text-zinc-900">
+              Påmeldingsforespørsler
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Godkjenn eller avvis nye påmeldinger før kampoppsettet publiseres.
+            </p>
+          </header>
+
+          {entryReviewMessage && (
+            <output
+              aria-live="polite"
+              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            >
+              {entryReviewMessage}
+            </output>
+          )}
+
+          {entryReviewError && (
+            <div
+              role="alert"
+              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {entryReviewError}
+            </div>
+          )}
+
+          {entriesLoading ? (
+            <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+              Laster påmeldinger …
+            </div>
+          ) : entriesError ? (
+            <div
+              role="alert"
+              className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            >
+              {entriesError}
+            </div>
+          ) : entries.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
+              Ingen påmeldinger tilgjengelig ennå.
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {entries.map((item) => {
+                const entry = item.entry;
+                const isPending = entry.status === "pending";
+                const isReviewing = reviewingEntryId === entry.id;
+                return (
+                  <article
+                    key={entry.id}
+                    className="rounded-xl border border-border/80 bg-card/50 p-5 shadow-sm"
+                  >
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                          {item.team.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Lag-ID: {item.team.id}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground">
+                        {statusLabel(entry.status)}
+                      </span>
+                    </div>
+
+                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
+                      <div>
+                        Påmeldt:{" "}
+                        {entry.submitted_at
+                          ? new Date(entry.submitted_at).toLocaleString("no-NB")
+                          : "—"}
+                      </div>
+                      <div>
+                        Notat: {entry.notes ? entry.notes : "Ingen notat"}
+                      </div>
+                    </div>
+
+                    {isPending ? (
+                      <div className="mt-4 space-y-2">
+                        <label
+                          htmlFor={`decision-${entry.id}`}
+                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                        >
+                          Begrunnelse (valgfritt)
+                        </label>
+                        <textarea
+                          id={`decision-${entry.id}`}
+                          value={decisionReasons[entry.id] ?? ""}
+                          onChange={(event) =>
+                            setDecisionReasons((prev) => ({
+                              ...prev,
+                              [entry.id]: event.target.value,
+                            }))
+                          }
+                          rows={2}
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        />
+                      </div>
+                    ) : entry.decision_reason ? (
+                      <p className="mt-4 text-sm text-muted-foreground">
+                        Begrunnelse: {entry.decision_reason}
+                      </p>
+                    ) : null}
+
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleEntryDecision(entry.id, "approved")
+                        }
+                        disabled={!isPending || isReviewing}
+                        className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {isReviewing ? "Oppdaterer ..." : "Godkjenn"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleEntryDecision(entry.id, "rejected")
+                        }
+                        disabled={!isPending || isReviewing}
+                        className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        Avvis
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
 
         <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
           <header>

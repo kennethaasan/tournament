@@ -71,9 +71,13 @@ export const editionSettings = pgTable(
       .primaryKey()
       .references(() => editions.id, { onDelete: "cascade" }),
     scoreboardTheme: jsonb("scoreboard_theme").notNull(),
+    scoreboardModules: jsonb("scoreboard_modules")
+      .notNull()
+      .default(["live_matches", "upcoming", "standings", "top_scorers"]),
     scoreboardRotationSeconds: integer("scoreboard_rotation_seconds")
       .notNull()
       .default(5),
+    entriesLockedAt: timestampTz("entries_locked_at"),
     registrationRequirements: jsonb("registration_requirements"),
     rulesetNotes: text("ruleset_notes"),
     createdAt: createdAtColumn(),

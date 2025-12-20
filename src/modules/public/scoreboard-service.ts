@@ -13,11 +13,13 @@ import {
   squadMembers,
   squads,
   teams,
+  venues,
 } from "@/server/db/schema";
 import type {
   ScoreboardData,
   ScoreboardMatch,
   ScoreboardMatchSide,
+  ScoreboardSection,
   ScoreboardStanding,
   ScoreboardTopScorer,
 } from "./scoreboard-types";
@@ -71,6 +73,7 @@ type EditionRow = {
   registrationOpensAt: Date | null;
   registrationClosesAt: Date | null;
   rotationSeconds: number;
+  scoreboardModules: ScoreboardSection[];
   scoreboardTheme: ThemeRecord;
   publishedAt: Date | null;
 };
@@ -95,6 +98,7 @@ type MatchRow = {
   awayEntryId: string | null;
   homeScore: number;
   awayScore: number;
+  venueName: string | null;
 };
 
 type ScorerEventRow = {
@@ -160,9 +164,14 @@ export async function getPublicScoreboard(
   const entryMap = new Map(entries.map((entry) => [entry.id, entry]));
 
   const scoreboardMatches = buildMatches(matches, entryMap, highlight);
-  const standings = buildStandings(matches, entryMap);
+  const standings = buildStandings(matches, scorerEvents, entryMap);
   const topScorers = buildTopScorers(scorerEvents, entryMap);
-  const rotation = selectRotation(scoreboardMatches, standings, topScorers);
+  const rotation = selectRotation(
+    editionRow.scoreboardModules,
+    scoreboardMatches,
+    standings,
+    topScorers,
+  );
   const entryList = Array.from(entryMap.values()).map((entry) => ({
     id: entry.id,
     name: entry.name,
@@ -206,6 +215,7 @@ async function findEditionFromDatabase(
       registrationOpensAt: editions.registrationOpensAt,
       registrationClosesAt: editions.registrationClosesAt,
       rotationSeconds: editionSettings.scoreboardRotationSeconds,
+      scoreboardModules: editionSettings.scoreboardModules,
       scoreboardTheme: editionSettings.scoreboardTheme,
       publishedAt: editions.updatedAt,
     })
@@ -231,6 +241,7 @@ async function findEditionFromDatabase(
 
   const rotationSeconds = normalizeRotationSeconds(row.rotationSeconds);
   const theme = normalizeThemeRecord(row.scoreboardTheme);
+  const modules = normalizeModules(row.scoreboardModules);
 
   return {
     id: row.id,
@@ -244,6 +255,7 @@ async function findEditionFromDatabase(
     registrationOpensAt: row.registrationOpensAt,
     registrationClosesAt: row.registrationClosesAt,
     rotationSeconds,
+    scoreboardModules: modules,
     scoreboardTheme: theme,
     publishedAt: row.publishedAt,
   };
@@ -271,8 +283,10 @@ async function listMatchesFromDatabase(editionId: string) {
       awayEntryId: matchesTable.awayEntryId,
       homeScore: matchesTable.homeScore,
       awayScore: matchesTable.awayScore,
+      venueName: venues.name,
     })
     .from(matchesTable)
+    .leftJoin(venues, eq(venues.id, matchesTable.venueId))
     .where(eq(matchesTable.editionId, editionId))
     .orderBy(asc(matchesTable.kickoffAt), asc(matchesTable.createdAt));
 }
@@ -343,6 +357,7 @@ function buildMatches(
         score: row.awayScore ?? 0,
       },
       highlight,
+      venueName: row.venueName ?? null,
     });
   }
 
@@ -376,9 +391,11 @@ function buildMatchSide(
 
 function buildStandings(
   matches: MatchRow[],
+  events: ScorerEventRow[],
   entryMap: Map<string, EntryRow>,
 ): ScoreboardStanding[] {
   const stats = new Map<string, ScoreboardStanding>();
+  const fairPlayScores = buildFairPlayScores(events);
 
   for (const entry of entryMap.values()) {
     stats.set(entry.id, {
@@ -392,7 +409,7 @@ function buildStandings(
       goalsAgainst: 0,
       goalDifference: 0,
       points: 0,
-      fairPlayScore: null,
+      fairPlayScore: fairPlayScores.get(entry.id) ?? 0,
     });
   }
 
@@ -435,26 +452,12 @@ function buildStandings(
     }
   }
 
-  const standings = Array.from(stats.values())
-    .map((row) => ({
-      ...row,
-      goalDifference: row.goalsFor - row.goalsAgainst,
-    }))
-    .sort((left, right) => {
-      if (right.points !== left.points) {
-        return right.points - left.points;
-      }
+  const baseStandings = Array.from(stats.values()).map((row) => ({
+    ...row,
+    goalDifference: row.goalsFor - row.goalsAgainst,
+  }));
 
-      if (right.goalDifference !== left.goalDifference) {
-        return right.goalDifference - left.goalDifference;
-      }
-
-      if (right.goalsFor !== left.goalsFor) {
-        return right.goalsFor - left.goalsFor;
-      }
-
-      return left.entryId.localeCompare(right.entryId);
-    });
+  const standings = applyTieBreakers(baseStandings, matches, entryMap);
 
   return standings.map((standing, index) => ({
     ...standing,
@@ -519,14 +522,9 @@ function buildTopScorers(
       if (right.goals !== left.goals) {
         return right.goals - left.goals;
       }
-
-      if (right.assists !== left.assists) {
-        return right.assists - left.assists;
-      }
-
       return left.name.localeCompare(right.name, "nb");
     })
-    .slice(0, 10)
+    .slice(0, 25)
     .map((scorer) => ({
       ...scorer,
       name: scorer.name || entryMap.get(scorer.entryId)?.name || "Ukjent",
@@ -593,11 +591,12 @@ function buildPersonName(first: string | null, last: string | null) {
 }
 
 function selectRotation(
+  configured: ScoreboardSection[],
   matches: ScoreboardMatch[],
   standings: ScoreboardStanding[],
   topScorers: ScoreboardTopScorer[],
 ) {
-  const sections = new Set(DEFAULT_ROTATION);
+  const sections = new Set(configured.length ? configured : DEFAULT_ROTATION);
 
   if (!matches.some((match) => match.status === "in_progress")) {
     sections.delete("live_matches");
@@ -620,4 +619,178 @@ function selectRotation(
   }
 
   return Array.from(sections);
+}
+
+function normalizeModules(input: unknown): ScoreboardSection[] {
+  if (!Array.isArray(input)) {
+    return [...DEFAULT_ROTATION];
+  }
+
+  const modules = input.filter((value): value is ScoreboardSection =>
+    DEFAULT_ROTATION.includes(value as ScoreboardSection),
+  );
+
+  return modules.length ? Array.from(new Set(modules)) : [...DEFAULT_ROTATION];
+}
+
+function buildFairPlayScores(events: ScorerEventRow[]): Map<string, number> {
+  const scores = new Map<string, number>();
+
+  for (const event of events) {
+    if (!event.entryId) {
+      continue;
+    }
+
+    let delta = 0;
+    if (event.eventType === "yellow_card") {
+      delta = 1;
+    } else if (event.eventType === "red_card") {
+      delta = 3;
+    } else {
+      continue;
+    }
+
+    scores.set(event.entryId, (scores.get(event.entryId) ?? 0) + delta);
+  }
+
+  return scores;
+}
+
+type StandingsRow = ScoreboardStanding & { goalDifference: number };
+
+function applyTieBreakers(
+  standings: StandingsRow[],
+  matches: MatchRow[],
+  entryMap: Map<string, EntryRow>,
+): StandingsRow[] {
+  const grouped = new Map<string, StandingsRow[]>();
+
+  for (const row of standings) {
+    const key = `${row.points}:${row.goalDifference}:${row.goalsFor}`;
+    const collection = grouped.get(key) ?? [];
+    collection.push(row);
+    grouped.set(key, collection);
+  }
+
+  const resolved: StandingsRow[] = [];
+  for (const group of grouped.values()) {
+    if (group.length === 1) {
+      const single = group[0];
+      if (single) {
+        resolved.push(single);
+      }
+      continue;
+    }
+
+    const headToHead = buildHeadToHeadStats(group, matches);
+    const sorted = [...group].sort((left, right) => {
+      const leftH2H = headToHead.get(left.entryId);
+      const rightH2H = headToHead.get(right.entryId);
+
+      if (leftH2H && rightH2H) {
+        if (rightH2H.points !== leftH2H.points) {
+          return rightH2H.points - leftH2H.points;
+        }
+        if (rightH2H.goalDifference !== leftH2H.goalDifference) {
+          return rightH2H.goalDifference - leftH2H.goalDifference;
+        }
+        if (rightH2H.goalsFor !== leftH2H.goalsFor) {
+          return rightH2H.goalsFor - leftH2H.goalsFor;
+        }
+      }
+
+      const leftFairPlay = left.fairPlayScore ?? 0;
+      const rightFairPlay = right.fairPlayScore ?? 0;
+      if (leftFairPlay !== rightFairPlay) {
+        return leftFairPlay - rightFairPlay;
+      }
+
+      const leftName = entryMap.get(left.entryId)?.name ?? left.entryId;
+      const rightName = entryMap.get(right.entryId)?.name ?? right.entryId;
+      return leftName.localeCompare(rightName, "nb");
+    });
+
+    resolved.push(...sorted);
+  }
+
+  return resolved.sort((left, right) => {
+    if (right.points !== left.points) {
+      return right.points - left.points;
+    }
+    if (right.goalDifference !== left.goalDifference) {
+      return right.goalDifference - left.goalDifference;
+    }
+    if (right.goalsFor !== left.goalsFor) {
+      return right.goalsFor - left.goalsFor;
+    }
+    return 0;
+  });
+}
+
+function buildHeadToHeadStats(group: StandingsRow[], matches: MatchRow[]) {
+  const ids = new Set(group.map((row) => row.entryId));
+  const stats = new Map<string, StandingsRow>();
+
+  for (const row of group) {
+    stats.set(row.entryId, {
+      ...row,
+      played: 0,
+      won: 0,
+      drawn: 0,
+      lost: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      goalDifference: 0,
+      points: 0,
+    });
+  }
+
+  for (const match of matches) {
+    if (
+      !match.homeEntryId ||
+      !match.awayEntryId ||
+      !STANDING_STATUSES.has(match.status)
+    ) {
+      continue;
+    }
+
+    if (!ids.has(match.homeEntryId) || !ids.has(match.awayEntryId)) {
+      continue;
+    }
+
+    const home = stats.get(match.homeEntryId);
+    const away = stats.get(match.awayEntryId);
+    if (!home || !away) {
+      continue;
+    }
+
+    home.played += 1;
+    away.played += 1;
+
+    home.goalsFor += match.homeScore;
+    home.goalsAgainst += match.awayScore;
+    away.goalsFor += match.awayScore;
+    away.goalsAgainst += match.homeScore;
+
+    if (match.homeScore > match.awayScore) {
+      home.won += 1;
+      home.points += 3;
+      away.lost += 1;
+    } else if (match.homeScore < match.awayScore) {
+      away.won += 1;
+      away.points += 3;
+      home.lost += 1;
+    } else {
+      home.drawn += 1;
+      away.drawn += 1;
+      home.points += 1;
+      away.points += 1;
+    }
+  }
+
+  for (const row of stats.values()) {
+    row.goalDifference = row.goalsFor - row.goalsAgainst;
+  }
+
+  return stats;
 }

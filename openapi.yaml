@@ -42,7 +42,46 @@ paths:
                 $ref: '#/components/schemas/Invitation'
         '400':
           $ref: '#/components/responses/ProblemDetails'
+  /api/auth/invitations/accept:
+    post:
+      tags: [auth]
+      summary: Accept an invitation
+      operationId: accept_invitation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptInvitationRequest'
+      responses:
+        '200':
+          description: Invitation accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptInvitationResponse'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
+        '410':
+          $ref: '#/components/responses/ProblemDetails'
   /api/competitions:
+    get:
+      tags: [competitions]
+      summary: List accessible competitions
+      operationId: list_competitions
+      responses:
+        '200':
+          description: Competition list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionListResponse'
     post:
       tags: [competitions]
       summary: Create a new competition and initial edition
@@ -137,6 +176,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/editions/{edition_id}/entries:
+    get:
+      tags: [entries]
+      summary: List entries for an edition
+      operationId: list_edition_entries
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Edition entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntryReviewListResponse'
         '403':
           $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/stages:
@@ -312,6 +367,17 @@ paths:
         '404':
           $ref: '#/components/responses/ProblemDetails'
   /api/teams:
+    get:
+      tags: [teams]
+      summary: List accessible teams
+      operationId: list_teams
+      responses:
+        '200':
+          description: Team list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamListResponse'
     post:
       tags: [teams]
       summary: Create or import a reusable team
@@ -390,6 +456,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/Entry'
         '400':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/entries/{entry_id}:
+    patch:
+      tags: [teams]
+      summary: Update entry status
+      operationId: update_entry_status
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEntryStatusRequest'
+      responses:
+        '200':
+          description: Entry updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
           $ref: '#/components/responses/ProblemDetails'
   /api/entries/{entry_id}/squads:
     put:
@@ -625,7 +717,7 @@ components:
               type: string
     Invitation:
       type: object
-      required: [id, email, role, scope]
+      required: [id, email, role, scope, expires_at]
       properties:
         id:
           type: string
@@ -650,6 +742,35 @@ components:
         expires_at:
           type: string
           format: date-time
+        token:
+          type: string
+        accept_url:
+          type: string
+          format: uri
+          nullable: true
+    RoleAssignment:
+      type: object
+      required: [role, scope]
+      properties:
+        role:
+          type: string
+          enum: [global_admin, competition_admin, team_manager]
+        scope:
+          $ref: '#/components/schemas/InvitationScope'
+    AcceptInvitationRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    AcceptInvitationResponse:
+      type: object
+      required: [invitation, role]
+      properties:
+        invitation:
+          $ref: '#/components/schemas/Invitation'
+        role:
+          $ref: '#/components/schemas/RoleAssignment'
     CreateInvitationRequest:
       type: object
       required: [email, role, scope]
@@ -665,6 +786,9 @@ components:
         message:
           type: string
           maxLength: 500
+        expires_at:
+          type: string
+          format: date-time
     InvitationScope:
       type: object
       required: [type]
@@ -753,8 +877,17 @@ components:
           type: integer
           minimum: 2
           default: 5
+        scoreboard_modules:
+          type: array
+          items:
+            type: string
+            enum: [live_matches, upcoming, standings, top_scorers]
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
+        entries_locked_at:
+          type: string
+          format: date-time
+          nullable: true
         published_at:
           type: string
           format: date-time
@@ -785,8 +918,15 @@ components:
         scoreboard_rotation_seconds:
           type: integer
           minimum: 2
+        scoreboard_modules:
+          type: array
+          items:
+            type: string
+            enum: [live_matches, upcoming, standings, top_scorers]
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
+        entries_locked:
+          type: boolean
     ScoreboardTheme:
       type: object
       properties:
@@ -1158,6 +1298,60 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TeamMember'
+    CompetitionSummary:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+    CompetitionListResponse:
+      type: object
+      required: [competitions]
+      properties:
+        competitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CompetitionSummary'
+    TeamSummary:
+      type: object
+      required: [id, name, slug]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        slug:
+          type: string
+    TeamListResponse:
+      type: object
+      required: [teams]
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamSummary'
+    EntryReview:
+      type: object
+      required: [entry, team]
+      properties:
+        entry:
+          $ref: '#/components/schemas/Entry'
+        team:
+          $ref: '#/components/schemas/TeamSummary'
+    EntryReviewListResponse:
+      type: object
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntryReview'
     Entry:
       type: object
       required: [id, team_id, edition_id, status]
@@ -1181,6 +1375,27 @@ components:
           type: string
           format: date-time
           nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          nullable: true
+        rejected_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_reason:
+          type: string
+          nullable: true
+    UpdateEntryStatusRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+        reason:
+          type: string
+          maxLength: 2000
     RegisterEntryRequest:
       type: object
       required: [edition_id]
@@ -1352,6 +1567,10 @@ components:
           type: string
           nullable: true
           description: Optional admin-triggered overlay message
+        venue_name:
+          type: string
+          nullable: true
+          description: Venue or playing surface name
     ScoreboardSide:
       type: object
       required: [entry_id, name, score]

@@ -68,6 +68,10 @@ function serializeScoreboardSummary(
       label: summary.edition.label,
       status: summary.edition.status,
       scoreboard_rotation_seconds: summary.edition.scoreboardRotationSeconds,
+      scoreboard_modules: summary.edition.scoreboardModules,
+      entries_locked_at: summary.edition.entriesLockedAt
+        ? summary.edition.entriesLockedAt.toISOString()
+        : null,
       scoreboard_theme: {
         primary_color: summary.edition.scoreboardTheme.primaryColor,
         secondary_color: summary.edition.scoreboardTheme.secondaryColor,

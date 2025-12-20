@@ -51,8 +51,9 @@ lessons from the `mattis` reference application (e.g., `/tmp/mattis/src/lib/*`, 
 
 ## 5. Authentication & Authorization
 
-- **Decision**: Integrate better-auth for session + invite flows, pairing with middleware guards and
-  Drizzle-backed role assignments (global, competition, edition, team scopes).
+- **Decision**: Integrate better-auth for session + invite flows, while allowing self-service
+  competition creation without an invite. Roles are scoped to global, competition, and team
+  (edition scope reserved for future use).
 - **Rationale**: better-auth satisfies stakeholder requirement, offers MFA readiness, and integrates
   with Next middleware. RBAC alignment will mirror `mattis/src/lib/auth` patterns where policies are
   enforced close to server handlers.

@@ -24,6 +24,7 @@ export type ScoreboardEdition = {
     closesAt: Date | null;
   };
   scoreboardRotationSeconds: number;
+  scoreboardModules?: ScoreboardSection[];
   scoreboardTheme: ScoreboardTheme;
 };
 
@@ -40,6 +41,7 @@ export type ScoreboardMatch = {
   home: ScoreboardMatchSide;
   away: ScoreboardMatchSide;
   highlight?: string | null;
+  venueName?: string | null;
 };
 
 export type ScoreboardStanding = {
@@ -139,6 +141,7 @@ export function toApiScoreboardPayload(
           data.edition.registrationWindow.closesAt?.toISOString() ?? null,
       },
       scoreboard_rotation_seconds: data.edition.scoreboardRotationSeconds,
+      scoreboard_modules: data.edition.scoreboardModules,
       scoreboard_theme: {
         primary_color: data.edition.scoreboardTheme.primaryColor,
         secondary_color: data.edition.scoreboardTheme.secondaryColor,
@@ -161,6 +164,7 @@ export function toApiScoreboardPayload(
         score: match.away.score,
       },
       highlight: match.highlight ?? data.overlayMessage ?? null,
+      venue_name: match.venueName ?? null,
     })),
     standings: data.standings.map((standing) => ({
       entry_id: standing.entryId,
@@ -220,6 +224,7 @@ export function fromApiScoreboardPayload(
       },
       scoreboardRotationSeconds:
         payload.edition.scoreboard_rotation_seconds ?? 5,
+      scoreboardModules: payload.edition.scoreboard_modules,
       scoreboardTheme: {
         primaryColor:
           payload.edition.scoreboard_theme?.primary_color ?? "#0B1F3A",
@@ -244,6 +249,7 @@ export function fromApiScoreboardPayload(
         score: match.away.score,
       },
       highlight: match.highlight ?? null,
+      venueName: match.venue_name ?? null,
     })),
     standings: payload.standings.map((standing, index) => ({
       entryId: standing.entry_id,

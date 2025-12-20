@@ -9,6 +9,7 @@ export type TeamRoster = components["schemas"]["TeamRoster"];
 export type TeamMember = components["schemas"]["TeamMember"];
 export type Squad = components["schemas"]["Squad"];
 export type SquadMember = components["schemas"]["SquadMember"];
+export type TeamSummary = components["schemas"]["TeamSummary"];
 
 export type EntryWithSquad = {
   entry: components["schemas"]["Entry"];
@@ -17,6 +18,21 @@ export type EntryWithSquad = {
 
 export const teamRosterQueryKey = (teamId: string) =>
   ["team", teamId, "roster"] as const;
+
+export const teamListQueryKey = () => ["teams"] as const;
+
+export async function fetchTeams(
+  options: FetchRosterOptions = {},
+): Promise<TeamSummary[]> {
+  const { data, error, response } = await apiClient.GET("/api/teams", {
+    signal: options.signal,
+    credentials: "include",
+  });
+
+  const payload = unwrapResponse({ data, error, response });
+
+  return payload.teams ?? [];
+}
 
 export async function fetchTeamRoster(
   teamId: string,

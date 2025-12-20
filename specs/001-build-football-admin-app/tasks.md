@@ -54,6 +54,7 @@ description: "Task list template for feature implementation"
 ### Tests for User Story 1 (Required)
 
 - [X] T013 [P] [US1] Add contract tests for invitations and competition creation in `src/modules/identity/__tests__/contracts/invitations.contract.test.ts`.
+- [X] T013b [P] [US1] Add contract tests for invitation acceptance in `src/modules/identity/__tests__/contracts/accept-invitation.contract.test.ts`.
 - [X] T014 [P] [US1] Add integration test covering self-service competition onboarding in `src/modules/competitions/__tests__/integration/organizer-self-service.test.ts`.
 
 ### Implementation for User Story 1
@@ -63,10 +64,15 @@ description: "Task list template for feature implementation"
 - [X] T017 [US1] Build invite acceptance and role assignment services in `src/modules/identity/service.ts`.
 - [X] T018 [US1] Build competition and edition domain services with scoreboard validation in `src/modules/competitions/service.ts`.
 - [X] T019 [US1] Implement `POST /api/auth/invitations` handler in `src/app/api/auth/invitations/route.ts`.
+- [X] T019b [US1] Implement `POST /api/auth/invitations/accept` handler in `src/app/api/auth/invitations/accept/route.ts`.
 - [X] T020 [US1] Implement `POST /api/competitions` handler in `src/app/api/competitions/route.ts`.
 - [X] T021 [US1] Implement `POST /api/competitions/[competitionId]/editions` handler in `src/app/api/competitions/[competitionId]/editions/route.ts`.
 - [X] T022 [US1] Build organizer signup page and invite acceptance flow in `src/app/(public)/auth/organizer-signup/page.tsx`.
+- [X] T022b [US1] Build invitation acceptance page in `src/app/(public)/auth/invitations/[token]/page.tsx`.
 - [X] T023 [US1] Build competition creation dashboard surface in `src/app/dashboard/competitions/new/page.tsx`.
+- [X] T023b [US1] Build invitations dashboard surface in `src/app/(dashboard)/dashboard/invitations/page.tsx`.
+- [X] T023c [US1] Add scope-aware invite helper lists and dashboard autocomplete in `src/app/api/competitions/route.ts`, `src/app/api/teams/route.ts`, and `src/app/(dashboard)/dashboard/invitations/invitations-panel.tsx`.
+- [X] T023d [US1] Send invitation emails via Amazon SES from `src/app/api/auth/invitations/route.ts` and `src/server/email/invitations.ts`.
 - [X] T024 [US1] Implement scoreboard theme form component with WCAG validation in `src/ui/components/scoreboard/theme-form.tsx`.
 - [X] T025 [US1] Build edition creation dashboard page integrating scoreboard settings in `src/app/dashboard/competitions/[competitionId]/editions/new/page.tsx`.
 
@@ -120,6 +126,7 @@ description: "Task list template for feature implementation"
 - [X] T042 [US3] Implement `PATCH /api/matches/[matchId]` handler for results in `src/app/api/matches/[matchId]/route.ts`.
 - [X] T043 [US3] Build scheduling dashboard with stage builder UI in `src/app/dashboard/editions/[editionId]/schedule/page.tsx`.
 - [X] T044 [US3] Build scoreboard control panel with highlight overlays in `src/app/dashboard/editions/[editionId]/scoreboard/page.tsx`.
+- [X] T044b [US3] Add entry submission lock controls to the schedule dashboard in `src/app/(dashboard)/dashboard/editions/[editionId]/schedule/schedule-dashboard.tsx`.
 
 **Checkpoint**: Edition administration flows are independently testable once US1 is available.
 
@@ -150,6 +157,7 @@ description: "Task list template for feature implementation"
 - [X] T056 [US4] Build team roster management UI in `src/app/dashboard/teams/[teamId]/roster/page.tsx`.
 - [X] T057 [US4] Build edition entry and squad UI in `src/app/dashboard/teams/[teamId]/entries/page.tsx`.
 - [X] T058 [US4] Build notification center with poll-based feed in `src/app/dashboard/notifications/page.tsx`.
+- [X] T058b [US4] Add edition entry review endpoint and admin UI in `src/app/api/editions/[editionId]/entries/route.ts` and `src/app/(dashboard)/dashboard/editions/[editionId]/schedule/schedule-dashboard.tsx`.
 
 **Checkpoint**: Team manager workflows are independently testable with previously delivered stories.
 
@@ -165,6 +173,7 @@ description: "Task list template for feature implementation"
 
 - [X] T059 [P] [US5] Add contract tests for `GET /api/public/editions/{edition_slug}/scoreboard` in `src/modules/public/__tests__/contracts/scoreboard.contract.test.ts`.
 - [X] T060 [P] [US5] Add integration test for event feed polling in `src/modules/public/__tests__/integration/event-feed.test.ts`.
+- [X] T060b [P] [US5] Add landing view render test in `src/ui/__tests__/scoreboard-landing.test.tsx`.
 
 ### Implementation for User Story 5
 
@@ -174,6 +183,9 @@ description: "Task list template for feature implementation"
 - [X] T064 [US5] Build public scoreboard page with streaming sections in `src/app/(public)/competitions/[competitionSlug]/[editionSlug]/scoreboard/page.tsx`.
 - [X] T065 [US5] Build reusable scoreboard layout components in `src/ui/components/scoreboard/scoreboard-layout.tsx`.
 - [X] T066 [US5] Implement TanStack Query polling hook in `src/ui/hooks/useScoreboardPoll.ts`.
+- [X] T066b [US5] Expand scoreboard route into landing view with UI toggle for big-screen mode in `src/ui/components/scoreboard/scoreboard-layout.tsx`.
+- [X] T066c [US5] Add scoreboard module configuration and venue display support across `src/modules/public/scoreboard-service.ts`, `src/ui/components/scoreboard/scoreboard-layout.tsx`, and `src/app/(dashboard)/dashboard/editions/[editionId]/scoreboard/scoreboard-control.tsx`.
+- [X] T066d [US5] Apply head-to-head and fair play tie-breakers in `src/modules/public/scoreboard-service.ts`.
 
 **Checkpoint**: Public scoreboard experience is independently testable and deployable once upstream stories exist.
 

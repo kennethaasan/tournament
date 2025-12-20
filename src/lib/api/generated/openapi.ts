@@ -21,7 +21,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/competitions": {
+  "/api/auth/invitations/accept": {
     parameters: {
       query?: never;
       header?: never;
@@ -29,6 +29,24 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
+    put?: never;
+    /** Accept an invitation */
+    post: operations["accept_invitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/competitions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List accessible competitions */
+    get: operations["list_competitions"];
     put?: never;
     /** Create a new competition and initial edition */
     post: operations["create_competition"];
@@ -88,6 +106,23 @@ export interface paths {
     head?: never;
     /** Update edition settings */
     patch: operations["update_edition"];
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List entries for an edition */
+    get: operations["list_edition_entries"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/api/editions/{edition_id}/stages": {
@@ -201,7 +236,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** List accessible teams */
+    get: operations["list_teams"];
     put?: never;
     /** Create or import a reusable team */
     post: operations["create_team"];
@@ -260,6 +296,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/entries/{entry_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update entry status */
+    patch: operations["update_entry_status"];
     trace?: never;
   };
   "/api/entries/{entry_id}/squads": {
@@ -376,7 +429,22 @@ export interface components {
         id?: string | null;
       };
       /** Format: date-time */
-      expires_at?: string;
+      expires_at: string;
+      token?: string;
+      /** Format: uri */
+      accept_url?: string | null;
+    };
+    RoleAssignment: {
+      /** @enum {string} */
+      role: "global_admin" | "competition_admin" | "team_manager";
+      scope: components["schemas"]["InvitationScope"];
+    };
+    AcceptInvitationRequest: {
+      token: string;
+    };
+    AcceptInvitationResponse: {
+      invitation: components["schemas"]["Invitation"];
+      role: components["schemas"]["RoleAssignment"];
     };
     CreateInvitationRequest: {
       /** Format: email */
@@ -385,6 +453,8 @@ export interface components {
       role: "global_admin" | "competition_admin" | "team_manager";
       scope: components["schemas"]["InvitationScope"];
       message?: string;
+      /** Format: date-time */
+      expires_at?: string;
     };
     InvitationScope: {
       /** @enum {string} */
@@ -430,7 +500,15 @@ export interface components {
       registration_window: components["schemas"]["RegistrationWindow"];
       /** @default 5 */
       scoreboard_rotation_seconds: number;
+      scoreboard_modules?: (
+        | "live_matches"
+        | "upcoming"
+        | "standings"
+        | "top_scorers"
+      )[];
       scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+      /** Format: date-time */
+      entries_locked_at?: string | null;
       /** Format: date-time */
       published_at?: string | null;
     };
@@ -447,7 +525,14 @@ export interface components {
       /** @enum {string} */
       status?: "draft" | "published" | "archived";
       scoreboard_rotation_seconds?: number;
+      scoreboard_modules?: (
+        | "live_matches"
+        | "upcoming"
+        | "standings"
+        | "top_scorers"
+      )[];
       scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+      entries_locked?: boolean;
     };
     ScoreboardTheme: {
       primary_color?: string;
@@ -651,6 +736,31 @@ export interface components {
       team: components["schemas"]["Team"];
       members: components["schemas"]["TeamMember"][];
     };
+    CompetitionSummary: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+    };
+    CompetitionListResponse: {
+      competitions: components["schemas"]["CompetitionSummary"][];
+    };
+    TeamSummary: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+    };
+    TeamListResponse: {
+      teams: components["schemas"]["TeamSummary"][];
+    };
+    EntryReview: {
+      entry: components["schemas"]["Entry"];
+      team: components["schemas"]["TeamSummary"];
+    };
+    EntryReviewListResponse: {
+      entries: components["schemas"]["EntryReview"][];
+    };
     Entry: {
       /** Format: uuid */
       id: string;
@@ -663,6 +773,16 @@ export interface components {
       notes?: string | null;
       /** Format: date-time */
       submitted_at?: string | null;
+      /** Format: date-time */
+      approved_at?: string | null;
+      /** Format: date-time */
+      rejected_at?: string | null;
+      decision_reason?: string | null;
+    };
+    UpdateEntryStatusRequest: {
+      /** @enum {string} */
+      status: "approved" | "rejected";
+      reason?: string;
     };
     RegisterEntryRequest: {
       /** Format: uuid */
@@ -752,6 +872,8 @@ export interface components {
       away: components["schemas"]["ScoreboardSide"];
       /** @description Optional admin-triggered overlay message */
       highlight?: string | null;
+      /** @description Venue or playing surface name */
+      venue_name?: string | null;
     };
     ScoreboardSide: {
       /** Format: uuid */
@@ -862,6 +984,55 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+    };
+  };
+  accept_invitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcceptInvitationRequest"];
+      };
+    };
+    responses: {
+      /** @description Invitation accepted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AcceptInvitationResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      410: components["responses"]["ProblemDetails"];
+    };
+  };
+  list_competitions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Competition list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompetitionListResponse"];
+        };
+      };
     };
   };
   create_competition: {
@@ -985,6 +1156,29 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
+        };
+      };
+      403: components["responses"]["ProblemDetails"];
+    };
+  };
+  list_edition_entries: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Edition entries */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EntryReviewListResponse"];
         };
       };
       403: components["responses"]["ProblemDetails"];
@@ -1204,6 +1398,26 @@ export interface operations {
       404: components["responses"]["ProblemDetails"];
     };
   };
+  list_teams: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Team list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamListResponse"];
+        };
+      };
+    };
+  };
   create_team: {
     parameters: {
       query?: never;
@@ -1304,6 +1518,35 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+    };
+  };
+  update_entry_status: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        entry_id: components["parameters"]["EntryId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEntryStatusRequest"];
+      };
+    };
+    responses: {
+      /** @description Entry updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Entry"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
     };
   };
   upsert_squad: {

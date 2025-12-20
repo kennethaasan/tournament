@@ -9,6 +9,6 @@
   },
   "urls": [
     "http://127.0.0.1:3000/auth/organizer-signup",
-    "http://127.0.0.1:3000/competitions/oslo-cup/2025/scoreboard"
+    "http://127.0.0.1:3000/competitions/trondheim-cup/2025/scoreboard"
   ]
 }

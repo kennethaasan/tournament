@@ -220,12 +220,20 @@ export type EditionScoreboardTheme = {
   backgroundImageUrl: string | null;
 };
 
+export type ScoreboardModule =
+  | "live_matches"
+  | "upcoming"
+  | "standings"
+  | "top_scorers";
+
 export type EditionScoreboardSummary = {
   edition: {
     id: string;
     label: string;
     status: string;
     scoreboardRotationSeconds: number;
+    scoreboardModules: ScoreboardModule[];
+    entriesLockedAt: Date | null;
     scoreboardTheme: EditionScoreboardTheme;
   };
   highlight: {
@@ -238,7 +246,9 @@ export type EditionScoreboardSummary = {
 type UpdateScoreboardSettingsInput = {
   editionId: string;
   scoreboardRotationSeconds?: number | null;
+  scoreboardModules?: ScoreboardModule[] | null;
   scoreboardTheme?: ScoreboardThemeInput | null;
+  entriesLocked?: boolean | null;
 };
 
 type TriggerHighlightInput = {
@@ -279,6 +289,7 @@ export async function getEditionScoreboardSummary(
   }
 
   const themeRecord = ensureScoreboardThemeRecord(settings.scoreboardTheme);
+  const modules = normalizeScoreboardModules(settings.scoreboardModules);
   const highlight = await fetchActiveHighlight(editionId);
   const now = Date.now();
 
@@ -288,6 +299,8 @@ export async function getEditionScoreboardSummary(
       label: edition.label,
       status: edition.status,
       scoreboardRotationSeconds: settings.scoreboardRotationSeconds,
+      scoreboardModules: modules,
+      entriesLockedAt: settings.entriesLockedAt ?? null,
       scoreboardTheme: mapThemeRecordToDto(themeRecord),
     },
     highlight: highlight
@@ -345,16 +358,30 @@ export async function updateEditionScoreboardSettings(
             input.scoreboardRotationSeconds,
           );
 
+    const modules =
+      input.scoreboardModules === undefined || input.scoreboardModules === null
+        ? normalizeScoreboardModules(settings.scoreboardModules)
+        : normalizeScoreboardModules(input.scoreboardModules);
+
     const themeRecord =
       input.scoreboardTheme === undefined || input.scoreboardTheme === null
         ? ensureScoreboardThemeRecord(settings.scoreboardTheme)
         : competitionsInternal.normalizeTheme(input.scoreboardTheme);
 
+    const entriesLockedAt =
+      input.entriesLocked === undefined || input.entriesLocked === null
+        ? settings.entriesLockedAt
+        : input.entriesLocked
+          ? (settings.entriesLockedAt ?? new Date())
+          : null;
+
     await tx
       .update(editionSettings)
       .set({
         scoreboardRotationSeconds: rotationSeconds,
+        scoreboardModules: modules,
         scoreboardTheme: themeRecord,
+        entriesLockedAt,
       })
       .where(eq(editionSettings.editionId, input.editionId));
 
@@ -517,6 +544,13 @@ type ScoreboardThemeRecord = {
   background_image_url: string | null;
 };
 
+const SCOREBOARD_MODULES: ScoreboardModule[] = [
+  "live_matches",
+  "upcoming",
+  "standings",
+  "top_scorers",
+];
+
 function ensureScoreboardThemeRecord(input: unknown): ScoreboardThemeRecord {
   const record = (input as Record<string, unknown>) ?? {};
   const primary =
@@ -535,6 +569,22 @@ function ensureScoreboardThemeRecord(input: unknown): ScoreboardThemeRecord {
     secondary_color: secondary,
     background_image_url: background,
   };
+}
+
+function normalizeScoreboardModules(input: unknown): ScoreboardModule[] {
+  if (!Array.isArray(input)) {
+    return [...SCOREBOARD_MODULES];
+  }
+
+  const modules = input.filter((value): value is ScoreboardModule =>
+    SCOREBOARD_MODULES.includes(value as ScoreboardModule),
+  );
+
+  if (!modules.length) {
+    return [...SCOREBOARD_MODULES];
+  }
+
+  return Array.from(new Set(modules));
 }
 
 function mapThemeRecordToDto(

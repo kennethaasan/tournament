@@ -14,8 +14,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const BASE_TITLE = "TourneyAdmin";
+
 export const metadata: Metadata = {
-  title: "TourneyAdmin",
+  title: BASE_TITLE,
   description: "Moderne turneringsadministrasjon for fotball",
 };
 
