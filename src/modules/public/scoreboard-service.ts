@@ -215,7 +215,7 @@ async function findEditionFromDatabase(
       registrationOpensAt: editions.registrationOpensAt,
       registrationClosesAt: editions.registrationClosesAt,
       rotationSeconds: editionSettings.scoreboardRotationSeconds,
-      scoreboardModules: editionSettings.scoreboardModules,
+      registrationRequirements: editionSettings.registrationRequirements,
       scoreboardTheme: editionSettings.scoreboardTheme,
       publishedAt: editions.updatedAt,
     })
@@ -241,7 +241,7 @@ async function findEditionFromDatabase(
 
   const rotationSeconds = normalizeRotationSeconds(row.rotationSeconds);
   const theme = normalizeThemeRecord(row.scoreboardTheme);
-  const modules = normalizeModules(row.scoreboardModules);
+  const modules = extractScoreboardModules(row.registrationRequirements);
 
   return {
     id: row.id,
@@ -631,6 +631,18 @@ function normalizeModules(input: unknown): ScoreboardSection[] {
   );
 
   return modules.length ? Array.from(new Set(modules)) : [...DEFAULT_ROTATION];
+}
+
+function extractScoreboardModules(input: unknown): ScoreboardSection[] {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return [...DEFAULT_ROTATION];
+  }
+
+  const record = input as Record<string, unknown>;
+
+  return normalizeModules(
+    record.scoreboard_modules ?? record.scoreboardModules ?? null,
+  );
 }
 
 function buildFairPlayScores(events: ScorerEventRow[]): Map<string, number> {

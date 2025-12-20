@@ -241,7 +241,10 @@ async function createEditionWithClient(
       editionId: edition.id,
       scoreboardTheme: themeRecord,
       scoreboardRotationSeconds: rotationSeconds,
-      scoreboardModules: [...DEFAULT_SCOREBOARD_MODULES],
+      registrationRequirements: {
+        scoreboard_modules: [...DEFAULT_SCOREBOARD_MODULES],
+        entries_locked_at: null,
+      },
     })
     .returning();
 

@@ -289,7 +289,10 @@ export async function getEditionScoreboardSummary(
   }
 
   const themeRecord = ensureScoreboardThemeRecord(settings.scoreboardTheme);
-  const modules = normalizeScoreboardModules(settings.scoreboardModules);
+  const modules = extractScoreboardModules(settings.registrationRequirements);
+  const entriesLockedAt = extractEntriesLockedAt(
+    settings.registrationRequirements,
+  );
   const highlight = await fetchActiveHighlight(editionId);
   const now = Date.now();
 
@@ -300,7 +303,7 @@ export async function getEditionScoreboardSummary(
       status: edition.status,
       scoreboardRotationSeconds: settings.scoreboardRotationSeconds,
       scoreboardModules: modules,
-      entriesLockedAt: settings.entriesLockedAt ?? null,
+      entriesLockedAt,
       scoreboardTheme: mapThemeRecordToDto(themeRecord),
     },
     highlight: highlight
@@ -360,7 +363,7 @@ export async function updateEditionScoreboardSettings(
 
     const modules =
       input.scoreboardModules === undefined || input.scoreboardModules === null
-        ? normalizeScoreboardModules(settings.scoreboardModules)
+        ? extractScoreboardModules(settings.registrationRequirements)
         : normalizeScoreboardModules(input.scoreboardModules);
 
     const themeRecord =
@@ -368,20 +371,28 @@ export async function updateEditionScoreboardSettings(
         ? ensureScoreboardThemeRecord(settings.scoreboardTheme)
         : competitionsInternal.normalizeTheme(input.scoreboardTheme);
 
+    const existingEntriesLockedAt = extractEntriesLockedAt(
+      settings.registrationRequirements,
+    );
     const entriesLockedAt =
       input.entriesLocked === undefined || input.entriesLocked === null
-        ? settings.entriesLockedAt
+        ? existingEntriesLockedAt
         : input.entriesLocked
-          ? (settings.entriesLockedAt ?? new Date())
+          ? (existingEntriesLockedAt ?? new Date())
           : null;
+
+    const registrationRequirements = buildRegistrationRequirements(
+      settings.registrationRequirements,
+      modules,
+      entriesLockedAt,
+    );
 
     await tx
       .update(editionSettings)
       .set({
         scoreboardRotationSeconds: rotationSeconds,
-        scoreboardModules: modules,
         scoreboardTheme: themeRecord,
-        entriesLockedAt,
+        registrationRequirements,
       })
       .where(eq(editionSettings.editionId, input.editionId));
 
@@ -585,6 +596,50 @@ function normalizeScoreboardModules(input: unknown): ScoreboardModule[] {
   }
 
   return Array.from(new Set(modules));
+}
+
+function normalizeRegistrationRequirements(
+  input: unknown,
+): Record<string, unknown> {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  return input as Record<string, unknown>;
+}
+
+function extractScoreboardModules(input: unknown): ScoreboardModule[] {
+  const requirements = normalizeRegistrationRequirements(input);
+
+  return normalizeScoreboardModules(
+    requirements.scoreboard_modules ?? requirements.scoreboardModules,
+  );
+}
+
+function extractEntriesLockedAt(input: unknown): Date | null {
+  const requirements = normalizeRegistrationRequirements(input);
+  const value =
+    requirements.entries_locked_at ?? requirements.entriesLockedAt ?? null;
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function buildRegistrationRequirements(
+  existing: unknown,
+  modules: ScoreboardModule[],
+  entriesLockedAt: Date | null,
+): Record<string, unknown> {
+  return {
+    ...normalizeRegistrationRequirements(existing),
+    scoreboard_modules: modules,
+    entries_locked_at: entriesLockedAt ? entriesLockedAt.toISOString() : null,
+  };
 }
 
 function mapThemeRecordToDto(

@@ -56,7 +56,7 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
     db.query.editionSettings.findFirst({
       columns: {
         editionId: true,
-        entriesLockedAt: true,
+        registrationRequirements: true,
       },
       where: eq(editionSettings.editionId, input.editionId),
     }),
@@ -90,7 +90,10 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
     });
   }
 
-  if (settings?.entriesLockedAt) {
+  const entriesLockedAt = extractEntriesLockedAt(
+    settings?.registrationRequirements,
+  );
+  if (entriesLockedAt) {
     throw createProblem({
       type: "https://tournament.app/problems/entry/entries-locked",
       title: "Påmeldinger er låst",
@@ -124,6 +127,23 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
   }
 
   return entry;
+}
+
+function extractEntriesLockedAt(input: unknown): Date | null {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return null;
+  }
+
+  const record = input as Record<string, unknown>;
+  const value = record.entries_locked_at ?? record.entriesLockedAt ?? null;
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 export async function reviewEntry(input: ReviewEntryInput): Promise<Entry> {
