@@ -193,10 +193,8 @@ Self-service competition creation writes a `user_roles` row with `role = 'compet
 | ------------------- | ------------- | ----------------------------------- | -------------------------------------------------- |
 | `edition_id`        | `uuid`        | PK, FK -> `editions.id`             | One-to-one settings row                            |
 | `scoreboard_theme`  | `jsonb`       | Not Null                            | Colors, backgrounds, assets                        |
-| `scoreboard_modules`| `jsonb`       | Not Null                            | Ordered rotation sections for big-screen           |
 | `scoreboard_rotation_seconds` | `integer` | Default `5`, CHECK >= 2     | UI safeguards                                      |
-| `entries_locked_at` | `timestamptz` | Nullable                            | When entry submissions are frozen                   |
-| `registration_requirements`    | `jsonb`  | Nullable                        | Medical forms, categories                          |
+| `registration_requirements`    | `jsonb`  | Nullable                        | Includes `scoreboard_modules` and `entries_locked_at` |
 | `ruleset_notes`     | `text`        | Nullable                            | Markdown for staff                                 |
 
 #### `stages`
