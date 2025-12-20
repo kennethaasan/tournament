@@ -34,6 +34,75 @@ data "aws_route53_zone" "zone" {
   private_zone = false
 }
 
+###########################
+# Amazon SES (email)
+###########################
+
+resource "aws_ses_domain_identity" "app" {
+  count  = var.ses_enabled ? 1 : 0
+  domain = local.ses_domain
+}
+
+resource "aws_route53_record" "ses_verification" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "_amazonses.${local.ses_domain}"
+  type    = "TXT"
+  ttl     = 600
+  records = [aws_ses_domain_identity.app[0].verification_token]
+}
+
+resource "aws_ses_domain_identity_verification" "app" {
+  count      = var.ses_enabled ? 1 : 0
+  domain     = aws_ses_domain_identity.app[0].domain
+  depends_on = [aws_route53_record.ses_verification]
+}
+
+resource "aws_ses_domain_dkim" "app" {
+  count  = var.ses_enabled ? 1 : 0
+  domain = aws_ses_domain_identity.app[0].domain
+}
+
+resource "aws_route53_record" "ses_dkim" {
+  for_each = var.ses_enabled ? toset(aws_ses_domain_dkim.app[0].dkim_tokens) : toset([])
+
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "${each.value}._domainkey.${local.ses_domain}"
+  type    = "CNAME"
+  ttl     = 600
+  records = ["${each.value}.dkim.amazonses.com"]
+}
+
+resource "aws_ses_mail_from" "app" {
+  count                  = var.ses_enabled ? 1 : 0
+  domain                 = aws_ses_domain_identity.app[0].domain
+  mail_from_domain       = local.ses_mail_from_domain
+  behavior_on_mx_failure = "UseDefaultValue"
+}
+
+resource "aws_route53_record" "ses_mail_from_mx" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = local.ses_mail_from_domain
+  type    = "MX"
+  ttl     = 600
+  records = ["10 feedback-smtp.${local.ses_region}.amazonses.com"]
+}
+
+resource "aws_route53_record" "ses_mail_from_txt" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = local.ses_mail_from_domain
+  type    = "TXT"
+  ttl     = 600
+  records = ["v=spf1 include:amazonses.com -all"]
+}
+
+resource "aws_ses_configuration_set" "app" {
+  count = var.ses_create_configuration_set && var.ses_configuration_set != null ? 1 : 0
+  name  = var.ses_configuration_set
+}
+
 module "acm" {
   source    = "terraform-aws-modules/acm/aws"
   version   = "6.1.0"
@@ -74,16 +143,45 @@ module "fn" {
       PORT                           = "3000"
       DATABASE_URL                   = local.database_url
       BETTER_AUTH_SECRET             = var.better_auth_secret
+      BETTER_AUTH_EMAIL_SENDER       = local.better_auth_email_sender
+      SES_ENABLED                    = tostring(var.ses_enabled)
+      SES_REGION                     = local.ses_region
+      SES_SOURCE_EMAIL               = local.ses_source_email
       POWERTOOLS_SERVICE_NAME        = lookup(var.lambda_environment, "POWERTOOLS_SERVICE_NAME", var.app_name)
       POWERTOOLS_LOG_LEVEL           = lookup(var.lambda_environment, "POWERTOOLS_LOG_LEVEL", "INFO")
       POWERTOOLS_TRACING_SAMPLE_RATE = lookup(var.lambda_environment, "POWERTOOLS_TRACING_SAMPLE_RATE", "0")
-    }
+    },
+    var.ses_configuration_set != null ? { SES_CONFIGURATION_SET = var.ses_configuration_set } : {}
   )
 
   create_lambda_function_url        = true
   authorization_type                = "AWS_IAM"
   cloudwatch_logs_retention_in_days = var.lambda_log_retention_days
   tags                              = local.default_tags
+}
+
+data "aws_iam_policy_document" "ses_send" {
+  count = var.ses_enabled ? 1 : 0
+
+  statement {
+    sid       = "AllowSesSend"
+    effect    = "Allow"
+    actions   = ["ses:SendEmail", "ses:SendRawEmail"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "ses_send" {
+  count  = var.ses_enabled ? 1 : 0
+  name   = "${local.stack_name}-ses-send"
+  policy = data.aws_iam_policy_document.ses_send[0].json
+  tags   = local.default_tags
+}
+
+resource "aws_iam_role_policy_attachment" "ses_send" {
+  count      = var.ses_enabled ? 1 : 0
+  role       = module.fn.lambda_role_name
+  policy_arn = aws_iam_policy.ses_send[0].arn
 }
 
 locals {

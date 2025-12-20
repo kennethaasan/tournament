@@ -110,6 +110,54 @@ variable "lambda_environment" {
   }
 }
 
+variable "better_auth_email_sender" {
+  description = "From-address for Better Auth emails (defaults to no-reply@app_domain)"
+  type        = string
+  default     = null
+}
+
+variable "ses_source_email" {
+  description = "From-address for SES invitations (defaults to better_auth_email_sender)"
+  type        = string
+  default     = null
+}
+
+variable "ses_enabled" {
+  description = "Toggle invitation emails via SES"
+  type        = bool
+  default     = true
+}
+
+variable "ses_region" {
+  description = "SES region (defaults to aws_region)"
+  type        = string
+  default     = null
+}
+
+variable "ses_configuration_set" {
+  description = "Optional SES configuration set name"
+  type        = string
+  default     = null
+}
+
+variable "ses_create_configuration_set" {
+  description = "Create the SES configuration set if ses_configuration_set is provided"
+  type        = bool
+  default     = false
+}
+
+variable "ses_domain" {
+  description = "Domain to verify with SES (defaults to app_domain)"
+  type        = string
+  default     = null
+}
+
+variable "ses_mail_from_domain" {
+  description = "MAIL FROM domain (defaults to mail.<ses_domain>)"
+  type        = string
+  default     = null
+}
+
 variable "package_path" {
   description = "Path to the packaged Lambda ZIP archive"
   type        = string
