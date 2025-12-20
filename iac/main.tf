@@ -167,7 +167,7 @@ data "aws_iam_policy_document" "ses_send" {
     sid       = "AllowSesSend"
     effect    = "Allow"
     actions   = ["ses:SendEmail", "ses:SendRawEmail"]
-    resources = ["*"]
+    resources = [aws_ses_domain_identity.app[0].arn]
   }
 }
 
