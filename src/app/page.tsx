@@ -1,4 +1,6 @@
+import { headers } from "next/headers";
 import Link from "next/link";
+import { getSessionFromHeaders, userHasRole } from "@/server/auth";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
@@ -11,7 +13,12 @@ import {
 import { NavigationGrid } from "@/ui/components/navigation-links";
 import { ThemeToggle } from "@/ui/components/theme-toggle";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const requestHeaders = await headers();
+  const session = await getSessionFromHeaders(new Headers(requestHeaders));
+  const isGlobalAdmin = userHasRole(session, "global_admin");
+  const isAuthenticated = Boolean(session);
+
   return (
     <div className="page-shell min-h-screen">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
@@ -31,11 +38,34 @@ export default function LandingPage() {
               Arrangør
             </Link>
             <Link
-              href="/dashboard/admin/overview"
+              href="/competitions/trondheim-cup/2025/scoreboard"
               className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
             >
-              Logg inn
+              Scoreboard
             </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard/invitations"
+                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/dashboard/admin/overview"
+                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+              >
+                Logg inn
+              </Link>
+            )}
+            {isGlobalAdmin ? (
+              <Link
+                href="/dashboard/admin/overview"
+                className="rounded-full border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15"
+              >
+                Global admin
+              </Link>
+            ) : null}
             <ThemeToggle />
           </nav>
         </div>
