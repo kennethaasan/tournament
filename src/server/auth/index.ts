@@ -109,7 +109,7 @@ export function userHasRole(context: AuthContext | null, role: Role): boolean {
   );
 }
 
-function resolveTrustedOrigins(): string[] {
+export function resolveTrustedOrigins(): string[] {
   const defaults = ["http://localhost:3000", env.NEXT_PUBLIC_APP_URL].filter(
     Boolean,
   ) as string[];

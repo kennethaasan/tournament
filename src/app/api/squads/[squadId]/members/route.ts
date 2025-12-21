@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addSquadMember } from "@/modules/entries/service";
+import { assertSquadAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 
 type RouteParams = {
@@ -15,10 +16,11 @@ type RequestBody = {
 };
 
 export const POST = createApiHandler<RouteParams>(
-  async ({ params, request }) => {
+  async ({ params, request, auth }) => {
     const squadId = Array.isArray(params.squadId)
       ? params.squadId[0]
       : params.squadId;
+    await assertSquadAccess(squadId, auth);
     const payload = (await request.json()) as RequestBody;
 
     const member = await addSquadMember({

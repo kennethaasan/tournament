@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createEdition } from "@/modules/competitions/service";
+import { assertCompetitionAdminAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 
 type CreateEditionBody = {
@@ -52,6 +53,7 @@ export const POST = createApiHandler<RouteParams>(
         { status: 400 },
       );
     }
+    await assertCompetitionAdminAccess(competitionId, auth);
 
     const payload = (await request.json()) as CreateEditionBody;
 

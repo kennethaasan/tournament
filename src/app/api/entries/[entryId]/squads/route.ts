@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { ensureSquad } from "@/modules/entries/service";
+import { assertEntryAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 import { db } from "@/server/db/client";
 import { squads } from "@/server/db/schema";
@@ -14,11 +15,12 @@ type RequestBody = {
 };
 
 export const PUT = createApiHandler<RouteParams>(
-  async ({ params, request }) => {
+  async ({ params, request, auth }) => {
     const entryId = Array.isArray(params.entryId)
       ? params.entryId[0]
       : params.entryId;
     const payload = (await request.json()) as RequestBody;
+    await assertEntryAccess(entryId, auth);
 
     const squad = await ensureSquad(entryId);
 
