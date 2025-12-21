@@ -34,6 +34,8 @@ data "aws_route53_zone" "zone" {
   private_zone = false
 }
 
+data "aws_caller_identity" "current" {}
+
 ###########################
 # Amazon SES (email)
 ###########################
@@ -73,6 +75,15 @@ resource "aws_route53_record" "ses_dkim" {
   records = ["${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}.dkim.amazonses.com"]
 }
 
+resource "aws_route53_record" "ses_dmarc" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "_dmarc.${local.ses_domain}"
+  type    = "TXT"
+  ttl     = 600
+  records = [local.dmarc_value]
+}
+
 resource "aws_ses_domain_mail_from" "app" {
   count                  = var.ses_enabled ? 1 : 0
   domain                 = aws_ses_domain_identity.app[0].domain
@@ -99,8 +110,8 @@ resource "aws_route53_record" "ses_mail_from_txt" {
 }
 
 resource "aws_ses_configuration_set" "app" {
-  count = var.ses_create_configuration_set && var.ses_configuration_set != null ? 1 : 0
-  name  = var.ses_configuration_set
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name  = local.ses_configuration_set_name
 }
 
 module "acm" {
@@ -151,7 +162,7 @@ module "fn" {
       POWERTOOLS_LOG_LEVEL           = lookup(var.lambda_environment, "POWERTOOLS_LOG_LEVEL", "INFO")
       POWERTOOLS_TRACING_SAMPLE_RATE = lookup(var.lambda_environment, "POWERTOOLS_TRACING_SAMPLE_RATE", "0")
     },
-    var.ses_configuration_set != null ? { SES_CONFIGURATION_SET = var.ses_configuration_set } : {}
+    local.ses_configuration_set_name != "" ? { SES_CONFIGURATION_SET = local.ses_configuration_set_name } : {}
   )
 
   create_lambda_function_url        = true
@@ -182,6 +193,53 @@ resource "aws_iam_role_policy_attachment" "ses_send" {
   count      = var.ses_enabled ? 1 : 0
   role       = module.fn.lambda_role_name
   policy_arn = aws_iam_policy.ses_send[0].arn
+}
+
+resource "aws_sns_topic" "ses_events" {
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name  = local.ses_event_topic_name
+  tags  = local.default_tags
+}
+
+data "aws_iam_policy_document" "ses_events" {
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+
+  statement {
+    sid    = "AllowSesPublish"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
+    }
+
+    actions   = ["sns:Publish"]
+    resources = [aws_sns_topic.ses_events[0].arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}
+
+resource "aws_sns_topic_policy" "ses_events" {
+  count  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  arn    = aws_sns_topic.ses_events[0].arn
+  policy = data.aws_iam_policy_document.ses_events[0].json
+}
+
+resource "aws_ses_event_destination" "ses_events" {
+  count                  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name                   = "ses-events"
+  configuration_set_name = aws_ses_configuration_set.app[0].name
+  enabled                = true
+  matching_types         = ["bounce", "complaint", "delivery"]
+
+  sns_destination {
+    topic_arn = aws_sns_topic.ses_events[0].arn
+  }
 }
 
 locals {

@@ -170,7 +170,7 @@ variable "ses_configuration_set" {
 variable "ses_create_configuration_set" {
   description = "Create the SES configuration set if ses_configuration_set is provided"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "ses_domain" {
@@ -196,6 +196,29 @@ variable "ses_mail_from_domain" {
     )
     error_message = "ses_mail_from_domain must be within ses_domain (or app_domain when ses_domain is unset)."
   }
+}
+
+variable "ses_event_topic_name" {
+  description = "SNS topic name for SES event notifications"
+  type        = string
+  default     = null
+}
+
+variable "ses_dmarc_policy" {
+  description = "DMARC policy for the SES domain"
+  type        = string
+  default     = "none"
+
+  validation {
+    condition     = contains(["none", "quarantine", "reject"], var.ses_dmarc_policy)
+    error_message = "ses_dmarc_policy must be one of: none, quarantine, reject."
+  }
+}
+
+variable "ses_dmarc_rua_email" {
+  description = "Optional DMARC aggregate report email (rua)"
+  type        = string
+  default     = null
 }
 
 variable "package_path" {
