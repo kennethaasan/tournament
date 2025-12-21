@@ -23,9 +23,17 @@ type ScoreboardScreenProps = {
 };
 
 type ScoreboardMode = "landing" | "screen";
+type SeasonTheme =
+  | "auto"
+  | "christmas"
+  | "winter"
+  | "spring"
+  | "summer"
+  | "fall";
 
 const FULL_HD_WIDTH = 1920;
 const FULL_HD_HEIGHT = 1080;
+const SEASON_THEME_STORAGE_KEY = "scoreboard-season-theme";
 
 export function ScoreboardProviders({ children }: ProvidersProps) {
   const [client] = useState(
@@ -82,14 +90,31 @@ export function ScoreboardScreen({
   const lastUpdated = query.dataUpdatedAt
     ? new Date(query.dataUpdatedAt)
     : null;
-  const themeOverride = searchParams?.get("theme")?.toLowerCase() ?? null;
-  const isChristmasTheme =
-    mode === "screen" &&
-    (themeOverride === "christmas" || themeOverride === "jul");
+  const themeOverrideParam = searchParams?.get("theme") ?? null;
+  const [themePreference, setThemePreference] = useState<SeasonTheme>("auto");
+  const activeSeason =
+    themePreference === "auto"
+      ? deriveSeasonTheme(new Date())
+      : themePreference;
+  const isSnowing = activeSeason === "winter" || activeSeason === "christmas";
+  const isChristmasTheme = activeSeason === "christmas";
 
   useEffect(() => {
     setOverlayText(deriveOverlayMessage(data));
   }, [data]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storage = window.localStorage;
+    if (!storage || typeof storage.getItem !== "function") {
+      return;
+    }
+    const override = parseSeasonTheme(themeOverrideParam);
+    const stored = parseSeasonTheme(storage.getItem(SEASON_THEME_STORAGE_KEY));
+    setThemePreference(override ?? stored ?? "auto");
+  }, [themeOverrideParam]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -115,6 +140,17 @@ export function ScoreboardScreen({
     }
     storage.setItem("scoreboard-mode", mode);
   }, [mode]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storage = window.localStorage;
+    if (!storage || typeof storage.setItem !== "function") {
+      return;
+    }
+    storage.setItem(SEASON_THEME_STORAGE_KEY, themePreference);
+  }, [themePreference]);
 
   const hasHighlight = Boolean(
     data.overlayMessage || data.matches.find((match) => match.highlight),
@@ -166,6 +202,7 @@ export function ScoreboardScreen({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ModeToggle mode={mode} onChange={setMode} />
+          <SeasonToggle value={themePreference} onChange={setThemePreference} />
           {mode === "screen" ? (
             <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/70">
               {rotation.map((section) => (
@@ -204,9 +241,7 @@ export function ScoreboardScreen({
     <div
       className="relative min-h-screen overflow-hidden"
       style={{
-        backgroundImage: isChristmasTheme
-          ? "linear-gradient(150deg, #3a0b0b 0%, #8d1a1a 45%, #153022 100%)"
-          : `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
+        backgroundImage: `${seasonGradient(activeSeason)}, linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
       }}
     >
       {theme.backgroundImageUrl ? (
@@ -216,7 +251,12 @@ export function ScoreboardScreen({
           style={{ backgroundImage: `url(${theme.backgroundImageUrl})` }}
         />
       ) : null}
-      {isChristmasTheme ? <ChristmasBackdrop /> : null}
+      {isSnowing ? (
+        <SnowBackdrop
+          variant={activeSeason === "christmas" ? "christmas" : "winter"}
+        />
+      ) : null}
+      {isChristmasTheme ? <HolidayGlow /> : null}
       {mode === "screen" ? <FullHdFrame>{content}</FullHdFrame> : content}
     </div>
   );
@@ -258,7 +298,47 @@ function ModeToggle({ mode, onChange }: ModeToggleProps) {
   );
 }
 
-function ChristmasBackdrop() {
+type SeasonToggleProps = {
+  value: SeasonTheme;
+  onChange: (value: SeasonTheme) => void;
+};
+
+function SeasonToggle({ value, onChange }: SeasonToggleProps) {
+  const options: Array<{ value: SeasonTheme; label: string }> = [
+    { value: "auto", label: "Sesong" },
+    { value: "christmas", label: "Jul" },
+    { value: "winter", label: "Vinter" },
+    { value: "spring", label: "Vår" },
+    { value: "summer", label: "Sommer" },
+    { value: "fall", label: "Høst" },
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-1 rounded-full border border-white/30 bg-white/10 p-1 text-[0.65rem] font-semibold">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          aria-pressed={value === option.value}
+          className={`rounded-full px-2 py-1 transition ${
+            value === option.value
+              ? "bg-white text-slate-900"
+              : "text-white/80 hover:text-white"
+          }`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+type SnowBackdropProps = {
+  variant: "winter" | "christmas";
+};
+
+function SnowBackdrop({ variant }: SnowBackdropProps) {
   return (
     <>
       <style>
@@ -276,18 +356,26 @@ function ChristmasBackdrop() {
           backgroundImage:
             "radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.9) 55%, transparent 60%), radial-gradient(1.5px 1.5px at 120px 80px, rgba(255,255,255,0.8) 55%, transparent 60%), radial-gradient(2px 2px at 60px 140px, rgba(255,255,255,0.6) 55%, transparent 60%)",
           backgroundSize: "180px 180px, 260px 260px, 340px 340px",
-          animation: "scoreboard-snow 18s linear infinite",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 55%), radial-gradient(circle at 80% 0%, rgba(255,255,255,0.15), transparent 45%)",
+          animation:
+            variant === "christmas"
+              ? "scoreboard-snow 16s linear infinite"
+              : "scoreboard-snow 20s linear infinite",
         }}
       />
     </>
+  );
+}
+
+function HolidayGlow() {
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{
+        background:
+          "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 55%), radial-gradient(circle at 80% 0%, rgba(255,255,255,0.15), transparent 45%), radial-gradient(circle at 50% 90%, rgba(255,200,200,0.15), transparent 50%)",
+      }}
+    />
   );
 }
 
@@ -948,4 +1036,59 @@ function deriveOverlayMessage(data: ScoreboardData): string {
     data.matches.find((match) => match.highlight)?.highlight ??
     "Ingen aktive høydepunkt akkurat nå."
   );
+}
+
+function deriveSeasonTheme(date: Date): Exclude<SeasonTheme, "auto"> {
+  const month = date.getMonth();
+  if (month === 11) {
+    return "christmas";
+  }
+  if (month === 10 || month === 0 || month === 1) {
+    return "winter";
+  }
+  if (month >= 2 && month <= 4) {
+    return "spring";
+  }
+  if (month >= 5 && month <= 7) {
+    return "summer";
+  }
+  return "fall";
+}
+
+function parseSeasonTheme(value: string | null): SeasonTheme | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "jul" || normalized === "xmas") {
+    return "christmas";
+  }
+  if (
+    normalized === "auto" ||
+    normalized === "christmas" ||
+    normalized === "winter" ||
+    normalized === "spring" ||
+    normalized === "summer" ||
+    normalized === "fall"
+  ) {
+    return normalized as SeasonTheme;
+  }
+  return null;
+}
+
+function seasonGradient(theme: Exclude<SeasonTheme, "auto">): string {
+  switch (theme) {
+    case "christmas":
+      return "linear-gradient(150deg, rgba(58,11,11,0.92) 0%, rgba(141,26,26,0.85) 45%, rgba(21,48,34,0.9) 100%)";
+    case "winter":
+      return "linear-gradient(150deg, rgba(7,22,43,0.92) 0%, rgba(18,53,84,0.84) 50%, rgba(20,42,74,0.9) 100%)";
+    case "spring":
+      return "linear-gradient(135deg, rgba(35,98,82,0.85) 0%, rgba(104,185,143,0.75) 48%, rgba(203,229,175,0.8) 100%)";
+    case "summer":
+      return "linear-gradient(135deg, rgba(20,71,120,0.78) 0%, rgba(62,158,189,0.72) 45%, rgba(255,209,120,0.7) 100%)";
+    case "fall":
+      return "linear-gradient(140deg, rgba(70,34,12,0.88) 0%, rgba(161,84,34,0.8) 45%, rgba(219,149,72,0.75) 100%)";
+    default:
+      return "linear-gradient(135deg, rgba(9,25,45,0.7) 0%, rgba(15,52,84,0.7) 100%)";
+  }
 }
