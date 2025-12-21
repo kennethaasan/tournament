@@ -244,6 +244,20 @@ export async function addSquadMember(
       });
     }
 
+    const entry = await tx.query.entries.findFirst({
+      columns: { teamId: true },
+      where: eq(entries.id, squad.entryId),
+    });
+
+    if (!entry) {
+      throw createProblem({
+        type: "https://tournament.app/problems/entry-not-found",
+        title: "Påmeldingen ble ikke funnet",
+        status: 404,
+        detail: "Påmeldingen ble ikke funnet.",
+      });
+    }
+
     const membership = await tx.query.teamMemberships.findFirst({
       where: eq(teamMemberships.id, input.membershipId),
     });
@@ -254,6 +268,15 @@ export async function addSquadMember(
         title: "Medlemskapet ble ikke funnet",
         status: 404,
         detail: "Velg en spiller fra laglisten.",
+      });
+    }
+
+    if (membership.teamId !== entry.teamId) {
+      throw createProblem({
+        type: "https://tournament.app/problems/squad-member-team-mismatch",
+        title: "Ugyldig lag",
+        status: 409,
+        detail: "Spilleren tilhører ikke laget som er registrert i troppen.",
       });
     }
 

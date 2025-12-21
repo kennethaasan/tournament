@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { listTeamRoster } from "@/modules/teams/service";
+import { assertTeamAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 
 type RouteParams = {
@@ -7,10 +8,11 @@ type RouteParams = {
 };
 
 export const GET = createApiHandler<RouteParams>(
-  async ({ params }) => {
+  async ({ params, auth }) => {
     const teamId = Array.isArray(params.teamId)
       ? params.teamId[0]
       : params.teamId;
+    await assertTeamAccess(teamId, auth);
     const roster = await listTeamRoster(teamId);
 
     return NextResponse.json(

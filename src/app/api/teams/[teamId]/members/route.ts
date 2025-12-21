@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { addRosterMember } from "@/modules/teams/service";
+import { assertTeamAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 
 type RouteParams = {
@@ -16,10 +17,11 @@ type RequestBody = {
 };
 
 export const POST = createApiHandler<RouteParams>(
-  async ({ params, request }) => {
+  async ({ params, request, auth }) => {
     const teamId = Array.isArray(params.teamId)
       ? params.teamId[0]
       : params.teamId;
+    await assertTeamAccess(teamId, auth);
     const payload = (await request.json()) as RequestBody;
 
     const member = await addRosterMember({
