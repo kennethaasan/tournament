@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createEntry, ensureSquad } from "@/modules/entries/service";
+import { assertTeamEntryCreateAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
+import { sendEntrySubmittedEmails } from "@/server/email/action-emails";
 
 type RouteParams = {
   teamId: string;
@@ -12,11 +14,12 @@ type RequestBody = {
 };
 
 export const POST = createApiHandler<RouteParams>(
-  async ({ params, request }) => {
+  async ({ params, request, auth }) => {
     const teamId = Array.isArray(params.teamId)
       ? params.teamId[0]
       : params.teamId;
     const payload = (await request.json()) as RequestBody;
+    await assertTeamEntryCreateAccess(teamId, payload.edition_id, auth);
 
     const entry = await createEntry({
       editionId: payload.edition_id,
@@ -24,6 +27,10 @@ export const POST = createApiHandler<RouteParams>(
       notes: payload.notes,
     });
     const squad = await ensureSquad(entry.id);
+    await sendEntrySubmittedEmails({
+      teamId,
+      editionId: entry.editionId,
+    });
 
     return NextResponse.json(
       {

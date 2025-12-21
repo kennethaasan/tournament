@@ -1,8 +1,15 @@
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { SendEmailCommand } from "@aws-sdk/client-ses";
 import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
 import { logger } from "@/lib/logger/pino";
 import type { Role, RoleScope } from "@/server/auth";
+import { escapeHtml } from "@/server/email/email-utils";
+import {
+  getSesClient,
+  resolveConfigurationSet,
+  resolveSourceEmail,
+  shouldSendEmails,
+} from "@/server/email/ses";
 
 type InvitationEmailInput = {
   toEmail: string;
@@ -24,12 +31,10 @@ const ROLE_LABELS: Record<Role, string> = {
   team_manager: "lagleder",
 };
 
-let cachedClient: SESClient | null = null;
-
 export async function sendInvitationEmail(
   input: InvitationEmailInput,
 ): Promise<SendResult> {
-  if (!env.SES_ENABLED || env.NODE_ENV === "test") {
+  if (!shouldSendEmails()) {
     logger.info(
       { toEmail: input.toEmail, status: "skipped" },
       "invitation_email_skipped",
@@ -37,8 +42,18 @@ export async function sendInvitationEmail(
     return { status: "skipped" };
   }
 
+  if (!env.SES_REGION) {
+    throw createProblem({
+      type: "https://tournament.app/problems/invitations/email-config",
+      title: "E-post er ikke konfigurert",
+      status: 500,
+      detail: "SES_REGION mangler i miljøvariablene.",
+    });
+  }
+
   const client = getSesClient();
   const sourceEmail = resolveSourceEmail();
+  const configurationSet = resolveConfigurationSet();
 
   const subject = buildSubject(input);
   const textBody = buildTextBody(input);
@@ -58,9 +73,7 @@ export async function sendInvitationEmail(
             Html: { Data: htmlBody, Charset: "UTF-8" },
           },
         },
-        ...(env.SES_CONFIGURATION_SET
-          ? { ConfigurationSetName: env.SES_CONFIGURATION_SET }
-          : {}),
+        ...(configurationSet ? { ConfigurationSetName: configurationSet } : {}),
       }),
     );
 
@@ -81,38 +94,6 @@ export async function sendInvitationEmail(
         "Invitasjonen ble opprettet, men e-posten kunne ikke sendes. Prøv igjen senere.",
     });
   }
-}
-
-function getSesClient(): SESClient {
-  if (!env.SES_REGION) {
-    throw createProblem({
-      type: "https://tournament.app/problems/invitations/email-config",
-      title: "E-post er ikke konfigurert",
-      status: 500,
-      detail: "SES_REGION mangler i miljøvariablene.",
-    });
-  }
-
-  if (cachedClient) {
-    return cachedClient;
-  }
-
-  cachedClient = new SESClient({
-    region: env.SES_REGION,
-    credentials:
-      env.SES_ACCESS_KEY_ID && env.SES_SECRET_ACCESS_KEY
-        ? {
-            accessKeyId: env.SES_ACCESS_KEY_ID,
-            secretAccessKey: env.SES_SECRET_ACCESS_KEY,
-          }
-        : undefined,
-  });
-
-  return cachedClient;
-}
-
-function resolveSourceEmail(): string {
-  return env.SES_SOURCE_EMAIL ?? env.BETTER_AUTH_EMAIL_SENDER;
 }
 
 function buildSubject(input: InvitationEmailInput): string {
@@ -215,13 +196,4 @@ function formatExpiry(expiresAt: Date): string {
     dateStyle: "medium",
     timeStyle: "short",
   });
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
