@@ -1,8 +1,8 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_ROTATION,
   type ScoreboardData,
@@ -23,6 +23,9 @@ type ScoreboardScreenProps = {
 };
 
 type ScoreboardMode = "landing" | "screen";
+
+const FULL_HD_WIDTH = 1920;
+const FULL_HD_HEIGHT = 1080;
 
 export function ScoreboardProviders({ children }: ProvidersProps) {
   const [client] = useState(
@@ -49,6 +52,7 @@ export function ScoreboardScreen({
     competitionSlug?: string;
     editionSlug?: string;
   }>();
+  const searchParams = useSearchParams();
   const resolvedCompetitionSlug =
     params?.competitionSlug ??
     competitionSlug ??
@@ -73,20 +77,15 @@ export function ScoreboardScreen({
     () => new Map(data.entries.map((entry) => [entry.id, entry.name])),
     [data.entries],
   );
-  const liveMatches = data.matches.filter(
-    (match) => match.status === "in_progress" || match.status === "disputed",
-  );
-  const upcomingMatches = data.matches.filter(
-    (match) => match.status === "scheduled",
-  );
-  const completedMatches = data.matches.filter(
-    (match) => match.status === "finalized",
-  );
 
   const rotation = data.rotation.length ? data.rotation : DEFAULT_ROTATION;
   const lastUpdated = query.dataUpdatedAt
     ? new Date(query.dataUpdatedAt)
     : null;
+  const themeOverride = searchParams?.get("theme")?.toLowerCase() ?? null;
+  const isChristmasTheme =
+    mode === "screen" &&
+    (themeOverride === "christmas" || themeOverride === "jul");
 
   useEffect(() => {
     setOverlayText(deriveOverlayMessage(data));
@@ -121,68 +120,104 @@ export function ScoreboardScreen({
     data.overlayMessage || data.matches.find((match) => match.highlight),
   );
 
+  const content = (
+    <div
+      className={`mx-auto text-white ${
+        mode === "screen"
+          ? "w-full max-w-[1760px] px-10 py-8"
+          : "max-w-6xl px-4 py-10 sm:px-6 lg:px-8"
+      }`}
+    >
+      <header
+        className={`flex flex-col gap-4 border-b border-white/20 pb-4 lg:flex-row lg:items-end lg:justify-between ${
+          mode === "screen" ? "mb-6" : "mb-8"
+        }`}
+      >
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-white/70">
+            Offentlig visning
+          </p>
+          <h1
+            className={
+              mode === "screen"
+                ? "text-2xl font-semibold"
+                : "text-3xl font-semibold"
+            }
+          >
+            {data.edition.label}
+          </h1>
+          <p
+            className={
+              mode === "screen"
+                ? "text-base font-medium text-white/80"
+                : "text-lg font-medium text-white/80"
+            }
+          >
+            {data.edition.slug} · {data.edition.competitionSlug}
+          </p>
+          <p className="text-sm text-white/80">
+            Oppdateres hvert {data.edition.scoreboardRotationSeconds} sekunder
+          </p>
+          {lastUpdated ? (
+            <p className="text-xs text-white/60">
+              Sist oppdatert {formatTimestamp(lastUpdated)}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <ModeToggle mode={mode} onChange={setMode} />
+          {mode === "screen" ? (
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/70">
+              {rotation.map((section) => (
+                <span
+                  key={section}
+                  className="rounded-full border border-white/30 px-3 py-1"
+                >
+                  {sectionLabel(section)}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </header>
+
+      {mode === "screen" ? (
+        <ScreenLayout
+          overlayText={overlayText}
+          matches={data.matches}
+          standings={data.standings}
+          scorers={data.topScorers}
+          entryNames={entryNames}
+        />
+      ) : (
+        <LandingLayout
+          data={data}
+          entryNames={entryNames}
+          hasHighlight={hasHighlight}
+          overlayText={overlayText}
+        />
+      )}
+    </div>
+  );
+
   return (
     <div
-      className="min-h-screen"
+      className="relative min-h-screen overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
+        backgroundImage: isChristmasTheme
+          ? "linear-gradient(150deg, #3a0b0b 0%, #8d1a1a 45%, #153022 100%)"
+          : `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
       }}
     >
-      <div className="mx-auto max-w-6xl px-4 py-10 text-white sm:px-6 lg:px-8">
-        <header className="mb-8 flex flex-col gap-4 border-b border-white/20 pb-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-white/70">
-              Offentlig visning
-            </p>
-            <h1 className="text-3xl font-semibold">{data.edition.label}</h1>
-            <p className="text-lg font-medium text-white/80">
-              {data.edition.slug} · {data.edition.competitionSlug}
-            </p>
-            <p className="text-sm text-white/80">
-              Oppdateres hvert {data.edition.scoreboardRotationSeconds} sekunder
-            </p>
-            {lastUpdated ? (
-              <p className="text-xs text-white/60">
-                Sist oppdatert {formatTimestamp(lastUpdated)}
-              </p>
-            ) : null}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <ModeToggle mode={mode} onChange={setMode} />
-            {mode === "screen" ? (
-              <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/70">
-                {rotation.map((section) => (
-                  <span
-                    key={section}
-                    className="rounded-full border border-white/30 px-3 py-1"
-                  >
-                    {sectionLabel(section)}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </header>
-
-        {mode === "screen" ? (
-          <ScreenLayout
-            overlayText={overlayText}
-            liveMatches={liveMatches}
-            upcomingMatches={upcomingMatches}
-            completedMatches={completedMatches}
-            standings={data.standings}
-            scorers={data.topScorers}
-            entryNames={entryNames}
-          />
-        ) : (
-          <LandingLayout
-            data={data}
-            entryNames={entryNames}
-            hasHighlight={hasHighlight}
-            overlayText={overlayText}
-          />
-        )}
-      </div>
+      {theme.backgroundImageUrl ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url(${theme.backgroundImageUrl})` }}
+        />
+      ) : null}
+      {isChristmasTheme ? <ChristmasBackdrop /> : null}
+      {mode === "screen" ? <FullHdFrame>{content}</FullHdFrame> : content}
     </div>
   );
 }
@@ -223,11 +258,106 @@ function ModeToggle({ mode, onChange }: ModeToggleProps) {
   );
 }
 
+function ChristmasBackdrop() {
+  return (
+    <>
+      <style>
+        {`
+          @keyframes scoreboard-snow {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 400px 900px, 240px 500px, 120px 300px; }
+          }
+        `}
+      </style>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-80 mix-blend-screen"
+        style={{
+          backgroundImage:
+            "radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.9) 55%, transparent 60%), radial-gradient(1.5px 1.5px at 120px 80px, rgba(255,255,255,0.8) 55%, transparent 60%), radial-gradient(2px 2px at 60px 140px, rgba(255,255,255,0.6) 55%, transparent 60%)",
+          backgroundSize: "180px 180px, 260px 260px, 340px 340px",
+          animation: "scoreboard-snow 18s linear infinite",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 55%), radial-gradient(circle at 80% 0%, rgba(255,255,255,0.15), transparent 45%)",
+        }}
+      />
+    </>
+  );
+}
+
+type FullHdFrameProps = {
+  children: React.ReactNode;
+};
+
+function FullHdFrame({ children }: FullHdFrameProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const container = containerRef.current;
+    const content = contentRef.current;
+    if (!container || !content) {
+      return;
+    }
+
+    const updateScale = () => {
+      const availableWidth = Math.min(container.clientWidth, FULL_HD_WIDTH);
+      const availableHeight = Math.min(container.clientHeight, FULL_HD_HEIGHT);
+      const contentWidth = Math.max(content.scrollWidth, FULL_HD_WIDTH);
+      const contentHeight = content.scrollHeight;
+      const widthScale = availableWidth / contentWidth;
+      const heightScale = availableHeight / contentHeight;
+      const nextScale = Math.min(1, widthScale, heightScale);
+
+      setScale((previous) =>
+        Math.abs(previous - nextScale) > 0.001 ? nextScale : previous,
+      );
+    };
+
+    updateScale();
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(updateScale);
+    resizeObserver?.observe(container);
+    resizeObserver?.observe(content);
+    window.addEventListener("resize", updateScale);
+
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative flex min-h-screen w-full items-start justify-center overflow-hidden"
+    >
+      <div className="origin-top" style={{ transform: `scale(${scale})` }}>
+        <div ref={contentRef} className="w-[1920px]">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type ScreenLayoutProps = {
   overlayText: string;
-  liveMatches: ScoreboardMatch[];
-  upcomingMatches: ScoreboardMatch[];
-  completedMatches: ScoreboardMatch[];
+  matches: ScoreboardMatch[];
   standings: ScoreboardStanding[];
   scorers: ScoreboardTopScorer[];
   entryNames: Map<string, string>;
@@ -235,39 +365,41 @@ type ScreenLayoutProps = {
 
 function ScreenLayout({
   overlayText,
-  liveMatches,
-  upcomingMatches,
-  completedMatches,
+  matches,
   standings,
   scorers,
   entryNames,
 }: ScreenLayoutProps) {
+  const orderedMatches = useMemo(
+    () =>
+      [...matches].sort(
+        (left, right) => left.kickoffAt.getTime() - right.kickoffAt.getTime(),
+      ),
+    [matches],
+  );
+
   return (
     <>
       <div
         aria-live="polite"
-        className="mb-8 rounded-2xl border border-white/40 bg-white/10 px-6 py-4 text-center text-lg font-semibold shadow-lg backdrop-blur"
+        className="mb-6 rounded-2xl border border-white/40 bg-white/10 px-6 py-3 text-center text-base font-semibold shadow-lg backdrop-blur"
       >
         {overlayText}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MatchSection
-          title="Live nå"
-          matches={liveMatches}
-          emptyText="Ingen kamper er live akkurat nå."
-        />
-        <MatchSection
-          title="Kommende"
-          matches={upcomingMatches}
-          fallbackMatches={completedMatches}
-          emptyText="Ingen kommende kamper funnet."
-        />
-      </div>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <StandingsTable standings={standings} entryNames={entryNames} />
-        <TopScorersList scorers={scorers} entryNames={entryNames} />
+      <div className="grid gap-6 xl:grid-cols-12">
+        <div className="xl:col-span-6">
+          <ScreenMatchesTable
+            matches={orderedMatches}
+            entryNames={entryNames}
+          />
+        </div>
+        <div className="xl:col-span-4">
+          <ScreenStandingsTable standings={standings} entryNames={entryNames} />
+        </div>
+        <div className="xl:col-span-2">
+          <ScreenTopScorersTable scorers={scorers} />
+        </div>
       </div>
     </>
   );
@@ -381,6 +513,74 @@ function MatchSection({
           ))}
         </div>
       )}
+    </section>
+  );
+}
+
+type ScreenMatchesTableProps = {
+  matches: ScoreboardMatch[];
+  entryNames: Map<string, string>;
+};
+
+function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
+  return (
+    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+          Kampoppsett
+        </h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed text-left text-xs text-white/90">
+          <thead>
+            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
+              <th className="w-[12%] px-4 py-2">Tid</th>
+              <th className="w-[16%] px-4 py-2">Arena</th>
+              <th className="w-[14%] px-4 py-2">Status</th>
+              <th className="px-4 py-2">Hjemmelag</th>
+              <th className="px-4 py-2">Bortelag</th>
+              <th className="w-[14%] px-4 py-2 text-center">Res</th>
+            </tr>
+          </thead>
+          <tbody>
+            {matches.length === 0 ? (
+              <tr>
+                <td className="px-4 py-3 text-center text-white/70" colSpan={6}>
+                  Ingen kamper registrert enda.
+                </td>
+              </tr>
+            ) : (
+              matches.map((match, index) => (
+                <tr
+                  key={match.id}
+                  className={`border-t border-white/5 ${
+                    index % 2 === 0 ? "bg-white/5" : "bg-transparent"
+                  }`}
+                >
+                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                    {formatKickoff(match.kickoffAt)}
+                  </td>
+                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                    {match.venueName ?? "Ikke satt"}
+                  </td>
+                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                    {statusLabel(match.status)}
+                  </td>
+                  <td className="px-4 py-2 text-sm font-semibold">
+                    {entryNames.get(match.home.entryId) ?? match.home.name}
+                  </td>
+                  <td className="px-4 py-2 text-sm font-semibold">
+                    {entryNames.get(match.away.entryId) ?? match.away.name}
+                  </td>
+                  <td className="px-4 py-2 text-center text-sm font-semibold">
+                    {match.home.score} – {match.away.score}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
@@ -514,6 +714,81 @@ function StandingsTable({ standings, entryNames }: StandingsProps) {
   );
 }
 
+type ScreenStandingsTableProps = {
+  standings: ScoreboardStanding[];
+  entryNames: Map<string, string>;
+};
+
+function ScreenStandingsTable({
+  standings,
+  entryNames,
+}: ScreenStandingsTableProps) {
+  return (
+    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+          Tabell
+        </h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed text-left text-xs text-white/90">
+          <thead>
+            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
+              <th className="w-[10%] px-3 py-2">#</th>
+              <th className="px-3 py-2">Lag</th>
+              <th className="w-[8%] px-2 py-2 text-center">K</th>
+              <th className="w-[8%] px-2 py-2 text-center">V</th>
+              <th className="w-[8%] px-2 py-2 text-center">U</th>
+              <th className="w-[8%] px-2 py-2 text-center">T</th>
+              <th className="w-[12%] px-2 py-2 text-center">Mål</th>
+              <th className="w-[10%] px-2 py-2 text-center">+/-</th>
+              <th className="w-[8%] px-2 py-2 text-center">P</th>
+            </tr>
+          </thead>
+          <tbody>
+            {standings.length === 0 ? (
+              <tr>
+                <td className="px-4 py-3 text-center text-white/70" colSpan={9}>
+                  Ingen tabell tilgjengelig enda.
+                </td>
+              </tr>
+            ) : (
+              standings.map((row, index) => (
+                <tr
+                  key={row.entryId}
+                  className={`border-t border-white/5 ${
+                    index % 2 === 0 ? "bg-white/5" : "bg-transparent"
+                  }`}
+                >
+                  <td className="px-3 py-2 text-sm font-semibold">
+                    {row.position}
+                  </td>
+                  <td className="px-3 py-2 text-sm font-semibold">
+                    {entryNames.get(row.entryId) ?? row.entryId}
+                  </td>
+                  <td className="px-2 py-2 text-center">{row.played}</td>
+                  <td className="px-2 py-2 text-center">{row.won}</td>
+                  <td className="px-2 py-2 text-center">{row.drawn}</td>
+                  <td className="px-2 py-2 text-center">{row.lost}</td>
+                  <td className="px-2 py-2 text-center">
+                    {row.goalsFor} – {row.goalsAgainst}
+                  </td>
+                  <td className="px-2 py-2 text-center">
+                    {row.goalDifference}
+                  </td>
+                  <td className="px-2 py-2 text-center font-semibold">
+                    {row.points}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 type TopScorersProps = {
   scorers: ScoreboardTopScorer[];
   entryNames: Map<string, string>;
@@ -555,6 +830,57 @@ function TopScorersList({ scorers, entryNames }: TopScorersProps) {
           ))}
         </ul>
       )}
+    </section>
+  );
+}
+
+type ScreenTopScorersTableProps = {
+  scorers: ScoreboardTopScorer[];
+};
+
+function ScreenTopScorersTable({ scorers }: ScreenTopScorersTableProps) {
+  return (
+    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+          Toppscorer
+        </h2>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs text-white/90">
+          <thead>
+            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
+              <th className="px-4 py-2">Spiller</th>
+              <th className="px-4 py-2 text-center">Mål</th>
+            </tr>
+          </thead>
+          <tbody>
+            {scorers.length === 0 ? (
+              <tr>
+                <td className="px-4 py-3 text-center text-white/70" colSpan={2}>
+                  Ingen mål registrert enda.
+                </td>
+              </tr>
+            ) : (
+              scorers.map((player, index) => (
+                <tr
+                  key={`${player.entryId}-${player.personId}`}
+                  className={`border-t border-white/5 ${
+                    index % 2 === 0 ? "bg-white/5" : "bg-transparent"
+                  }`}
+                >
+                  <td className="px-4 py-2 text-sm font-semibold">
+                    {player.name || "Navn mangler"}
+                  </td>
+                  <td className="px-4 py-2 text-center text-sm font-semibold">
+                    {player.goals}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

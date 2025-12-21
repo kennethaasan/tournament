@@ -7,6 +7,7 @@ let mockData: ScoreboardData;
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({}),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("@/ui/hooks/useScoreboardPoll", () => ({
