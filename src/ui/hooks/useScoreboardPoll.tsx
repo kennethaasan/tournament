@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   fetchPublicScoreboard,
   publicScoreboardQueryKey,
@@ -11,17 +11,44 @@ import {
   type ScoreboardData,
 } from "@/modules/public/scoreboard-types";
 
+const DEFAULT_MAX_POLLING_AGE_MS = 1000 * 60 * 60 * 18;
+
 type UseScoreboardPollOptions = {
   competitionSlug: string;
   editionSlug: string;
   initialData: ScoreboardData;
+  maxPollingAgeMs?: number;
 };
 
 export function useScoreboardPoll(options: UseScoreboardPollOptions) {
-  const { competitionSlug, editionSlug, initialData } = options;
+  const { competitionSlug, editionSlug, initialData, maxPollingAgeMs } =
+    options;
   const entryDirectory = useRef(
     new Map(initialData.entries.map((entry) => [entry.id, entry.name])),
   );
+  const openedAt = useRef(Date.now());
+  const [isWindowVisible, setIsWindowVisible] = useState(true);
+
+  useEffect(() => {
+    if (typeof document === "undefined" || typeof window === "undefined") {
+      return;
+    }
+
+    const updateVisibility = () => {
+      setIsWindowVisible(document.visibilityState === "visible");
+    };
+
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+    window.addEventListener("pagehide", updateVisibility);
+    window.addEventListener("pageshow", updateVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", updateVisibility);
+      window.removeEventListener("pagehide", updateVisibility);
+      window.removeEventListener("pageshow", updateVisibility);
+    };
+  }, []);
 
   const query = useQuery({
     queryKey: publicScoreboardQueryKey(competitionSlug, editionSlug),
@@ -43,6 +70,15 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
     },
     initialData,
     refetchInterval: (query) => {
+      const maxAge =
+        maxPollingAgeMs === undefined
+          ? DEFAULT_MAX_POLLING_AGE_MS
+          : maxPollingAgeMs;
+      const hasExceededMaxAge = Date.now() - openedAt.current >= maxAge;
+      if (!isWindowVisible || hasExceededMaxAge) {
+        return false;
+      }
+
       const rotation =
         query.state.data?.edition.scoreboardRotationSeconds ??
         initialData.edition.scoreboardRotationSeconds;
@@ -51,7 +87,7 @@ export function useScoreboardPoll(options: UseScoreboardPollOptions) {
     refetchOnMount: "always",
     staleTime: 0,
     refetchOnWindowFocus: false,
-    refetchIntervalInBackground: true,
+    refetchIntervalInBackground: false,
   });
 
   return query;
