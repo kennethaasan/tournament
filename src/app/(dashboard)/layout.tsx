@@ -1,5 +1,6 @@
 import { DashboardHeader } from "@/ui/components/dashboard-header";
 import { DashboardSidebar } from "@/ui/components/dashboard-sidebar";
+import { SiteNavbar } from "@/ui/components/site-navbar";
 
 export default function DashboardLayout({
   children,
@@ -8,6 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="page-shell min-h-screen">
+      <SiteNavbar />
       <div className="grid-overlay absolute inset-0" aria-hidden />
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1440px] gap-6 px-4 py-6 lg:px-6">
         <DashboardSidebar />
