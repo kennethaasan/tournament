@@ -116,7 +116,7 @@ variable "better_auth_email_sender" {
   default     = null
 
   validation {
-    condition = trimspace(coalesce(var.better_auth_email_sender, "")) == "" || (
+    condition = var.better_auth_email_sender == null || trimspace(var.better_auth_email_sender) == "" || (
       can(regex("^[^@]+@[^@]+$", var.better_auth_email_sender)) &&
       endswith(
         lower(var.better_auth_email_sender),
@@ -133,7 +133,7 @@ variable "ses_source_email" {
   default     = null
 
   validation {
-    condition = trimspace(coalesce(var.ses_source_email, "")) == "" || (
+    condition = var.ses_source_email == null || trimspace(var.ses_source_email) == "" || (
       can(regex("^[^@]+@[^@]+$", var.ses_source_email)) &&
       endswith(
         lower(var.ses_source_email),
@@ -156,7 +156,7 @@ variable "ses_region" {
   default     = null
 
   validation {
-    condition     = trimspace(coalesce(var.ses_region, "")) == "" || var.ses_region == var.aws_region
+    condition     = var.ses_region == null || trimspace(var.ses_region) == "" || var.ses_region == var.aws_region
     error_message = "ses_region must match aws_region when set. SES should run in the same region as Lambda."
   }
 }
@@ -179,7 +179,7 @@ variable "ses_domain" {
   default     = null
 
   validation {
-    condition     = trimspace(coalesce(var.ses_domain, "")) == "" || endswith(lower(var.ses_domain), lower(var.parent_domain))
+    condition     = var.ses_domain == null || trimspace(var.ses_domain) == "" || endswith(lower(var.ses_domain), lower(var.parent_domain))
     error_message = "ses_domain must be within the parent_domain Route53 zone."
   }
 }
@@ -190,7 +190,7 @@ variable "ses_mail_from_domain" {
   default     = null
 
   validation {
-    condition = trimspace(coalesce(var.ses_mail_from_domain, "")) == "" || endswith(
+    condition = var.ses_mail_from_domain == null || trimspace(var.ses_mail_from_domain) == "" || endswith(
       lower(var.ses_mail_from_domain),
       lower(coalesce(var.ses_domain, var.app_domain)),
     )
