@@ -73,7 +73,7 @@ resource "aws_route53_record" "ses_dkim" {
   records = ["${each.value}.dkim.amazonses.com"]
 }
 
-resource "aws_ses_mail_from" "app" {
+resource "aws_ses_domain_mail_from" "app" {
   count                  = var.ses_enabled ? 1 : 0
   domain                 = aws_ses_domain_identity.app[0].domain
   mail_from_domain       = local.ses_mail_from_domain
