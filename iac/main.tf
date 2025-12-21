@@ -22,7 +22,8 @@ resource "neon_project" "this" {
 }
 
 locals {
-  database_url = neon_project.this.connection_uri
+  database_url_base = neon_project.this.connection_uri_pooler
+  database_url      = strcontains(local.database_url_base, "sslmode=") ? local.database_url_base : (strcontains(local.database_url_base, "?") ? "${local.database_url_base}&sslmode=require" : "${local.database_url_base}?sslmode=require")
 }
 
 ###########################
