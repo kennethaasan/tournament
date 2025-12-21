@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { submitMatchDispute } from "@/modules/entries/service";
-import { assertEntryAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 import { sendMatchDisputeSubmittedEmails } from "@/server/email/action-emails";
 
@@ -14,12 +13,11 @@ type RequestBody = {
 };
 
 export const POST = createApiHandler<RouteParams>(
-  async ({ params, request, auth }) => {
+  async ({ params, request }) => {
     const matchId = Array.isArray(params.matchId)
       ? params.matchId[0]
       : params.matchId;
     const payload = (await request.json()) as RequestBody;
-    await assertEntryAccess(payload.entry_id, auth);
 
     await submitMatchDispute({
       matchId,
