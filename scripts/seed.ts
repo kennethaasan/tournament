@@ -31,6 +31,26 @@ import {
 
 type DatabaseExecutor = DrizzleDatabase | TransactionClient;
 
+const envOrDefault = (value: string | undefined, fallback: string) =>
+  value && value.trim().length > 0 ? value : fallback;
+
+const SEED_USER_PASSWORD = envOrDefault(
+  process.env.SEED_USER_PASSWORD,
+  "Password123!",
+);
+const SEED_USER_EMAIL_GLOBAL_ADMIN = envOrDefault(
+  process.env.SEED_USER_EMAIL_GLOBAL_ADMIN,
+  "admin@example.com",
+);
+const SEED_USER_EMAIL_COMPETITION_ADMIN = envOrDefault(
+  process.env.SEED_USER_EMAIL_COMPETITION_ADMIN,
+  "edition-admin@example.com",
+);
+const SEED_USER_EMAIL_TEAM_MANAGER = envOrDefault(
+  process.env.SEED_USER_EMAIL_TEAM_MANAGER,
+  "lagleder@example.com",
+);
+
 const COMPETITION = {
   name: "Trondheim Cup",
   slug: "trondheim-cup",
@@ -246,21 +266,21 @@ const MATCH_EVENTS = [
 
 const DEMO_USERS = [
   {
-    email: "admin@example.com",
+    email: SEED_USER_EMAIL_GLOBAL_ADMIN,
     fullName: "Global Admin",
     role: "global_admin",
     scopeType: "global" as const,
     scopeSlug: null,
   },
   {
-    email: "edition-admin@example.com",
+    email: SEED_USER_EMAIL_COMPETITION_ADMIN,
     fullName: "Konkurranseansvarlig",
     role: "competition_admin",
     scopeType: "competition" as const,
     scopeSlug: COMPETITION.slug,
   },
   {
-    email: "lagleder@example.com",
+    email: SEED_USER_EMAIL_TEAM_MANAGER,
     fullName: "Lagleder Trondheim Nord",
     role: "team_manager",
     scopeType: "team" as const,
@@ -786,7 +806,7 @@ async function seedUsers(
   competition: SeededCompetition,
   teamsSeeded: SeededTeam[],
 ) {
-  const passwordHash = await bcrypt.hash("Password123!", 10);
+  const passwordHash = await bcrypt.hash(SEED_USER_PASSWORD, 10);
   const teamBySlug = new Map(teamsSeeded.map((team) => [team.slug, team]));
 
   for (const userDefinition of DEMO_USERS) {
