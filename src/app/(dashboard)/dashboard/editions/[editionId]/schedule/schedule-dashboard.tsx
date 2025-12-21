@@ -632,798 +632,776 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   }
 
   return (
-    <main className="min-h-screen bg-card/60 pb-16">
-      <div className="mx-auto w-full max-w-6xl px-6 pb-16 pt-12">
-        <header className="mb-10 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
-            Utgave · Kampoppsett
-          </p>
-          <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
-            Planlegg stadier og kampoppsett
-          </h1>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Opprett gruppespill og sluttspill, legg inn lag per gruppe, og
-            generer kampoppsett for turneringen. Når du er fornøyd, kan du
-            publisere kampene og varsle lagene.
+    <div className="space-y-10">
+      <header className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+          Utgave · Kampoppsett
+        </p>
+        <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
+          Planlegg stadier og kampoppsett
+        </h1>
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer
+          kampoppsett for turneringen. Når du er fornøyd, kan du publisere
+          kampene og varsle lagene.
+        </p>
+      </header>
+
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <header className="space-y-1">
+          <h2 className="text-xl font-semibold text-zinc-900">Påmeldingslås</h2>
+          <p className="text-sm text-muted-foreground">
+            Lås nye påmeldinger når kampoppsettet er i ferd med å publiseres for
+            å unngå endringer i laglisten.
           </p>
         </header>
 
-        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <header className="space-y-1">
-            <h2 className="text-xl font-semibold text-zinc-900">
-              Påmeldingslås
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Lås nye påmeldinger når kampoppsettet er i ferd med å publiseres
-              for å unngå endringer i laglisten.
+        {entryLockMessage && (
+          <output
+            aria-live="polite"
+            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          >
+            {entryLockMessage}
+          </output>
+        )}
+
+        {entryLockError && (
+          <div
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {entryLockError}
+          </div>
+        )}
+
+        {scoreboardQuery.isLoading ? (
+          <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+            Laster påmeldingsstatus …
+          </div>
+        ) : scoreboardLoadError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {scoreboardLoadError}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-foreground">
+              Status:{" "}
+              <span className="font-medium">
+                {entriesLockedAtDate
+                  ? `Låst ${entriesLockedAtDate.toLocaleString("no-NB")}`
+                  : "Åpen"}
+              </span>
             </p>
-          </header>
-
-          {entryLockMessage && (
-            <output
-              aria-live="polite"
-              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-            >
-              {entryLockMessage}
-            </output>
-          )}
-
-          {entryLockError && (
-            <div
-              role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {entryLockError}
-            </div>
-          )}
-
-          {scoreboardQuery.isLoading ? (
-            <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-              Laster påmeldingsstatus …
-            </div>
-          ) : scoreboardLoadError ? (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {scoreboardLoadError}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-foreground">
-                Status:{" "}
-                <span className="font-medium">
-                  {entriesLockedAtDate
-                    ? `Låst ${entriesLockedAtDate.toLocaleString("no-NB")}`
-                    : "Åpen"}
-                </span>
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleEntryLockChange(false)}
-                  disabled={!entriesLockedAtDate || isLockingEntries}
-                  className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-card/60 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Åpne påmeldinger
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleEntryLockChange(true)}
-                  disabled={Boolean(entriesLockedAtDate) || isLockingEntries}
-                  className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  Lås påmeldinger
-                </button>
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <header className="space-y-1">
-            <h2 className="text-xl font-semibold text-zinc-900">
-              Påmeldingsforespørsler
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Godkjenn eller avvis nye påmeldinger før kampoppsettet publiseres.
-            </p>
-          </header>
-
-          {entryReviewMessage && (
-            <output
-              aria-live="polite"
-              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-            >
-              {entryReviewMessage}
-            </output>
-          )}
-
-          {entryReviewError && (
-            <div
-              role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {entryReviewError}
-            </div>
-          )}
-
-          {entriesLoading ? (
-            <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-              Laster påmeldinger …
-            </div>
-          ) : entriesError ? (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {entriesError}
-            </div>
-          ) : entries.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
-              Ingen påmeldinger tilgjengelig ennå.
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {entries.map((item) => {
-                const entry = item.entry;
-                const isPending = entry.status === "pending";
-                const isReviewing = reviewingEntryId === entry.id;
-                return (
-                  <article
-                    key={entry.id}
-                    className="rounded-xl border border-border/80 bg-card/50 p-5 shadow-sm"
-                  >
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                          {item.team.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Lag-ID: {item.team.id}
-                        </p>
-                      </div>
-                      <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground">
-                        {statusLabel(entry.status)}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
-                      <div>
-                        Påmeldt:{" "}
-                        {entry.submitted_at
-                          ? new Date(entry.submitted_at).toLocaleString("no-NB")
-                          : "—"}
-                      </div>
-                      <div>
-                        Notat: {entry.notes ? entry.notes : "Ingen notat"}
-                      </div>
-                    </div>
-
-                    {isPending ? (
-                      <div className="mt-4 space-y-2">
-                        <label
-                          htmlFor={`decision-${entry.id}`}
-                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                          Begrunnelse (valgfritt)
-                        </label>
-                        <textarea
-                          id={`decision-${entry.id}`}
-                          value={decisionReasons[entry.id] ?? ""}
-                          onChange={(event) =>
-                            setDecisionReasons((prev) => ({
-                              ...prev,
-                              [entry.id]: event.target.value,
-                            }))
-                          }
-                          rows={2}
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
-                      </div>
-                    ) : entry.decision_reason ? (
-                      <p className="mt-4 text-sm text-muted-foreground">
-                        Begrunnelse: {entry.decision_reason}
-                      </p>
-                    ) : null}
-
-                    <div className="mt-4 flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleEntryDecision(entry.id, "approved")
-                        }
-                        disabled={!isPending || isReviewing}
-                        className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        {isReviewing ? "Oppdaterer ..." : "Godkjenn"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleEntryDecision(entry.id, "rejected")
-                        }
-                        disabled={!isPending || isReviewing}
-                        className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        Avvis
-                      </button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <header>
-            <h2 className="text-xl font-semibold text-zinc-900">
-              Opprett nytt stadium
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Start med å definere struktur for turneringen. Gruppespill krever
-              minst én gruppe, mens sluttspill automatisk håndterer byer og
-              tredjeplass-kamp hvis du ønsker det.
-            </p>
-          </header>
-
-          {stageFormSuccess && (
-            <output
-              aria-live="polite"
-              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
-            >
-              {stageFormSuccess}
-            </output>
-          )}
-
-          {stageFormError && (
-            <div
-              role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {stageFormError}
-            </div>
-          )}
-
-          <form onSubmit={handleStageSubmit} className="space-y-6">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="stage-name"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Stadienavn
-                </label>
-                <input
-                  id="stage-name"
-                  type="text"
-                  value={stageForm.name}
-                  onChange={(event) =>
-                    updateStageForm("name", event.target.value)
-                  }
-                  placeholder="Eksempel: Gruppespill A"
-                  required
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label
-                  htmlFor="stage-type"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Stadietype
-                </label>
-                <select
-                  id="stage-type"
-                  value={stageForm.stageType}
-                  onChange={(event) =>
-                    updateStageForm(
-                      "stageType",
-                      event.target.value as StageFormState["stageType"],
-                    )
-                  }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                >
-                  <option value="group">Gruppespill</option>
-                  <option value="knockout">Sluttspill</option>
-                </select>
-              </div>
-            </div>
-
-            {stageForm.stageType === "group" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-zinc-800">
-                    Grupper
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={addGroupRow}
-                    className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                  >
-                    Legg til gruppe
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {stageForm.groups.map((group, index) => (
-                    <div
-                      key={group.key}
-                      className="grid gap-4 rounded-lg border border-border p-4 md:grid-cols-[120px,1fr,auto]"
-                    >
-                      <div className="space-y-2">
-                        <label
-                          htmlFor={`group-code-${group.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                          Kode
-                        </label>
-                        <input
-                          id={`group-code-${group.key}`}
-                          type="text"
-                          value={group.code}
-                          onChange={(event) =>
-                            updateGroupRow(
-                              group.key,
-                              "code",
-                              event.target.value.toUpperCase(),
-                            )
-                          }
-                          placeholder={String.fromCharCode(65 + index)}
-                          maxLength={4}
-                          required
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label
-                          htmlFor={`group-name-${group.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                          Navn (valgfritt)
-                        </label>
-                        <input
-                          id={`group-name-${group.key}`}
-                          type="text"
-                          value={group.name}
-                          onChange={(event) =>
-                            updateGroupRow(
-                              group.key,
-                              "name",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="Eksempel: Pulje Nord"
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
-                      </div>
-
-                      <div className="flex items-end justify-end">
-                        <button
-                          type="button"
-                          onClick={() => removeGroupRow(group.key)}
-                          className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-                          disabled={stageForm.groups.length <= 1}
-                        >
-                          Fjern
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div>
+            <div className="flex flex-wrap gap-3">
               <button
-                type="submit"
-                disabled={isCreatingStage}
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                type="button"
+                onClick={() => handleEntryLockChange(false)}
+                disabled={!entriesLockedAtDate || isLockingEntries}
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-card/60 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isCreatingStage ? "Lagrer …" : "Lagre stadium"}
+                Åpne påmeldinger
+              </button>
+              <button
+                type="button"
+                onClick={() => handleEntryLockChange(true)}
+                disabled={Boolean(entriesLockedAtDate) || isLockingEntries}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                Lås påmeldinger
               </button>
             </div>
-          </form>
-        </section>
+          </div>
+        )}
+      </section>
 
-        <section className="mb-12 space-y-4">
-          <header className="space-y-1">
-            <h2 className="text-xl font-semibold text-zinc-900">
-              Registrerte stadier
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Oversikt over strukturen for denne utgaven. Etter at kampene er
-              generert, kan du publisere dem fra kampadministrasjonen.
-            </p>
-          </header>
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <header className="space-y-1">
+          <h2 className="text-xl font-semibold text-zinc-900">
+            Påmeldingsforespørsler
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Godkjenn eller avvis nye påmeldinger før kampoppsettet publiseres.
+          </p>
+        </header>
 
-          {isLoadingStages ? (
-            <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
-              Laster stadier …
-            </div>
-          ) : stageLoadError ? (
-            <div
-              role="alert"
-              className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 shadow-sm"
-            >
-              {stageLoadError}
-            </div>
-          ) : stages.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
-              Det er ingen stadier ennå. Opprett et gruppespill eller sluttspill
-              for å komme i gang.
-            </div>
-          ) : (
-            <div className="grid gap-5 md:grid-cols-2">
-              {stages.map((stage) => (
+        {entryReviewMessage && (
+          <output
+            aria-live="polite"
+            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          >
+            {entryReviewMessage}
+          </output>
+        )}
+
+        {entryReviewError && (
+          <div
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {entryReviewError}
+          </div>
+        )}
+
+        {entriesLoading ? (
+          <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+            Laster påmeldinger …
+          </div>
+        ) : entriesError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {entriesError}
+          </div>
+        ) : entries.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
+            Ingen påmeldinger tilgjengelig ennå.
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {entries.map((item) => {
+              const entry = item.entry;
+              const isPending = entry.status === "pending";
+              const isReviewing = reviewingEntryId === entry.id;
+              return (
                 <article
-                  key={stage.id}
-                  className="space-y-4 rounded-xl border border-border bg-white p-6 shadow-sm"
+                  key={entry.id}
+                  className="rounded-xl border border-border/80 bg-card/50 p-5 shadow-sm"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
-                        {stage.stageType === "group"
-                          ? "Gruppespill"
-                          : "Sluttspill"}
+                        {item.team.name}
                       </p>
-                      <h3 className="text-lg font-semibold text-zinc-900">
-                        {stage.name}
-                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Lag-ID: {item.team.id}
+                      </p>
                     </div>
-                    <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-                      Rekkefølge #{stage.order}
+                    <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground">
+                      {statusLabel(entry.status)}
                     </span>
                   </div>
 
-                  {stage.stageType === "group" ? (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Grupper
-                      </p>
-                      <ul className="grid grid-cols-2 gap-2 text-sm text-foreground">
-                        {stage.groups.map((group) => (
-                          <li
-                            key={group.id}
-                            className="flex flex-col rounded border border-border px-3 py-2"
-                          >
-                            <span className="text-xs font-semibold uppercase text-blue-600">
-                              Gruppe {group.code}
-                            </span>
-                            {group.name ? (
-                              <span>{group.name}</span>
-                            ) : (
-                              <span className="text-xs text-zinc-500">
-                                Ingen visningsnavn
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ul>
+                  <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
+                    <div>
+                      Påmeldt:{" "}
+                      {entry.submitted_at
+                        ? new Date(entry.submitted_at).toLocaleString("no-NB")
+                        : "—"}
                     </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">
-                      Sluttspillet håndterer automatisk byer og rangerer
-                      semifinaletapere til bronsefinalen dersom du velger det i
-                      kampgeneratoren.
-                    </p>
-                  )}
+                    <div>
+                      Notat: {entry.notes ? entry.notes : "Ingen notat"}
+                    </div>
+                  </div>
 
-                  {stage.publishedAt ? (
-                    <p className="text-xs text-green-600">
-                      Publisert{" "}
-                      {new Date(stage.publishedAt).toLocaleString("no-NB")}
+                  {isPending ? (
+                    <div className="mt-4 space-y-2">
+                      <label
+                        htmlFor={`decision-${entry.id}`}
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                      >
+                        Begrunnelse (valgfritt)
+                      </label>
+                      <textarea
+                        id={`decision-${entry.id}`}
+                        value={decisionReasons[entry.id] ?? ""}
+                        onChange={(event) =>
+                          setDecisionReasons((prev) => ({
+                            ...prev,
+                            [entry.id]: event.target.value,
+                          }))
+                        }
+                        rows={2}
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      />
+                    </div>
+                  ) : entry.decision_reason ? (
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      Begrunnelse: {entry.decision_reason}
                     </p>
-                  ) : (
-                    <p className="text-xs text-zinc-500">Ikke publisert ennå</p>
-                  )}
+                  ) : null}
+
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleEntryDecision(entry.id, "approved")}
+                      disabled={!isPending || isReviewing}
+                      className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {isReviewing ? "Oppdaterer ..." : "Godkjenn"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEntryDecision(entry.id, "rejected")}
+                      disabled={!isPending || isReviewing}
+                      className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Avvis
+                    </button>
+                  </div>
                 </article>
-              ))}
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <header>
+          <h2 className="text-xl font-semibold text-zinc-900">
+            Opprett nytt stadium
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Start med å definere struktur for turneringen. Gruppespill krever
+            minst én gruppe, mens sluttspill automatisk håndterer byer og
+            tredjeplass-kamp hvis du ønsker det.
+          </p>
+        </header>
+
+        {stageFormSuccess && (
+          <output
+            aria-live="polite"
+            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          >
+            {stageFormSuccess}
+          </output>
+        )}
+
+        {stageFormError && (
+          <div
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {stageFormError}
+          </div>
+        )}
+
+        <form onSubmit={handleStageSubmit} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="stage-name"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Stadienavn
+              </label>
+              <input
+                id="stage-name"
+                type="text"
+                value={stageForm.name}
+                onChange={(event) =>
+                  updateStageForm("name", event.target.value)
+                }
+                placeholder="Eksempel: Gruppespill A"
+                required
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="stage-type"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Stadietype
+              </label>
+              <select
+                id="stage-type"
+                value={stageForm.stageType}
+                onChange={(event) =>
+                  updateStageForm(
+                    "stageType",
+                    event.target.value as StageFormState["stageType"],
+                  )
+                }
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="group">Gruppespill</option>
+                <option value="knockout">Sluttspill</option>
+              </select>
+            </div>
+          </div>
+
+          {stageForm.stageType === "group" && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-zinc-800">Grupper</h3>
+                <button
+                  type="button"
+                  onClick={addGroupRow}
+                  className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                >
+                  Legg til gruppe
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {stageForm.groups.map((group, index) => (
+                  <div
+                    key={group.key}
+                    className="grid gap-4 rounded-lg border border-border p-4 md:grid-cols-[120px,1fr,auto]"
+                  >
+                    <div className="space-y-2">
+                      <label
+                        htmlFor={`group-code-${group.key}`}
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                      >
+                        Kode
+                      </label>
+                      <input
+                        id={`group-code-${group.key}`}
+                        type="text"
+                        value={group.code}
+                        onChange={(event) =>
+                          updateGroupRow(
+                            group.key,
+                            "code",
+                            event.target.value.toUpperCase(),
+                          )
+                        }
+                        placeholder={String.fromCharCode(65 + index)}
+                        maxLength={4}
+                        required
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label
+                        htmlFor={`group-name-${group.key}`}
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                      >
+                        Navn (valgfritt)
+                      </label>
+                      <input
+                        id={`group-name-${group.key}`}
+                        type="text"
+                        value={group.name}
+                        onChange={(event) =>
+                          updateGroupRow(group.key, "name", event.target.value)
+                        }
+                        placeholder="Eksempel: Pulje Nord"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      />
+                    </div>
+
+                    <div className="flex items-end justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeGroupRow(group.key)}
+                        className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={stageForm.groups.length <= 1}
+                      >
+                        Fjern
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-        </section>
 
-        <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <header>
-            <h2 className="text-xl font-semibold text-zinc-900">
-              Generer kampoppsett
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Velg et stadium og generer kamper automatisk. Du kan finjustere
-              tidspunkt, baner og lag i etterkant via kampadministrasjonen.
-            </p>
-          </header>
-
-          {generationSuccess && (
-            <output
-              aria-live="polite"
-              className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          <div>
+            <button
+              type="submit"
+              disabled={isCreatingStage}
+              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {generationSuccess}
-            </output>
-          )}
+              {isCreatingStage ? "Lagrer …" : "Lagre stadium"}
+            </button>
+          </div>
+        </form>
+      </section>
 
-          {generationError && (
-            <div
-              role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-            >
-              {generationError}
-            </div>
-          )}
+      <section className="mb-12 space-y-4">
+        <header className="space-y-1">
+          <h2 className="text-xl font-semibold text-zinc-900">
+            Registrerte stadier
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Oversikt over strukturen for denne utgaven. Etter at kampene er
+            generert, kan du publisere dem fra kampadministrasjonen.
+          </p>
+        </header>
 
-          <form onSubmit={handleGenerateMatches} className="space-y-8">
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="stage-selection"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Stadium
-                </label>
-                <select
-                  id="stage-selection"
-                  value={generationStageId}
-                  onChange={(event) => setGenerationStageId(event.target.value)}
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                >
-                  {stages.map((stage) => (
-                    <option key={stage.id} value={stage.id}>
-                      {stage.name} ·{" "}
+        {isLoadingStages ? (
+          <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
+            Laster stadier …
+          </div>
+        ) : stageLoadError ? (
+          <div
+            role="alert"
+            className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 shadow-sm"
+          >
+            {stageLoadError}
+          </div>
+        ) : stages.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
+            Det er ingen stadier ennå. Opprett et gruppespill eller sluttspill
+            for å komme i gang.
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2">
+            {stages.map((stage) => (
+              <article
+                key={stage.id}
+                className="space-y-4 rounded-xl border border-border bg-white p-6 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
                       {stage.stageType === "group"
                         ? "Gruppespill"
                         : "Sluttspill"}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    </p>
+                    <h3 className="text-lg font-semibold text-zinc-900">
+                      {stage.name}
+                    </h3>
+                  </div>
+                  <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                    Rekkefølge #{stage.order}
+                  </span>
+                </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="start-at"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Første kamp starter
-                </label>
-                <input
-                  id="start-at"
-                  type="datetime-local"
-                  value={startAt}
-                  onChange={(event) => setStartAt(event.target.value)}
-                  required
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
+                {stage.stageType === "group" ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Grupper
+                    </p>
+                    <ul className="grid grid-cols-2 gap-2 text-sm text-foreground">
+                      {stage.groups.map((group) => (
+                        <li
+                          key={group.id}
+                          className="flex flex-col rounded border border-border px-3 py-2"
+                        >
+                          <span className="text-xs font-semibold uppercase text-blue-600">
+                            Gruppe {group.code}
+                          </span>
+                          {group.name ? (
+                            <span>{group.name}</span>
+                          ) : (
+                            <span className="text-xs text-zinc-500">
+                              Ingen visningsnavn
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Sluttspillet håndterer automatisk byer og rangerer
+                    semifinaletapere til bronsefinalen dersom du velger det i
+                    kampgeneratoren.
+                  </p>
+                )}
+
+                {stage.publishedAt ? (
+                  <p className="text-xs text-green-600">
+                    Publisert{" "}
+                    {new Date(stage.publishedAt).toLocaleString("no-NB")}
+                  </p>
+                ) : (
+                  <p className="text-xs text-zinc-500">Ikke publisert ennå</p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <header>
+          <h2 className="text-xl font-semibold text-zinc-900">
+            Generer kampoppsett
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Velg et stadium og generer kamper automatisk. Du kan finjustere
+            tidspunkt, baner og lag i etterkant via kampadministrasjonen.
+          </p>
+        </header>
+
+        {generationSuccess && (
+          <output
+            aria-live="polite"
+            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          >
+            {generationSuccess}
+          </output>
+        )}
+
+        {generationError && (
+          <div
+            role="alert"
+            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          >
+            {generationError}
+          </div>
+        )}
+
+        <form onSubmit={handleGenerateMatches} className="space-y-8">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="stage-selection"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Stadium
+              </label>
+              <select
+                id="stage-selection"
+                value={generationStageId}
+                onChange={(event) => setGenerationStageId(event.target.value)}
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              >
+                {stages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>
+                    {stage.name} ·{" "}
+                    {stage.stageType === "group" ? "Gruppespill" : "Sluttspill"}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <label
-                  htmlFor="match-duration"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Kamptid (minutter)
-                </label>
-                <input
-                  id="match-duration"
-                  type="number"
-                  min={10}
-                  value={matchDuration}
-                  onChange={(event) => setMatchDuration(event.target.value)}
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
+            <div className="space-y-2">
+              <label
+                htmlFor="start-at"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Første kamp starter
+              </label>
+              <input
+                id="start-at"
+                type="datetime-local"
+                value={startAt}
+                onChange={(event) => setStartAt(event.target.value)}
+                required
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+          </div>
 
-              <div className="space-y-2">
-                <label
-                  htmlFor="break-minutes"
-                  className="text-sm font-medium text-zinc-800"
-                >
-                  Pause mellom kamper (minutter)
-                </label>
-                <input
-                  id="break-minutes"
-                  type="number"
-                  min={0}
-                  value={breakMinutes}
-                  onChange={(event) => setBreakMinutes(event.target.value)}
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="match-duration"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Kamptid (minutter)
+              </label>
+              <input
+                id="match-duration"
+                type="number"
+                min={10}
+                value={matchDuration}
+                onChange={(event) => setMatchDuration(event.target.value)}
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
             </div>
 
+            <div className="space-y-2">
+              <label
+                htmlFor="break-minutes"
+                className="text-sm font-medium text-zinc-800"
+              >
+                Pause mellom kamper (minutter)
+              </label>
+              <input
+                id="break-minutes"
+                type="number"
+                min={0}
+                value={breakMinutes}
+                onChange={(event) => setBreakMinutes(event.target.value)}
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-zinc-800">
+                Baner / haller
+              </h3>
+              <button
+                type="button"
+                onClick={addVenueRow}
+                className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              >
+                Legg til bane
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {venueInputs.map((venue, index) => (
+                <div key={venue.key} className="flex gap-3">
+                  <input
+                    type="text"
+                    value={venue.value}
+                    onChange={(event) => updateVenue(index, event.target.value)}
+                    placeholder="F.eks. venue-id eller banenavn"
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeVenueRow(index)}
+                    className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={venueInputs.length <= 1}
+                  >
+                    Fjern
+                  </button>
+                </div>
+              ))}
+              <p className="text-xs text-zinc-500">
+                Bruk interne bane- eller hall-IDer slik de er definert i
+                administrasjonen. Minst én bane er påkrevd.
+              </p>
+            </div>
+          </div>
+
+          {selectedStage?.stageType === "group" && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-800">
+                  Lag per gruppe
+                </h3>
+                <p className="text-xs text-zinc-500">
+                  Skriv inn lag-IDer separert med komma eller mellomrom. Minst
+                  to lag per gruppe er nødvendig.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {selectedStage.groups.map((group) => (
+                  <div key={group.id} className="space-y-2">
+                    <label
+                      htmlFor={`group-entry-${group.id}`}
+                      className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                    >
+                      Gruppe {group.code}
+                    </label>
+                    <textarea
+                      id={`group-entry-${group.id}`}
+                      value={groupEntryInputs[group.id] ?? ""}
+                      onChange={(event) =>
+                        updateGroupEntry(group.id, event.target.value)
+                      }
+                      placeholder="entry-id-1, entry-id-2, entry-id-3"
+                      rows={3}
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedStage?.stageType === "knockout" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-zinc-800">
-                  Baner / haller
-                </h3>
+                <div>
+                  <h3 className="text-sm font-semibold text-zinc-800">
+                    Seeding
+                  </h3>
+                  <p className="text-xs text-zinc-500">
+                    Oppgi lag i seed-rekkefølge. Tomme felt tolkes som bye.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={addVenueRow}
+                  onClick={addSeedRow}
                   className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                 >
-                  Legg til bane
+                  Legg til seed
                 </button>
               </div>
 
               <div className="space-y-3">
-                {venueInputs.map((venue, index) => (
-                  <div key={venue.key} className="flex gap-3">
-                    <input
-                      type="text"
-                      value={venue.value}
-                      onChange={(event) =>
-                        updateVenue(index, event.target.value)
-                      }
-                      placeholder="F.eks. venue-id eller banenavn"
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeVenueRow(index)}
-                      className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={venueInputs.length <= 1}
-                    >
-                      Fjern
-                    </button>
-                  </div>
-                ))}
-                <p className="text-xs text-zinc-500">
-                  Bruk interne bane- eller hall-IDer slik de er definert i
-                  administrasjonen. Minst én bane er påkrevd.
-                </p>
-              </div>
-            </div>
-
-            {selectedStage?.stageType === "group" && (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-zinc-800">
-                    Lag per gruppe
-                  </h3>
-                  <p className="text-xs text-zinc-500">
-                    Skriv inn lag-IDer separert med komma eller mellomrom. Minst
-                    to lag per gruppe er nødvendig.
-                  </p>
-                </div>
-
-                <div className="space-y-4">
-                  {selectedStage.groups.map((group) => (
-                    <div key={group.id} className="space-y-2">
+                {seedRows.map((row) => (
+                  <div
+                    key={row.key}
+                    className="grid gap-3 rounded border border-border p-4 md:grid-cols-[120px,1fr,auto]"
+                  >
+                    <div className="space-y-2">
                       <label
-                        htmlFor={`group-entry-${group.id}`}
+                        htmlFor={`seed-number-${row.key}`}
                         className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
                       >
-                        Gruppe {group.code}
+                        Seed
                       </label>
-                      <textarea
-                        id={`group-entry-${group.id}`}
-                        value={groupEntryInputs[group.id] ?? ""}
+                      <input
+                        id={`seed-number-${row.key}`}
+                        type="number"
+                        min={1}
+                        value={row.seed}
                         onChange={(event) =>
-                          updateGroupEntry(group.id, event.target.value)
+                          updateSeedRow(row.key, "seed", event.target.value)
                         }
-                        placeholder="entry-id-1, entry-id-2, entry-id-3"
-                        rows={3}
                         className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
                       />
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {selectedStage?.stageType === "knockout" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-800">
-                      Seeding
-                    </h3>
-                    <p className="text-xs text-zinc-500">
-                      Oppgi lag i seed-rekkefølge. Tomme felt tolkes som bye.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addSeedRow}
-                    className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                  >
-                    Legg til seed
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {seedRows.map((row) => (
-                    <div
-                      key={row.key}
-                      className="grid gap-3 rounded border border-border p-4 md:grid-cols-[120px,1fr,auto]"
-                    >
-                      <div className="space-y-2">
-                        <label
-                          htmlFor={`seed-number-${row.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                          Seed
-                        </label>
-                        <input
-                          id={`seed-number-${row.key}`}
-                          type="number"
-                          min={1}
-                          value={row.seed}
-                          onChange={(event) =>
-                            updateSeedRow(row.key, "seed", event.target.value)
-                          }
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label
-                          htmlFor={`seed-entry-${row.key}`}
-                          className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                          Lag-ID (valgfritt)
-                        </label>
-                        <input
-                          id={`seed-entry-${row.key}`}
-                          type="text"
-                          value={row.entryId}
-                          onChange={(event) =>
-                            updateSeedRow(
-                              row.key,
-                              "entryId",
-                              event.target.value,
-                            )
-                          }
-                          placeholder="entry-id"
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-                        />
-                      </div>
-
-                      <div className="flex items-end justify-end">
-                        <button
-                          type="button"
-                          onClick={() => removeSeedRow(row.key)}
-                          className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-                          disabled={seedRows.length <= 2}
-                        >
-                          Fjern
-                        </button>
-                      </div>
+                    <div className="space-y-2">
+                      <label
+                        htmlFor={`seed-entry-${row.key}`}
+                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+                      >
+                        Lag-ID (valgfritt)
+                      </label>
+                      <input
+                        id={`seed-entry-${row.key}`}
+                        type="text"
+                        value={row.entryId}
+                        onChange={(event) =>
+                          updateSeedRow(row.key, "entryId", event.target.value)
+                        }
+                        placeholder="entry-id"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      />
                     </div>
-                  ))}
-                </div>
 
-                <label className="flex items-center gap-2 text-sm text-foreground">
-                  <input
-                    type="checkbox"
-                    checked={includeThirdPlace}
-                    onChange={(event) =>
-                      setIncludeThirdPlace(event.target.checked)
-                    }
-                    className="h-4 w-4 rounded border border-border text-blue-600 focus:ring-blue-500"
-                  />
-                  Opprett bronsefinale automatisk
-                </label>
+                    <div className="flex items-end justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removeSeedRow(row.key)}
+                        className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                        disabled={seedRows.length <= 2}
+                      >
+                        Fjern
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
 
-            <div className="flex items-center justify-end">
-              <button
-                type="submit"
-                disabled={isGenerating || stages.length === 0}
-                className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {isGenerating ? "Genererer …" : "Generer kamper"}
-              </button>
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={includeThirdPlace}
+                  onChange={(event) =>
+                    setIncludeThirdPlace(event.target.checked)
+                  }
+                  className="h-4 w-4 rounded border border-border text-blue-600 focus:ring-blue-500"
+                />
+                Opprett bronsefinale automatisk
+              </label>
             </div>
-          </form>
-        </section>
-      </div>
-    </main>
+          )}
+
+          <div className="flex items-center justify-end">
+            <button
+              type="submit"
+              disabled={isGenerating || stages.length === 0}
+              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isGenerating ? "Genererer …" : "Generer kamper"}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 

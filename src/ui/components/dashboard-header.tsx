@@ -8,53 +8,49 @@ import { ThemeToggle } from "@/ui/components/theme-toggle";
 
 export function DashboardHeader() {
   const pathname = usePathname();
-  const primaryLinks = navigationLinks.slice(0, 5);
-  const secondaryLinks = navigationLinks.slice(5);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/70 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="flex items-center gap-2 rounded-full border border-border/70 bg-gradient-to-r from-primary/10 to-transparent px-3 py-1 text-sm font-semibold text-foreground shadow-sm"
-          >
-            <span className="text-lg">🏆</span>
-            <span className="hidden sm:inline">TourneyAdmin</span>
-          </Link>
-          <nav className="hidden items-center gap-2 md:flex">
-            {primaryLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href as Route}
-                className={`rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition hover:bg-primary/10 hover:text-foreground ${
-                  pathname.startsWith(link.href)
-                    ? "bg-primary/20 text-foreground"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+    <header className="lg:hidden">
+      <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-4 py-3 shadow-sm backdrop-blur">
+        <Link
+          href="/"
+          className="flex items-center gap-2 rounded-full border border-border/70 bg-gradient-to-r from-primary/10 to-transparent px-3 py-1 text-sm font-semibold text-foreground shadow-sm"
+        >
+          <span className="text-lg">🏆</span>
+          <span className="hidden sm:inline">TourneyAdmin</span>
+        </Link>
 
         <div className="flex items-center gap-2">
-          <nav className="hidden gap-2 sm:flex">
-            {secondaryLinks.slice(0, 3).map((link) => (
-              <Link
-                key={link.href}
-                href={link.href as Route}
-                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition hover:bg-primary/10 hover:text-foreground ${
-                  pathname.startsWith(link.href)
-                    ? "bg-primary/20 text-foreground"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <details className="group relative">
+            <summary className="list-none rounded-full border border-border/70 bg-background/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground shadow-sm transition hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 [&::-webkit-details-marker]:hidden group-open:bg-primary/15 group-open:text-foreground">
+              Meny
+            </summary>
+            <div className="absolute right-0 mt-3 w-72 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
+              <nav className="space-y-1">
+                {navigationLinks.map((link) => {
+                  const isActive = pathname.startsWith(link.href);
+
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href as Route}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`block rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                        isActive
+                          ? "bg-primary/15 text-foreground"
+                          : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+                      }`}
+                    >
+                      <div>{link.label}</div>
+                      <div className="text-xs font-normal text-muted-foreground">
+                        {link.description}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          </details>
           <ThemeToggle />
         </div>
       </div>
