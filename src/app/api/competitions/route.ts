@@ -1,6 +1,10 @@
+import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createCompetition } from "@/modules/competitions/service";
 import { createApiHandler } from "@/server/api/handler";
+import { userHasRole } from "@/server/auth";
+import { db } from "@/server/db/client";
+import { competitions, userRoles } from "@/server/db/schema";
 
 type CreateCompetitionBody = {
   name: string;
@@ -100,6 +104,7 @@ export const POST = createApiHandler(
       description: payload.description,
       primaryColor: payload.primary_color,
       secondaryColor: payload.secondary_color,
+      ownerUserId: auth.user.id,
       defaultEdition: {
         label: defaultEdition.label,
         slug: defaultEdition.slug,
@@ -161,7 +166,72 @@ export const POST = createApiHandler(
   },
   {
     requireAuth: true,
-    roles: ["global_admin", "competition_admin"],
+  },
+);
+
+export const GET = createApiHandler(
+  async ({ auth }) => {
+    if (!auth) {
+      return NextResponse.json(
+        {
+          type: "https://tournament.app/problems/unauthorized",
+          title: "Authentication required",
+          status: 401,
+          detail: "You must be authenticated to list competitions.",
+        },
+        { status: 401 },
+      );
+    }
+
+    const isGlobalAdmin = userHasRole(auth, "global_admin");
+
+    if (isGlobalAdmin) {
+      const rows = await db
+        .select({
+          id: competitions.id,
+          name: competitions.name,
+          slug: competitions.slug,
+        })
+        .from(competitions)
+        .orderBy(competitions.name);
+
+      return NextResponse.json({ competitions: rows }, { status: 200 });
+    }
+
+    const scopedIds = await db
+      .select({ scopeId: userRoles.scopeId })
+      .from(userRoles)
+      .where(
+        and(
+          eq(userRoles.userId, auth.user.id),
+          eq(userRoles.role, "competition_admin"),
+          eq(userRoles.scopeType, "competition"),
+        ),
+      );
+
+    const ids = scopedIds
+      .map((row) => row.scopeId)
+      .filter((id): id is string => Boolean(id));
+
+    if (!ids.length) {
+      return NextResponse.json({ competitions: [] }, { status: 200 });
+    }
+
+    const rows = await db
+      .select({
+        id: competitions.id,
+        name: competitions.name,
+        slug: competitions.slug,
+      })
+      .from(competitions)
+      .where(inArray(competitions.id, ids))
+      .orderBy(competitions.name);
+
+    return NextResponse.json({ competitions: rows }, { status: 200 });
+  },
+  {
+    requireAuth: true,
+    roles: ["global_admin", "competition_admin", "team_manager"],
   },
 );
 

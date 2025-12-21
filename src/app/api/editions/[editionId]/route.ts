@@ -8,11 +8,15 @@ import { createApiHandler } from "@/server/api/handler";
 
 type PatchEditionBody = {
   scoreboard_rotation_seconds?: number | null;
+  scoreboard_modules?: Array<
+    "live_matches" | "upcoming" | "standings" | "top_scorers"
+  > | null;
   scoreboard_theme?: {
     primary_color?: string | null;
     secondary_color?: string | null;
     background_image_url?: string | null;
   } | null;
+  entries_locked?: boolean | null;
 };
 
 type RouteParams = {
@@ -49,6 +53,7 @@ export const PATCH = createApiHandler<RouteParams>(
       editionId: edition.id,
       scoreboardRotationSeconds:
         payload.scoreboard_rotation_seconds ?? undefined,
+      scoreboardModules: payload.scoreboard_modules ?? undefined,
       scoreboardTheme: payload.scoreboard_theme
         ? {
             primaryColor: payload.scoreboard_theme.primary_color ?? undefined,
@@ -58,6 +63,7 @@ export const PATCH = createApiHandler<RouteParams>(
               payload.scoreboard_theme.background_image_url ?? undefined,
           }
         : undefined,
+      entriesLocked: payload.entries_locked ?? undefined,
     });
 
     return NextResponse.json(serializeScoreboardSummary(summary), {
@@ -79,6 +85,10 @@ function serializeScoreboardSummary(
       label: summary.edition.label,
       status: summary.edition.status,
       scoreboard_rotation_seconds: summary.edition.scoreboardRotationSeconds,
+      scoreboard_modules: summary.edition.scoreboardModules,
+      entries_locked_at: summary.edition.entriesLockedAt
+        ? summary.edition.entriesLockedAt.toISOString()
+        : null,
       scoreboard_theme: {
         primary_color: summary.edition.scoreboardTheme.primaryColor,
         secondary_color: summary.edition.scoreboardTheme.secondaryColor,

@@ -19,10 +19,16 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     CI: z.coerce.boolean().optional(),
+    SES_ENABLED: z.coerce.boolean().optional().default(false),
+    SES_REGION: z.string().optional(),
+    SES_ACCESS_KEY_ID: z.string().optional(),
+    SES_SECRET_ACCESS_KEY: z.string().optional(),
+    SES_SOURCE_EMAIL: z.string().email().optional(),
+    SES_CONFIGURATION_SET: z.string().optional(),
 
     // Performance check vars
     PERF_BASE_URL: z.string().url().optional(),
-    PERF_COMPETITION_SLUG: z.string().default("oslo-cup"),
+    PERF_COMPETITION_SLUG: z.string().default("trondheim-cup"),
     PERF_EDITION_SLUG: z.string().default("2025"),
     PERF_SCOREBOARD_BUDGET_MS: z.coerce.number().default(250),
     PERF_EVENT_FEED_BUDGET_MS: z.coerce.number().default(200),

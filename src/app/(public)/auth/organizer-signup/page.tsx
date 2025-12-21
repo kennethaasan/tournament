@@ -14,37 +14,37 @@ import { PageHero } from "@/ui/components/page-hero";
 export const metadata: Metadata = {
   title: "Organisatorregistrering",
   description:
-    "Start egen turnering ved å be om invitasjon og sette opp konkurransen i det nye administrasjonsverktøyet.",
+    "Start egen turnering ved å opprette konto og sette opp konkurransen direkte i administrasjonsverktøyet.",
 };
 
 const steps: Array<{ title: string; description: string }> = [
   {
-    title: "1. Be om invitasjon",
+    title: "1. Opprett konto",
     description:
-      "Send en e-post til support@tournament.local med navn, klubb/organisasjon og ønsket konkurransenavn. En global administrator sender deg en invitasjon på e-post.",
+      "Logg inn eller registrer deg med e-post. Du trenger ingen forhåndsinvitasjon for å starte en ny konkurranse.",
   },
   {
-    title: "2. Opprett bruker",
+    title: "2. Opprett konkurranse",
     description:
-      "Følg lenken i invitasjonen for å logge inn eller opprette bruker. Invitasjonen sikrer at du får riktig rolle (competition_admin) ved første pålogging.",
+      "Fyll inn grunninformasjon og den første utgaven. Du blir automatisk competition_admin og får tilgang til kontrollpanelet.",
   },
   {
-    title: "3. Sett opp konkurransen",
+    title: "3. Inviter flere",
     description:
-      "Etter innlogging kan du opprette konkurransen, legge til den første utgaven og konfigurere storskjermtemaet før du inviterer laget og dommerteamet.",
+      "Når konkurransen er klar kan du invitere flere administratorer og lagledere til samme konkurranse.",
   },
 ];
 
 const faqs: Array<{ question: string; answer: string }> = [
   {
-    question: "Hvor lang tid er invitasjonen gyldig?",
+    question: "Trenger jeg invitasjon for å starte?",
     answer:
-      "Invitasjonen er gyldig i 7 dager. Dersom fristen utløper kan du be om en ny invitasjon fra supportteamet.",
+      "Nei. Du kan registrere deg og opprette en konkurranse uten invitasjon. Invitasjoner brukes kun for å gi andre tilgang.",
   },
   {
     question: "Kan flere i klubben få administratorrettigheter?",
     answer:
-      "Ja. Etter at du har opprettet konkurransen kan du sende videre invitasjoner fra kontrollpanelet slik at flere får competition_admin-rolle.",
+      "Ja. Etter at du har opprettet konkurransen kan du sende invitasjoner fra kontrollpanelet slik at flere får competition_admin-rolle.",
   },
   {
     question: "Hvilke data trenger jeg for å komme i gang?",
@@ -60,9 +60,9 @@ export default function OrganizerSignupPage() {
         <PageHero
           eyebrow="Selvbetjent onboarding"
           title="Bli turneringsarrangør på noen få minutter"
-          description="Plattformen støtter deg fra invitasjon til publiserte utgaver. Følg stegene, og koble deg på kontrollpanelet uten friksjon."
-          actionHref="/dashboard/admin/overview"
-          actionLabel="Gå til kontrollpanel"
+          description="Plattformen støtter deg fra registrering til publiserte utgaver. Følg stegene, og koble deg på kontrollpanelet uten friksjon."
+          actionHref="/dashboard/competitions/new"
+          actionLabel="Opprett konkurranse"
         />
 
         <section className="grid gap-4 md:grid-cols-3">
@@ -99,17 +99,17 @@ export default function OrganizerSignupPage() {
                 Klar til å sette i gang?
               </CardTitle>
               <CardDescription>
-                Logg inn med invitasjonen din, eller kontakt support for å få
-                tilsendt en ny. Du kan teste storskjermtema, registrere lag og
-                publisere kampoppsett før kickoff.
+                Logg inn for å opprette konkurransen din. Du kan teste
+                storskjermtema, registrere lag og publisere kampoppsett før
+                kickoff.
               </CardDescription>
             </div>
             <div className="flex flex-col gap-3 md:justify-self-end">
               <Link
-                href="/"
+                href="/dashboard/competitions/new"
                 className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition hover:bg-primary/90"
               >
-                Logg inn / bruk invitasjon
+                Gå til opprettelse
               </Link>
               <a
                 href="mailto:support@tournament.local?subject=Invitasjon%20til%20ny%20turnering"

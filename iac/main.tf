@@ -22,7 +22,8 @@ resource "neon_project" "this" {
 }
 
 locals {
-  database_url = neon_project.this.connection_uri
+  database_url_base = neon_project.this.connection_uri_pooler
+  database_url      = strcontains(local.database_url_base, "sslmode=") ? local.database_url_base : (strcontains(local.database_url_base, "?") ? "${local.database_url_base}&sslmode=require" : "${local.database_url_base}?sslmode=require")
 }
 
 ###########################
@@ -32,6 +33,86 @@ locals {
 data "aws_route53_zone" "zone" {
   name         = var.parent_domain
   private_zone = false
+}
+
+data "aws_caller_identity" "current" {}
+
+###########################
+# Amazon SES (email)
+###########################
+
+resource "aws_ses_domain_identity" "app" {
+  count  = var.ses_enabled ? 1 : 0
+  domain = local.ses_domain
+}
+
+resource "aws_route53_record" "ses_verification" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "_amazonses.${local.ses_domain}"
+  type    = "TXT"
+  ttl     = 600
+  records = [aws_ses_domain_identity.app[0].verification_token]
+}
+
+resource "aws_ses_domain_identity_verification" "app" {
+  count      = var.ses_enabled ? 1 : 0
+  domain     = aws_ses_domain_identity.app[0].domain
+  depends_on = [aws_route53_record.ses_verification]
+}
+
+resource "aws_ses_domain_dkim" "app" {
+  count  = var.ses_enabled ? 1 : 0
+  domain = aws_ses_domain_identity.app[0].domain
+}
+
+resource "aws_route53_record" "ses_dkim" {
+  count = var.ses_enabled ? 3 : 0
+
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}._domainkey.${local.ses_domain}"
+  type    = "CNAME"
+  ttl     = 600
+  records = ["${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}.dkim.amazonses.com"]
+}
+
+resource "aws_route53_record" "ses_dmarc" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = "_dmarc.${local.ses_domain}"
+  type    = "TXT"
+  ttl     = 600
+  records = [local.dmarc_value]
+}
+
+resource "aws_ses_domain_mail_from" "app" {
+  count                  = var.ses_enabled ? 1 : 0
+  domain                 = aws_ses_domain_identity.app[0].domain
+  mail_from_domain       = local.ses_mail_from_domain
+  behavior_on_mx_failure = "UseDefaultValue"
+}
+
+resource "aws_route53_record" "ses_mail_from_mx" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = local.ses_mail_from_domain
+  type    = "MX"
+  ttl     = 600
+  records = ["10 feedback-smtp.${local.ses_region}.amazonses.com"]
+}
+
+resource "aws_route53_record" "ses_mail_from_txt" {
+  count   = var.ses_enabled ? 1 : 0
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = local.ses_mail_from_domain
+  type    = "TXT"
+  ttl     = 600
+  records = ["v=spf1 include:amazonses.com -all"]
+}
+
+resource "aws_ses_configuration_set" "app" {
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name  = local.ses_configuration_set_name
 }
 
 module "acm" {
@@ -74,16 +155,92 @@ module "fn" {
       PORT                           = "3000"
       DATABASE_URL                   = local.database_url
       BETTER_AUTH_SECRET             = var.better_auth_secret
+      BETTER_AUTH_EMAIL_SENDER       = local.better_auth_email_sender
+      SES_ENABLED                    = tostring(var.ses_enabled)
+      SES_REGION                     = local.ses_region
+      SES_SOURCE_EMAIL               = local.ses_source_email
       POWERTOOLS_SERVICE_NAME        = lookup(var.lambda_environment, "POWERTOOLS_SERVICE_NAME", var.app_name)
       POWERTOOLS_LOG_LEVEL           = lookup(var.lambda_environment, "POWERTOOLS_LOG_LEVEL", "INFO")
       POWERTOOLS_TRACING_SAMPLE_RATE = lookup(var.lambda_environment, "POWERTOOLS_TRACING_SAMPLE_RATE", "0")
-    }
+    },
+    local.ses_configuration_set_name != "" ? { SES_CONFIGURATION_SET = local.ses_configuration_set_name } : {}
   )
 
   create_lambda_function_url        = true
   authorization_type                = "AWS_IAM"
   cloudwatch_logs_retention_in_days = var.lambda_log_retention_days
   tags                              = local.default_tags
+}
+
+data "aws_iam_policy_document" "ses_send" {
+  count = var.ses_enabled ? 1 : 0
+
+  statement {
+    sid       = "AllowSesSend"
+    effect    = "Allow"
+    actions   = ["ses:SendEmail", "ses:SendRawEmail"]
+    resources = [aws_ses_domain_identity.app[0].arn]
+  }
+}
+
+resource "aws_iam_policy" "ses_send" {
+  count  = var.ses_enabled ? 1 : 0
+  name   = "${local.stack_name}-ses-send"
+  policy = data.aws_iam_policy_document.ses_send[0].json
+  tags   = local.default_tags
+}
+
+resource "aws_iam_role_policy_attachment" "ses_send" {
+  count      = var.ses_enabled ? 1 : 0
+  role       = module.fn.lambda_role_name
+  policy_arn = aws_iam_policy.ses_send[0].arn
+}
+
+resource "aws_sns_topic" "ses_events" {
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name  = local.ses_event_topic_name
+  tags  = local.default_tags
+}
+
+data "aws_iam_policy_document" "ses_events" {
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+
+  statement {
+    sid    = "AllowSesPublish"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ses.amazonaws.com"]
+    }
+
+    actions   = ["sns:Publish"]
+    resources = [aws_sns_topic.ses_events[0].arn]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceAccount"
+      values   = [data.aws_caller_identity.current.account_id]
+    }
+  }
+}
+
+resource "aws_sns_topic_policy" "ses_events" {
+  count  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  arn    = aws_sns_topic.ses_events[0].arn
+  policy = data.aws_iam_policy_document.ses_events[0].json
+}
+
+resource "aws_ses_event_destination" "ses_events" {
+  count                  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name                   = "ses-events"
+  configuration_set_name = aws_ses_configuration_set.app[0].name
+  enabled                = true
+  matching_types         = ["bounce", "complaint", "delivery"]
+
+  sns_destination {
+    topic_arn = aws_sns_topic.ses_events[0].arn
+  }
 }
 
 locals {
@@ -100,6 +257,10 @@ data "aws_cloudfront_cache_policy" "caching_optimized" {
 
 data "aws_cloudfront_origin_request_policy" "all_viewer_except_host" {
   name = "Managed-AllViewerExceptHostHeader"
+}
+
+data "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "Managed-SecurityHeadersPolicy"
 }
 
 module "cdn" {
@@ -137,27 +298,29 @@ module "cdn" {
   }
 
   default_cache_behavior = {
-    target_origin_id         = "lambda-url"
-    viewer_protocol_policy   = "redirect-to-https"
-    compress                 = true
-    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods           = ["GET", "HEAD"]
-    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
-    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
-    use_forwarded_values     = false
+    target_origin_id           = "lambda-url"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    allowed_methods            = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods             = ["GET", "HEAD"]
+    cache_policy_id            = data.aws_cloudfront_cache_policy.caching_disabled.id
+    origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
+    response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+    use_forwarded_values       = false
   }
 
   ordered_cache_behavior = [
     {
-      path_pattern             = "/_next/static/*"
-      target_origin_id         = "lambda-url"
-      viewer_protocol_policy   = "redirect-to-https"
-      compress                 = true
-      allowed_methods          = ["GET", "HEAD", "OPTIONS"]
-      cached_methods           = ["GET", "HEAD"]
-      cache_policy_id          = data.aws_cloudfront_cache_policy.caching_optimized.id
-      origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
-      use_forwarded_values     = false
+      path_pattern               = "/_next/static/*"
+      target_origin_id           = "lambda-url"
+      viewer_protocol_policy     = "redirect-to-https"
+      compress                   = true
+      allowed_methods            = ["GET", "HEAD", "OPTIONS"]
+      cached_methods             = ["GET", "HEAD"]
+      cache_policy_id            = data.aws_cloudfront_cache_policy.caching_optimized.id
+      origin_request_policy_id   = data.aws_cloudfront_origin_request_policy.all_viewer_except_host.id
+      response_headers_policy_id = data.aws_cloudfront_response_headers_policy.security_headers.id
+      use_forwarded_values       = false
     }
   ]
 

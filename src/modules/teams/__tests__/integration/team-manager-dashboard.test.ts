@@ -72,11 +72,11 @@ beforeEach(async () => {
 describe("Team manager dashboard flows", () => {
   test.skip("supports roster, entry, squad, and dispute management", async () => {
     const team = await createTeam({
-      name: "Oslo Vikinger",
+      name: "Trondheim Vikinger",
       contactEmail: "lagleder@example.com",
     });
 
-    expect(team.slug).toBe("oslo-vikinger");
+    expect(team.slug).toBe("trondheim-vikinger");
 
     const manager = await addRosterMember({
       teamId: team.id,

@@ -45,7 +45,7 @@ export function PageHero({
               size="sm"
               className="rounded-full border border-border/80"
             >
-              <Link href="/competitions/oslo-cup/2025/scoreboard">
+              <Link href="/competitions/trondheim-cup/2025/scoreboard">
                 Se scoreboard-demo
               </Link>
             </Button>

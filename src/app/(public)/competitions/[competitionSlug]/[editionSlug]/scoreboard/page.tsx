@@ -29,8 +29,9 @@ export async function generateMetadata({
   const scoreboard = await loadScoreboard(resolvedParams);
 
   return {
-    title: `${scoreboard.edition.label} · Public scoreboard`,
-    description: "Live scores, standings, and top scorers for spectators.",
+    title: `${scoreboard.edition.label} · Offentlig visning`,
+    description:
+      "Publikumsvisning med resultater, tabell, toppscorere og storskjermmodus.",
   };
 }
 

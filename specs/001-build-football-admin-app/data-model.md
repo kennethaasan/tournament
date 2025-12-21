@@ -1,6 +1,6 @@
 # Phase 1: Data Model
 
-**Status**: Updated (2025-11-06)  
+**Status**: Updated (2025-12-20)  
 **Scope**: Modern football administration platform (Next.js + Drizzle + PostgreSQL)  
 **Key Principle**: All persistent identifiers are UUID v7 strings (`uuid_generate_v7()` via database extension or generated in application code).
 
@@ -194,7 +194,7 @@ Self-service competition creation writes a `user_roles` row with `role = 'compet
 | `edition_id`        | `uuid`        | PK, FK -> `editions.id`             | One-to-one settings row                            |
 | `scoreboard_theme`  | `jsonb`       | Not Null                            | Colors, backgrounds, assets                        |
 | `scoreboard_rotation_seconds` | `integer` | Default `5`, CHECK >= 2     | UI safeguards                                      |
-| `registration_requirements`    | `jsonb`  | Nullable                        | Medical forms, categories                          |
+| `registration_requirements`    | `jsonb`  | Nullable                        | Includes `scoreboard_modules` and `entries_locked_at` |
 | `ruleset_notes`     | `text`        | Nullable                            | Markdown for staff                                 |
 
 #### `stages`
@@ -310,12 +310,11 @@ Self-service competition creation writes a `user_roles` row with `role = 'compet
 | `edition_id`     | `uuid`        | FK -> `editions.id`, Not Null                                           |                                            |
 | `team_id`        | `uuid`        | FK -> `teams.id`, Not Null                                              |                                            |
 | `status`         | `text`        | Enum (`pending`, `approved`, `rejected`, `withdrawn`)                   |                                            |
-| `submitted_by`   | `uuid`        | FK -> `users.id`, Not Null                                              | Team manager or competition admin acting on behalf |
-| `submitted_at`   | `timestamptz` | Default `now()`                                                         |                                            |
-| `reviewed_by`    | `uuid`        | FK -> `users.id`, Nullable                                              | Edition admin                              |
-| `reviewed_at`    | `timestamptz` | Nullable                                                                |                                            |
-| `category`       | `text`        | Nullable                                                                | Age group / division                       |
-| `notes`          | `text`        | Nullable                                                                | Internal commentary                         |
+| `submitted_at`   | `timestamptz` | Nullable                                                                | Populated on entry creation                |
+| `approved_at`    | `timestamptz` | Nullable                                                                |                                              |
+| `rejected_at`    | `timestamptz` | Nullable                                                                |                                              |
+| `notes`          | `text`        | Nullable                                                                | Internal commentary                        |
+| `metadata`       | `jsonb`       | Not Null, Default `{}`                                                  | Decision rationale, actor ids, audit hints |
 
 #### `squads`
 

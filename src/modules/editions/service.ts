@@ -220,12 +220,20 @@ export type EditionScoreboardTheme = {
   backgroundImageUrl: string | null;
 };
 
+export type ScoreboardModule =
+  | "live_matches"
+  | "upcoming"
+  | "standings"
+  | "top_scorers";
+
 export type EditionScoreboardSummary = {
   edition: {
     id: string;
     label: string;
     status: string;
     scoreboardRotationSeconds: number;
+    scoreboardModules: ScoreboardModule[];
+    entriesLockedAt: Date | null;
     scoreboardTheme: EditionScoreboardTheme;
   };
   highlight: {
@@ -238,7 +246,9 @@ export type EditionScoreboardSummary = {
 type UpdateScoreboardSettingsInput = {
   editionId: string;
   scoreboardRotationSeconds?: number | null;
+  scoreboardModules?: ScoreboardModule[] | null;
   scoreboardTheme?: ScoreboardThemeInput | null;
+  entriesLocked?: boolean | null;
 };
 
 type TriggerHighlightInput = {
@@ -279,6 +289,10 @@ export async function getEditionScoreboardSummary(
   }
 
   const themeRecord = ensureScoreboardThemeRecord(settings.scoreboardTheme);
+  const modules = extractScoreboardModules(settings.registrationRequirements);
+  const entriesLockedAt = extractEntriesLockedAt(
+    settings.registrationRequirements,
+  );
   const highlight = await fetchActiveHighlight(editionId);
   const now = Date.now();
 
@@ -288,6 +302,8 @@ export async function getEditionScoreboardSummary(
       label: edition.label,
       status: edition.status,
       scoreboardRotationSeconds: settings.scoreboardRotationSeconds,
+      scoreboardModules: modules,
+      entriesLockedAt,
       scoreboardTheme: mapThemeRecordToDto(themeRecord),
     },
     highlight: highlight
@@ -345,16 +361,38 @@ export async function updateEditionScoreboardSettings(
             input.scoreboardRotationSeconds,
           );
 
+    const modules =
+      input.scoreboardModules === undefined || input.scoreboardModules === null
+        ? extractScoreboardModules(settings.registrationRequirements)
+        : normalizeScoreboardModules(input.scoreboardModules);
+
     const themeRecord =
       input.scoreboardTheme === undefined || input.scoreboardTheme === null
         ? ensureScoreboardThemeRecord(settings.scoreboardTheme)
         : competitionsInternal.normalizeTheme(input.scoreboardTheme);
+
+    const existingEntriesLockedAt = extractEntriesLockedAt(
+      settings.registrationRequirements,
+    );
+    const entriesLockedAt =
+      input.entriesLocked === undefined || input.entriesLocked === null
+        ? existingEntriesLockedAt
+        : input.entriesLocked
+          ? (existingEntriesLockedAt ?? new Date())
+          : null;
+
+    const registrationRequirements = buildRegistrationRequirements(
+      settings.registrationRequirements,
+      modules,
+      entriesLockedAt,
+    );
 
     await tx
       .update(editionSettings)
       .set({
         scoreboardRotationSeconds: rotationSeconds,
         scoreboardTheme: themeRecord,
+        registrationRequirements,
       })
       .where(eq(editionSettings.editionId, input.editionId));
 
@@ -517,6 +555,13 @@ type ScoreboardThemeRecord = {
   background_image_url: string | null;
 };
 
+const SCOREBOARD_MODULES: ScoreboardModule[] = [
+  "live_matches",
+  "upcoming",
+  "standings",
+  "top_scorers",
+];
+
 function ensureScoreboardThemeRecord(input: unknown): ScoreboardThemeRecord {
   const record = (input as Record<string, unknown>) ?? {};
   const primary =
@@ -534,6 +579,66 @@ function ensureScoreboardThemeRecord(input: unknown): ScoreboardThemeRecord {
     primary_color: primary,
     secondary_color: secondary,
     background_image_url: background,
+  };
+}
+
+function normalizeScoreboardModules(input: unknown): ScoreboardModule[] {
+  if (!Array.isArray(input)) {
+    return [...SCOREBOARD_MODULES];
+  }
+
+  const modules = input.filter((value): value is ScoreboardModule =>
+    SCOREBOARD_MODULES.includes(value as ScoreboardModule),
+  );
+
+  if (!modules.length) {
+    return [...SCOREBOARD_MODULES];
+  }
+
+  return Array.from(new Set(modules));
+}
+
+function normalizeRegistrationRequirements(
+  input: unknown,
+): Record<string, unknown> {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  return input as Record<string, unknown>;
+}
+
+function extractScoreboardModules(input: unknown): ScoreboardModule[] {
+  const requirements = normalizeRegistrationRequirements(input);
+
+  return normalizeScoreboardModules(
+    requirements.scoreboard_modules ?? requirements.scoreboardModules,
+  );
+}
+
+function extractEntriesLockedAt(input: unknown): Date | null {
+  const requirements = normalizeRegistrationRequirements(input);
+  const value =
+    requirements.entries_locked_at ?? requirements.entriesLockedAt ?? null;
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function buildRegistrationRequirements(
+  existing: unknown,
+  modules: ScoreboardModule[],
+  entriesLockedAt: Date | null,
+): Record<string, unknown> {
+  return {
+    ...normalizeRegistrationRequirements(existing),
+    scoreboard_modules: modules,
+    entries_locked_at: entriesLockedAt ? entriesLockedAt.toISOString() : null,
   };
 }
 

@@ -19,11 +19,24 @@ type ScoreboardControlProps = {
   editionId: string;
 };
 
+type ScoreboardModule =
+  | "live_matches"
+  | "upcoming"
+  | "standings"
+  | "top_scorers";
+
 const DEFAULT_THEME: ScoreboardThemeFormValue = {
   primaryColor: "#0B1F3A",
   secondaryColor: "#FFFFFF",
   backgroundImageUrl: null,
 };
+
+const MODULE_OPTIONS: Array<{ id: ScoreboardModule; label: string }> = [
+  { id: "live_matches", label: "Livekamper" },
+  { id: "upcoming", label: "Kommende kamper" },
+  { id: "standings", label: "Tabell" },
+  { id: "top_scorers", label: "Toppscorere" },
+];
 
 export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const queryClient = useQueryClient();
@@ -31,6 +44,9 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const [editionLabel, setEditionLabel] = useState("");
 
   const [rotationSeconds, setRotationSeconds] = useState<string>("5");
+  const [modules, setModules] = useState<ScoreboardModule[]>(
+    MODULE_OPTIONS.map((module) => module.id),
+  );
   const [theme, setTheme] = useState<ScoreboardThemeFormValue>(DEFAULT_THEME);
   const [settingsSuccess, setSettingsSuccess] = useState<string | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
@@ -55,6 +71,11 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const applySummary = useCallback((summary: EditionScoreboardView) => {
     setEditionLabel(summary.edition.label);
     setRotationSeconds(summary.edition.scoreboard_rotation_seconds.toString());
+    setModules(
+      summary.edition.scoreboard_modules?.length
+        ? (summary.edition.scoreboard_modules as ScoreboardModule[])
+        : MODULE_OPTIONS.map((module) => module.id),
+    );
     setTheme({
       primaryColor:
         summary.edition.scoreboard_theme?.primary_color ??
@@ -91,10 +112,12 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const settingsMutation = useMutation({
     mutationFn: (input: {
       rotationSeconds: number;
+      modules: ScoreboardModule[];
       theme: ScoreboardThemeFormValue;
     }) =>
       updateEditionScoreboard(editionId, {
         scoreboard_rotation_seconds: input.rotationSeconds,
+        scoreboard_modules: input.modules,
         scoreboard_theme: {
           primary_color: input.theme.primaryColor,
           secondary_color: input.theme.secondaryColor,
@@ -171,8 +194,13 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
         throw new Error("Rotasjonstiden må være minst 2 sekunder.");
       }
 
+      if (!modules.length) {
+        throw new Error("Velg minst én modul som skal vises på storskjermen.");
+      }
+
       await settingsMutation.mutateAsync({
         rotationSeconds: parsedRotation,
+        modules,
         theme,
       });
     } catch (error) {
@@ -315,6 +343,39 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                     <p className="text-xs text-zinc-500">
                       Scoreboarden roterer mellom seksjoner raskere verdier er
                       ikke tillatt enn 2 sekunder.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-zinc-800">
+                      Vis moduler
+                    </p>
+                    <div className="grid gap-3">
+                      {MODULE_OPTIONS.map((option) => (
+                        <label
+                          key={option.id}
+                          className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={modules.includes(option.id)}
+                            onChange={(event) => {
+                              setModules((prev) =>
+                                event.target.checked
+                                  ? [...prev, option.id]
+                                  : prev.filter(
+                                      (module) => module !== option.id,
+                                    ),
+                              );
+                            }}
+                            className="h-4 w-4"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-xs text-zinc-500">
+                      Velg hvilke seksjoner som skal rotere på storskjermen.
                     </p>
                   </div>
 

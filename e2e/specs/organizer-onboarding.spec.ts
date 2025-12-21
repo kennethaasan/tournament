@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Organizer onboarding", () => {
-  test("describes invitation steps and support actions", async ({ page }) => {
+  test("describes self-service steps and support actions", async ({ page }) => {
     await page.goto("/auth/organizer-signup");
 
     await expect(
@@ -9,27 +9,33 @@ test.describe("Organizer onboarding", () => {
     ).toBeVisible();
 
     await expect(
-      page.getByRole("heading", { name: /1. Be om invitasjon/i }),
+      page.getByRole("heading", { name: /1. Opprett konto/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /2. Opprett bruker/i }),
+      page.getByRole("heading", { name: /2. Opprett konkurranse/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /3. Sett opp konkurransen/i }),
+      page.getByRole("heading", { name: /3. Inviter flere/i }),
     ).toBeVisible();
 
-    await expect(page.getByRole("link", { name: /Logg inn/i })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /Opprett konkurranse/i }),
+    ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /Kontakt support/i }),
     ).toHaveAttribute("href", /mailto:/i);
   });
 
-  test("offers navigation actions for login and support", async ({ page }) => {
+  test("offers navigation actions for onboarding and support", async ({
+    page,
+  }) => {
     await page.goto("/auth/organizer-signup");
 
-    const loginLink = page.getByRole("link", { name: /Logg inn/i });
-    await loginLink.click();
-    await expect(page).toHaveURL("/");
+    const createLink = page.getByRole("link", {
+      name: /Opprett konkurranse/i,
+    });
+    await createLink.click();
+    await expect(page).toHaveURL("/dashboard/competitions/new");
 
     await page.goBack();
 
@@ -39,9 +45,6 @@ test.describe("Organizer onboarding", () => {
       /mailto:support@tournament\.local/,
     );
 
-    await expect(
-      page.getByText(/Invitasjonen er gyldig i 7 dager/i),
-    ).toBeVisible();
     await expect(page.getByText(/Vanlige spørsmål/i)).toBeVisible();
     await expect(
       page.getByRole("heading", {

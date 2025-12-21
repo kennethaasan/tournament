@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const SCOREBOARD_API =
-  "**/api/public/competitions/oslo-cup/editions/2025/scoreboard";
+  "**/api/public/competitions/trondheim-cup/editions/2025/scoreboard";
 
 type ScoreboardPayload = {
   edition: {
@@ -85,12 +85,12 @@ function buildPayload(highlight: string): ScoreboardPayload {
         kickoff_at: now,
         home: {
           entry_id: "entry-home",
-          name: "Oslo Nord",
+          name: "Trondheim Nord",
           score: 2,
         },
         away: {
           entry_id: "entry-away",
-          name: "Oslo Sør",
+          name: "Trondheim Sør",
           score: 1,
         },
         highlight,
@@ -128,27 +128,23 @@ function buildPayload(highlight: string): ScoreboardPayload {
 
 test.describe("Public scoreboard", () => {
   test("renders live, upcoming and standings panels", async ({ page }) => {
-    await page.goto("/competitions/oslo-cup/2025/scoreboard");
+    await page.goto("/competitions/trondheim-cup/2025/scoreboard");
 
-    await expect(
-      page.getByRole("heading", { name: /public scoreboard/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /2025/i })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "Live now" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Live nå" })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Coming up" }),
+      page.getByRole("heading", { name: "Neste kamper" }),
     ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Tabell" })).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: "Standings" }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "Top scorers" }),
+      page.getByRole("heading", { name: "Toppscorere" }),
     ).toBeVisible();
   });
 
   test("polls the scoreboard API and updates overlays", async ({ page }) => {
     const payloads = [
-      buildPayload("Mål for Oslo Nord!"),
+      buildPayload("Mål for Trondheim Nord!"),
       buildPayload("Ny høydepunkt på skjermen"),
     ];
     let callCount = 0;
@@ -163,10 +159,12 @@ test.describe("Public scoreboard", () => {
       });
     });
 
-    await page.goto("/competitions/oslo-cup/2025/scoreboard");
+    await page.goto("/competitions/trondheim-cup/2025/scoreboard");
+
+    await page.getByRole("button", { name: /Storskjerm/i }).click();
 
     const overlay = page.locator('[aria-live="polite"]');
-    await expect(overlay).toHaveText("Mål for Oslo Nord!");
+    await expect(overlay).toHaveText("Mål for Trondheim Nord!");
 
     await expect.poll(() => callCount).toBeGreaterThan(1);
     await expect(overlay).toHaveText("Ny høydepunkt på skjermen");

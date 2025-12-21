@@ -110,6 +110,117 @@ variable "lambda_environment" {
   }
 }
 
+variable "better_auth_email_sender" {
+  description = "From-address for Better Auth emails (defaults to no-reply@app_domain)"
+  type        = string
+  default     = null
+
+  validation {
+    condition = var.better_auth_email_sender == null || trimspace(var.better_auth_email_sender) == "" || (
+      can(regex("^[^@]+@[^@]+$", var.better_auth_email_sender)) &&
+      endswith(
+        lower(var.better_auth_email_sender),
+        lower(coalesce(var.ses_domain, var.app_domain)),
+      )
+    )
+    error_message = "better_auth_email_sender must be an email address under ses_domain (or app_domain when ses_domain is unset)."
+  }
+}
+
+variable "ses_source_email" {
+  description = "From-address for SES invitations (defaults to better_auth_email_sender)"
+  type        = string
+  default     = null
+
+  validation {
+    condition = var.ses_source_email == null || trimspace(var.ses_source_email) == "" || (
+      can(regex("^[^@]+@[^@]+$", var.ses_source_email)) &&
+      endswith(
+        lower(var.ses_source_email),
+        lower(coalesce(var.ses_domain, var.app_domain)),
+      )
+    )
+    error_message = "ses_source_email must be an email address under ses_domain (or app_domain when ses_domain is unset)."
+  }
+}
+
+variable "ses_enabled" {
+  description = "Toggle invitation emails via SES"
+  type        = bool
+  default     = true
+}
+
+variable "ses_region" {
+  description = "SES region (defaults to aws_region)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.ses_region == null || trimspace(var.ses_region) == "" || var.ses_region == var.aws_region
+    error_message = "ses_region must match aws_region when set. SES should run in the same region as Lambda."
+  }
+}
+
+variable "ses_configuration_set" {
+  description = "Optional SES configuration set name"
+  type        = string
+  default     = null
+}
+
+variable "ses_create_configuration_set" {
+  description = "Create the SES configuration set if ses_configuration_set is provided"
+  type        = bool
+  default     = true
+}
+
+variable "ses_domain" {
+  description = "Domain to verify with SES (defaults to app_domain)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.ses_domain == null || trimspace(var.ses_domain) == "" || endswith(lower(var.ses_domain), lower(var.parent_domain))
+    error_message = "ses_domain must be within the parent_domain Route53 zone."
+  }
+}
+
+variable "ses_mail_from_domain" {
+  description = "MAIL FROM domain (defaults to mail.<ses_domain>)"
+  type        = string
+  default     = null
+
+  validation {
+    condition = var.ses_mail_from_domain == null || trimspace(var.ses_mail_from_domain) == "" || endswith(
+      lower(var.ses_mail_from_domain),
+      lower(coalesce(var.ses_domain, var.app_domain)),
+    )
+    error_message = "ses_mail_from_domain must be within ses_domain (or app_domain when ses_domain is unset)."
+  }
+}
+
+variable "ses_event_topic_name" {
+  description = "SNS topic name for SES event notifications"
+  type        = string
+  default     = null
+}
+
+variable "ses_dmarc_policy" {
+  description = "DMARC policy for the SES domain"
+  type        = string
+  default     = "none"
+
+  validation {
+    condition     = contains(["none", "quarantine", "reject"], var.ses_dmarc_policy)
+    error_message = "ses_dmarc_policy must be one of: none, quarantine, reject."
+  }
+}
+
+variable "ses_dmarc_rua_email" {
+  description = "Optional DMARC aggregate report email (rua)"
+  type        = string
+  default     = null
+}
+
 variable "package_path" {
   description = "Path to the packaged Lambda ZIP archive"
   type        = string

@@ -1,6 +1,6 @@
 # Phase 1: Quickstart Guide
 
-**Status**: Updated (2025-11-06)
+**Status**: Updated (2025-12-20)
 
 This guide outlines the expected local development workflow for the modern football competition administration application once implementation aligns with the specification.
 
@@ -33,6 +33,21 @@ BETTER_AUTH_EMAIL_SENDER="no-reply@example.com"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
+To send invitation emails locally, configure Amazon SES:
+
+```
+SES_ENABLED="true"
+SES_REGION="eu-west-1"
+SES_ACCESS_KEY_ID="<aws-access-key>"
+SES_SECRET_ACCESS_KEY="<aws-secret>"
+SES_SOURCE_EMAIL="no-reply@your-domain.no"
+```
+
+Production email via Terraform:
+- Terraform provisions the SES domain identity, DKIM records, and MAIL FROM records in Route53 when `ses_enabled = true`.
+- The sender defaults to `no-reply@${app_domain}` unless overridden via `better_auth_email_sender` or `ses_source_email`.
+- Ensure the SES account is out of sandbox (or verify recipient addresses) before expecting delivery.
+
 ---
 
 ## 2. Start Local Infrastructure
@@ -64,7 +79,7 @@ The seed should create:
 - One competition with both a draft and a published edition for admin flows.
 - Sample entries, squads, and matches tied to the published edition for scoreboard testing.
 - Default users (global admin, edition admin, team manager) with known credentials.
-- A public scoreboard demo available at `http://localhost:3000/competitions/oslo-cup/2025/scoreboard`.
+- A public scoreboard demo available at `http://localhost:3000/competitions/trondheim-cup/2025/scoreboard`.
 
 ---
 
@@ -99,7 +114,7 @@ Validate polling budgets with:
 npm run check-performance
 ```
 
-By default this hits the scoreboard (`/api/public/editions/oslo-cup/2025/scoreboard`) and event feed (`/api/public/events`) endpoints three times each, ensuring the worst request stays within 250 ms and 200 ms respectively. Override the base URL or budgets with `PERF_*` env vars when testing against other environments. Use CLI flags for more control, e.g. `npm run check-performance -- --runs=5 --json`.
+By default this hits the scoreboard (`/api/public/editions/trondheim-cup/2025/scoreboard`) and event feed (`/api/public/events`) endpoints three times each, ensuring the worst request stays within 250 ms and 200 ms respectively. Override the base URL or budgets with `PERF_*` env vars when testing against other environments. Use CLI flags for more control, e.g. `npm run check-performance -- --runs=5 --json`.
 
 ---
 
@@ -109,7 +124,7 @@ By default this hits the scoreboard (`/api/public/editions/oslo-cup/2025/scorebo
 - Edition Admin: `edition-admin@example.com` / `Password123!`
 - Team Manager: `lagleder@example.com` / `Password123!`
 
-Seeding also provisions Oslo Cup (2025 published, 2026 draft), four demo teams with rosters, staged matches for the scoreboard, and an active highlight overlay so the Pa11y/Playwright checks can observe live changes.
+Seeding also provisions Trondheim Cup (2025 published, 2026 draft), four demo teams with rosters, staged matches for the scoreboard, and an active highlight overlay so the Pa11y/Playwright checks can observe live changes.
 
 ---
 

@@ -32,11 +32,11 @@ import {
 type DatabaseExecutor = DrizzleDatabase | TransactionClient;
 
 const COMPETITION = {
-  name: "Oslo Cup",
-  slug: "oslo-cup",
+  name: "Trondheim Cup",
+  slug: "trondheim-cup",
   defaultTimezone: "Europe/Oslo",
   description:
-    "En demonstrasjonsturnering med både publikumsskjermer og administrasjonspanelet aktivert.",
+    "En demonstrasjonsturnering i Trondheim med både publikumsskjermer og administrasjonspanelet aktivert.",
   primaryColor: "#0B1F3A",
   secondaryColor: "#F2F4FF",
 };
@@ -89,7 +89,7 @@ type TeamDefinition = {
 
 const TEAM_DEFINITIONS: TeamDefinition[] = [
   {
-    name: "Oslo Nord",
+    name: "Trondheim Nord",
     contactEmail: "nord@example.com",
     contactPhone: "+47 900 00 001",
     players: [
@@ -117,7 +117,7 @@ const TEAM_DEFINITIONS: TeamDefinition[] = [
     ],
   },
   {
-    name: "Oslo Sør",
+    name: "Trondheim Sør",
     contactEmail: "sor@example.com",
     contactPhone: "+47 900 00 002",
     players: [
@@ -138,8 +138,8 @@ const TEAM_DEFINITIONS: TeamDefinition[] = [
     ],
   },
   {
-    name: "Bergen Blå",
-    contactEmail: "bergen@example.com",
+    name: "Nidaros FK",
+    contactEmail: "nidaros@example.com",
     contactPhone: "+47 900 00 003",
     players: [
       {
@@ -184,8 +184,8 @@ const TEAM_DEFINITIONS: TeamDefinition[] = [
 const MATCH_PLAN = [
   {
     code: "seed-match-1",
-    homeSlug: "oslo-nord",
-    awaySlug: "oslo-s-r",
+    homeSlug: "trondheim-nord",
+    awaySlug: "trondheim-s-r",
     status: "in_progress",
     kickoffOffset: -20,
     homeScore: 2,
@@ -193,7 +193,7 @@ const MATCH_PLAN = [
   },
   {
     code: "seed-match-2",
-    homeSlug: "bergen-bl",
+    homeSlug: "nidaros-fk",
     awaySlug: "trondheim-lyn",
     status: "scheduled",
     kickoffOffset: 30,
@@ -202,8 +202,8 @@ const MATCH_PLAN = [
   },
   {
     code: "seed-match-3",
-    homeSlug: "oslo-nord",
-    awaySlug: "bergen-bl",
+    homeSlug: "trondheim-nord",
+    awaySlug: "nidaros-fk",
     status: "finalized",
     kickoffOffset: -180,
     homeScore: 3,
@@ -214,31 +214,31 @@ const MATCH_PLAN = [
 const MATCH_EVENTS = [
   {
     matchCode: "seed-match-1",
-    playerKey: "oslo-nord:9",
+    playerKey: "trondheim-nord:9",
     type: "goal",
     minute: 8,
   },
   {
     matchCode: "seed-match-1",
-    playerKey: "oslo-s-r:10",
+    playerKey: "trondheim-s-r:10",
     type: "goal",
     minute: 38,
   },
   {
     matchCode: "seed-match-3",
-    playerKey: "oslo-nord:9",
+    playerKey: "trondheim-nord:9",
     type: "goal",
     minute: 14,
   },
   {
     matchCode: "seed-match-3",
-    playerKey: "oslo-nord:9",
+    playerKey: "trondheim-nord:9",
     type: "assist",
     minute: 60,
   },
   {
     matchCode: "seed-match-3",
-    playerKey: "bergen-bl:11",
+    playerKey: "nidaros-fk:11",
     type: "goal",
     minute: 75,
   },
@@ -261,10 +261,10 @@ const DEMO_USERS = [
   },
   {
     email: "lagleder@example.com",
-    fullName: "Lagleder Oslo Nord",
+    fullName: "Lagleder Trondheim Nord",
     role: "team_manager",
     scopeType: "team" as const,
-    scopeSlug: "oslo-nord",
+    scopeSlug: "trondheim-nord",
   },
 ] as const;
 

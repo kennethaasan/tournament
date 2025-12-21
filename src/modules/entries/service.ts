@@ -3,6 +3,8 @@ import { createProblem } from "@/lib/errors/problem";
 import { db, withTransaction } from "@/server/db/client";
 import {
   type Entry,
+  editionSettings,
+  editions,
   entries,
   matchDisputes,
   matches,
@@ -17,6 +19,13 @@ export type CreateEntryInput = {
   editionId: string;
   teamId: string;
   notes?: string | null;
+};
+
+export type ReviewEntryInput = {
+  entryId: string;
+  status: "approved" | "rejected";
+  reason?: string | null;
+  actorId: string;
 };
 
 export type SquadMemberInput = {
@@ -35,6 +44,65 @@ export type MatchDisputeInput = {
 };
 
 export async function createEntry(input: CreateEntryInput): Promise<Entry> {
+  const [edition, settings] = await Promise.all([
+    db.query.editions.findFirst({
+      columns: {
+        id: true,
+        registrationOpensAt: true,
+        registrationClosesAt: true,
+      },
+      where: eq(editions.id, input.editionId),
+    }),
+    db.query.editionSettings.findFirst({
+      columns: {
+        editionId: true,
+        registrationRequirements: true,
+      },
+      where: eq(editionSettings.editionId, input.editionId),
+    }),
+  ]);
+
+  if (!edition) {
+    throw createProblem({
+      type: "https://tournament.app/problems/edition-not-found",
+      title: "Utgaven ble ikke funnet",
+      status: 404,
+      detail: "Utgaven du prøver å melde på laget til finnes ikke.",
+    });
+  }
+
+  const now = new Date();
+  if (edition.registrationOpensAt && now < edition.registrationOpensAt) {
+    throw createProblem({
+      type: "https://tournament.app/problems/entry/registration-not-open",
+      title: "Påmeldingen har ikke åpnet",
+      status: 400,
+      detail: "Påmeldingene er ikke åpne enda.",
+    });
+  }
+
+  if (edition.registrationClosesAt && now > edition.registrationClosesAt) {
+    throw createProblem({
+      type: "https://tournament.app/problems/entry/registration-closed",
+      title: "Påmeldingen er stengt",
+      status: 400,
+      detail: "Påmeldingsfristen er utløpt for denne utgaven.",
+    });
+  }
+
+  const entriesLockedAt = extractEntriesLockedAt(
+    settings?.registrationRequirements,
+  );
+  if (entriesLockedAt) {
+    throw createProblem({
+      type: "https://tournament.app/problems/entry/entries-locked",
+      title: "Påmeldinger er låst",
+      status: 400,
+      detail:
+        "Påmeldinger er låst for denne utgaven. Kontakt administrator om du trenger hjelp.",
+    });
+  }
+
   const [entry] = await db
     .insert(entries)
     .values({
@@ -59,6 +127,76 @@ export async function createEntry(input: CreateEntryInput): Promise<Entry> {
   }
 
   return entry;
+}
+
+function extractEntriesLockedAt(input: unknown): Date | null {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return null;
+  }
+
+  const record = input as Record<string, unknown>;
+  const value = record.entries_locked_at ?? record.entriesLockedAt ?? null;
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const parsed = new Date(value);
+
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+export async function reviewEntry(input: ReviewEntryInput): Promise<Entry> {
+  return withTransaction(async (tx) => {
+    const entry = await tx.query.entries.findFirst({
+      where: eq(entries.id, input.entryId),
+    });
+
+    if (!entry) {
+      throw createProblem({
+        type: "https://tournament.app/problems/entry-not-found",
+        title: "Påmeldingen ble ikke funnet",
+        status: 404,
+        detail: "Påmeldingen finnes ikke lenger.",
+      });
+    }
+
+    if (entry.status !== "pending") {
+      return entry;
+    }
+
+    const status = input.status;
+    const now = new Date();
+
+    const metadata = {
+      ...(entry.metadata ?? {}),
+      decision_reason: input.reason?.trim() || null,
+      decided_by: input.actorId,
+      decided_at: now.toISOString(),
+    };
+
+    const [updated] = await tx
+      .update(entries)
+      .set({
+        status,
+        approvedAt: status === "approved" ? now : entry.approvedAt,
+        rejectedAt: status === "rejected" ? now : entry.rejectedAt,
+        metadata,
+      })
+      .where(eq(entries.id, entry.id))
+      .returning();
+
+    if (!updated) {
+      throw createProblem({
+        type: "https://tournament.app/problems/entry-not-updated",
+        title: "Kunne ikke oppdatere påmeldingen",
+        status: 500,
+        detail: "Prøv igjen eller kontakt support.",
+      });
+    }
+
+    return updated;
+  });
 }
 
 export async function ensureSquad(entryId: string): Promise<Squad> {

@@ -8,6 +8,7 @@ import {
   type EditionSetting,
   editionSettings,
   editions,
+  userRoles,
 } from "@/server/db/schema";
 
 const SUPPORTED_FORMATS = ["round_robin", "knockout", "hybrid"] as const;
@@ -19,6 +20,12 @@ const DEFAULT_SCOREBOARD_THEME: ScoreboardThemeRecord = {
   secondary_color: "#FFFFFF",
   background_image_url: null,
 };
+const DEFAULT_SCOREBOARD_MODULES = [
+  "live_matches",
+  "upcoming",
+  "standings",
+  "top_scorers",
+] as const;
 const MIN_CONTRAST_RATIO = 4.5;
 
 type EditionFormat = (typeof SUPPORTED_FORMATS)[number];
@@ -58,6 +65,7 @@ export type CreateCompetitionInput = {
   description?: string | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;
+  ownerUserId?: string | null;
   defaultEdition: Omit<CreateEditionInput, "competitionId">;
 };
 
@@ -123,6 +131,10 @@ export async function createCompetition(
         status: 500,
         detail: "The competition could not be created. Please try again.",
       });
+    }
+
+    if (input.ownerUserId) {
+      await ensureCompetitionAdminRole(tx, input.ownerUserId, competition.id);
     }
 
     const editionResult = await createEditionWithClient(tx, {
@@ -229,6 +241,10 @@ async function createEditionWithClient(
       editionId: edition.id,
       scoreboardTheme: themeRecord,
       scoreboardRotationSeconds: rotationSeconds,
+      registrationRequirements: {
+        scoreboard_modules: [...DEFAULT_SCOREBOARD_MODULES],
+        entries_locked_at: null,
+      },
     })
     .returning();
 
@@ -247,6 +263,47 @@ async function createEditionWithClient(
     edition,
     editionSettings: settings,
   };
+}
+
+async function ensureCompetitionAdminRole(
+  client: TransactionClient,
+  userId: string,
+  competitionId: string,
+): Promise<void> {
+  const existing = await client.query.userRoles.findFirst({
+    where: (table, { and, eq }) =>
+      and(
+        eq(table.userId, userId),
+        eq(table.role, "competition_admin"),
+        eq(table.scopeType, "competition"),
+        eq(table.scopeId, competitionId),
+      ),
+  });
+
+  if (existing) {
+    return;
+  }
+
+  const inserted = await client
+    .insert(userRoles)
+    .values({
+      userId,
+      role: "competition_admin",
+      scopeType: "competition",
+      scopeId: competitionId,
+      grantedBy: userId,
+    })
+    .returning();
+
+  if (!inserted[0]) {
+    throw createProblem({
+      type: "https://tournament.app/problems/role-not-created",
+      title: "Unable to assign competition role",
+      status: 500,
+      detail:
+        "Competition was created but the organizer role could not be assigned.",
+    });
+  }
 }
 
 function normalizeName(value: string): string {

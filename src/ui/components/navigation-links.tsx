@@ -25,6 +25,11 @@ export const navigationLinks: NavLink[] = [
     description: "Plattformstatus, invitasjoner og publiserte utgaver.",
   },
   {
+    label: "Invitasjoner",
+    href: "/dashboard/invitations",
+    description: "Send invitasjoner til administratorer og lagledere.",
+  },
+  {
     label: "Revisjon",
     href: "/dashboard/admin/audit",
     description: "Gjennomgå hendelser per konkurranse, utgave eller bruker.",
@@ -66,7 +71,7 @@ export const navigationLinks: NavLink[] = [
   },
   {
     label: "Offentlig scoreboard",
-    href: "/competitions/oslo-cup/2025/scoreboard",
+    href: "/competitions/trondheim-cup/2025/scoreboard",
     description: "Publikumsvisning med polling og høydepunkter.",
   },
 ];
