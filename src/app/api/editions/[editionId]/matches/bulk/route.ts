@@ -17,6 +17,7 @@ import {
   matches,
   stages,
 } from "@/server/db/schema";
+import { sendScheduleGeneratedEmails } from "@/server/email/action-emails";
 
 type RouteParams = {
   editionId: string;
@@ -162,6 +163,12 @@ export const POST = createApiHandler<RouteParams>(
         });
       }
     }
+
+    await sendScheduleGeneratedEmails({
+      editionId: edition.id,
+      stageId: stage.id,
+      algorithm: payload.algorithm,
+    });
 
     return NextResponse.json(
       {

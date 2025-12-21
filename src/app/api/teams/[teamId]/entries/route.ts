@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createEntry, ensureSquad } from "@/modules/entries/service";
 import { createApiHandler } from "@/server/api/handler";
+import { sendEntrySubmittedEmails } from "@/server/email/action-emails";
 
 type RouteParams = {
   teamId: string;
@@ -24,6 +25,10 @@ export const POST = createApiHandler<RouteParams>(
       notes: payload.notes,
     });
     const squad = await ensureSquad(entry.id);
+    await sendEntrySubmittedEmails({
+      teamId,
+      editionId: entry.editionId,
+    });
 
     return NextResponse.json(
       {

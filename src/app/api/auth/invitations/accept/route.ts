@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createProblem } from "@/lib/errors/problem";
 import { acceptInvitation } from "@/modules/identity/service";
 import { createApiHandler } from "@/server/api/handler";
+import { sendInvitationAcceptedEmail } from "@/server/email/action-emails";
 
 type AcceptInvitationBody = {
   token: string;
@@ -36,6 +37,15 @@ export const POST = createApiHandler(
     const result = await acceptInvitation({
       token,
       userId: auth.user.id,
+    });
+
+    await sendInvitationAcceptedEmail({
+      invitationId: result.invitation.id,
+      inviterId: result.invitation.invitedBy,
+      inviteeEmail: result.user.email,
+      role: result.invitation.role,
+      scopeType: result.invitation.scopeType,
+      scopeId: result.invitation.scopeId ?? null,
     });
 
     return NextResponse.json(

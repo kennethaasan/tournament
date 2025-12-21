@@ -6,6 +6,7 @@ import { assertEditionAdminAccess } from "@/server/api/edition-access";
 import { createApiHandler } from "@/server/api/handler";
 import { db } from "@/server/db/client";
 import { entries, notifications, teams, userRoles } from "@/server/db/schema";
+import { sendEntryStatusEmails } from "@/server/email/action-emails";
 
 type RouteParams = {
   entryId: string;
@@ -65,6 +66,12 @@ export const PATCH = createApiHandler<RouteParams>(
     });
 
     await notifyTeamManagers(entry.teamId, edition.id, payload.status);
+    await sendEntryStatusEmails({
+      teamId: entry.teamId,
+      editionId: edition.id,
+      status: payload.status,
+      reason: payload.reason ?? null,
+    });
 
     return NextResponse.json(serializeEntry(updated), { status: 200 });
   },

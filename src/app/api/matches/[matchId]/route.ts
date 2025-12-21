@@ -5,6 +5,11 @@ import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
 import { db, withTransaction } from "@/server/db/client";
 import { editions, matchEvents, matches } from "@/server/db/schema";
+import {
+  sendMatchDisputedEmails,
+  sendMatchFinalizedEmails,
+  sendMatchScheduleChangedEmails,
+} from "@/server/email/action-emails";
 
 type RouteParams = {
   matchId: string;
@@ -153,6 +158,21 @@ export const PATCH = createApiHandler<RouteParams>(
         status: 500,
         detail: "Kampen ble oppdatert, men kunne ikke hentes etterpå.",
       });
+    }
+
+    await sendMatchScheduleChangedEmails({
+      previousMatch: match,
+      updatedMatch,
+    });
+
+    if (match.status !== updatedMatch.status) {
+      if (updatedMatch.status === "finalized") {
+        await sendMatchFinalizedEmails({ updatedMatch });
+      }
+
+      if (updatedMatch.status === "disputed") {
+        await sendMatchDisputedEmails({ updatedMatch });
+      }
     }
 
     const updatedEvents = await db.query.matchEvents.findMany({
