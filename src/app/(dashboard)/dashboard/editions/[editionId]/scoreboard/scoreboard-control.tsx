@@ -265,10 +265,10 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           Utgave · Storskjerm
         </p>
-        <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
+        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
           Kontroller scoreboard for {editionLabel || "utgaven"}
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
@@ -278,21 +278,21 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
       </header>
 
       {isLoading ? (
-        <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground shadow-sm">
           Laster scoreboard-innstillinger …
         </div>
       ) : loadError ? (
         <div
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 p-8 text-sm text-red-700 shadow-sm"
+          className="rounded-xl border border-destructive/30 bg-destructive/10 p-8 text-sm text-destructive shadow-sm"
         >
           {loadError}
         </div>
       ) : (
         <div className="space-y-10">
-          <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
             <header className="space-y-1">
-              <h2 className="text-xl font-semibold text-zinc-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Tema og rotasjon
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -304,7 +304,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             {settingsSuccess && (
               <output
                 aria-live="polite"
-                className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+                className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
               >
                 {settingsSuccess}
               </output>
@@ -313,7 +313,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             {settingsError && (
               <div
                 role="alert"
-                className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
               >
                 {settingsError}
               </div>
@@ -324,7 +324,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                 <div className="space-y-2">
                   <label
                     htmlFor="rotation-seconds"
-                    className="text-sm font-medium text-zinc-800"
+                    className="text-sm font-medium text-foreground"
                   >
                     Rotasjonstakt (sekunder)
                   </label>
@@ -335,16 +335,16 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                     value={rotationSeconds}
                     onChange={(event) => setRotationSeconds(event.target.value)}
                     required
-                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     Scoreboarden roterer mellom seksjoner raskere verdier er
                     ikke tillatt enn 2 sekunder.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-zinc-800">
+                  <p className="text-sm font-medium text-foreground">
                     Vis moduler
                   </p>
                   <div className="grid gap-3">
@@ -369,20 +369,20 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                       </label>
                     ))}
                   </div>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     Velg hvilke seksjoner som skal rotere på storskjermen.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-zinc-800">
+                  <p className="text-sm font-medium text-foreground">
                     Aktiv highlight
                   </p>
                   <div className="rounded-lg border border-border bg-card/60 px-3 py-3 text-sm text-foreground">
                     {activeHighlight ? (
                       <div className="space-y-1">
                         <p className="font-medium">{activeHighlight.message}</p>
-                        <p className="text-xs text-zinc-500">
+                        <p className="text-xs text-muted-foreground">
                           Utløper om ca. {highlightCountdown ?? 0} sekunder (kl.{" "}
                           {new Date(
                             activeHighlight.expires_at,
@@ -393,13 +393,13 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                           type="button"
                           onClick={handleHighlightClear}
                           disabled={isSubmittingHighlight}
-                          className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           Fjern highlight
                         </button>
                       </div>
                     ) : (
-                      <p className="text-xs text-zinc-500">
+                      <p className="text-xs text-muted-foreground">
                         Ingen aktiv highlight. Bruk skjemaet nedenfor for å vise
                         en melding på storskjermen.
                       </p>
@@ -418,7 +418,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                 <button
                   type="submit"
                   disabled={isSavingSettings}
-                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSavingSettings ? "Lagrer …" : "Lagre innstillinger"}
                 </button>
@@ -426,9 +426,9 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             </form>
           </section>
 
-          <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+          <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
             <header className="space-y-1">
-              <h2 className="text-xl font-semibold text-zinc-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Highlight-overlegg
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -441,7 +441,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             {highlightSuccess && (
               <output
                 aria-live="polite"
-                className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+                className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
               >
                 {highlightSuccess}
               </output>
@@ -450,7 +450,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             {highlightError && (
               <div
                 role="alert"
-                className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
               >
                 {highlightError}
               </div>
@@ -460,7 +460,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
               <div className="space-y-2">
                 <label
                   htmlFor="highlight-message"
-                  className="text-sm font-medium text-zinc-800"
+                  className="text-sm font-medium text-foreground"
                 >
                   Melding
                 </label>
@@ -472,9 +472,9 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                   maxLength={160}
                   rows={3}
                   required
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   Maks 160 tegn. Vises umiddelbart på scoreboarden.
                 </p>
               </div>
@@ -483,7 +483,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                 <div className="space-y-2">
                   <label
                     htmlFor="highlight-duration"
-                    className="text-sm font-medium text-zinc-800"
+                    className="text-sm font-medium text-foreground"
                   >
                     Varighet (sekunder)
                   </label>
@@ -497,9 +497,9 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                       setHighlightDuration(event.target.value)
                     }
                     required
-                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     Standard er 30 sekunder. Maks 10 minutter.
                   </p>
                 </div>
@@ -509,7 +509,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
                 <button
                   type="submit"
                   disabled={isSubmittingHighlight}
-                  className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {isSubmittingHighlight ? "Aktiverer …" : "Aktiver highlight"}
                 </button>

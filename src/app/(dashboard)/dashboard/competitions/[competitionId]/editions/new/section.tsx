@@ -124,10 +124,12 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           Utgave · Administrasjon
         </p>
-        <h1 className="text-3xl font-bold text-zinc-900">Opprett ny utgave</h1>
+        <h1 className="text-3xl font-bold text-foreground">
+          Opprett ny utgave
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           Registrer neste sesong eller arrangement for konkurransen. Du kan
           senere legge til lag, kamper og oppdatere storskjermen.
@@ -135,12 +137,12 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-        <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label
                 htmlFor="edition-label"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Utgavenavn
               </label>
@@ -151,14 +153,14 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                 onChange={(event) => updateForm("label", event.target.value)}
                 placeholder="Eksempel: Vårturnering 2026"
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="edition-slug"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 URL-navn (slug)
               </label>
@@ -171,7 +173,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                 }
                 placeholder={generateSlug(form.label)}
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -180,7 +182,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
             <div className="space-y-2">
               <label
                 htmlFor="edition-format"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Format
               </label>
@@ -193,7 +195,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                     event.target.value as EditionFormState["format"],
                   )
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="round_robin">Seriespill</option>
                 <option value="knockout">Sluttspill</option>
@@ -204,7 +206,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
             <div className="space-y-2">
               <label
                 htmlFor="edition-timezone"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Tidssone
               </label>
@@ -212,7 +214,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                 id="edition-timezone"
                 value={form.timezone}
                 onChange={(event) => updateForm("timezone", event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
@@ -227,7 +229,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
             <div className="space-y-2">
               <label
                 htmlFor="rotation-seconds"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Rotasjonstid scoreboard (sekunder)
               </label>
@@ -239,14 +241,14 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                 onChange={(event) =>
                   updateForm("rotationSeconds", Number(event.target.value))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="registration-opens"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Påmelding åpner
               </label>
@@ -258,7 +260,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                   updateForm("registrationOpens", event.target.value)
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -266,7 +268,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
           <div className="space-y-2 md:w-1/2">
             <label
               htmlFor="registration-closes"
-              className="text-sm font-medium text-zinc-800"
+              className="text-sm font-medium text-foreground"
             >
               Påmelding stenger
             </label>
@@ -278,7 +280,7 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
                 updateForm("registrationCloses", event.target.value)
               }
               required
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </section>
@@ -289,27 +291,27 @@ export function EditionCreateForm({ competitionId }: EditionCreateFormProps) {
           disabled={isSubmitting}
         />
 
-        <footer className="space-y-4 rounded-2xl border border-border bg-white p-6 shadow-sm">
+        <footer className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
           {errorMessage ? (
-            <p className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {errorMessage}
             </p>
           ) : null}
           {successMessage ? (
-            <p className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <p className="rounded border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-200">
               {successMessage}
             </p>
           ) : null}
 
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground">
               Etter opprettelse kan du legge til lag, kamper og
               storskjerminnhold for den nye utgaven.
             </p>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
             >
               {isSubmitting ? "Lagrer..." : "Opprett utgave"}
             </button>

@@ -634,10 +634,10 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           Utgave · Kampoppsett
         </p>
-        <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
+        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
           Planlegg stadier og kampoppsett
         </h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
@@ -647,9 +647,11 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         </p>
       </header>
 
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header className="space-y-1">
-          <h2 className="text-xl font-semibold text-zinc-900">Påmeldingslås</h2>
+          <h2 className="text-xl font-semibold text-foreground">
+            Påmeldingslås
+          </h2>
           <p className="text-sm text-muted-foreground">
             Lås nye påmeldinger når kampoppsettet er i ferd med å publiseres for
             å unngå endringer i laglisten.
@@ -659,7 +661,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {entryLockMessage && (
           <output
             aria-live="polite"
-            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
           >
             {entryLockMessage}
           </output>
@@ -668,7 +670,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {entryLockError && (
           <div
             role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {entryLockError}
           </div>
@@ -681,7 +683,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         ) : scoreboardLoadError ? (
           <div
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {scoreboardLoadError}
           </div>
@@ -708,7 +710,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 type="button"
                 onClick={() => handleEntryLockChange(true)}
                 disabled={Boolean(entriesLockedAtDate) || isLockingEntries}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Lås påmeldinger
               </button>
@@ -717,9 +719,9 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         )}
       </section>
 
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header className="space-y-1">
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Påmeldingsforespørsler
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -730,7 +732,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {entryReviewMessage && (
           <output
             aria-live="polite"
-            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
           >
             {entryReviewMessage}
           </output>
@@ -739,7 +741,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {entryReviewError && (
           <div
             role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {entryReviewError}
           </div>
@@ -752,7 +754,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         ) : entriesError ? (
           <div
             role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {entriesError}
           </div>
@@ -773,7 +775,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 >
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                         {item.team.name}
                       </p>
                       <p className="text-sm text-muted-foreground">
@@ -815,7 +817,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           }))
                         }
                         rows={2}
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
                   ) : entry.decision_reason ? (
@@ -837,7 +839,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       type="button"
                       onClick={() => handleEntryDecision(entry.id, "rejected")}
                       disabled={!isPending || isReviewing}
-                      className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:border-red-300 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="rounded-md border border-destructive/30 px-4 py-2 text-sm font-semibold text-destructive shadow-sm transition hover:border-destructive/60 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Avvis
                     </button>
@@ -849,9 +851,9 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         )}
       </section>
 
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header>
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Opprett nytt stadium
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -864,7 +866,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {stageFormSuccess && (
           <output
             aria-live="polite"
-            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
           >
             {stageFormSuccess}
           </output>
@@ -873,7 +875,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {stageFormError && (
           <div
             role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {stageFormError}
           </div>
@@ -884,7 +886,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <div className="space-y-2">
               <label
                 htmlFor="stage-name"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Stadienavn
               </label>
@@ -897,14 +899,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 }
                 placeholder="Eksempel: Gruppespill A"
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="stage-type"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Stadietype
               </label>
@@ -917,7 +919,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     event.target.value as StageFormState["stageType"],
                   )
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="group">Gruppespill</option>
                 <option value="knockout">Sluttspill</option>
@@ -928,11 +930,13 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           {stageForm.stageType === "group" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-zinc-800">Grupper</h3>
+                <h3 className="text-sm font-semibold text-foreground">
+                  Grupper
+                </h3>
                 <button
                   type="button"
                   onClick={addGroupRow}
-                  className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                  className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   Legg til gruppe
                 </button>
@@ -965,7 +969,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                         placeholder={String.fromCharCode(65 + index)}
                         maxLength={4}
                         required
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
 
@@ -984,7 +988,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           updateGroupRow(group.key, "name", event.target.value)
                         }
                         placeholder="Eksempel: Pulje Nord"
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
 
@@ -992,7 +996,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       <button
                         type="button"
                         onClick={() => removeGroupRow(group.key)}
-                        className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={stageForm.groups.length <= 1}
                       >
                         Fjern
@@ -1008,7 +1012,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <button
               type="submit"
               disabled={isCreatingStage}
-              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isCreatingStage ? "Lagrer …" : "Lagre stadium"}
             </button>
@@ -1018,7 +1022,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
 
       <section className="mb-12 space-y-4">
         <header className="space-y-1">
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Registrerte stadier
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1028,18 +1032,18 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         </header>
 
         {isLoadingStages ? (
-          <div className="rounded-xl border border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground shadow-sm">
             Laster stadier …
           </div>
         ) : stageLoadError ? (
           <div
             role="alert"
-            className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 shadow-sm"
+            className="rounded-xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive shadow-sm"
           >
             {stageLoadError}
           </div>
         ) : stages.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border bg-white p-8 text-sm text-muted-foreground shadow-sm">
+          <div className="rounded-xl border border-dashed border-border bg-card p-8 text-sm text-muted-foreground shadow-sm">
             Det er ingen stadier ennå. Opprett et gruppespill eller sluttspill
             for å komme i gang.
           </div>
@@ -1048,16 +1052,16 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             {stages.map((stage) => (
               <article
                 key={stage.id}
-                className="space-y-4 rounded-xl border border-border bg-white p-6 shadow-sm"
+                className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-primary">
                       {stage.stageType === "group"
                         ? "Gruppespill"
                         : "Sluttspill"}
                     </p>
-                    <h3 className="text-lg font-semibold text-zinc-900">
+                    <h3 className="text-lg font-semibold text-foreground">
                       {stage.name}
                     </h3>
                   </div>
@@ -1077,13 +1081,13 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           key={group.id}
                           className="flex flex-col rounded border border-border px-3 py-2"
                         >
-                          <span className="text-xs font-semibold uppercase text-blue-600">
+                          <span className="text-xs font-semibold uppercase text-primary">
                             Gruppe {group.code}
                           </span>
                           {group.name ? (
                             <span>{group.name}</span>
                           ) : (
-                            <span className="text-xs text-zinc-500">
+                            <span className="text-xs text-muted-foreground">
                               Ingen visningsnavn
                             </span>
                           )}
@@ -1100,12 +1104,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 )}
 
                 {stage.publishedAt ? (
-                  <p className="text-xs text-green-600">
+                  <p className="text-xs text-emerald-600 dark:text-emerald-300">
                     Publisert{" "}
                     {new Date(stage.publishedAt).toLocaleString("no-NB")}
                   </p>
                 ) : (
-                  <p className="text-xs text-zinc-500">Ikke publisert ennå</p>
+                  <p className="text-xs text-muted-foreground">
+                    Ikke publisert ennå
+                  </p>
                 )}
               </article>
             ))}
@@ -1113,9 +1119,9 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         )}
       </section>
 
-      <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header>
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Generer kampoppsett
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -1127,7 +1133,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {generationSuccess && (
           <output
             aria-live="polite"
-            className="block rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
           >
             {generationSuccess}
           </output>
@@ -1136,7 +1142,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         {generationError && (
           <div
             role="alert"
-            className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {generationError}
           </div>
@@ -1147,7 +1153,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <div className="space-y-2">
               <label
                 htmlFor="stage-selection"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Stadium
               </label>
@@ -1155,7 +1161,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 id="stage-selection"
                 value={generationStageId}
                 onChange={(event) => setGenerationStageId(event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {stages.map((stage) => (
                   <option key={stage.id} value={stage.id}>
@@ -1169,7 +1175,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <div className="space-y-2">
               <label
                 htmlFor="start-at"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Første kamp starter
               </label>
@@ -1179,7 +1185,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 value={startAt}
                 onChange={(event) => setStartAt(event.target.value)}
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -1188,7 +1194,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <div className="space-y-2">
               <label
                 htmlFor="match-duration"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Kamptid (minutter)
               </label>
@@ -1198,14 +1204,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 min={10}
                 value={matchDuration}
                 onChange={(event) => setMatchDuration(event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="break-minutes"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Pause mellom kamper (minutter)
               </label>
@@ -1215,20 +1221,20 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 min={0}
                 value={breakMinutes}
                 onChange={(event) => setBreakMinutes(event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-zinc-800">
+              <h3 className="text-sm font-semibold text-foreground">
                 Baner / haller
               </h3>
               <button
                 type="button"
                 onClick={addVenueRow}
-                className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 Legg til bane
               </button>
@@ -1242,19 +1248,19 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     value={venue.value}
                     onChange={(event) => updateVenue(index, event.target.value)}
                     placeholder="F.eks. venue-id eller banenavn"
-                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                   <button
                     type="button"
                     onClick={() => removeVenueRow(index)}
-                    className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
                     disabled={venueInputs.length <= 1}
                   >
                     Fjern
                   </button>
                 </div>
               ))}
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Bruk interne bane- eller hall-IDer slik de er definert i
                 administrasjonen. Minst én bane er påkrevd.
               </p>
@@ -1264,10 +1270,10 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           {selectedStage?.stageType === "group" && (
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-zinc-800">
+                <h3 className="text-sm font-semibold text-foreground">
                   Lag per gruppe
                 </h3>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted-foreground">
                   Skriv inn lag-IDer separert med komma eller mellomrom. Minst
                   to lag per gruppe er nødvendig.
                 </p>
@@ -1290,7 +1296,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       }
                       placeholder="entry-id-1, entry-id-2, entry-id-3"
                       rows={3}
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
                 ))}
@@ -1302,17 +1308,17 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-800">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Seeding
                   </h3>
-                  <p className="text-xs text-zinc-500">
+                  <p className="text-xs text-muted-foreground">
                     Oppgi lag i seed-rekkefølge. Tomme felt tolkes som bye.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={addSeedRow}
-                  className="inline-flex items-center justify-center rounded-md border border-blue-200 px-3 py-1.5 text-sm font-medium text-blue-600 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                  className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   Legg til seed
                 </button>
@@ -1339,7 +1345,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                         onChange={(event) =>
                           updateSeedRow(row.key, "seed", event.target.value)
                         }
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
 
@@ -1358,7 +1364,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           updateSeedRow(row.key, "entryId", event.target.value)
                         }
                         placeholder="entry-id"
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
 
@@ -1366,7 +1372,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       <button
                         type="button"
                         onClick={() => removeSeedRow(row.key)}
-                        className="inline-flex items-center justify-center rounded-md border border-red-200 px-3 py-2 text-xs font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
                         disabled={seedRows.length <= 2}
                       >
                         Fjern
@@ -1383,7 +1389,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   onChange={(event) =>
                     setIncludeThirdPlace(event.target.checked)
                   }
-                  className="h-4 w-4 rounded border border-border text-blue-600 focus:ring-blue-500"
+                  className="h-4 w-4 rounded border border-border text-primary focus:ring-primary/40"
                 />
                 Opprett bronsefinale automatisk
               </label>
@@ -1394,7 +1400,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             <button
               type="submit"
               disabled={isGenerating || stages.length === 0}
-              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isGenerating ? "Genererer …" : "Generer kamper"}
             </button>

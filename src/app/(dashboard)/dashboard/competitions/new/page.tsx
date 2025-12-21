@@ -133,10 +133,10 @@ export default function CompetitionCreatePage() {
   return (
     <div className="space-y-10">
       <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
           Turnering · Selvbetjent
         </p>
-        <h1 className="text-3xl font-bold text-zinc-900 md:text-4xl">
+        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
           Opprett ny konkurranse
         </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
@@ -146,8 +146,8 @@ export default function CompetitionCreatePage() {
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-10">
-        <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-zinc-900">
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">
             Konkurransedetaljer
           </h2>
 
@@ -155,7 +155,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="competition-name"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Navn
               </label>
@@ -166,9 +166,9 @@ export default function CompetitionCreatePage() {
                 onChange={(event) => updateForm("name", event.target.value)}
                 placeholder="Eksempel: Elite Cup 2025"
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Navnet vises offentlig på landingssiden.
               </p>
             </div>
@@ -176,7 +176,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="competition-slug"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 URL-navn (slug)
               </label>
@@ -188,9 +188,9 @@ export default function CompetitionCreatePage() {
                   updateForm("slug", event.target.value.toLowerCase())
                 }
                 placeholder={slugSuggestion}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Hvis feltet står tomt bruker vi automatisk {slugSuggestion}.
               </p>
             </div>
@@ -199,7 +199,7 @@ export default function CompetitionCreatePage() {
           <div className="space-y-2">
             <label
               htmlFor="competition-description"
-              className="text-sm font-medium text-zinc-800"
+              className="text-sm font-medium text-foreground"
             >
               Beskrivelse (valgfritt)
             </label>
@@ -211,7 +211,7 @@ export default function CompetitionCreatePage() {
               }
               rows={4}
               placeholder="Kort introduksjon til turneringen som vises offentlig."
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
 
@@ -219,7 +219,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="competition-timezone"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Tidssone
               </label>
@@ -227,7 +227,7 @@ export default function CompetitionCreatePage() {
                 id="competition-timezone"
                 value={form.timezone}
                 onChange={(event) => updateForm("timezone", event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
@@ -240,7 +240,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="edition-timezone"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Tidssone for første utgave
               </label>
@@ -250,7 +250,7 @@ export default function CompetitionCreatePage() {
                 onChange={(event) =>
                   updateForm("editionTimezone", event.target.value)
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 {TIMEZONES.map((tz) => (
                   <option key={tz} value={tz}>
@@ -262,13 +262,15 @@ export default function CompetitionCreatePage() {
           </div>
         </section>
 
-        <section className="space-y-6 rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-zinc-900">Første utgave</h2>
+        <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">
+            Første utgave
+          </h2>
           <div className="grid gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <label
                 htmlFor="edition-label"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Utgavenavn
               </label>
@@ -281,14 +283,14 @@ export default function CompetitionCreatePage() {
                 }
                 placeholder="Eksempel: 2025"
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="edition-slug"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Utgave (slug)
               </label>
@@ -301,7 +303,7 @@ export default function CompetitionCreatePage() {
                 }
                 placeholder={generateSlug(form.editionLabel)}
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -310,7 +312,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="edition-format"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Turneringsformat
               </label>
@@ -323,7 +325,7 @@ export default function CompetitionCreatePage() {
                     event.target.value as CompetitionFormState["editionFormat"],
                   )
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="round_robin">Seriespill</option>
                 <option value="knockout">Sluttspill</option>
@@ -334,7 +336,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="rotation-seconds"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Rotasjonstid scoreboard (sekunder)
               </label>
@@ -346,9 +348,9 @@ export default function CompetitionCreatePage() {
                 onChange={(event) =>
                   updateForm("rotationSeconds", Number(event.target.value))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Må være 2 sekunder eller mer. Bruk 5 sekunder som anbefalt
                 standard.
               </p>
@@ -359,7 +361,7 @@ export default function CompetitionCreatePage() {
             <div className="space-y-2">
               <label
                 htmlFor="registration-opens"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Påmelding åpner
               </label>
@@ -371,14 +373,14 @@ export default function CompetitionCreatePage() {
                   updateForm("registrationOpens", event.target.value)
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
                 htmlFor="registration-closes"
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
               >
                 Påmelding stenger
               </label>
@@ -390,7 +392,7 @@ export default function CompetitionCreatePage() {
                   updateForm("registrationCloses", event.target.value)
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -402,27 +404,27 @@ export default function CompetitionCreatePage() {
           disabled={isSubmitting}
         />
 
-        <footer className="space-y-4 rounded-2xl border border-border bg-white p-6 shadow-sm">
+        <footer className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
           {errorMessage ? (
-            <p className="rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {errorMessage}
             </p>
           ) : null}
           {successMessage ? (
-            <p className="rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <p className="rounded border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-200">
               {successMessage}
             </p>
           ) : null}
 
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-muted-foreground">
               Når konkurransen er opprettet kan du legge til flere utgaver,
               invitere lag og konfigurere storskjermen fra kontrollpanelet.
             </p>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
             >
               {isSubmitting ? "Lagrer..." : "Opprett konkurranse"}
             </button>

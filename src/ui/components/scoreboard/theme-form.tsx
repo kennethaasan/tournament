@@ -60,10 +60,10 @@ export function ScoreboardThemeForm({
   );
 
   return (
-    <section className="space-y-6 rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+    <section className="space-y-6 rounded-lg border border-border bg-card p-6 shadow-sm">
       <header className="space-y-2">
-        <h2 className="text-lg font-semibold text-zinc-900">Skjermtema</h2>
-        <p className="text-sm text-zinc-600">
+        <h2 className="text-lg font-semibold text-foreground">Skjermtema</h2>
+        <p className="text-sm text-muted-foreground">
           Velg farger og bakgrunnsbilde for storskjermvisningen. Fargekontrasten
           må oppfylle WCAG 2.2 AA (minst 4,5:1).
         </p>
@@ -73,7 +73,7 @@ export function ScoreboardThemeForm({
         <div className="space-y-2">
           <label
             htmlFor="scoreboard-primary-color"
-            className="text-sm font-medium text-zinc-800"
+            className="text-sm font-medium text-foreground"
           >
             Primærfarge
           </label>
@@ -84,7 +84,7 @@ export function ScoreboardThemeForm({
               value={value.primaryColor}
               onChange={handleColorChange("primaryColor")}
               disabled={disabled}
-              className="h-10 w-16 cursor-pointer rounded border border-zinc-300 bg-white"
+              className="h-10 w-16 cursor-pointer rounded border border-border bg-background"
             />
             <input
               id="scoreboard-primary-color-hex"
@@ -94,7 +94,7 @@ export function ScoreboardThemeForm({
               value={value.primaryColor}
               onChange={handleColorChange("primaryColor")}
               disabled={disabled}
-              className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="flex-1 rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               aria-describedby="scoreboard-primary-color-help"
               aria-labelledby="scoreboard-primary-hex-label"
             />
@@ -108,7 +108,7 @@ export function ScoreboardThemeForm({
           </div>
           <p
             id="scoreboard-primary-color-help"
-            className="text-xs text-zinc-500"
+            className="text-xs text-muted-foreground"
           >
             Bruk seks tegn i heksadesimalformat, for eksempel #0B1F3A.
           </p>
@@ -117,7 +117,7 @@ export function ScoreboardThemeForm({
         <div className="space-y-2">
           <label
             htmlFor="scoreboard-secondary-color"
-            className="text-sm font-medium text-zinc-800"
+            className="text-sm font-medium text-foreground"
           >
             Sekundærfarge
           </label>
@@ -128,7 +128,7 @@ export function ScoreboardThemeForm({
               value={value.secondaryColor}
               onChange={handleColorChange("secondaryColor")}
               disabled={disabled}
-              className="h-10 w-16 cursor-pointer rounded border border-zinc-300 bg-white"
+              className="h-10 w-16 cursor-pointer rounded border border-border bg-background"
             />
             <input
               id="scoreboard-secondary-color-hex"
@@ -138,7 +138,7 @@ export function ScoreboardThemeForm({
               value={value.secondaryColor}
               onChange={handleColorChange("secondaryColor")}
               disabled={disabled}
-              className="flex-1 rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="flex-1 rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               aria-describedby="scoreboard-secondary-color-help"
               aria-labelledby="scoreboard-secondary-hex-label"
             />
@@ -152,7 +152,7 @@ export function ScoreboardThemeForm({
           </div>
           <p
             id="scoreboard-secondary-color-help"
-            className="text-xs text-zinc-500"
+            className="text-xs text-muted-foreground"
           >
             Bruk kontrastfarge for tekst og ikonografi.
           </p>
@@ -162,7 +162,7 @@ export function ScoreboardThemeForm({
       <div className="space-y-2">
         <label
           htmlFor="scoreboard-background-url"
-          className="text-sm font-medium text-zinc-800"
+          className="text-sm font-medium text-foreground"
         >
           Bakgrunnsbilde (valgfritt)
         </label>
@@ -173,9 +173,9 @@ export function ScoreboardThemeForm({
           value={value.backgroundImageUrl ?? ""}
           onChange={handleBackgroundUrlChange}
           disabled={disabled}
-          className="w-full rounded border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
         />
-        <p className="text-xs text-zinc-500">
+        <p className="text-xs text-muted-foreground">
           Bruk en offentlig tilgjengelig URL (HTTPS). Bildet skaleres for å
           dekke bakgrunnen.
         </p>
@@ -195,7 +195,7 @@ export function ScoreboardThemeForm({
             sekundærfargen for tekst.
           </p>
         </div>
-        <div className="rounded bg-white/20 px-2 py-1 text-xs font-semibold backdrop-blur">
+        <div className="rounded bg-card/20 px-2 py-1 text-xs font-semibold backdrop-blur">
           {ratio.toFixed(2)} : 1
         </div>
       </div>
@@ -203,8 +203,8 @@ export function ScoreboardThemeForm({
       <output
         className={`rounded-md border px-3 py-2 text-sm ${
           hasSufficientContrast
-            ? "border-green-200 bg-green-50 text-green-700"
-            : "border-red-200 bg-red-50 text-red-700"
+            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200"
+            : "border-destructive/30 bg-destructive/10 text-destructive"
         }`}
         aria-live="polite"
       >

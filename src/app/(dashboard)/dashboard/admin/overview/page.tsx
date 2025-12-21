@@ -160,7 +160,7 @@ export default async function AdminOverviewPage() {
                           Arkivert
                         </span>
                       ) : (
-                        <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-semibold text-green-200">
+                        <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
                           Aktiv
                         </span>
                       )}

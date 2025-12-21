@@ -64,13 +64,13 @@ export function AcceptInvitationPanel({ token }: AcceptInvitationPanelProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {roleMessage ? (
-              <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-200">
                 {roleMessage}
               </div>
             ) : null}
 
             {errorMessage ? (
-              <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {errorMessage}
               </div>
             ) : null}

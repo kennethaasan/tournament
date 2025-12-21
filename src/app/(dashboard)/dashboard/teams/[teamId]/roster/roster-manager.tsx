@@ -84,9 +84,9 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header className="mb-6 space-y-1">
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Lagopplysninger
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -99,19 +99,19 @@ export function RosterManager({ teamId }: RosterManagerProps) {
             Laster laginformasjon …
           </p>
         ) : rosterError ? (
-          <p className="text-sm text-red-600">{rosterError}</p>
+          <p className="text-sm text-destructive">{rosterError}</p>
         ) : (
           <>
             <div className="mb-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-foreground">
               <p className="font-medium">{roster?.team.name}</p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 Team-ID: {roster?.team.id}
               </p>
             </div>
 
             <table className="w-full table-auto text-left text-sm">
               <thead>
-                <tr className="text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-2 py-2">Navn</th>
                   <th className="px-2 py-2">Rolle</th>
                   <th className="px-2 py-2">Status</th>
@@ -120,7 +120,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
               <tbody>
                 {roster?.members.map((member) => (
                   <tr key={member.membership_id} className="border-t">
-                    <td className="px-2 py-2 text-zinc-800">
+                    <td className="px-2 py-2 text-foreground">
                       {member.person.full_name}
                     </td>
                     <td className="px-2 py-2 text-muted-foreground">
@@ -134,7 +134,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 {!roster?.members.length && (
                   <tr>
                     <td
-                      className="px-2 py-4 text-center text-sm text-zinc-500"
+                      className="px-2 py-4 text-center text-sm text-muted-foreground"
                       colSpan={3}
                     >
                       Ingen spillere registrert enda.
@@ -147,9 +147,9 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         )}
       </section>
 
-      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
+      <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header className="mb-6 space-y-1">
-          <h2 className="text-xl font-semibold text-zinc-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Legg til spiller
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -161,7 +161,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         {submitError && (
           <div
             role="alert"
-            className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+            className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {submitError}
           </div>
@@ -171,7 +171,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
                 htmlFor="first-name"
               >
                 Fornavn
@@ -187,13 +187,13 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   }))
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
                 htmlFor="last-name"
               >
                 Etternavn
@@ -206,7 +206,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   setForm((prev) => ({ ...prev, lastName: event.target.value }))
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
@@ -214,7 +214,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
                 htmlFor="preferred-name"
               >
                 Kallenavn (valgfritt)
@@ -229,13 +229,13 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     preferredName: event.target.value,
                   }))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
                 htmlFor="country"
               >
                 Land (valgfritt)
@@ -247,13 +247,16 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, country: event.target.value }))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-800" htmlFor="role">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="role"
+            >
               Rolle
             </label>
             <select
@@ -265,7 +268,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   role: event.target.value as TeamMemberRole,
                 }))
               }
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             >
               <option value="player">Spiller</option>
               <option value="coach">Trener</option>
@@ -277,7 +280,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? "Legger til …" : "Legg til medlem"}
           </button>
