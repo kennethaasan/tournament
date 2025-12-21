@@ -64,13 +64,13 @@ resource "aws_ses_domain_dkim" "app" {
 }
 
 resource "aws_route53_record" "ses_dkim" {
-  for_each = var.ses_enabled ? toset(aws_ses_domain_dkim.app[0].dkim_tokens) : toset([])
+  count = var.ses_enabled ? 3 : 0
 
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = "${each.value}._domainkey.${local.ses_domain}"
+  name    = "${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}._domainkey.${local.ses_domain}"
   type    = "CNAME"
   ttl     = 600
-  records = ["${each.value}.dkim.amazonses.com"]
+  records = ["${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}.dkim.amazonses.com"]
 }
 
 resource "aws_ses_domain_mail_from" "app" {
