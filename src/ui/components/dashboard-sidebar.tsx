@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import type { NavLink } from "@/ui/components/navigation-links";
 import { navigationLinks } from "@/ui/components/navigation-links";
-import { ThemeToggle } from "@/ui/components/theme-toggle";
 
 const primaryLinks = navigationLinks.slice(0, 5);
 const secondaryLinks = navigationLinks.slice(5);
@@ -21,18 +20,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-72 flex-col gap-6 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-[0_25px_60px_-45px_rgba(0,0,0,0.45)] backdrop-blur lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-3rem)]">
-      <div className="flex items-center justify-between gap-2">
-        <Link
-          href="/"
-          className="flex items-center gap-2 rounded-full border border-border/70 bg-gradient-to-r from-primary/15 to-transparent px-3 py-1 text-sm font-semibold text-foreground shadow-sm"
-        >
-          <span className="text-base font-bold tracking-wide">TA</span>
-          <span>Turneringsadmin</span>
-        </Link>
-        <ThemeToggle />
-      </div>
-
+    <aside className="hidden w-72 flex-col gap-6 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-[0_25px_60px_-45px_rgba(0,0,0,0.45)] backdrop-blur lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-7rem)]">
       <div className="flex-1 space-y-6 overflow-y-auto pr-1">
         <NavSection
           label="Hurtigtilgang"
