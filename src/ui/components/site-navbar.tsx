@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { getSessionFromHeaders, userHasRole } from "@/server/auth";
+import { SignOutButton } from "@/ui/components/sign-out-button";
 import { ThemeToggle } from "@/ui/components/theme-toggle";
 
 type SiteNavbarLayout = "public" | "dashboard";
@@ -43,6 +44,14 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
             >
               Scoreboard
             </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard/invitations"
+                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+              >
+                Dashboard
+              </Link>
+            ) : null}
             {isGlobalAdmin ? (
               <Link
                 href="/dashboard/admin/overview"
@@ -55,12 +64,7 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
         </div>
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <Link
-              href="/dashboard/invitations"
-              className="rounded-full border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
-            >
-              Min side
-            </Link>
+            <SignOutButton />
           ) : (
             <Link
               href="/dashboard/admin/overview"
