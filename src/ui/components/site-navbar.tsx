@@ -32,12 +32,6 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
             <span>Turneringsadmin</span>
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-            <Link
-              href="/competitions/trondheim-cup/2025/scoreboard"
-              className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
-            >
-              Scoreboard
-            </Link>
             {isAuthenticated ? (
               <Link
                 href="/dashboard/invitations"
