@@ -25,13 +25,14 @@ export const GET = createApiHandler(
 
     return NextResponse.json(
       {
-        notifications: rows.map((row) => ({
+        items: rows.map((row) => ({
           id: row.id,
           type: row.type,
           payload: row.payload,
           read_at: row.readAt?.toISOString() ?? null,
           created_at: row.createdAt?.toISOString() ?? null,
         })),
+        next_cursor: null,
       },
       { status: 200 },
     );

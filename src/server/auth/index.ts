@@ -54,35 +54,13 @@ export type AuthContext = {
 export async function getSession(
   request: NextRequest,
 ): Promise<AuthContext | null> {
-  try {
-    const result = await auth.api.getSession({
-      headers: request.headers,
-      query: {
-        disableRefresh: true,
-      },
-    });
+  return resolveSession(request.headers);
+}
 
-    if (!result) {
-      return null;
-    }
-
-    const roles = await resolveUserRoles(result.user.id);
-
-    return {
-      session: result.session,
-      user: {
-        ...result.user,
-        roles,
-      },
-    };
-  } catch (error) {
-    if (error instanceof APIError) {
-      logger.warn({ message: error.message }, "better_auth_session_error");
-      return null;
-    }
-
-    throw error;
-  }
+export async function getSessionFromHeaders(
+  headers: Headers,
+): Promise<AuthContext | null> {
+  return resolveSession(headers);
 }
 
 export function requireRoles(context: AuthContext, roles: Role[]): void {
@@ -120,6 +98,38 @@ export function resolveTrustedOrigins(): string[] {
     .filter((origin) => origin.length > 0);
 
   return Array.from(new Set([...defaults, ...additional]));
+}
+
+async function resolveSession(headers: Headers): Promise<AuthContext | null> {
+  try {
+    const result = await auth.api.getSession({
+      headers,
+      query: {
+        disableRefresh: true,
+      },
+    });
+
+    if (!result) {
+      return null;
+    }
+
+    const roles = await resolveUserRoles(result.user.id);
+
+    return {
+      session: result.session,
+      user: {
+        ...result.user,
+        roles,
+      },
+    };
+  } catch (error) {
+    if (error instanceof APIError) {
+      logger.warn({ message: error.message }, "better_auth_session_error");
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 async function resolveUserRoles(userId: string): Promise<RoleAssignment[]> {

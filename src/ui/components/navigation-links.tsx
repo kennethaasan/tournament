@@ -40,31 +40,6 @@ export const navigationLinks: NavLink[] = [
     description: "Start en ny konkurranse og klargjør første utgave.",
   },
   {
-    label: "Utgaveoppsett",
-    href: "/dashboard/competitions/demo/editions/new",
-    description: "Opprett nye utgaver og definer registreringsvindu.",
-  },
-  {
-    label: "Kampoppsett",
-    href: "/dashboard/editions/demo-2025/schedule",
-    description: "Bygg grupper, sluttspill og generer kampplaner.",
-  },
-  {
-    label: "Storskjermkontroll",
-    href: "/dashboard/editions/demo-2025/scoreboard",
-    description: "Tema, rotasjon og høydepunkter for venue-visning.",
-  },
-  {
-    label: "Lag og spillere",
-    href: "/dashboard/teams/demo-team/roster",
-    description: "Vedlikehold staller, roller og tilgjengelighet.",
-  },
-  {
-    label: "Påmeldinger og tropper",
-    href: "/dashboard/teams/demo-team/entries",
-    description: "Registrer lag til utgaver og bygg utvalgte tropper.",
-  },
-  {
     label: "Varsler",
     href: "/dashboard/notifications",
     description: "In-app meldinger for frister, resultatendringer og tvister.",

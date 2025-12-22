@@ -9,37 +9,12 @@ import {
   CardTitle,
 } from "@/ui/components/card";
 import { NavigationGrid } from "@/ui/components/navigation-links";
-import { ThemeToggle } from "@/ui/components/theme-toggle";
+import { SiteNavbar } from "@/ui/components/site-navbar";
 
 export default function LandingPage() {
   return (
     <div className="page-shell min-h-screen">
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-3 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-4 py-2 text-sm font-semibold tracking-tight text-foreground shadow-md"
-          >
-            <span className="text-xl">🏆</span>
-            <span>TourneyAdmin</span>
-          </Link>
-          <nav className="flex items-center gap-3 text-sm font-semibold">
-            <Link
-              href="/auth/organizer-signup"
-              className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
-            >
-              Arrangør
-            </Link>
-            <Link
-              href="/dashboard/admin/overview"
-              className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
-            >
-              Logg inn
-            </Link>
-            <ThemeToggle />
-          </nav>
-        </div>
-      </header>
+      <SiteNavbar />
 
       <main className="page-padding">
         <div className="grid-overlay absolute inset-0" aria-hidden />
@@ -63,7 +38,9 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="rounded-full px-6">
-                <Link href="/auth/organizer-signup">Start din turnering</Link>
+                <Link href="/dashboard/competitions/new">
+                  Start din turnering
+                </Link>
               </Button>
               <Button
                 asChild
@@ -153,7 +130,7 @@ export default function LandingPage() {
             <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
               <Link
                 className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
-                href="/auth/organizer-signup"
+                href="/dashboard/competitions/new"
               >
                 Opprett arrangørkonto →
               </Link>
@@ -177,7 +154,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/60 bg-background/80 py-8">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} TourneyAdmin · Moderne
+            &copy; {new Date().getFullYear()} Turneringsadmin · Moderne
             turneringsadministrasjon i samsvar med spesifikasjonen.
           </p>
         </div>

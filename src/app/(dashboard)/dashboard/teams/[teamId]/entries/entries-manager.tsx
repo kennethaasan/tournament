@@ -135,8 +135,8 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
 
   return (
     <div className="space-y-8">
-      <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
-        <h2 className="text-xl font-semibold text-zinc-900">
+      <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <h2 className="text-xl font-semibold text-foreground">
           Send inn påmelding
         </h2>
         <p className="mb-6 text-sm text-muted-foreground">
@@ -145,7 +145,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
         </p>
 
         {entryError && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             {entryError}
           </div>
         )}
@@ -153,7 +153,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
         <form onSubmit={handleEntrySubmit} className="space-y-4">
           <div className="space-y-2">
             <label
-              className="text-sm font-medium text-zinc-800"
+              className="text-sm font-medium text-foreground"
               htmlFor="edition-id"
             >
               Utgave-ID
@@ -169,13 +169,13 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 }))
               }
               required
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
 
           <div className="space-y-2">
             <label
-              className="text-sm font-medium text-zinc-800"
+              className="text-sm font-medium text-foreground"
               htmlFor="notes"
             >
               Notater (valgfritt)
@@ -187,14 +187,14 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 setEntryForm((prev) => ({ ...prev, notes: event.target.value }))
               }
               rows={3}
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
 
           <button
             type="submit"
             disabled={entrySubmitting}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
           >
             {entrySubmitting ? "Sender inn …" : "Opprett påmelding"}
           </button>
@@ -210,10 +210,10 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       </section>
 
       {entryInfo && (
-        <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
+        <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-xl font-semibold text-zinc-900">
+              <h2 className="text-xl font-semibold text-foreground">
                 Administrer tropp
               </h2>
               <p className="text-sm text-muted-foreground">
@@ -233,7 +233,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                 type="button"
                 onClick={() => handleLockChange(true)}
                 disabled={squadLocking}
-                className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 Lås tropp
               </button>
@@ -241,10 +241,10 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
           </div>
 
           {squadError && (
-            <p className="mb-4 text-sm text-red-600">{squadError}</p>
+            <p className="mb-4 text-sm text-destructive">{squadError}</p>
           )}
 
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-muted-foreground">
             Status:{" "}
             {entryInfo.squad.locked_at
               ? `Låst ${new Date(entryInfo.squad.locked_at).toLocaleString("no-NB")}`
@@ -254,8 +254,8 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
       )}
 
       {entryInfo && (
-        <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
-          <h2 className="text-xl font-semibold text-zinc-900">
+        <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <h2 className="text-xl font-semibold text-foreground">
             Legg til troppsmedlem
           </h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -264,13 +264,13 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
           </p>
 
           {memberError && (
-            <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {memberError}
             </div>
           )}
 
           {memberSuccess && (
-            <div className="mb-4 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            <div className="mb-4 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200">
               {memberSuccess}
             </div>
           )}
@@ -278,7 +278,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
           <form onSubmit={handleMemberSubmit} className="space-y-4">
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-zinc-800"
+                className="text-sm font-medium text-foreground"
                 htmlFor="membership-id"
               >
                 Medlems-ID
@@ -294,14 +294,14 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                   }))
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <label
-                  className="text-sm font-medium text-zinc-800"
+                  className="text-sm font-medium text-foreground"
                   htmlFor="jersey-number"
                 >
                   Draktnummer (valgfritt)
@@ -316,13 +316,13 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                       jerseyNumber: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
 
               <div className="space-y-2">
                 <label
-                  className="text-sm font-medium text-zinc-800"
+                  className="text-sm font-medium text-foreground"
                   htmlFor="position"
                 >
                   Posisjon (valgfritt)
@@ -337,7 +337,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
                       position: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
             </div>
@@ -345,7 +345,7 @@ export function EntriesManager({ teamId }: EntriesManagerProps) {
             <button
               type="submit"
               disabled={memberSubmitting}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-70"
+              className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
               {memberSubmitting ? "Legger til …" : "Legg til i troppen"}
             </button>

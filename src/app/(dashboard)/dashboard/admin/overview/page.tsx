@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getGlobalAdminOverview } from "@/modules/admin/service";
 import {
   Card,
@@ -98,6 +99,7 @@ export default async function AdminOverviewPage() {
                   <th className="px-4 py-2">Administratorer</th>
                   <th className="px-4 py-2">Sist endret</th>
                   <th className="px-4 py-2">Status</th>
+                  <th className="px-4 py-2">Handlinger</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,9 +109,12 @@ export default async function AdminOverviewPage() {
                     className="rounded-xl border border-border/70 bg-card/60"
                   >
                     <td className="px-4 py-3 align-top">
-                      <div className="font-semibold text-foreground">
+                      <Link
+                        href={`/dashboard/competitions/${competition.id}`}
+                        className="font-semibold text-foreground hover:underline"
+                      >
                         {competition.name}
-                      </div>
+                      </Link>
                       <div className="text-xs text-muted-foreground">
                         {competition.slug}
                       </div>
@@ -160,7 +165,7 @@ export default async function AdminOverviewPage() {
                           Arkivert
                         </span>
                       ) : (
-                        <span className="rounded-full bg-green-500/20 px-3 py-1 text-xs font-semibold text-green-200">
+                        <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200">
                           Aktiv
                         </span>
                       )}
@@ -173,6 +178,22 @@ export default async function AdminOverviewPage() {
                         {competition.health.unresolvedDisputes > 0
                           ? `${numberFormatter.format(competition.health.unresolvedDisputes)} uavklarte tvister`
                           : "Ingen tvistesaker"}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 align-top">
+                      <div className="flex flex-col gap-2 text-xs font-semibold">
+                        <Link
+                          href={`/dashboard/competitions/${competition.id}`}
+                          className="rounded-full border border-border/70 px-3 py-1 text-center text-foreground transition hover:bg-primary/10"
+                        >
+                          Administrer
+                        </Link>
+                        <Link
+                          href={`/dashboard/competitions/${competition.id}/editions/new`}
+                          className="rounded-full border border-border/70 px-3 py-1 text-center text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                        >
+                          Ny utgave
+                        </Link>
                       </div>
                     </td>
                   </tr>

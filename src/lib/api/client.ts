@@ -5,9 +5,10 @@ import { withAmzContentSha256Request } from "@/lib/api/amz-content-sha256";
 import type { paths } from "@/lib/api/generated/openapi";
 import { createProblem, type ProblemDetails } from "@/lib/errors/problem";
 
-const DEFAULT_BASE_URL = env.NEXT_PUBLIC_APP_URL
-  ? env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
-  : "";
+const DEFAULT_BASE_URL =
+  typeof window === "undefined" && env.NEXT_PUBLIC_APP_URL
+    ? env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
+    : "";
 
 export const problemDetailsSchema = z
   .object({

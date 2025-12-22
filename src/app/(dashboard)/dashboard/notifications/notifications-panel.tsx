@@ -19,10 +19,10 @@ export function NotificationsPanel() {
       : null;
 
   return (
-    <section className="rounded-2xl border border-border bg-white p-8 shadow-sm">
+    <section className="rounded-2xl border border-border bg-card p-8 shadow-sm">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-zinc-900">Varsler</h2>
+          <h2 className="text-xl font-semibold text-foreground">Varsler</h2>
           <p className="text-sm text-muted-foreground">
             Oversikt over systemvarsler (innlogging kreves).
           </p>
@@ -40,7 +40,7 @@ export function NotificationsPanel() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
@@ -48,7 +48,7 @@ export function NotificationsPanel() {
       {notificationsQuery.isLoading ? (
         <p className="text-sm text-muted-foreground">Laster varsler …</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-muted-foreground">
           Du har ingen varsler enda. Systemhendelser dukker opp her.
         </p>
       ) : (
@@ -56,11 +56,11 @@ export function NotificationsPanel() {
           {items.map((notification) => (
             <li
               key={notification.id}
-              className="rounded-lg border border-border px-4 py-3 text-sm text-zinc-800"
+              className="rounded-lg border border-border px-4 py-3 text-sm text-foreground"
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium">{notification.type}</span>
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-muted-foreground">
                   {notification.created_at
                     ? new Date(notification.created_at).toLocaleString("no-NB")
                     : ""}

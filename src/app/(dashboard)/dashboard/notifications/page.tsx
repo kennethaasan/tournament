@@ -8,10 +8,8 @@ export const metadata: Metadata = {
 
 export default function NotificationsPage() {
   return (
-    <main className="min-h-screen bg-card/60 pb-16">
-      <div className="mx-auto w-full max-w-4xl px-6 pb-16 pt-12">
-        <NotificationsPanel />
-      </div>
-    </main>
+    <div className="space-y-6">
+      <NotificationsPanel />
+    </div>
   );
 }
