@@ -12,6 +12,7 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_EMAIL_SENDER: z.string().email(),
     BETTER_AUTH_TRUSTED_ORIGINS: z.string().optional(),
+    BETTER_AUTH_URL: z.string().url().optional(),
     PINO_LOG_LEVEL: z
       .enum(["fatal", "error", "warn", "info", "debug", "trace"])
       .default("info"),
