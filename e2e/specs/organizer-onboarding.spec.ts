@@ -1,56 +1,53 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Organizer onboarding", () => {
-  test("describes self-service steps and support actions", async ({ page }) => {
-    await page.goto("/auth/organizer-signup");
-
-    await expect(
-      page.getByRole("heading", { name: /turneringsarrangør/i }),
-    ).toBeVisible();
-
-    await expect(
-      page.getByRole("heading", { name: /1. Opprett konto/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /2. Opprett konkurranse/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /3. Inviter flere/i }),
-    ).toBeVisible();
-
-    await expect(
-      page.getByRole("link", { name: /Opprett konkurranse/i }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Kontakt support/i }),
-    ).toHaveAttribute("href", /mailto:/i);
-  });
-
-  test("offers navigation actions for onboarding and support", async ({
+  test("highlights the primary onboarding CTA on the landing page", async ({
     page,
   }) => {
-    await page.goto("/auth/organizer-signup");
+    await page.goto("/");
 
-    const createLink = page.getByRole("link", {
-      name: /Opprett konkurranse/i,
-    });
-    await createLink.click();
-    await expect(page).toHaveURL("/dashboard/competitions/new");
-
-    await page.goBack();
-
-    const supportLink = page.getByRole("link", { name: /Kontakt support/i });
-    await expect(supportLink).toHaveAttribute(
-      "href",
-      /mailto:support@tournament\.local/,
-    );
-
-    await expect(page.getByText(/Vanlige spørsmål/i)).toBeVisible();
     await expect(
       page.getByRole("heading", {
-        level: 2,
-        name: /Svar før du inviterer teamet/i,
+        name: /Moderne administrasjon for fotballturneringer/i,
       }),
     ).toBeVisible();
+
+    const startTournament = page.getByRole("link", {
+      name: /Start din turnering/i,
+    });
+    await expect(startTournament).toHaveAttribute(
+      "href",
+      "/dashboard/competitions/new",
+    );
+
+    const scoreboardDemo = page.getByRole("link", {
+      name: /Se scoreboard-demo/i,
+    });
+    await expect(scoreboardDemo).toHaveAttribute(
+      "href",
+      "/competitions/trondheim-cup/2025/scoreboard",
+    );
+  });
+
+  test("lists navigation shortcuts for key admin flows", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(
+      page.getByRole("heading", { name: /Alt du trenger i én meny/i }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("heading", { name: /Ny konkurranse/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Adminoversikt/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Offentlig scoreboard/i }),
+    ).toBeVisible();
+
+    await expect(
+      page.getByRole("link", { name: /Åpne dashboard/i }),
+    ).toHaveAttribute("href", "/dashboard/admin/overview");
   });
 });
