@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 import { getSessionFromHeaders, userHasRole } from "@/server/auth";
-import { SignOutButton } from "@/ui/components/sign-out-button";
+import { AuthAction } from "@/ui/components/auth-action";
 import { ThemeToggle } from "@/ui/components/theme-toggle";
 
 type SiteNavbarLayout = "public" | "dashboard";
@@ -51,16 +51,7 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
           </nav>
         </div>
         <div className="flex items-center gap-3">
-          {isAuthenticated ? (
-            <SignOutButton />
-          ) : (
-            <Link
-              href="/dashboard/admin/overview"
-              className="rounded-full border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
-            >
-              Logg inn
-            </Link>
-          )}
+          <AuthAction initialAuthenticated={isAuthenticated} />
           <ThemeToggle />
         </div>
       </div>
