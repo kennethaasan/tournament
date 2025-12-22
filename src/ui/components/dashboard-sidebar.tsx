@@ -28,7 +28,7 @@ export function DashboardSidebar() {
           className="flex items-center gap-2 rounded-full border border-border/70 bg-gradient-to-r from-primary/15 to-transparent px-3 py-1 text-sm font-semibold text-foreground shadow-sm"
         >
           <span className="text-base font-bold tracking-wide">TA</span>
-          <span>TourneyAdmin</span>
+          <span>Turneringsadmin</span>
         </Link>
         <ThemeToggle />
       </div>

@@ -17,7 +17,7 @@ export function DashboardHeader() {
           className="flex items-center gap-2 rounded-full border border-border/70 bg-gradient-to-r from-primary/10 to-transparent px-3 py-1 text-sm font-semibold text-foreground shadow-sm"
         >
           <span className="text-lg">🏆</span>
-          <span className="hidden sm:inline">TourneyAdmin</span>
+          <span className="hidden sm:inline">Turneringsadmin</span>
         </Link>
 
         <div className="flex items-center gap-2">

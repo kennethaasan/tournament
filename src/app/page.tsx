@@ -152,7 +152,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/60 bg-background/80 py-8">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} TourneyAdmin · Moderne
+            &copy; {new Date().getFullYear()} Turneringsadmin · Moderne
             turneringsadministrasjon i samsvar med spesifikasjonen.
           </p>
         </div>

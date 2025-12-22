@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const BASE_TITLE = "TourneyAdmin";
+const BASE_TITLE = "Turneringsadmin";
 
 export const metadata: Metadata = {
   title: BASE_TITLE,

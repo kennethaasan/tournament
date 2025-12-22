@@ -17,7 +17,7 @@ export async function SiteNavbar() {
           className="flex items-center gap-3 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-4 py-2 text-sm font-semibold tracking-tight text-foreground shadow-md"
         >
           <span className="text-xl">🏆</span>
-          <span>TourneyAdmin</span>
+          <span>Turneringsadmin</span>
         </Link>
         <nav className="flex items-center gap-3 text-sm font-semibold">
           <Link
