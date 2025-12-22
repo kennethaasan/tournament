@@ -156,6 +156,9 @@ module "fn" {
       DATABASE_URL                   = local.database_url
       BETTER_AUTH_SECRET             = var.better_auth_secret
       BETTER_AUTH_EMAIL_SENDER       = local.better_auth_email_sender
+      BETTER_AUTH_URL                = local.better_auth_url
+      BETTER_AUTH_TRUSTED_ORIGINS    = local.better_auth_trusted_origins
+      NEXT_PUBLIC_APP_URL            = local.app_url
       SES_ENABLED                    = tostring(var.ses_enabled)
       SES_REGION                     = local.ses_region
       SES_SOURCE_EMAIL               = local.ses_source_email
