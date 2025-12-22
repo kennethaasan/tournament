@@ -20,7 +20,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-72 flex-col gap-6 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-[0_25px_60px_-45px_rgba(0,0,0,0.45)] backdrop-blur lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-7rem)]">
+    <aside className="hidden w-72 flex-col gap-6 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-[0_25px_60px_-45px_rgba(0,0,0,0.45)] backdrop-blur lg:sticky lg:top-[5.5rem] lg:flex lg:h-[calc(100vh-7rem)]">
       <div className="flex-1 space-y-6 overflow-y-auto pr-1">
         <NavSection
           label="Hurtigtilgang"
