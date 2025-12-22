@@ -9,7 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="page-shell min-h-screen">
-      <SiteNavbar />
+      <SiteNavbar layout="dashboard" />
       <div className="grid-overlay absolute inset-0" aria-hidden />
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1440px] gap-6 px-4 py-6 lg:px-6">
         <DashboardSidebar />
