@@ -38,7 +38,9 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Button asChild size="lg" className="rounded-full px-6">
-                <Link href="/auth/organizer-signup">Start din turnering</Link>
+                <Link href="/dashboard/competitions/new">
+                  Start din turnering
+                </Link>
               </Button>
               <Button
                 asChild
@@ -128,7 +130,7 @@ export default function LandingPage() {
             <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
               <Link
                 className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
-                href="/auth/organizer-signup"
+                href="/dashboard/competitions/new"
               >
                 Opprett arrangørkonto →
               </Link>
