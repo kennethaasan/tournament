@@ -11,6 +11,7 @@ import { type roleScopeEnum, schema } from "@/server/db/schema";
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL,
   email: {
     sender: env.BETTER_AUTH_EMAIL_SENDER,
   },
@@ -88,9 +89,11 @@ export function userHasRole(context: AuthContext | null, role: Role): boolean {
 }
 
 export function resolveTrustedOrigins(): string[] {
-  const defaults = ["http://localhost:3000", env.NEXT_PUBLIC_APP_URL].filter(
-    Boolean,
-  ) as string[];
+  const defaults = [
+    "http://localhost:3000",
+    env.NEXT_PUBLIC_APP_URL,
+    env.BETTER_AUTH_URL,
+  ].filter(Boolean) as string[];
 
   const additional = (env.BETTER_AUTH_TRUSTED_ORIGINS ?? "")
     .split(",")
