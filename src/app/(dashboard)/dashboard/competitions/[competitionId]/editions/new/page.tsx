@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description: "Opprett en ny utgave for konkurransen og tilpass storskjermen.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function EditionNewPage({ params }: PageProps) {
   const competitionId = params.competitionId;
   if (!competitionId) {

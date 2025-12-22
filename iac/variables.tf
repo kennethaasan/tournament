@@ -28,6 +28,17 @@ variable "app_domain" {
   default     = "competitions.aws.aasan.dev"
 }
 
+variable "app_url" {
+  description = "Public base URL for the application (defaults to https://app_domain)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.app_url == null || trimspace(var.app_url) == "" || can(regex("^https?://", var.app_url))
+    error_message = "app_url must be a valid http(s) URL when provided."
+  }
+}
+
 variable "neon_api_key" {
   description = "Neon API key used by the Terraform provider"
   type        = string
@@ -249,4 +260,21 @@ variable "better_auth_secret" {
   description = "BetterAuth secret used for authentication"
   type        = string
   sensitive   = true
+}
+
+variable "better_auth_url" {
+  description = "Explicit Better Auth base URL (defaults to app_url)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.better_auth_url == null || trimspace(var.better_auth_url) == "" || can(regex("^https?://", var.better_auth_url))
+    error_message = "better_auth_url must be a valid http(s) URL when provided."
+  }
+}
+
+variable "better_auth_trusted_origins" {
+  description = "Comma-separated list of trusted origins for Better Auth (defaults to app_url plus http://turnering.vanvikil.no)"
+  type        = string
+  default     = null
 }

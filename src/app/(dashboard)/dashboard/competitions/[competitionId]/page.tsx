@@ -18,6 +18,8 @@ type PageProps = {
   };
 };
 
+export const dynamic = "force-dynamic";
+
 const datetimeFormatter = new Intl.DateTimeFormat("nb-NO", {
   dateStyle: "medium",
   timeStyle: "short",
