@@ -39,7 +39,11 @@ export function AuthAction({ initialAuthenticated = false }: AuthActionProps) {
           body.length > 0 ? (JSON.parse(body) as SessionResponse) : null;
 
         if (isMounted) {
-          setIsAuthenticated(Boolean(data?.session));
+          if (data?.session) {
+            setIsAuthenticated(true);
+          } else if (!initialAuthenticated) {
+            setIsAuthenticated(false);
+          }
           setHasChecked(true);
         }
       } catch (caught) {
@@ -61,7 +65,7 @@ export function AuthAction({ initialAuthenticated = false }: AuthActionProps) {
       isMounted = false;
       controller.abort();
     };
-  }, []);
+  }, [initialAuthenticated]);
 
   if (error) {
     throw error;

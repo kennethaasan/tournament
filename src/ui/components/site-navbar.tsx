@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import Link from "next/link";
 import { getSessionFromHeaders, userHasRole } from "@/server/auth";
 import { AuthAction } from "@/ui/components/auth-action";
@@ -12,9 +12,13 @@ type SiteNavbarProps = {
 
 export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
   const requestHeaders = await headers();
+  const cookieStore = await cookies();
+  const hasSessionCookie =
+    Boolean(cookieStore.get("better-auth.session_token")) ||
+    Boolean(cookieStore.get("__Secure-better-auth.session_token"));
   const session = await getSessionFromHeaders(new Headers(requestHeaders));
   const isGlobalAdmin = userHasRole(session, "global_admin");
-  const isAuthenticated = Boolean(session);
+  const isAuthenticated = Boolean(session) || hasSessionCookie;
   const containerWidth =
     layout === "dashboard" ? "max-w-[1440px]" : "max-w-[1200px]";
 
