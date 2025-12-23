@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
+import { getSafeCallbackUrl } from "@/lib/utils/safe-redirect";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
@@ -17,48 +18,6 @@ import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
 
 type FormState = "idle" | "loading" | "error";
-
-const DEFAULT_REDIRECT = "/dashboard/admin/overview";
-
-/**
- * Validates that a callback URL is safe for redirection.
- * Only allows relative paths starting with "/" that don't contain
- * protocol handlers or attempts to redirect to external hosts.
- */
-function getSafeCallbackUrl(url: string | null): string {
-  if (!url) {
-    return DEFAULT_REDIRECT;
-  }
-
-  // Must start with a single forward slash (not //)
-  if (!url.startsWith("/") || url.startsWith("//")) {
-    return DEFAULT_REDIRECT;
-  }
-
-  // Block protocol handlers (javascript:, data:, etc.) that could be injected
-  // after a valid-looking path prefix
-  const lowerUrl = url.toLowerCase();
-  if (
-    lowerUrl.includes("javascript:") ||
-    lowerUrl.includes("data:") ||
-    lowerUrl.includes("vbscript:")
-  ) {
-    return DEFAULT_REDIRECT;
-  }
-
-  // Additional check: ensure no encoded characters that could bypass checks
-  try {
-    const decoded = decodeURIComponent(url);
-    if (decoded.startsWith("//") || decoded.includes("://")) {
-      return DEFAULT_REDIRECT;
-    }
-  } catch {
-    // Invalid URL encoding, reject
-    return DEFAULT_REDIRECT;
-  }
-
-  return url;
-}
 
 export function LoginForm() {
   const searchParams = useSearchParams();
