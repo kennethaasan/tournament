@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils/cn";
 
 type SignOutButtonProps = {
@@ -30,13 +31,10 @@ export function SignOutButton({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/auth/sign-out", {
-        method: "POST",
-        credentials: "include",
-      });
+      const result = await signOut();
 
-      if (!response.ok) {
-        throw new Error("Kunne ikke logge ut. Prøv igjen.");
+      if (result.error) {
+        throw new Error(result.error.message ?? "Kunne ikke logge ut.");
       }
 
       router.push("/");

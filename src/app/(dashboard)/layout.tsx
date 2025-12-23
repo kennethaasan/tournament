@@ -1,12 +1,22 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getSessionFromHeaders } from "@/server/auth";
 import { DashboardHeader } from "@/ui/components/dashboard-header";
 import { DashboardSidebar } from "@/ui/components/dashboard-sidebar";
 import { SiteNavbar } from "@/ui/components/site-navbar";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const session = await getSessionFromHeaders(headersList);
+
+  if (!session) {
+    redirect("/auth/login");
+  }
+
   return (
     <div className="page-shell min-h-screen">
       <SiteNavbar layout="dashboard" />

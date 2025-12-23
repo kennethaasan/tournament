@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import bcrypt from "bcryptjs";
+import { hashPassword } from "better-auth/crypto";
 import { addHours, addMinutes } from "date-fns";
 import type { InferSelectModel } from "drizzle-orm";
 import { and, eq, inArray } from "drizzle-orm";
@@ -12,6 +12,7 @@ import {
   type TransactionClient,
 } from "@/server/db/client";
 import {
+  accounts,
   competitions,
   editionSettings,
   editions,
@@ -806,7 +807,7 @@ async function seedUsers(
   competition: SeededCompetition,
   teamsSeeded: SeededTeam[],
 ) {
-  const passwordHash = await bcrypt.hash(SEED_USER_PASSWORD, 10);
+  const passwordHash = await hashPassword(SEED_USER_PASSWORD);
   const teamBySlug = new Map(teamsSeeded.map((team) => [team.slug, team]));
 
   for (const userDefinition of DEMO_USERS) {
@@ -838,6 +839,16 @@ async function seedUsers(
     if (!user) {
       throw new Error(`Kunne ikke opprette bruker ${userDefinition.email}`);
     }
+
+    // Create/update account entry for better-auth credential provider
+    // Delete existing accounts for this user first (no unique constraint on provider_id, account_id)
+    await client.delete(accounts).where(eq(accounts.userId, user.id));
+    await client.insert(accounts).values({
+      userId: user.id,
+      providerId: "credential",
+      accountId: user.id,
+      password: passwordHash,
+    });
 
     await client.delete(userRoles).where(eq(userRoles.userId, user.id));
     await client.insert(userRoles).values({

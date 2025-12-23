@@ -77,7 +77,7 @@ export function AuthAction({ initialAuthenticated = false }: AuthActionProps) {
     <SignOutButton />
   ) : (
     <Link
-      href="/dashboard/admin/overview"
+      href="/auth/login"
       className="rounded-full border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
     >
       Logg inn

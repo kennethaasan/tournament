@@ -113,6 +113,21 @@ resource "aws_route53_record" "ses_mail_from_txt" {
 resource "aws_ses_configuration_set" "app" {
   count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
   name  = local.ses_configuration_set_name
+
+  delivery_options {
+    tls_policy = "Require"
+  }
+}
+
+###########################
+# Lambda Dead Letter Queue
+###########################
+
+resource "aws_sqs_queue" "lambda_dlq" {
+  name                       = "${local.stack_name}-lambda-dlq"
+  message_retention_seconds  = 1209600 # 14 days (maximum)
+  visibility_timeout_seconds = 300
+  tags                       = local.default_tags
 }
 
 module "acm" {
@@ -140,6 +155,15 @@ module "fn" {
   timeout       = var.lambda_timeout
   publish       = true
 
+  # Reliability: reserved concurrency prevents runaway scaling (free tier)
+  reserved_concurrent_executions = var.lambda_reserved_concurrency
+
+  # Reliability: Dead Letter Queue for failed invocations (SQS free tier: 1M requests/month)
+  dead_letter_target_arn = aws_sqs_queue.lambda_dlq.arn
+
+  # Observability: X-Ray tracing (free tier: 100K traces/month)
+  tracing_mode = "Active"
+
   # use pre-built artifact supplied by CI
   create_package         = false
   local_existing_package = var.package_path
@@ -164,7 +188,7 @@ module "fn" {
       SES_SOURCE_EMAIL               = local.ses_source_email
       POWERTOOLS_SERVICE_NAME        = lookup(var.lambda_environment, "POWERTOOLS_SERVICE_NAME", var.app_name)
       POWERTOOLS_LOG_LEVEL           = lookup(var.lambda_environment, "POWERTOOLS_LOG_LEVEL", "INFO")
-      POWERTOOLS_TRACING_SAMPLE_RATE = lookup(var.lambda_environment, "POWERTOOLS_TRACING_SAMPLE_RATE", "0")
+      POWERTOOLS_TRACING_SAMPLE_RATE = var.lambda_xray_sample_rate
     },
     local.ses_configuration_set_name != "" ? { SES_CONFIGURATION_SET = local.ses_configuration_set_name } : {}
   )
@@ -173,6 +197,20 @@ module "fn" {
   authorization_type                = "AWS_IAM"
   cloudwatch_logs_retention_in_days = var.lambda_log_retention_days
   tags                              = local.default_tags
+
+  attach_policy_statements = true
+  policy_statements = {
+    xray = {
+      effect    = "Allow"
+      actions   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
+      resources = ["*"]
+    }
+    dlq = {
+      effect    = "Allow"
+      actions   = ["sqs:SendMessage"]
+      resources = [aws_sqs_queue.lambda_dlq.arn]
+    }
+  }
 }
 
 data "aws_iam_policy_document" "ses_send" {
@@ -200,9 +238,10 @@ resource "aws_iam_role_policy_attachment" "ses_send" {
 }
 
 resource "aws_sns_topic" "ses_events" {
-  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
-  name  = local.ses_event_topic_name
-  tags  = local.default_tags
+  count             = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name              = local.ses_event_topic_name
+  kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
+  tags              = local.default_tags
 }
 
 data "aws_iam_policy_document" "ses_events" {
@@ -387,4 +426,150 @@ module "dns_records" {
   tags = local.default_tags
 
   depends_on = [module.cdn]
+}
+
+###########################
+# CloudWatch Alarms (Free Tier: up to 10 alarms)
+###########################
+
+resource "aws_sns_topic" "alarms" {
+  name              = "${local.stack_name}-alarms"
+  kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
+  tags              = local.default_tags
+}
+
+# Alarm 1: Lambda errors
+resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  alarm_name          = "${local.stack_name}-lambda-errors"
+  alarm_description   = "Lambda function errors exceeded threshold"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "Errors"
+  namespace           = "AWS/Lambda"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 5
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    FunctionName = module.fn.lambda_function_name
+  }
+
+  tags = local.default_tags
+}
+
+# Alarm 2: Lambda throttles
+resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
+  alarm_name          = "${local.stack_name}-lambda-throttles"
+  alarm_description   = "Lambda function throttles detected"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "Throttles"
+  namespace           = "AWS/Lambda"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    FunctionName = module.fn.lambda_function_name
+  }
+
+  tags = local.default_tags
+}
+
+# Alarm 3: Lambda duration (approaching timeout)
+resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
+  alarm_name          = "${local.stack_name}-lambda-duration"
+  alarm_description   = "Lambda function duration approaching timeout"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "Duration"
+  namespace           = "AWS/Lambda"
+  period              = 300
+  extended_statistic  = "p95"
+  threshold           = var.lambda_timeout * 1000 * 0.8 # 80% of timeout in ms
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    FunctionName = module.fn.lambda_function_name
+  }
+
+  tags = local.default_tags
+}
+
+# Alarm 4: DLQ messages (failed Lambda invocations)
+resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
+  alarm_name          = "${local.stack_name}-dlq-messages"
+  alarm_description   = "Messages in Dead Letter Queue indicate failed invocations"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  period              = 300
+  statistic           = "Maximum"
+  threshold           = 0
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    QueueName = aws_sqs_queue.lambda_dlq.name
+  }
+
+  tags = local.default_tags
+}
+
+# Alarm 5: CloudFront 5xx errors
+resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
+  provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
+
+  alarm_name          = "${local.stack_name}-cloudfront-5xx"
+  alarm_description   = "CloudFront 5xx error rate exceeded threshold"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "5xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 5 # 5% error rate
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    DistributionId = module.cdn.cloudfront_distribution_id
+    Region         = "Global"
+  }
+
+  tags = local.default_tags
+}
+
+# Alarm 6: CloudFront 4xx errors (client errors, may indicate attacks)
+resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
+  provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
+
+  alarm_name          = "${local.stack_name}-cloudfront-4xx"
+  alarm_description   = "CloudFront 4xx error rate exceeded threshold"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "4xxErrorRate"
+  namespace           = "AWS/CloudFront"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 15 # 15% error rate
+  treat_missing_data  = "notBreaching"
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+
+  dimensions = {
+    DistributionId = module.cdn.cloudfront_distribution_id
+    Region         = "Global"
+  }
+
+  tags = local.default_tags
 }
