@@ -13,9 +13,9 @@ function requireAuth(auth: AuthContext | null): AuthContext {
   if (!auth) {
     throw createProblem({
       type: "https://httpstatuses.com/401",
-      title: "Autentisering kreves",
+      title: "Authentication required",
       status: 401,
-      detail: "Du må være innlogget for å utføre denne handlingen.",
+      detail: "You must be signed in to perform this action.",
     });
   }
 
@@ -61,9 +61,9 @@ export async function assertCompetitionAdminAccess(
   if (!competitionId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "CompetitionId mangler i URLen.",
+      detail: "Competition ID is missing from the URL.",
     });
   }
 
@@ -76,9 +76,9 @@ export async function assertCompetitionAdminAccess(
   if (!hasCompetitionScope(session, competitionId)) {
     throw createProblem({
       type: "https://httpstatuses.com/403",
-      title: "Ingen tilgang",
+      title: "Access denied",
       status: 403,
-      detail: "Du har ikke rettigheter til å administrere konkurransen.",
+      detail: "You do not have permission to administer this competition.",
     });
   }
 }
@@ -90,9 +90,9 @@ export async function assertTeamAccess(
   if (!teamId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "TeamId mangler i URLen.",
+      detail: "Team ID is missing from the URL.",
     });
   }
 
@@ -106,9 +106,9 @@ export async function assertTeamAccess(
   if (!team) {
     throw createProblem({
       type: "https://tournament.app/problems/team-not-found",
-      title: "Teamet ble ikke funnet",
+      title: "Team not found",
       status: 404,
-      detail: "Sjekk at du bruker riktig team-ID.",
+      detail: "Verify that you are using the correct team ID.",
     });
   }
 
@@ -124,9 +124,9 @@ export async function assertTeamAccess(
   if (!competitionScopeIds.length) {
     throw createProblem({
       type: "https://httpstatuses.com/403",
-      title: "Ingen tilgang",
+      title: "Access denied",
       status: 403,
-      detail: "Du har ikke tilgang til dette laget.",
+      detail: "You do not have access to this team.",
     });
   }
 
@@ -145,9 +145,9 @@ export async function assertTeamAccess(
   if (!rows.length) {
     throw createProblem({
       type: "https://httpstatuses.com/403",
-      title: "Ingen tilgang",
+      title: "Access denied",
       status: 403,
-      detail: "Du har ikke tilgang til dette laget.",
+      detail: "You do not have access to this team.",
     });
   }
 }
@@ -159,9 +159,9 @@ export async function assertEntryAccess(
   if (!entryId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "EntryId mangler i forespørselen.",
+      detail: "Entry ID is missing from the request.",
     });
   }
 
@@ -182,9 +182,9 @@ export async function assertEntryAccess(
   if (!record) {
     throw createProblem({
       type: "https://tournament.app/problems/entry-not-found",
-      title: "Påmeldingen ble ikke funnet",
+      title: "Entry not found",
       status: 404,
-      detail: "Påmeldingen ble ikke funnet.",
+      detail: "The requested entry does not exist.",
     });
   }
 
@@ -202,9 +202,9 @@ export async function assertEntryAccess(
 
   throw createProblem({
     type: "https://httpstatuses.com/403",
-    title: "Ingen tilgang",
+    title: "Access denied",
     status: 403,
-    detail: "Du har ikke tilgang til denne påmeldingen.",
+    detail: "You do not have access to this entry.",
   });
 }
 
@@ -215,9 +215,9 @@ export async function assertSquadAccess(
   if (!squadId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "SquadId mangler i URLen.",
+      detail: "Squad ID is missing from the URL.",
     });
   }
 
@@ -239,9 +239,10 @@ export async function assertSquadAccess(
   if (!record) {
     throw createProblem({
       type: "https://tournament.app/problems/squad-not-found",
-      title: "Troppen ble ikke funnet",
+      title: "Squad not found",
       status: 404,
-      detail: "Oppdater siden og prøv igjen.",
+      detail:
+        "The requested squad does not exist. Please refresh and try again.",
     });
   }
 
@@ -259,9 +260,9 @@ export async function assertSquadAccess(
 
   throw createProblem({
     type: "https://httpstatuses.com/403",
-    title: "Ingen tilgang",
+    title: "Access denied",
     status: 403,
-    detail: "Du har ikke tilgang til denne troppen.",
+    detail: "You do not have access to this squad.",
   });
 }
 
@@ -273,18 +274,18 @@ export async function assertTeamEntryCreateAccess(
   if (!teamId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "TeamId mangler i URLen.",
+      detail: "Team ID is missing from the URL.",
     });
   }
 
   if (!editionId) {
     throw createProblem({
       type: "https://httpstatuses.com/400",
-      title: "Ugyldig forespørsel",
+      title: "Invalid request",
       status: 400,
-      detail: "EditionId mangler i forespørselen.",
+      detail: "Edition ID is missing from the request.",
     });
   }
 
@@ -304,18 +305,19 @@ export async function assertTeamEntryCreateAccess(
   if (!team) {
     throw createProblem({
       type: "https://tournament.app/problems/team-not-found",
-      title: "Teamet ble ikke funnet",
+      title: "Team not found",
       status: 404,
-      detail: "Sjekk at du bruker riktig team-ID.",
+      detail: "Verify that you are using the correct team ID.",
     });
   }
 
   if (!edition) {
     throw createProblem({
       type: "https://tournament.app/problems/edition-not-found",
-      title: "Utgaven ble ikke funnet",
+      title: "Edition not found",
       status: 404,
-      detail: "Utgaven du prøver å melde på laget til finnes ikke.",
+      detail:
+        "The edition you are trying to register the team for does not exist.",
     });
   }
 
@@ -333,8 +335,8 @@ export async function assertTeamEntryCreateAccess(
 
   throw createProblem({
     type: "https://httpstatuses.com/403",
-    title: "Ingen tilgang",
+    title: "Access denied",
     status: 403,
-    detail: "Du har ikke tilgang til å registrere dette laget.",
+    detail: "You do not have permission to register this team.",
   });
 }

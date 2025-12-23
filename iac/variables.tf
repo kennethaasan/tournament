@@ -110,6 +110,18 @@ variable "lambda_log_retention_days" {
   default     = 14
 }
 
+variable "lambda_reserved_concurrency" {
+  description = "Reserved concurrent executions for Lambda (prevents runaway scaling)"
+  type        = number
+  default     = 50
+}
+
+variable "lambda_xray_sample_rate" {
+  description = "X-Ray tracing sample rate (0-1, e.g., 0.05 = 5%)"
+  type        = string
+  default     = "0.05"
+}
+
 variable "lambda_environment" {
   description = "Base environment variables for the Lambda function"
   type        = map(string)

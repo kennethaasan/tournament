@@ -1,7 +1,12 @@
 import { and, eq } from "drizzle-orm";
 import { createProblem } from "@/lib/errors/problem";
 import { __internal as competitionsInternal } from "@/modules/competitions/service";
-import { db, withTransaction } from "@/server/db/client";
+import {
+  type DrizzleDatabase,
+  db as defaultDb,
+  withTransaction as defaultWithTransaction,
+  type TransactionClient,
+} from "@/server/db/client";
 import {
   type Person,
   persons,
@@ -40,7 +45,20 @@ export type TeamRoster = {
   members: RosterMember[];
 };
 
-export async function createTeam(input: CreateTeamInput): Promise<Team> {
+/**
+ * Service dependencies for team operations.
+ * Defaults to the production database client if not provided.
+ */
+export type TeamServiceDeps = {
+  db?: DrizzleDatabase | TransactionClient;
+  withTransaction?: typeof defaultWithTransaction;
+};
+
+export async function createTeam(
+  input: CreateTeamInput,
+  deps: TeamServiceDeps = {},
+): Promise<Team> {
+  const db = deps.db ?? defaultDb;
   const slug = competitionsInternal.normalizeSlug(input.slug ?? input.name);
 
   const [team] = await db
@@ -56,20 +74,25 @@ export async function createTeam(input: CreateTeamInput): Promise<Team> {
   if (!team) {
     throw createProblem({
       type: "https://tournament.app/problems/team-not-created",
-      title: "Teamet kunne ikke opprettes",
+      title: "Team could not be created",
       status: 500,
-      detail: "Prøv igjen, så skal vi forsøke å opprette laget på nytt.",
+      detail: "Please try again.",
     });
   }
 
   return team;
 }
 
-export async function addRosterMember(options: {
-  teamId: string;
-  person: CreatePersonInput;
-  role?: TeamMembership["role"];
-}): Promise<RosterMember> {
+export async function addRosterMember(
+  options: {
+    teamId: string;
+    person: CreatePersonInput;
+    role?: TeamMembership["role"];
+  },
+  deps: TeamServiceDeps = {},
+): Promise<RosterMember> {
+  const withTransaction = deps.withTransaction ?? defaultWithTransaction;
+
   const result = await withTransaction(async (tx) => {
     const team = await tx.query.teams.findFirst({
       where: eq(teams.id, options.teamId),
@@ -78,9 +101,9 @@ export async function addRosterMember(options: {
     if (!team) {
       throw createProblem({
         type: "https://tournament.app/problems/team-not-found",
-        title: "Teamet ble ikke funnet",
+        title: "Team not found",
         status: 404,
-        detail: "Sjekk at du bruker riktig team-ID.",
+        detail: "Verify that you are using the correct team ID.",
       });
     }
 
@@ -101,9 +124,9 @@ export async function addRosterMember(options: {
     if (!person) {
       throw createProblem({
         type: "https://tournament.app/problems/person-not-created",
-        title: "Personen kunne ikke opprettes",
+        title: "Person could not be created",
         status: 500,
-        detail: "Prøv igjen, så skal vi forsøke å lagre spilleren.",
+        detail: "Please try again.",
       });
     }
 
@@ -120,9 +143,9 @@ export async function addRosterMember(options: {
     if (!membership) {
       throw createProblem({
         type: "https://tournament.app/problems/membership-not-created",
-        title: "Medlemskapet kunne ikke opprettes",
+        title: "Membership could not be created",
         status: 500,
-        detail: "Prøv igjen, så skal vi forsøke å koble personen til laget.",
+        detail: "Please try again.",
       });
     }
 
@@ -139,7 +162,12 @@ export async function addRosterMember(options: {
   };
 }
 
-export async function listTeamRoster(teamId: string): Promise<TeamRoster> {
+export async function listTeamRoster(
+  teamId: string,
+  deps: TeamServiceDeps = {},
+): Promise<TeamRoster> {
+  const db = deps.db ?? defaultDb;
+
   const team = await db.query.teams.findFirst({
     where: eq(teams.id, teamId),
   });
@@ -147,9 +175,9 @@ export async function listTeamRoster(teamId: string): Promise<TeamRoster> {
   if (!team) {
     throw createProblem({
       type: "https://tournament.app/problems/team-not-found",
-      title: "Teamet ble ikke funnet",
+      title: "Team not found",
       status: 404,
-      detail: "Sjekk at du bruker riktig team-ID.",
+      detail: "Verify that you are using the correct team ID.",
     });
   }
 
@@ -175,10 +203,15 @@ export async function listTeamRoster(teamId: string): Promise<TeamRoster> {
   };
 }
 
-export async function deactivateMembership(options: {
-  teamId: string;
-  membershipId: string;
-}): Promise<void> {
+export async function deactivateMembership(
+  options: {
+    teamId: string;
+    membershipId: string;
+  },
+  deps: TeamServiceDeps = {},
+): Promise<void> {
+  const db = deps.db ?? defaultDb;
+
   await db
     .update(teamMemberships)
     .set({
