@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
 import type { NextRequest } from "next/server";
+import { v7 as uuidv7 } from "uuid";
 import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
 import { logger } from "@/lib/logger/pino";
@@ -23,6 +24,11 @@ export const auth = betterAuth({
     schema,
     usePlural: true,
   }),
+  advanced: {
+    database: {
+      generateId: () => uuidv7(),
+    },
+  },
   plugins: [nextCookies()],
   trustedOrigins: () => resolveTrustedOrigins(),
   session: {
