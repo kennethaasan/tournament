@@ -115,7 +115,7 @@ resource "aws_ses_configuration_set" "app" {
   name  = local.ses_configuration_set_name
 
   delivery_options {
-    tls_policy = "REQUIRE"
+    tls_policy = "Require"
   }
 }
 
