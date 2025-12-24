@@ -1,4 +1,4 @@
-import { logger } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 
 export type AdminAnalyticsEventName =
   | "admin_dashboard_aggregated"
@@ -11,5 +11,5 @@ export function emitAdminEvent(
   event: AdminAnalyticsEventName,
   payload: AdminAnalyticsPayload = {},
 ): void {
-  logger.info({ event, payload }, "admin_analytics_event");
+  logger.info("admin_analytics_event", { event, payload });
 }

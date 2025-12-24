@@ -1,6 +1,6 @@
 import type { SESClient } from "@aws-sdk/client-ses";
 import { SendEmailCommand } from "@aws-sdk/client-ses";
-import { logger } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 import {
   getSesClient,
   resolveConfigurationSet,
@@ -25,10 +25,11 @@ export async function sendEmailBestEffort(
   input: SendEmailInput,
 ): Promise<SendEmailResult> {
   if (!shouldSendEmails()) {
-    logger.info(
-      { toEmail: input.toEmail, status: "skipped", reason: "disabled" },
-      "email_skipped",
-    );
+    logger.info("email_skipped", {
+      toEmail: input.toEmail,
+      status: "skipped",
+      reason: "disabled",
+    });
     return { status: "skipped", reason: "disabled" };
   }
 
@@ -36,10 +37,12 @@ export async function sendEmailBestEffort(
   try {
     client = getSesClient();
   } catch (error) {
-    logger.error(
-      { error, toEmail: input.toEmail, status: "failed", reason: "config" },
-      "email_config_error",
-    );
+    logger.error("email_config_error", {
+      error,
+      toEmail: input.toEmail,
+      status: "failed",
+      reason: "config",
+    });
     return { status: "failed", reason: "config" };
   }
 
@@ -66,22 +69,20 @@ export async function sendEmailBestEffort(
       }),
     );
 
-    logger.info(
-      { toEmail: input.toEmail, status: "sent", context: input.context },
-      "email_sent",
-    );
+    logger.info("email_sent", {
+      toEmail: input.toEmail,
+      status: "sent",
+      context: input.context,
+    });
 
     return { status: "sent" };
   } catch (error) {
-    logger.error(
-      {
-        error,
-        toEmail: input.toEmail,
-        status: "failed",
-        context: input.context,
-      },
-      "email_failed",
-    );
+    logger.error("email_failed", {
+      error,
+      toEmail: input.toEmail,
+      status: "failed",
+      context: input.context,
+    });
     return { status: "failed", reason: "error" };
   }
 }

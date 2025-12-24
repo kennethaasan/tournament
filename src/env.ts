@@ -13,9 +13,6 @@ export const env = createEnv({
     BETTER_AUTH_EMAIL_SENDER: z.string().email(),
     BETTER_AUTH_TRUSTED_ORIGINS: z.string().optional(),
     BETTER_AUTH_URL: z.string().url().optional(),
-    PINO_LOG_LEVEL: z
-      .enum(["fatal", "error", "warn", "info", "debug", "trace"])
-      .default("info"),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -26,6 +23,12 @@ export const env = createEnv({
     SES_SECRET_ACCESS_KEY: z.string().optional(),
     SES_SOURCE_EMAIL: z.string().email().optional(),
     SES_CONFIGURATION_SET: z.string().optional(),
+
+    // AWS Lambda Powertools
+    POWERTOOLS_SERVICE_NAME: z.string().default("competitions"),
+    POWERTOOLS_LOG_LEVEL: z
+      .enum(["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"])
+      .default("INFO"),
 
     // Performance check vars
     PERF_BASE_URL: z.string().url().optional(),

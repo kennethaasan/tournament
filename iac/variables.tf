@@ -77,7 +77,7 @@ variable "neon_retention_seconds" {
 variable "lambda_runtime" {
   description = "Runtime for the Lambda function"
   type        = string
-  default     = "nodejs22.x"
+  default     = "nodejs24.x"
 }
 
 variable "lambda_handler" {

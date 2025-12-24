@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 import { v7 as uuidv7 } from "uuid";
 import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
-import { logger } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 import { db } from "@/server/db/client";
 import { type roleScopeEnum, schema } from "@/server/db/schema";
 
@@ -136,7 +136,7 @@ async function resolveSession(headers: Headers): Promise<AuthContext | null> {
     };
   } catch (error) {
     if (error instanceof APIError) {
-      logger.warn({ message: error.message }, "better_auth_session_error");
+      logger.warn("better_auth_session_error", { message: error.message });
       return null;
     }
 
