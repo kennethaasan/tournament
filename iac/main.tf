@@ -157,7 +157,8 @@ module "fn" {
   timeout       = var.lambda_timeout
   publish       = true
 
-  # Reliability: reserved concurrency prevents runaway scaling (free tier)
+  # Reliability: reserved concurrency (-1 = unreserved, avoids account concurrency limit issues)
+  # Note: Setting a value > 0 requires sufficient account-level concurrency quota
   reserved_concurrent_executions = var.enable_lambda_reliability ? var.lambda_reserved_concurrency : null
 
   # Reliability: Dead Letter Queue for failed invocations (SQS free tier: 1M requests/month)

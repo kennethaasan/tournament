@@ -123,9 +123,9 @@ variable "enable_lambda_alarms" {
 }
 
 variable "lambda_reserved_concurrency" {
-  description = "Reserved concurrent executions for Lambda (prevents runaway scaling)"
+  description = "Reserved concurrent executions for Lambda (-1 = no reservation, prevents runaway scaling when set)"
   type        = number
-  default     = 50
+  default     = -1
 }
 
 variable "lambda_xray_sample_rate" {
