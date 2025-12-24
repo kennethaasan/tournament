@@ -110,6 +110,18 @@ variable "lambda_log_retention_days" {
   default     = 14
 }
 
+variable "enable_lambda_reliability" {
+  description = "Enable Lambda reliability features (DLQ, reserved concurrency, and X-Ray tracing)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_lambda_alarms" {
+  description = "Create CloudWatch alarms for Lambda, DLQ, and CloudFront"
+  type        = bool
+  default     = false
+}
+
 variable "lambda_reserved_concurrency" {
   description = "Reserved concurrent executions for Lambda (prevents runaway scaling)"
   type        = number
