@@ -113,13 +113,13 @@ variable "lambda_log_retention_days" {
 variable "enable_lambda_reliability" {
   description = "Enable Lambda reliability features (DLQ, reserved concurrency, and X-Ray tracing)"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "enable_lambda_alarms" {
   description = "Create CloudWatch alarms for Lambda, DLQ, and CloudFront"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "lambda_reserved_concurrency" {

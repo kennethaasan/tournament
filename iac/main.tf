@@ -435,11 +435,21 @@ module "dns_records" {
 ###########################
 
 locals {
-  alarms_topic_arn = length(aws_sns_topic.alarms) > 0 ? aws_sns_topic.alarms[0].arn : null
+  alarms_topic_arn          = length(aws_sns_topic.alarms) > 0 ? aws_sns_topic.alarms[0].arn : null
+  alarms_topic_arn_us_east1 = length(aws_sns_topic.alarms_us_east1) > 0 ? aws_sns_topic.alarms_us_east1[0].arn : null
 }
 
 resource "aws_sns_topic" "alarms" {
   count = var.enable_lambda_alarms ? 1 : 0
+
+  name              = "${local.stack_name}-alarms"
+  kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
+  tags              = local.default_tags
+}
+
+resource "aws_sns_topic" "alarms_us_east1" {
+  count    = var.enable_lambda_alarms ? 1 : 0
+  provider = aws.us_east_1
 
   name              = "${local.stack_name}-alarms"
   kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
@@ -557,8 +567,8 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
   statistic           = "Average"
   threshold           = 5 # 5% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
-  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
+  ok_actions          = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id
@@ -584,7 +594,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
   statistic           = "Average"
   threshold           = 15 # 15% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id
