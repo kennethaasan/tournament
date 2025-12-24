@@ -1,5 +1,5 @@
 import { Logger } from "@aws-lambda-powertools/logger";
-import { Metrics } from "@aws-lambda-powertools/metrics";
+import { Metrics, MetricUnit } from "@aws-lambda-powertools/metrics";
 
 const serviceName = process.env.POWERTOOLS_SERVICE_NAME ?? "competitions";
 const isProduction = process.env.NODE_ENV === "production";
@@ -53,5 +53,57 @@ export const metrics = new Metrics({
   serviceName,
 });
 
-// Re-export MetricUnit for convenience
-export { MetricUnit } from "@aws-lambda-powertools/metrics";
+// Re-export MetricUnit for convenience (already imported above)
+export { MetricUnit };
+
+/**
+ * Business metric names for tracking domain events.
+ *
+ * AWS Free Tier allows 10 custom metrics per month. Our current usage:
+ * - requestCount (1)
+ * - requestDuration (1)
+ * - requestError (1)
+ * - competitionCreated (1)
+ * - invitationSent (1)
+ * - invitationAccepted (1)
+ * - matchFinalized (1)
+ * Total: 7 metrics (within 10 free tier limit)
+ *
+ * IMPORTANT: Do NOT add dimensions (like editionId, competitionId) as each
+ * unique dimension combination counts as a separate metric and will exceed
+ * the free tier. Use logs for detailed breakdowns instead.
+ */
+export const BusinessMetric = {
+  /** A new competition was created */
+  COMPETITION_CREATED: "competitionCreated",
+  /** An invitation email was sent */
+  INVITATION_SENT: "invitationSent",
+  /** An invitation was accepted by a user */
+  INVITATION_ACCEPTED: "invitationAccepted",
+  /** A match was finalized (score submitted) */
+  MATCH_FINALIZED: "matchFinalized",
+} as const;
+
+export type BusinessMetricName =
+  (typeof BusinessMetric)[keyof typeof BusinessMetric];
+
+/**
+ * Record a business metric. All metrics are Count type with value 1.
+ *
+ * This is a convenience wrapper that ensures we stay within AWS Free Tier
+ * by NOT adding dimensions. Use structured logging for detailed breakdowns.
+ *
+ * @example
+ * ```typescript
+ * import { recordBusinessMetric, BusinessMetric } from "@/lib/logger/powertools";
+ *
+ * // In your handler after a successful operation:
+ * recordBusinessMetric(BusinessMetric.COMPETITION_CREATED);
+ *
+ * // For details, use the logger instead:
+ * logger.info("competition_created", { competitionId, userId });
+ * ```
+ */
+export function recordBusinessMetric(metricName: BusinessMetricName): void {
+  metrics.addMetric(metricName, MetricUnit.Count, 1);
+}

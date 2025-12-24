@@ -394,42 +394,28 @@ resource "aws_lambda_permission" "allow_cloudfront" {
   function_url_auth_type = "AWS_IAM"
 }
 
-module "dns_records" {
-  source  = "terraform-aws-modules/route53/aws"
-  version = "6.1.0"
+resource "aws_route53_record" "app_a" {
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = var.app_domain
+  type    = "A"
 
-  create       = true
-  create_zone  = false
-  name         = data.aws_route53_zone.zone.name
-  private_zone = false
-
-  records = {
-    app_a = {
-      full_name       = var.app_domain
-      type            = "A"
-      allow_overwrite = true
-      alias = {
-        name                   = module.cdn.cloudfront_distribution_domain_name
-        zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
-        evaluate_target_health = false
-      }
-    }
-
-    app_aaaa = {
-      full_name       = var.app_domain
-      type            = "AAAA"
-      allow_overwrite = true
-      alias = {
-        name                   = module.cdn.cloudfront_distribution_domain_name
-        zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
-        evaluate_target_health = false
-      }
-    }
+  alias {
+    name                   = module.cdn.cloudfront_distribution_domain_name
+    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
+    evaluate_target_health = false
   }
+}
 
-  tags = local.default_tags
+resource "aws_route53_record" "app_aaaa" {
+  zone_id = data.aws_route53_zone.zone.zone_id
+  name    = var.app_domain
+  type    = "AAAA"
 
-  depends_on = [module.cdn]
+  alias {
+    name                   = module.cdn.cloudfront_distribution_domain_name
+    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
+    evaluate_target_health = false
+  }
 }
 
 ###########################

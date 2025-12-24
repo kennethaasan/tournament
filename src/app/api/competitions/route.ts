@@ -1,5 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import {
+  BusinessMetric,
+  logger,
+  recordBusinessMetric,
+} from "@/lib/logger/powertools";
 import { createCompetition } from "@/modules/competitions/service";
 import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
@@ -161,6 +166,12 @@ export const POST = createApiHandler(
         published_at: null,
       },
     };
+
+    recordBusinessMetric(BusinessMetric.COMPETITION_CREATED);
+    logger.info("competition_created", {
+      competitionId: result.competition.id,
+      editionId: result.edition.id,
+    });
 
     return NextResponse.json(response, { status: 201 });
   },

@@ -148,8 +148,9 @@ export function createApiHandler<
       path: request.nextUrl.pathname,
     });
 
-    // Add default dimensions for metrics
-    metrics.addDimension("method", request.method);
+    // Note: We intentionally avoid adding dimensions like "method" or "path"
+    // to stay within AWS Free Tier (10 custom metrics). Each unique dimension
+    // combination creates a new metric. Business metrics are added in handlers.
 
     try {
       const shouldRequireAuth = options.requireAuth ?? false;
