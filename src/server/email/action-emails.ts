@@ -1,6 +1,6 @@
 import { eq, inArray } from "drizzle-orm";
 import { env } from "@/env";
-import { logger } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 import type { Role, RoleScope } from "@/server/auth";
 import { db } from "@/server/db/client";
 import type { Match } from "@/server/db/schema";
@@ -121,7 +121,7 @@ export async function sendEntrySubmittedEmails(input: {
 
     return { team: teamSummary, admins: adminSummary };
   } catch (error) {
-    logger.error({ error, input }, "entry_submitted_email_failed");
+    logger.error("entry_submitted_email_failed", { error, input });
     return null;
   }
 }
@@ -195,7 +195,7 @@ export async function sendEntryStatusEmails(input: {
       },
     });
   } catch (error) {
-    logger.error({ error, input }, "entry_status_email_failed");
+    logger.error("entry_status_email_failed", { error, input });
     return null;
   }
 }
@@ -286,7 +286,7 @@ export async function sendMatchScheduleChangedEmails(input: {
       },
     });
   } catch (error) {
-    logger.error({ error, input }, "match_schedule_email_failed");
+    logger.error("match_schedule_email_failed", { error, input });
     return null;
   }
 }
@@ -345,7 +345,7 @@ export async function sendMatchFinalizedEmails(input: {
       },
     });
   } catch (error) {
-    logger.error({ error, input }, "match_finalized_email_failed");
+    logger.error("match_finalized_email_failed", { error, input });
     return null;
   }
 }
@@ -408,7 +408,7 @@ export async function sendMatchDisputedEmails(input: {
       },
     });
   } catch (error) {
-    logger.error({ error, input }, "match_disputed_email_failed");
+    logger.error("match_disputed_email_failed", { error, input });
     return null;
   }
 }
@@ -528,7 +528,7 @@ export async function sendMatchDisputeSubmittedEmails(input: {
 
     return { teams: teamSummary, admins: adminSummary };
   } catch (error) {
-    logger.error({ error, input }, "match_dispute_submitted_email_failed");
+    logger.error("match_dispute_submitted_email_failed", { error, input });
     return null;
   }
 }
@@ -627,7 +627,7 @@ export async function sendScheduleGeneratedEmails(input: {
 
     return { teams: teamSummary, admins: adminSummary };
   } catch (error) {
-    logger.error({ error, input }, "schedule_generated_email_failed");
+    logger.error("schedule_generated_email_failed", { error, input });
     return null;
   }
 }
@@ -701,7 +701,7 @@ export async function sendInvitationAcceptedEmail(input: {
       },
     });
   } catch (error) {
-    logger.error({ error, input }, "invitation_accepted_email_failed");
+    logger.error("invitation_accepted_email_failed", { error, input });
     return null;
   }
 }

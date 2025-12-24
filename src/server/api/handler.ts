@@ -6,7 +6,7 @@ import {
   ensureProblem,
   type ProblemDetails,
 } from "@/lib/errors/problem";
-import { childLogger, withCorrelationContext } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 import {
   type AuthContext,
   getSession,
@@ -20,7 +20,6 @@ type RouteParams = Record<string, string | string[]>;
 type HandlerContext<TParams extends RouteParams> = {
   request: NextRequest;
   params: TParams;
-  logger: ReturnType<typeof childLogger>;
   auth: AuthContext | null;
 };
 
@@ -141,64 +140,67 @@ export function createApiHandler<
     const requestId = request.headers.get("x-request-id") ?? correlationId;
     const startTime = Date.now();
 
-    return withCorrelationContext({ correlationId, requestId }, async () => {
-      const logger = childLogger({
-        correlationId,
-        method: request.method,
-        path: request.nextUrl.pathname,
+    // Add request context to logger for all logs in this request
+    logger.appendKeys({
+      correlationId,
+      requestId,
+      method: request.method,
+      path: request.nextUrl.pathname,
+    });
+
+    try {
+      const shouldRequireAuth = options.requireAuth ?? false;
+
+      enforceSameOrigin(request);
+
+      const session = await getSession(request);
+
+      if (!session && shouldRequireAuth) {
+        throw createProblem(unauthorizedProblem());
+      }
+
+      if (session && options.roles?.length) {
+        requireRoles(session, options.roles);
+      } else if (!session && options.roles?.length) {
+        throw createProblem(unauthorizedProblem());
+      }
+
+      const authContext = session ?? null;
+
+      logger.info("request_started");
+
+      const response = await handler({
+        request,
+        params,
+        auth: authContext,
       });
 
-      try {
-        const shouldRequireAuth = options.requireAuth ?? false;
+      response.headers.set("x-correlation-id", correlationId);
 
-        enforceSameOrigin(request);
+      logger.info("request_completed", {
+        durationMs: Date.now() - startTime,
+        status: response.status,
+      });
 
-        const session = await getSession(request);
+      return response;
+    } catch (error) {
+      const problem = ensureProblem(error);
 
-        if (!session && shouldRequireAuth) {
-          throw createProblem(unauthorizedProblem());
-        }
+      const status = Number.isFinite(problem.status) ? problem.status : 500;
 
-        if (session && options.roles?.length) {
-          requireRoles(session, options.roles);
-        } else if (!session && options.roles?.length) {
-          throw createProblem(unauthorizedProblem());
-        }
+      logger.error("request_failed", {
+        status,
+        type: problem.type,
+        detail: problem.detail,
+      });
 
-        const authContext = session ?? null;
+      const response = NextResponse.json(problem, { status });
+      response.headers.set("x-correlation-id", correlationId);
 
-        logger.info("request_started");
-
-        const response = await handler({
-          request,
-          params,
-          logger,
-          auth: authContext,
-        });
-
-        response.headers.set("x-correlation-id", correlationId);
-
-        logger.info(
-          { durationMs: Date.now() - startTime, status: response.status },
-          "request_completed",
-        );
-
-        return response;
-      } catch (error) {
-        const problem = ensureProblem(error);
-
-        const status = Number.isFinite(problem.status) ? problem.status : 500;
-
-        logger.error(
-          { status, type: problem.type, detail: problem.detail },
-          "request_failed",
-        );
-
-        const response = NextResponse.json(problem, { status });
-        response.headers.set("x-correlation-id", correlationId);
-
-        return response;
-      }
-    });
+      return response;
+    } finally {
+      // Clear the appended keys for the next request
+      logger.removeKeys(["correlationId", "requestId", "method", "path"]);
+    }
   };
 }

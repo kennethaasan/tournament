@@ -1,7 +1,7 @@
 import { SendEmailCommand } from "@aws-sdk/client-ses";
 import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
-import { logger } from "@/lib/logger/pino";
+import { logger } from "@/lib/logger/powertools";
 import type { Role, RoleScope } from "@/server/auth";
 import { escapeHtml } from "@/server/email/email-utils";
 import {
@@ -35,10 +35,10 @@ export async function sendInvitationEmail(
   input: InvitationEmailInput,
 ): Promise<SendResult> {
   if (!shouldSendEmails()) {
-    logger.info(
-      { toEmail: input.toEmail, status: "skipped" },
-      "invitation_email_skipped",
-    );
+    logger.info("invitation_email_skipped", {
+      toEmail: input.toEmail,
+      status: "skipped",
+    });
     return { status: "skipped" };
   }
 
@@ -77,14 +77,14 @@ export async function sendInvitationEmail(
       }),
     );
 
-    logger.info(
-      { toEmail: input.toEmail, status: "sent" },
-      "invitation_email_sent",
-    );
+    logger.info("invitation_email_sent", {
+      toEmail: input.toEmail,
+      status: "sent",
+    });
 
     return { status: "sent" };
   } catch (error) {
-    logger.error({ error, toEmail: input.toEmail }, "invitation_email_failed");
+    logger.error("invitation_email_failed", { error, toEmail: input.toEmail });
 
     throw createProblem({
       type: "https://tournament.app/problems/invitations/email-failed",

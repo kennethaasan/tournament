@@ -1,6 +1,6 @@
 AGENT QUICK REFERENCE
 
-1. Node 22 (see .nvmrc). Install: npm install (root workspace). Copy .env.example -> .env.
+1. Node 24 (see .nvmrc). Install: npm install (root workspace). Copy .env.example -> .env.
 2. Build: npm run build. Lint: npm run lint (Biome check). Type check only: npm run tsc. Format write: npm run format. These scripts are for all workspaces from root. pre-commit is available for local use; install hooks with `pre-commit install` after npm install so local checks mirror the CI stages.
 3. Tests (Vitest multi-project): node + react/jsdom tests: npm test (watch: npm run test:watch). Single test file: npm run test path/to/file.test.ts.
 4. E2E: npm run test:e2e (UI: test:e2e:ui) with Next app. Author specs with native HTML semantics—use `getByRole`/`getByLabel` before CSS selectors, prefer accessible names derived from native markup or aria attributes, and treat explicit `aria-*` targeting or `[data-test-id]` usage as a last resort. To avoid flakes, await concrete UI states (no arbitrary timeouts), prefer `waitUntil: "domcontentloaded"` over `networkidle`, poll for rendered text when content streams in.
@@ -22,8 +22,8 @@ AGENT QUICK REFERENCE
 20. Never touch any code in the `/laravel` folder; it's legacy and is not maintained anymore.
 
 ## Active Technologies
-- TypeScript 5 on Node.js 22 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack (001-build-football-admin-app)
+- TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack (001-build-football-admin-app)
 - PostgreSQL via Drizzle ORM with UUID v7 identifiers (001-build-football-admin-app)
 
 ## Recent Changes
-- 001-build-football-admin-app: Added TypeScript 5 on Node.js 22 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack
+- 001-build-football-admin-app: Added TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack
