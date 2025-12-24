@@ -124,6 +124,8 @@ resource "aws_ses_configuration_set" "app" {
 ###########################
 
 resource "aws_sqs_queue" "lambda_dlq" {
+  count = var.enable_lambda_reliability ? 1 : 0
+
   name                       = "${local.stack_name}-lambda-dlq"
   message_retention_seconds  = 1209600 # 14 days (maximum)
   visibility_timeout_seconds = 300
@@ -156,13 +158,13 @@ module "fn" {
   publish       = true
 
   # Reliability: reserved concurrency prevents runaway scaling (free tier)
-  reserved_concurrent_executions = var.lambda_reserved_concurrency
+  reserved_concurrent_executions = var.enable_lambda_reliability ? var.lambda_reserved_concurrency : null
 
   # Reliability: Dead Letter Queue for failed invocations (SQS free tier: 1M requests/month)
-  dead_letter_target_arn = aws_sqs_queue.lambda_dlq.arn
+  dead_letter_target_arn = var.enable_lambda_reliability ? aws_sqs_queue.lambda_dlq[0].arn : null
 
   # Observability: X-Ray tracing (free tier: 100K traces/month)
-  tracing_mode = "Active"
+  tracing_mode = var.enable_lambda_reliability ? "Active" : "PassThrough"
 
   # use pre-built artifact supplied by CI
   create_package         = false
@@ -198,8 +200,8 @@ module "fn" {
   cloudwatch_logs_retention_in_days = var.lambda_log_retention_days
   tags                              = local.default_tags
 
-  attach_policy_statements = true
-  policy_statements = {
+  attach_policy_statements = var.enable_lambda_reliability
+  policy_statements = var.enable_lambda_reliability ? {
     xray = {
       effect    = "Allow"
       actions   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
@@ -208,9 +210,9 @@ module "fn" {
     dlq = {
       effect    = "Allow"
       actions   = ["sqs:SendMessage"]
-      resources = [aws_sqs_queue.lambda_dlq.arn]
+      resources = [aws_sqs_queue.lambda_dlq[0].arn]
     }
-  }
+  } : {}
 }
 
 data "aws_iam_policy_document" "ses_send" {
@@ -432,7 +434,23 @@ module "dns_records" {
 # CloudWatch Alarms (Free Tier: up to 10 alarms)
 ###########################
 
+locals {
+  alarms_topic_arn          = length(aws_sns_topic.alarms) > 0 ? aws_sns_topic.alarms[0].arn : null
+  alarms_topic_arn_us_east1 = length(aws_sns_topic.alarms_us_east1) > 0 ? aws_sns_topic.alarms_us_east1[0].arn : null
+}
+
 resource "aws_sns_topic" "alarms" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
+  name              = "${local.stack_name}-alarms"
+  kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
+  tags              = local.default_tags
+}
+
+resource "aws_sns_topic" "alarms_us_east1" {
+  count    = var.enable_lambda_alarms ? 1 : 0
+  provider = aws.us_east_1
+
   name              = "${local.stack_name}-alarms"
   kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
   tags              = local.default_tags
@@ -440,6 +458,8 @@ resource "aws_sns_topic" "alarms" {
 
 # Alarm 1: Lambda errors
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
   alarm_name          = "${local.stack_name}-lambda-errors"
   alarm_description   = "Lambda function errors exceeded threshold"
   comparison_operator = "GreaterThanThreshold"
@@ -450,8 +470,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   statistic           = "Sum"
   threshold           = 5
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
-  ok_actions          = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -462,6 +482,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
 # Alarm 2: Lambda throttles
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
   alarm_name          = "${local.stack_name}-lambda-throttles"
   alarm_description   = "Lambda function throttles detected"
   comparison_operator = "GreaterThanThreshold"
@@ -472,8 +494,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   statistic           = "Sum"
   threshold           = 1
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
-  ok_actions          = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -484,6 +506,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
 
 # Alarm 3: Lambda duration (approaching timeout)
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
   alarm_name          = "${local.stack_name}-lambda-duration"
   alarm_description   = "Lambda function duration approaching timeout"
   comparison_operator = "GreaterThanThreshold"
@@ -494,7 +518,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
   extended_statistic  = "p95"
   threshold           = var.lambda_timeout * 1000 * 0.8 # 80% of timeout in ms
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -505,6 +529,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 
 # Alarm 4: DLQ messages (failed Lambda invocations)
 resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
+  count = var.enable_lambda_alarms && var.enable_lambda_reliability ? 1 : 0
+
   alarm_name          = "${local.stack_name}-dlq-messages"
   alarm_description   = "Messages in Dead Letter Queue indicate failed invocations"
   comparison_operator = "GreaterThanThreshold"
@@ -515,11 +541,11 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
   statistic           = "Maximum"
   threshold           = 0
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
-  ok_actions          = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.lambda_dlq.name
+    QueueName = aws_sqs_queue.lambda_dlq[0].name
   }
 
   tags = local.default_tags
@@ -527,6 +553,8 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
 
 # Alarm 5: CloudFront 5xx errors
 resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
   provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
 
   alarm_name          = "${local.stack_name}-cloudfront-5xx"
@@ -539,8 +567,8 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
   statistic           = "Average"
   threshold           = 5 # 5% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
-  ok_actions          = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
+  ok_actions          = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id
@@ -552,6 +580,8 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
 
 # Alarm 6: CloudFront 4xx errors (client errors, may indicate attacks)
 resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
+  count = var.enable_lambda_alarms ? 1 : 0
+
   provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
 
   alarm_name          = "${local.stack_name}-cloudfront-4xx"
@@ -564,7 +594,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
   statistic           = "Average"
   threshold           = 15 # 15% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = [aws_sns_topic.alarms.arn]
+  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id
