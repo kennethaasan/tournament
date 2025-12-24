@@ -6,7 +6,7 @@ import {
   ensureProblem,
   type ProblemDetails,
 } from "@/lib/errors/problem";
-import { logger } from "@/lib/logger/powertools";
+import { logger, MetricUnit, metrics } from "@/lib/logger/powertools";
 import {
   type AuthContext,
   getSession,
@@ -148,6 +148,9 @@ export function createApiHandler<
       path: request.nextUrl.pathname,
     });
 
+    // Add default dimensions for metrics
+    metrics.addDimension("method", request.method);
+
     try {
       const shouldRequireAuth = options.requireAuth ?? false;
 
@@ -177,10 +180,15 @@ export function createApiHandler<
 
       response.headers.set("x-correlation-id", correlationId);
 
+      const durationMs = Date.now() - startTime;
       logger.info("request_completed", {
-        durationMs: Date.now() - startTime,
+        durationMs,
         status: response.status,
       });
+
+      // Record success metrics
+      metrics.addMetric("requestCount", MetricUnit.Count, 1);
+      metrics.addMetric("requestDuration", MetricUnit.Milliseconds, durationMs);
 
       return response;
     } catch (error) {
@@ -194,11 +202,23 @@ export function createApiHandler<
         detail: problem.detail,
       });
 
+      // Record error metrics
+      metrics.addMetric("requestCount", MetricUnit.Count, 1);
+      metrics.addMetric("requestError", MetricUnit.Count, 1);
+      metrics.addMetric(
+        "requestDuration",
+        MetricUnit.Milliseconds,
+        Date.now() - startTime,
+      );
+
       const response = NextResponse.json(problem, { status });
       response.headers.set("x-correlation-id", correlationId);
 
       return response;
     } finally {
+      // Publish metrics to CloudWatch
+      metrics.publishStoredMetrics();
+
       // Clear the appended keys for the next request
       logger.removeKeys(["correlationId", "requestId", "method", "path"]);
     }

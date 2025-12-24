@@ -29,6 +29,7 @@ export const env = createEnv({
     POWERTOOLS_LOG_LEVEL: z
       .enum(["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"])
       .default("INFO"),
+    POWERTOOLS_METRICS_NAMESPACE: z.string().default("tournament"),
 
     // Performance check vars
     PERF_BASE_URL: z.string().url().optional(),
