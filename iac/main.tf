@@ -191,6 +191,7 @@ module "fn" {
       SES_SOURCE_EMAIL               = local.ses_source_email
       POWERTOOLS_SERVICE_NAME        = lookup(var.lambda_environment, "POWERTOOLS_SERVICE_NAME", var.app_name)
       POWERTOOLS_LOG_LEVEL           = lookup(var.lambda_environment, "POWERTOOLS_LOG_LEVEL", "INFO")
+      POWERTOOLS_METRICS_NAMESPACE   = lookup(var.lambda_environment, "POWERTOOLS_METRICS_NAMESPACE", var.app_name)
       POWERTOOLS_TRACING_SAMPLE_RATE = var.lambda_xray_sample_rate
     },
     local.ses_configuration_set_name != "" ? { SES_CONFIGURATION_SET = local.ses_configuration_set_name } : {}
