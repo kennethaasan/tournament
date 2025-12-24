@@ -2,6 +2,11 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { env } from "@/env";
 import { createProblem } from "@/lib/errors/problem";
+import {
+  BusinessMetric,
+  logger,
+  recordBusinessMetric,
+} from "@/lib/logger/powertools";
 import { createInvitation } from "@/modules/identity/service";
 import { createApiHandler } from "@/server/api/handler";
 import {
@@ -67,6 +72,12 @@ export const POST = createApiHandler(
         scopeLabel,
         inviterEmail: auth.user.email ?? null,
         expiresAt: invitation.expiresAt,
+      });
+      recordBusinessMetric(BusinessMetric.INVITATION_SENT);
+      logger.info("invitation_sent", {
+        invitationId: invitation.id,
+        role: invitation.role,
+        scopeType: invitation.scopeType,
       });
     } catch (error) {
       await rollbackInvitation(invitation.id);

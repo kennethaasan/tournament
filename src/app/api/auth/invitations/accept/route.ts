@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { createProblem } from "@/lib/errors/problem";
+import {
+  BusinessMetric,
+  logger,
+  recordBusinessMetric,
+} from "@/lib/logger/powertools";
 import { acceptInvitation } from "@/modules/identity/service";
 import { createApiHandler } from "@/server/api/handler";
 import { sendInvitationAcceptedEmail } from "@/server/email/action-emails";
@@ -46,6 +51,13 @@ export const POST = createApiHandler(
       role: result.invitation.role,
       scopeType: result.invitation.scopeType,
       scopeId: result.invitation.scopeId ?? null,
+    });
+
+    recordBusinessMetric(BusinessMetric.INVITATION_ACCEPTED);
+    logger.info("invitation_accepted", {
+      invitationId: result.invitation.id,
+      role: result.invitation.role,
+      scopeType: result.invitation.scopeType,
     });
 
     return NextResponse.json(

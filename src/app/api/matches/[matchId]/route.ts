@@ -1,6 +1,11 @@
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createProblem } from "@/lib/errors/problem";
+import {
+  BusinessMetric,
+  logger,
+  recordBusinessMetric,
+} from "@/lib/logger/powertools";
 import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
 import { db, withTransaction } from "@/server/db/client";
@@ -168,6 +173,11 @@ export const PATCH = createApiHandler<RouteParams>(
     if (match.status !== updatedMatch.status) {
       if (updatedMatch.status === "finalized") {
         await sendMatchFinalizedEmails({ updatedMatch });
+        recordBusinessMetric(BusinessMetric.MATCH_FINALIZED);
+        logger.info("match_finalized", {
+          matchId: updatedMatch.id,
+          editionId: updatedMatch.editionId,
+        });
       }
 
       if (updatedMatch.status === "disputed") {
