@@ -1,3 +1,5 @@
+import type { BetterFetchPlugin } from "@better-fetch/fetch";
+
 const EMPTY_PAYLOAD_HASH =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
@@ -127,3 +129,27 @@ export async function withAmzContentSha256Request(
 
   return new Request(request, requestInit);
 }
+
+/**
+ * Better-fetch plugin that adds x-amz-content-sha256 header for POST/PUT requests.
+ * Required for CloudFront OAC with Lambda Function URL using AWS_IAM auth.
+ */
+export const amzContentSha256FetchPlugin: BetterFetchPlugin = {
+  id: "amz-content-sha256",
+  name: "amz-content-sha256",
+  hooks: {
+    async onRequest(context) {
+      const hashedInit = await withAmzContentSha256Header({
+        method: context.method,
+        headers: context.headers,
+        body: context.body,
+      });
+
+      return {
+        ...context,
+        headers: new Headers(hashedInit.headers ?? context.headers),
+        body: hashedInit.body ?? context.body,
+      };
+    },
+  },
+};
