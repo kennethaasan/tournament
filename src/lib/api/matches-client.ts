@@ -19,6 +19,9 @@ export const editionMatchesQueryKey = (
     filters?.status ?? "all",
   ] as const;
 
+export const matchDetailQueryKey = (matchId: string) =>
+  ["match", matchId] as const;
+
 export async function fetchEditionMatches(
   editionId: string,
   options: RequestOptions & { stageId?: string; status?: string } = {},
@@ -42,6 +45,26 @@ export async function fetchEditionMatches(
 
   const payload = unwrapResponse({ data, error, response });
   return payload.matches ?? [];
+}
+
+export async function fetchMatch(
+  matchId: string,
+  options: RequestOptions = {},
+): Promise<Match> {
+  const { data, error, response } = await apiClient.GET(
+    "/api/matches/{match_id}",
+    {
+      params: {
+        path: {
+          match_id: matchId,
+        },
+      },
+      signal: options.signal,
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
 }
 
 export async function updateMatch(

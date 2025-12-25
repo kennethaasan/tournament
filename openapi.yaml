@@ -339,6 +339,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/VenueListResponse'
   /api/matches/{match_id}:
+    get:
+      tags: [scheduling]
+      summary: Fetch a match with events
+      operationId: get_match
+      parameters:
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        '200':
+          description: Match details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
     patch:
       tags: [scheduling]
       summary: Update match details or result
@@ -586,6 +601,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Squad'
   /api/squads/{squad_id}/members:
+    get:
+      tags: [teams]
+      summary: List squad members
+      operationId: list_squad_members
+      parameters:
+        - $ref: '#/components/parameters/SquadId'
+      responses:
+        '200':
+          description: Squad members
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquadMemberListResponse'
     post:
       tags: [teams]
       summary: Add or update a squad member
@@ -1233,7 +1261,7 @@ components:
           minimum: 0
     MatchEvent:
       type: object
-      required: [id, match_id, event_type, minute]
+      required: [id, match_id, team_side, event_type, minute]
       properties:
         id:
           type: string
@@ -1241,6 +1269,30 @@ components:
         match_id:
           type: string
           format: uuid
+        team_side:
+          type: string
+          enum: [home, away]
+        squad_member_id:
+          type: string
+          format: uuid
+          nullable: true
+        event_type:
+          type: string
+          enum: [goal, own_goal, penalty_goal, assist, yellow_card, red_card]
+        minute:
+          type: integer
+          minimum: 0
+        stoppage_time:
+          type: integer
+          minimum: 0
+          nullable: true
+    MatchEventInput:
+      type: object
+      required: [team_side, event_type, minute]
+      properties:
+        team_side:
+          type: string
+          enum: [home, away]
         squad_member_id:
           type: string
           format: uuid
@@ -1258,12 +1310,23 @@ components:
     UpdateMatchRequest:
       type: object
       properties:
+        code:
+          type: string
+          nullable: true
+        home_entry_id:
+          type: string
+          format: uuid
+        away_entry_id:
+          type: string
+          format: uuid
         kickoff_at:
           type: string
           format: date-time
+          nullable: true
         venue_id:
           type: string
           format: uuid
+          nullable: true
         status:
           $ref: '#/components/schemas/MatchStatus'
         score:
@@ -1276,7 +1339,7 @@ components:
         events:
           type: array
           items:
-            $ref: '#/components/schemas/MatchEvent'
+            $ref: '#/components/schemas/MatchEventInput'
         admin_notes:
           type: string
           maxLength: 2000
@@ -1563,6 +1626,14 @@ components:
         notes:
           type: string
           nullable: true
+    SquadMemberListResponse:
+      type: object
+      required: [members]
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/SquadMember'
     AddSquadMemberRequest:
       type: object
       required: [membership_id]

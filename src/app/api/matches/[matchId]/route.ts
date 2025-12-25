@@ -9,7 +9,7 @@ import {
 import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
 import { db, withTransaction } from "@/server/db/client";
-import { editions, matchEvents, matches } from "@/server/db/schema";
+import { editions, entries, matchEvents, matches } from "@/server/db/schema";
 import {
   sendMatchDisputedEmails,
   sendMatchFinalizedEmails,
@@ -41,6 +41,9 @@ type MatchEventInput = {
 };
 
 type UpdateMatchBody = {
+  code?: string | null;
+  home_entry_id?: string | null;
+  away_entry_id?: string | null;
   kickoff_at?: string | null;
   venue_id?: string | null;
   status?: "scheduled" | "in_progress" | "finalized" | "disputed";
@@ -51,6 +54,92 @@ type UpdateMatchBody = {
   events?: MatchEventInput[];
   admin_notes?: string | null;
 };
+
+export const GET = createApiHandler<RouteParams>(
+  async ({ params, auth }) => {
+    if (!auth) {
+      throw createProblem({
+        type: "https://httpstatuses.com/401",
+        title: "Autentisering kreves",
+        status: 401,
+        detail: "Du må være innlogget for å hente kampen.",
+      });
+    }
+
+    const matchId = Array.isArray(params.matchId)
+      ? params.matchId[0]
+      : params.matchId;
+
+    if (!matchId) {
+      throw createProblem({
+        type: "https://httpstatuses.com/400",
+        title: "Ugyldig forespørsel",
+        status: 400,
+        detail: "MatchId mangler i URLen.",
+      });
+    }
+
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, matchId),
+    });
+
+    if (!match) {
+      throw createProblem({
+        type: "https://httpstatuses.com/404",
+        title: "Kamp ikke funnet",
+        status: 404,
+        detail: "Kampen finnes ikke.",
+      });
+    }
+
+    const edition = await db.query.editions.findFirst({
+      columns: {
+        id: true,
+        competitionId: true,
+      },
+      where: eq(editions.id, match.editionId),
+    });
+
+    if (!edition) {
+      throw createProblem({
+        type: "https://httpstatuses.com/404",
+        title: "Utgave ikke funnet",
+        status: 404,
+        detail: "Utgaven til kampen finnes ikke lenger.",
+      });
+    }
+
+    const isGlobalAdmin = userHasRole(auth, "global_admin");
+    const hasScopedAdmin = auth.user.roles.some(
+      (assignment) =>
+        assignment.role === "competition_admin" &&
+        assignment.scopeType === "competition" &&
+        assignment.scopeId === edition.competitionId,
+    );
+
+    if (!isGlobalAdmin && !hasScopedAdmin) {
+      throw createProblem({
+        type: "https://httpstatuses.com/403",
+        title: "Ingen tilgang",
+        status: 403,
+        detail:
+          "Du må være global administrator eller konkurranseadministrator for å hente kamper.",
+      });
+    }
+
+    const events = await db.query.matchEvents.findMany({
+      where: eq(matchEvents.matchId, matchId),
+    });
+
+    return NextResponse.json(mapMatchToResponse(match, events), {
+      status: 200,
+    });
+  },
+  {
+    requireAuth: true,
+    roles: ["global_admin", "competition_admin"],
+  },
+);
 
 export const PATCH = createApiHandler<RouteParams>(
   async ({ request, params, auth }) => {
@@ -126,7 +215,7 @@ export const PATCH = createApiHandler<RouteParams>(
 
     const payload = (await request.json()) as UpdateMatchBody;
 
-    const update = buildMatchUpdate(match, payload);
+    const update = await buildMatchUpdate(match, payload);
 
     await withTransaction(async (tx) => {
       if (Object.keys(update).length > 0) {
@@ -199,11 +288,54 @@ export const PATCH = createApiHandler<RouteParams>(
   },
 );
 
-function buildMatchUpdate(
+async function buildMatchUpdate(
   match: typeof matches.$inferSelect,
   payload: UpdateMatchBody,
-): Partial<typeof matches.$inferInsert> {
+): Promise<Partial<typeof matches.$inferInsert>> {
   const update: Partial<typeof matches.$inferInsert> = {};
+
+  if (payload.code !== undefined) {
+    const trimmed = payload.code?.trim() ?? "";
+    update.code = trimmed.length > 0 ? trimmed : null;
+  }
+
+  const nextHomeEntryId =
+    payload.home_entry_id !== undefined
+      ? payload.home_entry_id
+      : match.homeEntryId;
+  const nextAwayEntryId =
+    payload.away_entry_id !== undefined
+      ? payload.away_entry_id
+      : match.awayEntryId;
+
+  if (
+    payload.home_entry_id !== undefined ||
+    payload.away_entry_id !== undefined
+  ) {
+    if (!nextHomeEntryId || !nextAwayEntryId) {
+      throw createProblem({
+        type: "https://tournament.app/problems/matches/invalid-entry",
+        title: "Ugyldig lag",
+        status: 400,
+        detail: "Begge lag må være satt på kampen.",
+      });
+    }
+
+    if (nextHomeEntryId === nextAwayEntryId) {
+      throw createProblem({
+        type: "https://tournament.app/problems/matches/duplicate-entry",
+        title: "Ugyldig lagvalg",
+        status: 400,
+        detail: "Hjemme- og bortelag kan ikke være det samme.",
+      });
+    }
+
+    await assertEntryBelongsToEdition(nextHomeEntryId, match.editionId);
+    await assertEntryBelongsToEdition(nextAwayEntryId, match.editionId);
+
+    update.homeEntryId = nextHomeEntryId;
+    update.awayEntryId = nextAwayEntryId;
+  }
 
   if (payload.kickoff_at !== undefined) {
     if (payload.kickoff_at === null) {
@@ -331,9 +463,10 @@ function mapMatchToResponse(
     edition_id: match.editionId,
     stage_id: match.stageId,
     group_id: match.groupId,
+    code: match.code ?? null,
     round_label: null,
     status: match.status,
-    kickoff_at: match.kickoffAt ? match.kickoffAt.toISOString() : null,
+    kickoff_at: (match.kickoffAt ?? match.createdAt).toISOString(),
     venue_id: match.venueId,
     home_entry_id: match.homeEntryId,
     away_entry_id: match.awayEntryId,
@@ -358,4 +491,20 @@ function mapMatchToResponse(
       squad_member_id: event.relatedMemberId ?? null,
     })),
   };
+}
+
+async function assertEntryBelongsToEdition(entryId: string, editionId: string) {
+  const entry = await db.query.entries.findFirst({
+    columns: { id: true, editionId: true },
+    where: eq(entries.id, entryId),
+  });
+
+  if (!entry || entry.editionId !== editionId) {
+    throw createProblem({
+      type: "https://tournament.app/problems/matches/entry-mismatch",
+      title: "Ugyldig lag",
+      status: 400,
+      detail: "Laget tilhører ikke denne utgaven.",
+    });
+  }
 }

@@ -86,6 +86,24 @@ export function ScoreboardScreen({
     () => new Map(data.entries.map((entry) => [entry.id, entry.name])),
     [data.entries],
   );
+  const scheduleSummary = useMemo(
+    () => deriveScheduleSummary(data.matches),
+    [data.matches],
+  );
+  const venueSummary = useMemo(
+    () => deriveVenueSummary(data.matches),
+    [data.matches],
+  );
+  const headerMeta = useMemo(() => {
+    const parts: string[] = [];
+    if (scheduleSummary) {
+      parts.push(`Dato: ${scheduleSummary}`);
+    }
+    if (venueSummary) {
+      parts.push(`Arena: ${venueSummary}`);
+    }
+    return parts.length > 0 ? parts.join(" · ") : null;
+  }, [scheduleSummary, venueSummary]);
 
   const rotation = data.rotation.length ? data.rotation : DEFAULT_ROTATION;
   const lastUpdated = query.dataUpdatedAt
@@ -192,6 +210,17 @@ export function ScoreboardScreen({
           >
             {data.edition.slug} · {data.edition.competitionSlug}
           </p>
+          {headerMeta ? (
+            <p
+              className={
+                mode === "screen"
+                  ? "text-sm text-white/70"
+                  : "text-sm text-white/80"
+              }
+            >
+              {headerMeta}
+            </p>
+          ) : null}
           <p className="text-sm text-white/80">
             Oppdateres hvert {data.edition.scoreboardRotationSeconds} sekunder
           </p>
@@ -1096,6 +1125,12 @@ function sectionLabel(section: string): string {
   }
 }
 
+function formatDateOnly(date: Date): string {
+  return new Intl.DateTimeFormat("nb-NO", {
+    dateStyle: "medium",
+  }).format(date);
+}
+
 function formatKickoff(date: Date): string {
   return new Intl.DateTimeFormat("nb-NO", {
     dateStyle: "medium",
@@ -1111,12 +1146,69 @@ function formatTimestamp(date: Date): string {
   }).format(date);
 }
 
+function deriveScheduleSummary(matches: ScoreboardMatch[]): string | null {
+  const dates = matches
+    .map((match) => match.kickoffAt)
+    .filter((date) => Number.isFinite(date.getTime()))
+    .sort((left, right) => left.getTime() - right.getTime());
+
+  if (dates.length === 0) {
+    return null;
+  }
+
+  const start = dates[0];
+  const end = dates[dates.length - 1];
+  if (!start || !end) {
+    return null;
+  }
+  const startKey = toLocalDateKey(start);
+  const endKey = toLocalDateKey(end);
+
+  if (startKey === endKey) {
+    return formatDateOnly(start);
+  }
+
+  return `${formatDateOnly(start)} - ${formatDateOnly(end)}`;
+}
+
+function deriveVenueSummary(matches: ScoreboardMatch[]): string | null {
+  const seen = new Set<string>();
+  const venues: string[] = [];
+
+  for (const match of matches) {
+    const name = match.venueName?.trim() ?? "";
+    if (!name || seen.has(name)) {
+      continue;
+    }
+    seen.add(name);
+    venues.push(name);
+  }
+
+  if (venues.length === 0) {
+    return null;
+  }
+  if (venues.length === 1) {
+    return venues[0] ?? null;
+  }
+  if (venues.length === 2) {
+    return `${venues[0]} og ${venues[1]}`;
+  }
+  return `${venues[0]} + ${venues.length - 1}`;
+}
+
 function deriveOverlayMessage(data: ScoreboardData): string {
   return (
     data.overlayMessage ??
     data.matches.find((match) => match.highlight)?.highlight ??
     "Ingen aktive høydepunkt akkurat nå."
   );
+}
+
+function toLocalDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function deriveSeasonTheme(date: Date): Exclude<SeasonTheme, "auto"> {

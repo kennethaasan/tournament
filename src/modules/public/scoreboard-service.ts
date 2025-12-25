@@ -170,8 +170,8 @@ export async function getPublicScoreboard(
   const entryMap = new Map(entries.map((entry) => [entry.id, entry]));
 
   const scoreboardMatches = buildMatches(matches, entryMap, highlight);
-  const standings = buildStandings(matches, scorerEvents, entryMap);
-  const tables = buildGroupTables(matches, scorerEvents, entryMap);
+  const standings = buildStandings(matches, entryMap);
+  const tables = buildGroupTables(matches, entryMap);
   const topScorers = buildTopScorers(scorerEvents, entryMap);
   const rotation = selectRotation(
     editionRow.scoreboardModules,
@@ -407,12 +407,10 @@ function buildMatchSide(
 
 function buildStandings(
   matches: MatchRow[],
-  events: ScorerEventRow[],
   entryMap: Map<string, EntryRow>,
   entryIds?: Set<string>,
 ): ScoreboardStanding[] {
   const stats = new Map<string, ScoreboardStanding>();
-  const fairPlayScores = buildFairPlayScores(events);
 
   for (const entry of entryMap.values()) {
     if (entryIds && !entryIds.has(entry.id)) {
@@ -429,7 +427,7 @@ function buildStandings(
       goalsAgainst: 0,
       goalDifference: 0,
       points: 0,
-      fairPlayScore: fairPlayScores.get(entry.id) ?? 0,
+      fairPlayScore: 0,
     });
   }
 
@@ -487,7 +485,6 @@ function buildStandings(
 
 function buildGroupTables(
   matches: MatchRow[],
-  events: ScorerEventRow[],
   entryMap: Map<string, EntryRow>,
 ): ScoreboardGroupTable[] {
   const groupMap = new Map<
@@ -526,7 +523,7 @@ function buildGroupTables(
       continue;
     }
 
-    const standings = buildStandings(groupMatches, events, entryMap, entryIds);
+    const standings = buildStandings(groupMatches, entryMap, entryIds);
     tables.push({
       groupId: group.id,
       groupCode: group.code,
@@ -719,29 +716,6 @@ function extractScoreboardModules(input: unknown): ScoreboardSection[] {
   return normalizeModules(
     record.scoreboard_modules ?? record.scoreboardModules ?? null,
   );
-}
-
-function buildFairPlayScores(events: ScorerEventRow[]): Map<string, number> {
-  const scores = new Map<string, number>();
-
-  for (const event of events) {
-    if (!event.entryId) {
-      continue;
-    }
-
-    let delta = 0;
-    if (event.eventType === "yellow_card") {
-      delta = 1;
-    } else if (event.eventType === "red_card") {
-      delta = 3;
-    } else {
-      continue;
-    }
-
-    scores.set(event.entryId, (scores.get(event.entryId) ?? 0) + delta);
-  }
-
-  return scores;
 }
 
 type StandingsRow = ScoreboardStanding & { goalDifference: number };
