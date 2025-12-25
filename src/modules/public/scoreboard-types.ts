@@ -38,6 +38,8 @@ export type ScoreboardMatch = {
   id: string;
   status: components["schemas"]["MatchStatus"];
   kickoffAt: Date;
+  code?: string | null;
+  groupCode?: string | null;
   home: ScoreboardMatchSide;
   away: ScoreboardMatchSide;
   highlight?: string | null;
@@ -68,10 +70,18 @@ export type ScoreboardTopScorer = {
   redCards: number;
 };
 
+export type ScoreboardGroupTable = {
+  groupId: string;
+  groupCode: string;
+  groupName: string | null;
+  standings: ScoreboardStanding[];
+};
+
 export type ScoreboardData = {
   edition: ScoreboardEdition;
   matches: ScoreboardMatch[];
   standings: ScoreboardStanding[];
+  tables: ScoreboardGroupTable[];
   topScorers: ScoreboardTopScorer[];
   rotation: ScoreboardSection[];
   overlayMessage: string | null;
@@ -153,6 +163,8 @@ export function toApiScoreboardPayload(
       id: match.id,
       status: match.status,
       kickoff_at: match.kickoffAt.toISOString(),
+      code: match.code ?? null,
+      group_code: match.groupCode ?? null,
       home: {
         entry_id: match.home.entryId,
         name: match.home.name,
@@ -178,6 +190,24 @@ export function toApiScoreboardPayload(
       goal_difference: standing.goalDifference,
       points: standing.points,
       fair_play_score: standing.fairPlayScore,
+    })),
+    tables: data.tables.map((table) => ({
+      group_id: table.groupId,
+      group_code: table.groupCode,
+      group_name: table.groupName,
+      standings: table.standings.map((standing) => ({
+        entry_id: standing.entryId,
+        position: standing.position,
+        played: standing.played,
+        won: standing.won,
+        drawn: standing.drawn,
+        lost: standing.lost,
+        goals_for: standing.goalsFor,
+        goals_against: standing.goalsAgainst,
+        goal_difference: standing.goalDifference,
+        points: standing.points,
+        fair_play_score: standing.fairPlayScore,
+      })),
     })),
     top_scorers: data.topScorers.map((scorer) => ({
       person_id: scorer.personId,
@@ -238,6 +268,8 @@ export function fromApiScoreboardPayload(
       id: match.id,
       status: match.status,
       kickoffAt: new Date(match.kickoff_at),
+      code: match.code ?? null,
+      groupCode: match.group_code ?? null,
       home: {
         entryId: match.home.entry_id,
         name: match.home.name,
@@ -274,6 +306,27 @@ export function fromApiScoreboardPayload(
       yellowCards: scorer.yellow_cards ?? 0,
       redCards: scorer.red_cards ?? 0,
     })),
+    tables:
+      payload.tables?.map((table) => ({
+        groupId: table.group_id,
+        groupCode: table.group_code,
+        groupName: table.group_name ?? null,
+        standings: table.standings.map((standing, index) => ({
+          entryId: standing.entry_id,
+          position: standing.position ?? index + 1,
+          played: standing.played,
+          won: standing.won,
+          drawn: standing.drawn,
+          lost: standing.lost,
+          goalsFor: standing.goals_for,
+          goalsAgainst: standing.goals_against,
+          goalDifference:
+            standing.goal_difference ??
+            standing.goals_for - standing.goals_against,
+          points: standing.points,
+          fairPlayScore: standing.fair_play_score ?? null,
+        })),
+      })) ?? [],
     rotation: payload.rotation.length ? payload.rotation : DEFAULT_ROTATION,
     overlayMessage,
     entries: [],

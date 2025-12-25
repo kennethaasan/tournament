@@ -77,6 +77,7 @@ function buildScoreboardData(): ScoreboardData {
       },
     ],
     standings: [],
+    tables: [],
     topScorers: [],
     rotation: ["live_matches", "upcoming", "standings", "top_scorers"],
     overlayMessage: null,

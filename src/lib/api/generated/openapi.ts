@@ -195,6 +195,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/editions/{edition_id}/venues": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List venues for an edition */
+    get: operations["list_edition_venues"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/matches/{match_id}": {
     parameters: {
       query?: never;
@@ -202,7 +219,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Fetch a match with events */
+    get: operations["get_match"];
     put?: never;
     post?: never;
     delete?: never;
@@ -245,6 +263,42 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/competitions/{competition_id}/venues": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List venues for a competition */
+    get: operations["list_competition_venues"];
+    put?: never;
+    /** Create a venue */
+    post: operations["create_venue"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/venues/{venue_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a venue */
+    delete: operations["delete_venue"];
+    options?: never;
+    head?: never;
+    /** Update a venue */
+    patch: operations["update_venue"];
     trace?: never;
   };
   "/api/teams/{team_id}": {
@@ -339,7 +393,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** List squad members */
+    get: operations["list_squad_members"];
     put?: never;
     /** Add or update a squad member */
     post: operations["add_squad_member"];
@@ -614,16 +669,21 @@ export interface components {
       stage_id?: string | null;
       /** Format: uuid */
       group_id?: string | null;
+      group_code?: string | null;
+      code?: string | null;
       round_label?: string;
       status: components["schemas"]["MatchStatus"];
       /** Format: date-time */
       kickoff_at: string;
       /** Format: uuid */
       venue_id?: string | null;
+      venue_name?: string | null;
       /** Format: uuid */
       home_entry_id: string;
+      home_entry_name?: string | null;
       /** Format: uuid */
       away_entry_id: string;
+      away_entry_name?: string | null;
       home_score?: components["schemas"]["ScoreBreakdown"];
       away_score?: components["schemas"]["ScoreBreakdown"];
       /** @enum {string} */
@@ -649,6 +709,24 @@ export interface components {
       id: string;
       /** Format: uuid */
       match_id: string;
+      /** @enum {string} */
+      team_side: "home" | "away";
+      /** Format: uuid */
+      squad_member_id?: string | null;
+      /** @enum {string} */
+      event_type:
+        | "goal"
+        | "own_goal"
+        | "penalty_goal"
+        | "assist"
+        | "yellow_card"
+        | "red_card";
+      minute: number;
+      stoppage_time?: number | null;
+    };
+    MatchEventInput: {
+      /** @enum {string} */
+      team_side: "home" | "away";
       /** Format: uuid */
       squad_member_id?: string | null;
       /** @enum {string} */
@@ -663,16 +741,21 @@ export interface components {
       stoppage_time?: number | null;
     };
     UpdateMatchRequest: {
-      /** Format: date-time */
-      kickoff_at?: string;
+      code?: string | null;
       /** Format: uuid */
-      venue_id?: string;
+      home_entry_id?: string;
+      /** Format: uuid */
+      away_entry_id?: string;
+      /** Format: date-time */
+      kickoff_at?: string | null;
+      /** Format: uuid */
+      venue_id?: string | null;
       status?: components["schemas"]["MatchStatus"];
       score?: {
         home?: components["schemas"]["ScoreBreakdown"];
         away?: components["schemas"]["ScoreBreakdown"];
       };
-      events?: components["schemas"]["MatchEvent"][];
+      events?: components["schemas"]["MatchEventInput"][];
       admin_notes?: string;
     };
     CreateDisputeRequest: {
@@ -816,6 +899,9 @@ export interface components {
       availability?: "available" | "doubtful" | "injured" | "suspended";
       notes?: string | null;
     };
+    SquadMemberListResponse: {
+      members: components["schemas"]["SquadMember"][];
+    };
     AddSquadMemberRequest: {
       /** Format: uuid */
       membership_id: string;
@@ -858,6 +944,7 @@ export interface components {
       edition: components["schemas"]["Edition"];
       matches: components["schemas"]["ScoreboardMatch"][];
       standings: components["schemas"]["Standing"][];
+      tables?: components["schemas"]["GroupTable"][];
       top_scorers: components["schemas"]["TopScorer"][];
       /** @description Configured rotation sections for big-screen display */
       rotation: ("live_matches" | "upcoming" | "standings" | "top_scorers")[];
@@ -868,6 +955,10 @@ export interface components {
       status: components["schemas"]["MatchStatus"];
       /** Format: date-time */
       kickoff_at: string;
+      /** @description Match code (e.g. A-01) */
+      code?: string | null;
+      /** @description Group code for group-stage matches */
+      group_code?: string | null;
       home: components["schemas"]["ScoreboardSide"];
       away: components["schemas"]["ScoreboardSide"];
       /** @description Optional admin-triggered overlay message */
@@ -894,6 +985,47 @@ export interface components {
       goal_difference?: number;
       points: number;
       fair_play_score?: number | null;
+    };
+    GroupTable: {
+      /** Format: uuid */
+      group_id: string;
+      group_code: string;
+      group_name?: string | null;
+      standings: components["schemas"]["Standing"][];
+    };
+    Venue: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      competition_id: string;
+      /** Format: uuid */
+      edition_id?: string | null;
+      name: string;
+      slug: string;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
+      /** Format: date-time */
+      created_at?: string;
+    };
+    VenueListResponse: {
+      venues: components["schemas"]["Venue"][];
+    };
+    CreateVenueRequest: {
+      name: string;
+      slug: string;
+      /** Format: uuid */
+      edition_id?: string | null;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
+    };
+    UpdateVenueRequest: {
+      name?: string;
+      slug?: string;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
     };
     TopScorer: {
       /** Format: uuid */
@@ -945,6 +1077,7 @@ export interface components {
     StageIdOptional: string;
     MatchStatus: components["schemas"]["MatchStatus"];
     MatchId: string;
+    VenueId: string;
     TeamId: string;
     EntryId: string;
     SquadId: string;
@@ -1344,6 +1477,51 @@ export interface operations {
       };
     };
   };
+  list_edition_venues: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Venues available for the edition */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VenueListResponse"];
+        };
+      };
+    };
+  };
+  get_match: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        match_id: components["parameters"]["MatchId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Match details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Match"];
+        };
+      };
+      404: components["responses"]["ProblemDetails"];
+    };
+  };
   update_match: {
     parameters: {
       query?: never;
@@ -1441,6 +1619,102 @@ export interface operations {
         };
       };
       409: components["responses"]["ProblemDetails"];
+    };
+  };
+  list_competition_venues: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Competition venues */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VenueListResponse"];
+        };
+      };
+    };
+  };
+  create_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateVenueRequest"];
+      };
+    };
+    responses: {
+      /** @description Venue created */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Venue"];
+        };
+      };
+      409: components["responses"]["ProblemDetails"];
+    };
+  };
+  delete_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        venue_id: components["parameters"]["VenueId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Venue deleted */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  update_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        venue_id: components["parameters"]["VenueId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateVenueRequest"];
+      };
+    };
+    responses: {
+      /** @description Venue updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Venue"];
+        };
+      };
+      404: components["responses"]["ProblemDetails"];
     };
   };
   get_team_roster: {
@@ -1571,6 +1845,28 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["Squad"];
+        };
+      };
+    };
+  };
+  list_squad_members: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        squad_id: components["parameters"]["SquadId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Squad members */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SquadMemberListResponse"];
         };
       };
     };

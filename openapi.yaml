@@ -17,6 +17,8 @@ tags:
     description: Scheduling and results workflows
   - name: teams
     description: Team and squad management
+  - name: venues
+    description: Venue management
   - name: notifications
     description: Notification center APIs
   - name: public
@@ -322,7 +324,36 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Match'
+  /api/editions/{edition_id}/venues:
+    get:
+      tags: [venues]
+      summary: List venues for an edition
+      operationId: list_edition_venues
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      responses:
+        '200':
+          description: Venues available for the edition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueListResponse'
   /api/matches/{match_id}:
+    get:
+      tags: [scheduling]
+      summary: Fetch a match with events
+      operationId: get_match
+      parameters:
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        '200':
+          description: Match details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
     patch:
       tags: [scheduling]
       summary: Update match details or result
@@ -397,6 +428,72 @@ paths:
                 $ref: '#/components/schemas/Team'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+  /api/competitions/{competition_id}/venues:
+    get:
+      tags: [venues]
+      summary: List venues for a competition
+      operationId: list_competition_venues
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      responses:
+        '200':
+          description: Competition venues
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueListResponse'
+    post:
+      tags: [venues]
+      summary: Create a venue
+      operationId: create_venue
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVenueRequest'
+      responses:
+        '201':
+          description: Venue created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
+  /api/venues/{venue_id}:
+    patch:
+      tags: [venues]
+      summary: Update a venue
+      operationId: update_venue
+      parameters:
+        - $ref: '#/components/parameters/VenueId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVenueRequest'
+      responses:
+        '200':
+          description: Venue updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags: [venues]
+      summary: Delete a venue
+      operationId: delete_venue
+      parameters:
+        - $ref: '#/components/parameters/VenueId'
+      responses:
+        '204':
+          description: Venue deleted
   /api/teams/{team_id}:
     get:
       tags: [teams]
@@ -504,6 +601,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/Squad'
   /api/squads/{squad_id}/members:
+    get:
+      tags: [teams]
+      summary: List squad members
+      operationId: list_squad_members
+      parameters:
+        - $ref: '#/components/parameters/SquadId'
+      responses:
+        '200':
+          description: Squad members
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquadMemberListResponse'
     post:
       tags: [teams]
       summary: Add or update a squad member
@@ -636,6 +746,13 @@ components:
         $ref: '#/components/schemas/MatchStatus'
     MatchId:
       name: match_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    VenueId:
+      name: venue_id
       in: path
       required: true
       schema:
@@ -1084,6 +1201,12 @@ components:
           type: string
           format: uuid
           nullable: true
+        group_code:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
         round_label:
           type: string
         status:
@@ -1095,12 +1218,21 @@ components:
           type: string
           format: uuid
           nullable: true
+        venue_name:
+          type: string
+          nullable: true
         home_entry_id:
           type: string
           format: uuid
+        home_entry_name:
+          type: string
+          nullable: true
         away_entry_id:
           type: string
           format: uuid
+        away_entry_name:
+          type: string
+          nullable: true
         home_score:
           $ref: '#/components/schemas/ScoreBreakdown'
         away_score:
@@ -1129,7 +1261,7 @@ components:
           minimum: 0
     MatchEvent:
       type: object
-      required: [id, match_id, event_type, minute]
+      required: [id, match_id, team_side, event_type, minute]
       properties:
         id:
           type: string
@@ -1137,6 +1269,30 @@ components:
         match_id:
           type: string
           format: uuid
+        team_side:
+          type: string
+          enum: [home, away]
+        squad_member_id:
+          type: string
+          format: uuid
+          nullable: true
+        event_type:
+          type: string
+          enum: [goal, own_goal, penalty_goal, assist, yellow_card, red_card]
+        minute:
+          type: integer
+          minimum: 0
+        stoppage_time:
+          type: integer
+          minimum: 0
+          nullable: true
+    MatchEventInput:
+      type: object
+      required: [team_side, event_type, minute]
+      properties:
+        team_side:
+          type: string
+          enum: [home, away]
         squad_member_id:
           type: string
           format: uuid
@@ -1154,12 +1310,23 @@ components:
     UpdateMatchRequest:
       type: object
       properties:
+        code:
+          type: string
+          nullable: true
+        home_entry_id:
+          type: string
+          format: uuid
+        away_entry_id:
+          type: string
+          format: uuid
         kickoff_at:
           type: string
           format: date-time
+          nullable: true
         venue_id:
           type: string
           format: uuid
+          nullable: true
         status:
           $ref: '#/components/schemas/MatchStatus'
         score:
@@ -1172,7 +1339,7 @@ components:
         events:
           type: array
           items:
-            $ref: '#/components/schemas/MatchEvent'
+            $ref: '#/components/schemas/MatchEventInput'
         admin_notes:
           type: string
           maxLength: 2000
@@ -1459,6 +1626,14 @@ components:
         notes:
           type: string
           nullable: true
+    SquadMemberListResponse:
+      type: object
+      required: [members]
+      properties:
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/SquadMember'
     AddSquadMemberRequest:
       type: object
       required: [membership_id]
@@ -1537,6 +1712,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Standing'
+        tables:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupTable'
         top_scorers:
           type: array
           items:
@@ -1559,6 +1738,14 @@ components:
         kickoff_at:
           type: string
           format: date-time
+        code:
+          type: string
+          nullable: true
+          description: Match code (e.g. A-01)
+        group_code:
+          type: string
+          nullable: true
+          description: Group code for group-stage matches
         home:
           $ref: '#/components/schemas/ScoreboardSide'
         away:
@@ -1609,6 +1796,97 @@ components:
           type: integer
         fair_play_score:
           type: integer
+          nullable: true
+    GroupTable:
+      type: object
+      required: [group_id, group_code, standings]
+      properties:
+        group_id:
+          type: string
+          format: uuid
+        group_code:
+          type: string
+        group_name:
+          type: string
+          nullable: true
+        standings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Standing'
+    Venue:
+      type: object
+      required: [id, competition_id, name, slug]
+      properties:
+        id:
+          type: string
+          format: uuid
+        competition_id:
+          type: string
+          format: uuid
+        edition_id:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+        slug:
+          type: string
+        address:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+    VenueListResponse:
+      type: object
+      required: [venues]
+      properties:
+        venues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Venue'
+    CreateVenueRequest:
+      type: object
+      required: [name, slug]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        edition_id:
+          type: string
+          format: uuid
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          nullable: true
+    UpdateVenueRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+        address:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        timezone:
+          type: string
           nullable: true
     TopScorer:
       type: object

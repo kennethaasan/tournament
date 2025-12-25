@@ -19,6 +19,10 @@ import {
   fetchEditionStages,
   type Stage,
 } from "@/lib/api/stages-client";
+import {
+  editionVenuesQueryKey,
+  fetchEditionVenues,
+} from "@/lib/api/venues-client";
 
 type StageGroup = {
   id: string;
@@ -184,6 +188,16 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const isLoadingStages = stagesQuery.isLoading;
   const stageLoadError =
     stagesQuery.error instanceof Error ? stagesQuery.error.message : null;
+
+  const venuesQuery = useQuery({
+    queryKey: editionVenuesQueryKey(editionId),
+    queryFn: ({ signal }) => fetchEditionVenues(editionId, { signal }),
+    staleTime: 30_000,
+  });
+  const availableVenues = venuesQuery.data ?? [];
+  const venuesLoading = venuesQuery.isLoading;
+  const venuesError =
+    venuesQuery.error instanceof Error ? venuesQuery.error.message : null;
 
   const entries = entriesQuery.data ?? [];
   const entriesLoading = entriesQuery.isLoading;
@@ -509,11 +523,11 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         throw new Error("Starttidspunktet må være en gyldig dato.");
       }
 
-      const venues = venueInputs
+      const venueIds = venueInputs
         .map((venue) => venue.value.trim())
         .filter((venue) => venue.length > 0);
 
-      if (venues.length === 0) {
+      if (venueIds.length === 0) {
         throw new Error("Oppgi minst én bane eller hall for kampene.");
       }
 
@@ -563,7 +577,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 start_at: startAtDate.toISOString(),
                 match_duration_minutes: matchDurationMinutes,
                 break_minutes: breakMinutesValue,
-                venues: venues.map((venueId) => ({ venue_id: venueId })),
+                venues: venueIds.map((venueId) => ({ venue_id: venueId })),
                 groups: groupsPayload,
               },
             },
@@ -1241,28 +1255,53 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
             </div>
 
             <div className="space-y-3">
-              {venueInputs.map((venue, index) => (
-                <div key={venue.key} className="flex gap-3">
-                  <input
-                    type="text"
-                    value={venue.value}
-                    onChange={(event) => updateVenue(index, event.target.value)}
-                    placeholder="F.eks. venue-id eller banenavn"
-                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeVenueRow(index)}
-                    className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={venueInputs.length <= 1}
-                  >
-                    Fjern
-                  </button>
+              {venuesLoading ? (
+                <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+                  Laster arenaer …
                 </div>
-              ))}
+              ) : venuesError ? (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
+                  {venuesError}
+                </div>
+              ) : availableVenues.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
+                  Ingen arenaer registrert. Opprett arenaer før du genererer
+                  kampoppsett.
+                </div>
+              ) : (
+                venueInputs.map((venue, index) => (
+                  <div key={venue.key} className="flex gap-3">
+                    <select
+                      value={venue.value}
+                      onChange={(event) =>
+                        updateVenue(index, event.target.value)
+                      }
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Velg arena</option>
+                      {availableVenues.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => removeVenueRow(index)}
+                      className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={venueInputs.length <= 1}
+                    >
+                      Fjern
+                    </button>
+                  </div>
+                ))
+              )}
               <p className="text-xs text-muted-foreground">
-                Bruk interne bane- eller hall-IDer slik de er definert i
-                administrasjonen. Minst én bane er påkrevd.
+                Velg minst én arena. Disse brukes som kampsteder i
+                kampoppsettet.
               </p>
             </div>
           </div>
