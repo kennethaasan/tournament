@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_ROTATION,
   type ScoreboardData,
+  type ScoreboardGroupTable,
   type ScoreboardMatch,
   type ScoreboardStanding,
   type ScoreboardTopScorer,
@@ -223,6 +224,7 @@ export function ScoreboardScreen({
           overlayText={overlayText}
           matches={data.matches}
           standings={data.standings}
+          tables={data.tables}
           scorers={data.topScorers}
           entryNames={entryNames}
         />
@@ -447,6 +449,7 @@ type ScreenLayoutProps = {
   overlayText: string;
   matches: ScoreboardMatch[];
   standings: ScoreboardStanding[];
+  tables: ScoreboardGroupTable[];
   scorers: ScoreboardTopScorer[];
   entryNames: Map<string, string>;
 };
@@ -455,6 +458,7 @@ function ScreenLayout({
   overlayText,
   matches,
   standings,
+  tables,
   scorers,
   entryNames,
 }: ScreenLayoutProps) {
@@ -482,13 +486,44 @@ function ScreenLayout({
             entryNames={entryNames}
           />
         </div>
-        <div className="xl:col-span-4">
-          <ScreenStandingsTable standings={standings} entryNames={entryNames} />
+        <div className="xl:col-span-4 space-y-4">
+          {tables.length > 0 ? (
+            <ScreenGroupTables tables={tables} entryNames={entryNames} />
+          ) : (
+            <ScreenStandingsTable
+              standings={standings}
+              entryNames={entryNames}
+            />
+          )}
         </div>
         <div className="xl:col-span-2">
           <ScreenTopScorersTable scorers={scorers} />
         </div>
       </div>
+    </>
+  );
+}
+
+type ScreenGroupTablesProps = {
+  tables: ScoreboardGroupTable[];
+  entryNames: Map<string, string>;
+};
+
+function ScreenGroupTables({ tables, entryNames }: ScreenGroupTablesProps) {
+  return (
+    <>
+      {tables.map((table) => (
+        <ScreenStandingsTable
+          key={table.groupId}
+          title={
+            table.groupName
+              ? `Gruppe ${table.groupCode} · ${table.groupName}`
+              : `Gruppe ${table.groupCode}`
+          }
+          standings={table.standings}
+          entryNames={entryNames}
+        />
+      ))}
     </>
   );
 }
@@ -543,10 +578,17 @@ function LandingLayout({
 
       <ScheduleTable matches={matches} entryNames={entryNames} />
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <StandingsTable standings={data.standings} entryNames={entryNames} />
-        <TopScorersList scorers={data.topScorers} entryNames={entryNames} />
-      </div>
+      {data.tables.length > 0 ? (
+        <div className="space-y-6">
+          <GroupTablesGrid tables={data.tables} entryNames={entryNames} />
+          <TopScorersList scorers={data.topScorers} entryNames={entryNames} />
+        </div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <StandingsTable standings={data.standings} entryNames={entryNames} />
+          <TopScorersList scorers={data.topScorers} entryNames={entryNames} />
+        </div>
+      )}
     </div>
   );
 }
@@ -623,6 +665,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
           <thead>
             <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
               <th className="w-[12%] px-4 py-2">Tid</th>
+              <th className="w-[10%] px-4 py-2">Kamp</th>
               <th className="w-[16%] px-4 py-2">Arena</th>
               <th className="w-[14%] px-4 py-2">Status</th>
               <th className="px-4 py-2">Hjemmelag</th>
@@ -633,7 +676,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
           <tbody>
             {matches.length === 0 ? (
               <tr>
-                <td className="px-4 py-3 text-center text-white/70" colSpan={6}>
+                <td className="px-4 py-3 text-center text-white/70" colSpan={7}>
                   Ingen kamper registrert enda.
                 </td>
               </tr>
@@ -647,6 +690,9 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                 >
                   <td className="px-4 py-2 text-[0.7rem] text-white/70">
                     {formatKickoff(match.kickoffAt)}
+                  </td>
+                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                    {match.code ?? match.groupCode ?? "—"}
                   </td>
                   <td className="px-4 py-2 text-[0.7rem] text-white/70">
                     {match.venueName ?? "Ikke satt"}
@@ -694,6 +740,7 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
           <thead>
             <tr className="text-xs uppercase tracking-wide text-white/60">
               <th className="px-5 py-3">Tidspunkt</th>
+              <th className="px-5 py-3">Kamp</th>
               <th className="px-5 py-3">Hjemmelag</th>
               <th className="px-5 py-3">Bortelag</th>
               <th className="px-5 py-3">Arena</th>
@@ -704,7 +751,7 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
           <tbody>
             {matches.length === 0 ? (
               <tr>
-                <td className="px-5 py-4 text-center text-white/70" colSpan={6}>
+                <td className="px-5 py-4 text-center text-white/70" colSpan={7}>
                   Ingen kamper registrert enda.
                 </td>
               </tr>
@@ -713,6 +760,9 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
                 <tr key={match.id} className="border-t border-white/5">
                   <td className="px-5 py-3 text-xs text-white/70">
                     {formatKickoff(match.kickoffAt)}
+                  </td>
+                  <td className="px-5 py-3 text-xs text-white/70">
+                    {match.code ?? match.groupCode ?? "—"}
                   </td>
                   <td className="px-5 py-3">
                     {entryNames.get(match.home.entryId) ?? match.home.name}
@@ -742,13 +792,18 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
 type StandingsProps = {
   standings: ScoreboardStanding[];
   entryNames: Map<string, string>;
+  title?: string;
 };
 
-function StandingsTable({ standings, entryNames }: StandingsProps) {
+function StandingsTable({
+  standings,
+  entryNames,
+  title = "Tabell",
+}: StandingsProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <h2 className="border-b border-white/10 px-5 py-3 text-lg font-semibold uppercase tracking-wide text-white">
-        Tabell
+        {title}
       </h2>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm text-white/90">
@@ -805,17 +860,19 @@ function StandingsTable({ standings, entryNames }: StandingsProps) {
 type ScreenStandingsTableProps = {
   standings: ScoreboardStanding[];
   entryNames: Map<string, string>;
+  title?: string;
 };
 
 function ScreenStandingsTable({
   standings,
   entryNames,
+  title = "Tabell",
 }: ScreenStandingsTableProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <div className="border-b border-white/10 px-4 py-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
-          Tabell
+          {title}
         </h2>
       </div>
       <div className="overflow-x-auto">
@@ -874,6 +931,30 @@ function ScreenStandingsTable({
         </table>
       </div>
     </section>
+  );
+}
+
+type GroupTablesGridProps = {
+  tables: ScoreboardGroupTable[];
+  entryNames: Map<string, string>;
+};
+
+function GroupTablesGrid({ tables, entryNames }: GroupTablesGridProps) {
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      {tables.map((table) => (
+        <StandingsTable
+          key={table.groupId}
+          title={
+            table.groupName
+              ? `Gruppe ${table.groupCode} · ${table.groupName}`
+              : `Gruppe ${table.groupCode}`
+          }
+          standings={table.standings}
+          entryNames={entryNames}
+        />
+      ))}
+    </div>
   );
 }
 

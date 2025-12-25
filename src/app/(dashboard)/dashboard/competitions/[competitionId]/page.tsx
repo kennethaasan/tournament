@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCompetitionDetail } from "@/modules/admin/service";
@@ -54,6 +55,13 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
         <Button asChild size="sm" className="rounded-full">
           <Link href={`/dashboard/competitions/${competition.id}/editions/new`}>
             Ny utgave
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="outline" className="rounded-full">
+          <Link
+            href={`/dashboard/competitions/${competition.id}/venues` as Route}
+          >
+            Arenaer
           </Link>
         </Button>
         <Button asChild size="sm" variant="outline" className="rounded-full">
@@ -206,6 +214,14 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                         className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
                       >
                         Kampoppsett
+                      </Link>
+                      <Link
+                        href={
+                          `/dashboard/editions/${edition.id}/results` as Route
+                        }
+                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
+                      >
+                        Resultater
                       </Link>
                       <Link
                         href={`/dashboard/editions/${edition.id}/scoreboard`}

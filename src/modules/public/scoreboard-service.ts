@@ -6,6 +6,7 @@ import {
   editionSettings,
   editions,
   entries as entriesTable,
+  groups,
   matchEvents,
   matches as matchesTable,
   persons,
@@ -17,6 +18,7 @@ import {
 } from "@/server/db/schema";
 import type {
   ScoreboardData,
+  ScoreboardGroupTable,
   ScoreboardMatch,
   ScoreboardMatchSide,
   ScoreboardSection,
@@ -99,6 +101,10 @@ type MatchRow = {
   homeScore: number;
   awayScore: number;
   venueName: string | null;
+  code: string | null;
+  groupId: string | null;
+  groupCode: string | null;
+  groupName: string | null;
 };
 
 type ScorerEventRow = {
@@ -165,12 +171,14 @@ export async function getPublicScoreboard(
 
   const scoreboardMatches = buildMatches(matches, entryMap, highlight);
   const standings = buildStandings(matches, scorerEvents, entryMap);
+  const tables = buildGroupTables(matches, scorerEvents, entryMap);
   const topScorers = buildTopScorers(scorerEvents, entryMap);
   const rotation = selectRotation(
     editionRow.scoreboardModules,
     scoreboardMatches,
     standings,
     topScorers,
+    tables,
   );
   const entryList = Array.from(entryMap.values()).map((entry) => ({
     id: entry.id,
@@ -181,6 +189,7 @@ export async function getPublicScoreboard(
     edition: mapEditionRowToDto(editionRow),
     matches: scoreboardMatches,
     standings,
+    tables,
     topScorers,
     rotation,
     overlayMessage: highlight,
@@ -284,9 +293,14 @@ async function listMatchesFromDatabase(editionId: string) {
       homeScore: matchesTable.homeScore,
       awayScore: matchesTable.awayScore,
       venueName: venues.name,
+      code: matchesTable.code,
+      groupId: matchesTable.groupId,
+      groupCode: groups.code,
+      groupName: groups.name,
     })
     .from(matchesTable)
     .leftJoin(venues, eq(venues.id, matchesTable.venueId))
+    .leftJoin(groups, eq(groups.id, matchesTable.groupId))
     .where(eq(matchesTable.editionId, editionId))
     .orderBy(asc(matchesTable.kickoffAt), asc(matchesTable.createdAt));
 }
@@ -348,6 +362,8 @@ function buildMatches(
       id: row.id,
       status: row.status as ScoreboardMatch["status"],
       kickoffAt,
+      code: row.code ?? null,
+      groupCode: row.groupCode ?? null,
       home: {
         ...home,
         score: row.homeScore ?? 0,
@@ -393,11 +409,15 @@ function buildStandings(
   matches: MatchRow[],
   events: ScorerEventRow[],
   entryMap: Map<string, EntryRow>,
+  entryIds?: Set<string>,
 ): ScoreboardStanding[] {
   const stats = new Map<string, ScoreboardStanding>();
   const fairPlayScores = buildFairPlayScores(events);
 
   for (const entry of entryMap.values()) {
+    if (entryIds && !entryIds.has(entry.id)) {
+      continue;
+    }
     stats.set(entry.id, {
       entryId: entry.id,
       position: 0,
@@ -463,6 +483,61 @@ function buildStandings(
     ...standing,
     position: index + 1,
   }));
+}
+
+function buildGroupTables(
+  matches: MatchRow[],
+  events: ScorerEventRow[],
+  entryMap: Map<string, EntryRow>,
+): ScoreboardGroupTable[] {
+  const groupMap = new Map<
+    string,
+    { id: string; code: string; name: string | null }
+  >();
+
+  for (const match of matches) {
+    if (!match.groupId || !match.groupCode) {
+      continue;
+    }
+    if (!groupMap.has(match.groupId)) {
+      groupMap.set(match.groupId, {
+        id: match.groupId,
+        code: match.groupCode,
+        name: match.groupName ?? null,
+      });
+    }
+  }
+
+  const tables: ScoreboardGroupTable[] = [];
+
+  for (const group of groupMap.values()) {
+    const groupMatches = matches.filter((match) => match.groupId === group.id);
+    const entryIds = new Set<string>();
+    for (const match of groupMatches) {
+      if (match.homeEntryId) {
+        entryIds.add(match.homeEntryId);
+      }
+      if (match.awayEntryId) {
+        entryIds.add(match.awayEntryId);
+      }
+    }
+
+    if (!entryIds.size) {
+      continue;
+    }
+
+    const standings = buildStandings(groupMatches, events, entryMap, entryIds);
+    tables.push({
+      groupId: group.id,
+      groupCode: group.code,
+      groupName: group.name,
+      standings,
+    });
+  }
+
+  return tables.sort((left, right) =>
+    left.groupCode.localeCompare(right.groupCode, "nb"),
+  );
 }
 
 function buildTopScorers(
@@ -595,6 +670,7 @@ function selectRotation(
   matches: ScoreboardMatch[],
   standings: ScoreboardStanding[],
   topScorers: ScoreboardTopScorer[],
+  tables: ScoreboardGroupTable[],
 ) {
   const sections = new Set(configured.length ? configured : DEFAULT_ROTATION);
 
@@ -606,7 +682,7 @@ function selectRotation(
     sections.delete("upcoming");
   }
 
-  if (!standings.length) {
+  if (!standings.length && tables.length === 0) {
     sections.delete("standings");
   }
 
