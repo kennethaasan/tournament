@@ -12,6 +12,10 @@ import "vitest-axe/extend-expect";
 import { toHaveNoViolations } from "vitest-axe/dist/matchers.js";
 import { ScoreboardThemeForm } from "@/ui/components/scoreboard/theme-form";
 
+vi.mock("pa11y", () => ({
+  default: vi.fn(async () => ({ issues: [] })),
+}));
+
 vi.mock("@/server/db/client", () => ({
   db: {},
   withTransaction: async (callback: (tx: unknown) => unknown) => callback({}),
