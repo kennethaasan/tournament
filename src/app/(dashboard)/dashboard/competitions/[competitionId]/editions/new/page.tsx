@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { EditionCreateForm } from "./section";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     competitionId?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -15,8 +15,9 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function EditionNewPage({ params }: PageProps) {
-  const competitionId = params.competitionId;
+export default async function EditionNewPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const competitionId = resolvedParams.competitionId;
   if (!competitionId) {
     notFound();
   }

@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { ScoreboardControl } from "./scoreboard-control";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     editionId?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -14,8 +14,9 @@ export const metadata: Metadata = {
     "Tilpass scoreboard-tema, rotasjon og highlight-overlegg for denne utgaven.",
 };
 
-export default function EditionScoreboardPage({ params }: PageProps) {
-  const editionId = params.editionId;
+export default async function EditionScoreboardPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const editionId = resolvedParams.editionId;
   if (!editionId) {
     notFound();
   }
