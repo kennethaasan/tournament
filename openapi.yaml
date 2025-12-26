@@ -1224,12 +1224,14 @@ components:
         home_entry_id:
           type: string
           format: uuid
+          nullable: true
         home_entry_name:
           type: string
           nullable: true
         away_entry_id:
           type: string
           format: uuid
+          nullable: true
         away_entry_name:
           type: string
           nullable: true
@@ -1584,6 +1586,7 @@ components:
         entry_id:
           type: string
           format: uuid
+          nullable: true
         locked_at:
           type: string
           format: date-time
@@ -1765,6 +1768,7 @@ components:
         entry_id:
           type: string
           format: uuid
+          nullable: true
         name:
           type: string
         score:

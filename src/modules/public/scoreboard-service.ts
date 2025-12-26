@@ -1,5 +1,10 @@
 import { and, asc, desc, eq, gt } from "drizzle-orm";
 import { createProblem } from "@/lib/errors/problem";
+import {
+  buildBracketRoundMap,
+  derivePlaceholderName,
+  parseMatchMetadata,
+} from "@/modules/matches/placeholder";
 import { db } from "@/server/db/client";
 import {
   competitions,
@@ -105,6 +110,8 @@ type MatchRow = {
   groupId: string | null;
   groupCode: string | null;
   groupName: string | null;
+  bracketId: string | null;
+  metadata: unknown;
 };
 
 type ScorerEventRow = {
@@ -297,6 +304,8 @@ async function listMatchesFromDatabase(editionId: string) {
       groupId: matchesTable.groupId,
       groupCode: groups.code,
       groupName: groups.name,
+      bracketId: matchesTable.bracketId,
+      metadata: matchesTable.metadata,
     })
     .from(matchesTable)
     .leftJoin(venues, eq(venues.id, matchesTable.venueId))
@@ -344,15 +353,14 @@ function buildMatches(
   highlight: string | null,
 ): ScoreboardMatch[] {
   const matches: ScoreboardMatch[] = [];
+  const bracketRounds = buildBracketRoundMap(
+    rows.map((row) => ({ bracketId: row.bracketId, metadata: row.metadata })),
+  );
 
   for (const row of rows) {
-    if (!row.homeEntryId || !row.awayEntryId) {
-      continue;
-    }
-
     const kickoffAt = row.kickoffAt ?? row.createdAt;
-    const home = buildMatchSide(row.homeEntryId, entryMap);
-    const away = buildMatchSide(row.awayEntryId, entryMap);
+    const home = buildMatchSide("home", row, entryMap, bracketRounds);
+    const away = buildMatchSide("away", row, entryMap, bracketRounds);
 
     if (!home || !away) {
       continue;
@@ -390,18 +398,38 @@ function buildMatches(
 }
 
 function buildMatchSide(
-  entryId: string,
+  side: "home" | "away",
+  row: MatchRow,
   entryMap: Map<string, EntryRow>,
+  bracketRounds: Map<string, number>,
 ): ScoreboardMatchSide | null {
-  const entry = entryMap.get(entryId);
-  if (!entry) {
+  const entryId = side === "home" ? row.homeEntryId : row.awayEntryId;
+  const score = side === "home" ? (row.homeScore ?? 0) : (row.awayScore ?? 0);
+
+  if (entryId) {
+    const entry = entryMap.get(entryId);
+    if (!entry) {
+      return null;
+    }
+    return {
+      entryId: entry.id,
+      name: entry.name,
+      score,
+    };
+  }
+
+  const metadata = parseMatchMetadata(row.metadata);
+  const source = side === "home" ? metadata.homeSource : metadata.awaySource;
+  const placeholder = derivePlaceholderName(source, bracketRounds);
+
+  if (!placeholder) {
     return null;
   }
 
   return {
-    entryId: entry.id,
-    name: entry.name,
-    score: 0,
+    entryId: null,
+    name: placeholder,
+    score,
   };
 }
 

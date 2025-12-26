@@ -730,10 +730,14 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                     {statusLabel(match.status)}
                   </td>
                   <td className="px-4 py-2 text-sm font-semibold">
-                    {entryNames.get(match.home.entryId) ?? match.home.name}
+                    {match.home.entryId
+                      ? (entryNames.get(match.home.entryId) ?? match.home.name)
+                      : match.home.name}
                   </td>
                   <td className="px-4 py-2 text-sm font-semibold">
-                    {entryNames.get(match.away.entryId) ?? match.away.name}
+                    {match.away.entryId
+                      ? (entryNames.get(match.away.entryId) ?? match.away.name)
+                      : match.away.name}
                   </td>
                   <td className="px-4 py-2 text-center text-sm font-semibold">
                     {match.home.score} – {match.away.score}
@@ -794,10 +798,14 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
                     {match.code ?? match.groupCode ?? "—"}
                   </td>
                   <td className="px-5 py-3">
-                    {entryNames.get(match.home.entryId) ?? match.home.name}
+                    {match.home.entryId
+                      ? (entryNames.get(match.home.entryId) ?? match.home.name)
+                      : match.home.name}
                   </td>
                   <td className="px-5 py-3">
-                    {entryNames.get(match.away.entryId) ?? match.away.name}
+                    {match.away.entryId
+                      ? (entryNames.get(match.away.entryId) ?? match.away.name)
+                      : match.away.name}
                   </td>
                   <td className="px-5 py-3 text-xs text-white/70">
                     {match.venueName ?? "Ikke satt"}

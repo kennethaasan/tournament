@@ -28,6 +28,7 @@ export const GET = createApiHandler<RouteParams>(
           membership_id: member.membershipId,
           person: {
             id: member.person.id,
+            full_name: formatPersonName(member.person),
             first_name: member.person.firstName,
             last_name: member.person.lastName,
             preferred_name: member.person.preferredName,
@@ -46,3 +47,13 @@ export const GET = createApiHandler<RouteParams>(
     roles: ["team_manager", "competition_admin", "global_admin"],
   },
 );
+
+function formatPersonName(person: {
+  firstName: string;
+  lastName: string;
+  preferredName: string | null;
+}) {
+  const first = person.preferredName?.trim() || person.firstName.trim();
+  const last = person.lastName.trim();
+  return [first, last].filter(Boolean).join(" ");
+}

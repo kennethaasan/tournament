@@ -57,6 +57,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-2",
@@ -72,6 +74,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-3",
@@ -87,6 +91,8 @@ describe("getPublicScoreboard", () => {
         groupId: "group-a",
         groupCode: "A",
         groupName: "Group A",
+        bracketId: null,
+        metadata: {},
       },
     ];
 
@@ -235,6 +241,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-b",
@@ -250,6 +258,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
     ];
 
@@ -311,6 +321,56 @@ describe("getPublicScoreboard", () => {
       ]),
     );
     expect(result.rotation).toEqual(["standings", "top_scorers"]);
+  });
+
+  it("supports placeholder participants for knockout matches", async () => {
+    const entries = [
+      {
+        id: "entry-1",
+        name: "Ravens",
+      },
+    ];
+
+    const matches = [
+      {
+        id: "match-placeholder",
+        status: "scheduled",
+        kickoffAt: new Date("2024-06-05T12:00:00Z"),
+        createdAt: new Date("2024-06-05T11:00:00Z"),
+        homeEntryId: null,
+        awayEntryId: "entry-1",
+        homeScore: 0,
+        awayScore: 0,
+        venueName: "Main Arena",
+        code: "SF1",
+        groupId: null,
+        groupCode: null,
+        groupName: null,
+        bracketId: "bracket-1",
+        metadata: {
+          roundNumber: 1,
+          homeSource: { type: "seed", seed: 1, entryId: null },
+          awaySource: { type: "seed", seed: 2, entryId: "entry-1" },
+        },
+      },
+    ];
+
+    const result = await getPublicScoreboard(
+      { editionSlug: "knockout", competitionSlug: null },
+      {
+        findEdition: async () => ({ ...baseEdition, slug: "knockout" }),
+        listEntries: async () => entries,
+        listMatches: async () => matches,
+        listScorerEvents: async () => [],
+        findActiveHighlight: async () => null,
+        now: () => new Date("2024-06-05T12:00:00Z"),
+      },
+    );
+
+    expect(result.matches).toHaveLength(1);
+    expect(result.matches[0]?.home.name).toBe("Seed 1");
+    expect(result.matches[0]?.home.entryId).toBeNull();
+    expect(result.matches[0]?.away.name).toBe("Ravens");
   });
 
   it("throws when the edition cannot be found", async () => {
