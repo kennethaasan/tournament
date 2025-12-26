@@ -1,0 +1,733 @@
+{
+  "seedType": "historical-edition",
+  "competition": {
+    "name": "Vanvikan Julecup",
+    "slug": "vanvikan-julecup",
+    "defaultTimezone": "Europe/Oslo",
+    "description": "Historisk utgave for verifisering av kampoppsett og tabeller.",
+    "primaryColor": "#0B1F3A",
+    "secondaryColor": "#FFFFFF"
+  },
+  "edition": {
+    "slug": "2025",
+    "label": "Vanvikan Julecup 2025",
+    "status": "published",
+    "format": "hybrid",
+    "timezone": "Europe/Oslo",
+    "date": "2025-12-30T00:00:00+01:00",
+    "scoreboardRotationSeconds": 5,
+    "scoreboardTheme": {
+      "primaryColor": "#0B1F3A",
+      "secondaryColor": "#FFFFFF",
+      "backgroundImageUrl": null
+    }
+  },
+  "venues": [
+    {
+      "name": "1",
+      "slug": "1"
+    },
+    {
+      "name": "2",
+      "slug": "2"
+    }
+  ],
+  "groups": [
+    {
+      "code": "A"
+    },
+    {
+      "code": "B"
+    },
+    {
+      "code": "C"
+    },
+    {
+      "code": "D"
+    },
+    {
+      "code": "E"
+    }
+  ],
+  "teams": [
+    {
+      "name": "Karl&Co"
+    },
+    {
+      "name": "Kipping fc"
+    },
+    {
+      "name": "rævbk"
+    },
+    {
+      "name": "Young Ørland Allstars"
+    },
+    {
+      "name": "Kongeørn"
+    },
+    {
+      "name": "Romjulsdrøm"
+    },
+    {
+      "name": "Tors disipler"
+    },
+    {
+      "name": "SGG"
+    },
+    {
+      "name": "Trefotstakling"
+    },
+    {
+      "name": "Lfc"
+    },
+    {
+      "name": "Inter Ya Nan"
+    },
+    {
+      "name": "Gud signe E.C. Dahls"
+    },
+    {
+      "name": "Guttelim"
+    },
+    {
+      "name": "Deiræven"
+    },
+    {
+      "name": "Strykjarn"
+    },
+    {
+      "name": "Ressa BK"
+    },
+    {
+      "name": "Storfosna Academy"
+    },
+    {
+      "name": "Team Storsve&Kilen"
+    },
+    {
+      "name": "Milanista"
+    },
+    {
+      "name": "Velour FC"
+    },
+    {
+      "name": "Jerv"
+    },
+    {
+      "name": "Åse Judiths Venner"
+    },
+    {
+      "name": "FC SKROVA"
+    },
+    {
+      "name": "Absolutt Potet"
+    },
+    {
+      "name": "Pils og Pasning FK"
+    }
+  ],
+  "matches": [
+    {
+      "kickoffAt": "2025-12-30T10:00:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Kipping fc",
+      "away": "Kongeørn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:00:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "rævbk",
+      "away": "Young Ørland Allstars",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:15:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Tors disipler",
+      "away": "Lfc",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:15:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "SGG",
+      "away": "Trefotstakling",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:30:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Gud signe E.C. Dahls",
+      "away": "Strykjarn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:30:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Guttelim",
+      "away": "Deiræven",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:45:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Storfosna Academy",
+      "away": "Velour FC",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T10:45:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Team Storsve&Kilen",
+      "away": "Milanista",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:00:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Åse Judiths Venner",
+      "away": "Pils og Pasning FK",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:00:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "FC SKROVA",
+      "away": "Absolutt Potet",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:15:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Karl&Co",
+      "away": "Kongeørn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:15:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Kipping fc",
+      "away": "rævbk",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:30:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Romjulsdrøm",
+      "away": "Lfc",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:30:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Tors disipler",
+      "away": "SGG",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:45:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Strykjarn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T11:45:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Gud signe E.C. Dahls",
+      "away": "Guttelim",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:00:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Ressa BK",
+      "away": "Velour FC",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:00:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Storfosna Academy",
+      "away": "Team Storsve&Kilen",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:15:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Jerv",
+      "away": "Pils og Pasning FK",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:15:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Åse Judiths Venner",
+      "away": "FC SKROVA",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:30:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Karl&Co",
+      "away": "Young Ørland Allstars",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:30:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Kongeørn",
+      "away": "rævbk",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:45:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Romjulsdrøm",
+      "away": "Trefotstakling",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T12:45:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Lfc",
+      "away": "SGG",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:00:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Deiræven",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:00:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Strykjarn",
+      "away": "Guttelim",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:15:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Ressa BK",
+      "away": "Milanista",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:15:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Velour FC",
+      "away": "Team Storsve&Kilen",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:30:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Jerv",
+      "away": "Absolutt Potet",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:30:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Pils og Pasning FK",
+      "away": "FC SKROVA",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:45:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Karl&Co",
+      "away": "rævbk",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T13:45:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Young Ørland Allstars",
+      "away": "Kipping fc",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:00:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Romjulsdrøm",
+      "away": "SGG",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:00:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Trefotstakling",
+      "away": "Tors disipler",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:15:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Guttelim",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:15:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Deiræven",
+      "away": "Gud signe E.C. Dahls",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:30:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Ressa BK",
+      "away": "Team Storsve&Kilen",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:30:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Milanista",
+      "away": "Storfosna Academy",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:45:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Jerv",
+      "away": "FC SKROVA",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T14:45:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Absolutt Potet",
+      "away": "Åse Judiths Venner",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:00:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Karl&Co",
+      "away": "Kipping fc",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:00:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Young Ørland Allstars",
+      "away": "Kongeørn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:15:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Romjulsdrøm",
+      "away": "Tors disipler",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:15:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Trefotstakling",
+      "away": "Lfc",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:30:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Gud signe E.C. Dahls",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:30:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Deiræven",
+      "away": "Strykjarn",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:45:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Ressa BK",
+      "away": "Storfosna Academy",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T15:45:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Milanista",
+      "away": "Velour FC",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:00:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Jerv",
+      "away": "Åse Judiths Venner",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:00:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Absolutt Potet",
+      "away": "Pils og Pasning FK",
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:15:00+01:00",
+      "venue": "1",
+      "code": "Q1",
+      "homeSeed": 1,
+      "awaySeed": 8,
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner gruppe A",
+      "awayLabel": "3. beste andreplass"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:15:00+01:00",
+      "venue": "2",
+      "code": "Q2",
+      "homeSeed": 4,
+      "awaySeed": 5,
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner gruppe D",
+      "awayLabel": "Vinner gruppe E"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:30:00+01:00",
+      "venue": "1",
+      "code": "Q3",
+      "homeSeed": 3,
+      "awaySeed": 6,
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner gruppe C",
+      "awayLabel": "Beste andreplass"
+    },
+    {
+      "kickoffAt": "2025-12-30T16:30:00+01:00",
+      "venue": "2",
+      "code": "Q4",
+      "homeSeed": 2,
+      "awaySeed": 7,
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner gruppe B",
+      "awayLabel": "2. beste andreplass"
+    },
+    {
+      "kickoffAt": "2025-12-30T17:00:00+01:00",
+      "venue": "1",
+      "code": "S1",
+      "homeSource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r1-m1"
+      },
+      "awaySource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r1-m2"
+      },
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner Q1",
+      "awayLabel": "Vinner Q2"
+    },
+    {
+      "kickoffAt": "2025-12-30T17:00:00+01:00",
+      "venue": "2",
+      "code": "S2",
+      "homeSource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r1-m3"
+      },
+      "awaySource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r1-m4"
+      },
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner Q3",
+      "awayLabel": "Vinner Q4"
+    },
+    {
+      "kickoffAt": "2025-12-30T17:30:00+01:00",
+      "venue": "1",
+      "code": "F",
+      "homeSource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r2-m1"
+      },
+      "awaySource": {
+        "type": "winner",
+        "matchId": "vanvikan-julecup-2025-r2-m2"
+      },
+      "homeScore": 0,
+      "awayScore": 0,
+      "status": "scheduled",
+      "homeLabel": "Vinner S1",
+      "awayLabel": "Vinner S2"
+    }
+  ]
+}

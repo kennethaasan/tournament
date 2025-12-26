@@ -6,6 +6,8 @@ export type MatchMetadata = {
   homeSource?: MatchParticipantSource | null;
   awaySource?: MatchParticipantSource | null;
   roundNumber?: number | null;
+  homeLabel?: string | null;
+  awayLabel?: string | null;
 };
 
 export function parseMatchMetadata(input: unknown): MatchMetadata {
@@ -19,6 +21,8 @@ export function parseMatchMetadata(input: unknown): MatchMetadata {
     homeSource: parseMatchSource(record.homeSource),
     awaySource: parseMatchSource(record.awaySource),
     roundNumber: parseRoundNumber(record.roundNumber),
+    homeLabel: parsePlaceholderLabel(record.homeLabel),
+    awayLabel: parsePlaceholderLabel(record.awayLabel),
   };
 }
 
@@ -110,6 +114,14 @@ function parseRoundNumber(value: unknown): number | null {
   }
   const rounded = Math.trunc(value);
   return rounded > 0 ? rounded : null;
+}
+
+function parsePlaceholderLabel(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function parseBracketMatchId(value: string): {

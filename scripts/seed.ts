@@ -1,7 +1,10 @@
 import "dotenv/config";
 
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { hashPassword } from "better-auth/crypto";
-import { addHours, addMinutes } from "date-fns";
+import { addDays, addHours, addMinutes } from "date-fns";
 import type { InferSelectModel } from "drizzle-orm";
 import { and, eq, inArray } from "drizzle-orm";
 import { __internal as competitionInternal } from "@/modules/competitions/service";
@@ -17,6 +20,7 @@ import {
   editionSettings,
   editions,
   entries,
+  groups,
   matchEvents,
   matches,
   persons,
@@ -28,6 +32,7 @@ import {
   teams,
   userRoles,
   users,
+  venues,
 } from "@/server/db/schema";
 
 type DatabaseExecutor = DrizzleDatabase | TransactionClient;
@@ -295,6 +300,8 @@ type SeededEdition = InferSelectModel<typeof editions>;
 type SeededEntry = InferSelectModel<typeof entries>;
 type SeededSquad = InferSelectModel<typeof squads>;
 type SeededMatch = InferSelectModel<typeof matches>;
+type SeededVenue = InferSelectModel<typeof venues>;
+type SeededGroup = InferSelectModel<typeof groups>;
 
 type EntryDirectory = Map<string, { entry: SeededEntry; team: SeededTeam }>;
 type SquadDirectory = Map<string, { squad: SeededSquad; entry: SeededEntry }>;
@@ -302,6 +309,117 @@ type PlayerDirectory = Map<
   string,
   { squadMemberId: string; entryId: string; teamSlug: string }
 >;
+
+const HISTORICAL_SEED_DIR = join(
+  process.cwd(),
+  "historical-tournaments",
+  "seeds",
+);
+const HISTORICAL_SEED_TYPE = "historical-edition";
+
+type HistoricalSeedCompetition = {
+  name: string;
+  slug?: string;
+  defaultTimezone?: string;
+  description?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+};
+
+type HistoricalSeedTheme = {
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  backgroundImageUrl?: string | null;
+};
+
+type HistoricalSeedEdition = {
+  slug: string;
+  label: string;
+  status: "published" | "draft";
+  format: "round_robin" | "knockout" | "hybrid";
+  timezone?: string | null;
+  date: string;
+  scoreboardRotationSeconds?: number | null;
+  scoreboardTheme?: HistoricalSeedTheme | null;
+  registrationWindow?: {
+    opensAt?: string | null;
+    closesAt?: string | null;
+  };
+};
+
+type HistoricalSeedVenue = {
+  name: string;
+  slug?: string;
+  address?: string | null;
+  notes?: string | null;
+  timezone?: string | null;
+};
+
+type HistoricalSeedGroup = {
+  code: string;
+  name?: string | null;
+};
+
+type HistoricalSeedTeam = {
+  name: string;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+};
+
+type HistoricalSeedMatchStatus = SeededMatch["status"];
+
+type HistoricalSeedSource =
+  | { type: "seed"; seed: number }
+  | { type: "winner" | "loser"; matchId: string };
+
+type HistoricalSeedMatch = {
+  kickoffAt: string;
+  venue: string;
+  groupCode?: string | null;
+  code?: string | null;
+  home?: string | null;
+  away?: string | null;
+  homeSeed?: number | null;
+  awaySeed?: number | null;
+  homeSource?: HistoricalSeedSource | null;
+  awaySource?: HistoricalSeedSource | null;
+  homeLabel?: string | null;
+  awayLabel?: string | null;
+  roundNumber?: number | null;
+  bracketId?: string | null;
+  homeScore: number;
+  awayScore: number;
+  status?: HistoricalSeedMatchStatus;
+};
+
+type HistoricalSeedTopScorer = {
+  name: string;
+  goals: number;
+  team?: string | null;
+};
+
+type HistoricalSeedHighlight = {
+  message: string;
+  durationSeconds?: number | null;
+  expiresAt?: string | null;
+};
+
+type HistoricalSeed = {
+  seedType: typeof HISTORICAL_SEED_TYPE;
+  competition: HistoricalSeedCompetition;
+  edition: HistoricalSeedEdition;
+  venues: HistoricalSeedVenue[];
+  groups: HistoricalSeedGroup[];
+  teams: HistoricalSeedTeam[];
+  matches: HistoricalSeedMatch[];
+  topScorers?: HistoricalSeedTopScorer[];
+  highlight?: HistoricalSeedHighlight | null;
+};
+
+type HistoricalSeedSummary = {
+  teamCount: number;
+  matchCount: number;
+};
 
 async function main() {
   try {
@@ -321,6 +439,17 @@ async function main() {
 }
 
 async function seedDatabase(client: DatabaseExecutor) {
+  const trondheimSummary = await seedTrondheimCup(client);
+  const historicalSummary = await seedHistoricalEditions(client);
+
+  return {
+    teamCount: trondheimSummary.teamCount + historicalSummary.teamCount,
+    matchCount: trondheimSummary.matchCount + historicalSummary.matchCount,
+    userCount: trondheimSummary.userCount,
+  };
+}
+
+async function seedTrondheimCup(client: DatabaseExecutor) {
   const competition = await upsertCompetition(client);
   const editions = await upsertEditions(client, competition.id);
   const stage = await ensureGroupStage(client, editions.published.id);
@@ -350,6 +479,751 @@ async function seedDatabase(client: DatabaseExecutor) {
     matchCount: matchesSeeded.length,
     userCount: DEMO_USERS.length,
   };
+}
+
+async function seedHistoricalEditions(
+  client: DatabaseExecutor,
+): Promise<HistoricalSeedSummary> {
+  const seeds = loadHistoricalSeeds();
+  const summary = { teamCount: 0, matchCount: 0 };
+
+  for (const seed of seeds) {
+    const result = await seedHistoricalEdition(client, seed);
+    summary.teamCount += result.teamCount;
+    summary.matchCount += result.matchCount;
+  }
+
+  return summary;
+}
+
+function loadHistoricalSeeds(): HistoricalSeed[] {
+  try {
+    const files = readdirSync(HISTORICAL_SEED_DIR, { withFileTypes: true });
+    const seeds: HistoricalSeed[] = [];
+
+    for (const file of files) {
+      if (!file.isFile() || !file.name.endsWith(".json")) {
+        continue;
+      }
+
+      const raw = readFileSync(join(HISTORICAL_SEED_DIR, file.name), "utf8");
+      const parsed = JSON.parse(raw) as Partial<HistoricalSeed>;
+
+      if (parsed.seedType !== HISTORICAL_SEED_TYPE) {
+        continue;
+      }
+
+      seeds.push(assertHistoricalSeed(parsed, file.name));
+    }
+
+    return seeds;
+  } catch (error) {
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      (error as { code?: string }).code === "ENOENT"
+    ) {
+      return [];
+    }
+    throw error;
+  }
+}
+
+function assertHistoricalSeed(
+  value: Partial<HistoricalSeed>,
+  source: string,
+): HistoricalSeed {
+  if (value.seedType !== HISTORICAL_SEED_TYPE) {
+    throw new Error(`Ugyldig historisk seed: ${source}`);
+  }
+  if (!value.competition?.name) {
+    throw new Error(`Historisk seed mangler competition.name: ${source}`);
+  }
+  if (!value.edition?.slug || !value.edition?.label || !value.edition?.date) {
+    throw new Error(`Historisk seed mangler edition-felter: ${source}`);
+  }
+  if (!Array.isArray(value.venues)) {
+    throw new Error(`Historisk seed mangler venues: ${source}`);
+  }
+  if (!Array.isArray(value.groups)) {
+    throw new Error(`Historisk seed mangler groups: ${source}`);
+  }
+  if (!Array.isArray(value.teams)) {
+    throw new Error(`Historisk seed mangler teams: ${source}`);
+  }
+  if (!Array.isArray(value.matches)) {
+    throw new Error(`Historisk seed mangler matches: ${source}`);
+  }
+
+  return value as HistoricalSeed;
+}
+
+async function seedHistoricalEdition(
+  client: DatabaseExecutor,
+  seed: HistoricalSeed,
+): Promise<HistoricalSeedSummary> {
+  const competition = await upsertHistoricalCompetition(client, seed);
+  const edition = await upsertHistoricalEdition(client, competition, seed);
+  const venuesBySlug = await upsertHistoricalVenues(
+    client,
+    competition.id,
+    edition.id,
+    seed.venues,
+  );
+  const stage = await ensureGroupStage(client, edition.id);
+  const groupsByCode = await upsertHistoricalGroups(
+    client,
+    stage.id,
+    seed.groups,
+  );
+  const seededTeams = await upsertHistoricalTeams(client, seed.teams);
+  const entryDirectory = await upsertEntries(client, edition.id, seededTeams);
+  const squadDirectory = await ensureSquads(client, entryDirectory);
+
+  const matchesSeeded = await seedHistoricalMatches(client, {
+    editionId: edition.id,
+    stageId: stage.id,
+    entries: entryDirectory,
+    groupsByCode,
+    venuesBySlug,
+    matches: seed.matches,
+  });
+
+  if (seed.topScorers && seed.topScorers.length > 0) {
+    await seedHistoricalTopScorers(client, {
+      editionId: edition.id,
+      entries: entryDirectory,
+      squads: squadDirectory,
+      matches: matchesSeeded,
+      topScorers: seed.topScorers,
+    });
+  }
+
+  await client
+    .delete(scoreboardHighlights)
+    .where(eq(scoreboardHighlights.editionId, edition.id));
+
+  if (seed.highlight) {
+    await seedHistoricalHighlight(client, edition.id, seed.highlight);
+  }
+
+  return {
+    teamCount: seededTeams.length,
+    matchCount: matchesSeeded.length,
+  };
+}
+
+async function upsertHistoricalCompetition(
+  client: DatabaseExecutor,
+  seed: HistoricalSeed,
+) {
+  const competitionSeed = seed.competition;
+  const slug = competitionInternal.normalizeSlug(
+    competitionSeed.slug ?? competitionSeed.name,
+  );
+  const themeRecord = competitionInternal.normalizeTheme(
+    seed.edition.scoreboardTheme ?? {
+      primaryColor: competitionSeed.primaryColor ?? undefined,
+      secondaryColor: competitionSeed.secondaryColor ?? undefined,
+      backgroundImageUrl: null,
+    },
+  );
+
+  const [row] = await client
+    .insert(competitions)
+    .values({
+      name: competitionSeed.name,
+      slug,
+      defaultTimezone: competitionSeed.defaultTimezone ?? "Europe/Oslo",
+      description: competitionSeed.description ?? null,
+      primaryColor: themeRecord.primary_color,
+      secondaryColor: themeRecord.secondary_color,
+    })
+    .onConflictDoUpdate({
+      target: competitions.slug,
+      set: {
+        name: competitionSeed.name,
+        defaultTimezone: competitionSeed.defaultTimezone ?? "Europe/Oslo",
+        description: competitionSeed.description ?? null,
+        primaryColor: themeRecord.primary_color,
+        secondaryColor: themeRecord.secondary_color,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+
+  if (!row) {
+    throw new Error(`Kunne ikke opprette konkurranse ${competitionSeed.name}`);
+  }
+
+  return row;
+}
+
+async function upsertHistoricalEdition(
+  client: DatabaseExecutor,
+  competition: SeededCompetition,
+  seed: HistoricalSeed,
+) {
+  const editionSeed = seed.edition;
+  const label = editionSeed.label;
+  const slug = competitionInternal.normalizeSlug(editionSeed.slug);
+  const timezone =
+    editionSeed.timezone ??
+    seed.competition.defaultTimezone ??
+    competition.defaultTimezone ??
+    "Europe/Oslo";
+  const registration = resolveRegistrationWindow(editionSeed);
+  const rotationSeconds = competitionInternal.normalizeRotationSeconds(
+    editionSeed.scoreboardRotationSeconds ?? undefined,
+  );
+  const themeRecord = competitionInternal.normalizeTheme(
+    editionSeed.scoreboardTheme ?? {
+      primaryColor: seed.competition.primaryColor ?? undefined,
+      secondaryColor: seed.competition.secondaryColor ?? undefined,
+      backgroundImageUrl: null,
+    },
+  );
+
+  const [edition] = await client
+    .insert(editions)
+    .values({
+      competitionId: competition.id,
+      label,
+      slug,
+      format: editionSeed.format,
+      timezone,
+      status: editionSeed.status,
+      registrationOpensAt: registration.opensAt,
+      registrationClosesAt: registration.closesAt,
+    })
+    .onConflictDoUpdate({
+      target: [editions.competitionId, editions.slug],
+      set: {
+        label,
+        format: editionSeed.format,
+        timezone,
+        status: editionSeed.status,
+        registrationOpensAt: registration.opensAt,
+        registrationClosesAt: registration.closesAt,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+
+  if (!edition) {
+    throw new Error(`Kunne ikke opprette utgave ${label}`);
+  }
+
+  await client
+    .insert(editionSettings)
+    .values({
+      editionId: edition.id,
+      scoreboardRotationSeconds: rotationSeconds,
+      scoreboardTheme: themeRecord,
+    })
+    .onConflictDoUpdate({
+      target: editionSettings.editionId,
+      set: {
+        scoreboardRotationSeconds: rotationSeconds,
+        scoreboardTheme: themeRecord,
+        updatedAt: new Date(),
+      },
+    });
+
+  return edition;
+}
+
+async function upsertHistoricalVenues(
+  client: DatabaseExecutor,
+  competitionId: string,
+  editionId: string,
+  seedVenues: HistoricalSeedVenue[],
+) {
+  const directory = new Map<string, SeededVenue>();
+
+  for (const venue of seedVenues) {
+    const slug = competitionInternal.normalizeSlug(venue.slug ?? venue.name);
+    const [row] = await client
+      .insert(venues)
+      .values({
+        competitionId,
+        editionId,
+        name: venue.name,
+        slug,
+        address: venue.address ?? null,
+        notes: venue.notes ?? null,
+        timezone: venue.timezone ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [venues.competitionId, venues.editionId, venues.slug],
+        set: {
+          name: venue.name,
+          address: venue.address ?? null,
+          notes: venue.notes ?? null,
+          timezone: venue.timezone ?? null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error(`Kunne ikke opprette bane ${venue.name}`);
+    }
+
+    directory.set(slug, row);
+  }
+
+  return directory;
+}
+
+async function upsertHistoricalGroups(
+  client: DatabaseExecutor,
+  stageId: string,
+  seedGroups: HistoricalSeedGroup[],
+) {
+  const directory = new Map<string, SeededGroup>();
+
+  for (const group of seedGroups) {
+    const [row] = await client
+      .insert(groups)
+      .values({
+        stageId,
+        code: group.code,
+        name: group.name ?? null,
+      })
+      .onConflictDoUpdate({
+        target: [groups.stageId, groups.code],
+        set: {
+          name: group.name ?? null,
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error(`Kunne ikke opprette gruppe ${group.code}`);
+    }
+
+    directory.set(group.code, row);
+  }
+
+  return directory;
+}
+
+async function upsertHistoricalTeams(
+  client: DatabaseExecutor,
+  teamsSeeded: HistoricalSeedTeam[],
+) {
+  const seeded: SeededTeam[] = [];
+  const seenSlugs = new Set<string>();
+
+  for (const definition of teamsSeeded) {
+    const slug = competitionInternal.normalizeSlug(definition.name);
+    if (seenSlugs.has(slug)) {
+      continue;
+    }
+    seenSlugs.add(slug);
+
+    const [team] = await client
+      .insert(teams)
+      .values({
+        name: definition.name,
+        slug,
+        contactEmail: definition.contactEmail ?? null,
+        contactPhone: definition.contactPhone ?? null,
+      })
+      .onConflictDoUpdate({
+        target: teams.slug,
+        set: {
+          name: definition.name,
+          contactEmail: definition.contactEmail ?? null,
+          contactPhone: definition.contactPhone ?? null,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!team) {
+      throw new Error(`Kunne ikke opprette laget ${definition.name}`);
+    }
+
+    seeded.push(team);
+  }
+
+  return seeded;
+}
+
+async function seedHistoricalMatches(
+  client: DatabaseExecutor,
+  options: {
+    editionId: string;
+    stageId: string;
+    entries: EntryDirectory;
+    groupsByCode: Map<string, SeededGroup>;
+    venuesBySlug: Map<string, SeededVenue>;
+    matches: HistoricalSeedMatch[];
+  },
+) {
+  const matchesSeeded: SeededMatch[] = [];
+
+  await client.delete(matches).where(eq(matches.editionId, options.editionId));
+
+  for (const matchSeed of options.matches) {
+    const homeName = matchSeed.home?.trim() ?? null;
+    const awayName = matchSeed.away?.trim() ?? null;
+    const homeSlug = homeName
+      ? competitionInternal.normalizeSlug(homeName)
+      : null;
+    const awaySlug = awayName
+      ? competitionInternal.normalizeSlug(awayName)
+      : null;
+    const home = homeSlug ? options.entries.get(homeSlug) : null;
+    const away = awaySlug ? options.entries.get(awaySlug) : null;
+
+    if (homeName && !home) {
+      throw new Error(`Mangler deltaker for ${homeName}`);
+    }
+    if (awayName && !away) {
+      throw new Error(`Mangler deltaker for ${awayName}`);
+    }
+
+    const groupCode = matchSeed.groupCode?.trim() ?? null;
+    const groupId = groupCode
+      ? (options.groupsByCode.get(groupCode)?.id ?? null)
+      : null;
+
+    if (groupCode && !groupId) {
+      throw new Error(`Fant ikke gruppe ${groupCode}`);
+    }
+
+    const venueSlug = competitionInternal.normalizeSlug(matchSeed.venue);
+    const venue = options.venuesBySlug.get(venueSlug);
+
+    if (!venue) {
+      throw new Error(`Fant ikke bane ${matchSeed.venue}`);
+    }
+
+    const kickoffLabel =
+      matchSeed.home ?? matchSeed.away ?? matchSeed.code ?? matchSeed.kickoffAt;
+    const kickoffAt = parseSeedDate(matchSeed.kickoffAt, kickoffLabel);
+    const homeSeed =
+      typeof matchSeed.homeSeed === "number" &&
+      Number.isFinite(matchSeed.homeSeed) &&
+      matchSeed.homeSeed > 0
+        ? Math.trunc(matchSeed.homeSeed)
+        : null;
+    const awaySeed =
+      typeof matchSeed.awaySeed === "number" &&
+      Number.isFinite(matchSeed.awaySeed) &&
+      matchSeed.awaySeed > 0
+        ? Math.trunc(matchSeed.awaySeed)
+        : null;
+    const homeSource =
+      matchSeed.homeSource ??
+      (homeSeed ? { type: "seed" as const, seed: homeSeed } : null);
+    const awaySource =
+      matchSeed.awaySource ??
+      (awaySeed ? { type: "seed" as const, seed: awaySeed } : null);
+    const homeLabel = matchSeed.homeLabel?.trim() ?? null;
+    const awayLabel = matchSeed.awayLabel?.trim() ?? null;
+    const metadata: Record<string, unknown> = {};
+
+    if (homeSource) {
+      metadata.homeSource = homeSource;
+    }
+    if (awaySource) {
+      metadata.awaySource = awaySource;
+    }
+    if (homeLabel) {
+      metadata.homeLabel = homeLabel;
+    }
+    if (awayLabel) {
+      metadata.awayLabel = awayLabel;
+    }
+    if (typeof matchSeed.roundNumber === "number") {
+      metadata.roundNumber = matchSeed.roundNumber;
+    }
+
+    const homeEntryId = home?.entry.id ?? null;
+    const awayEntryId = away?.entry.id ?? null;
+
+    if (!homeEntryId && !homeSource) {
+      throw new Error(
+        `Mangler hjemmelag eller seed for kamp ${matchSeed.code ?? matchSeed.kickoffAt}`,
+      );
+    }
+    if (!awayEntryId && !awaySource) {
+      throw new Error(
+        `Mangler bortelag eller seed for kamp ${matchSeed.code ?? matchSeed.kickoffAt}`,
+      );
+    }
+
+    const [match] = await client
+      .insert(matches)
+      .values({
+        editionId: options.editionId,
+        stageId: options.stageId,
+        groupId,
+        homeEntryId,
+        awayEntryId,
+        venueId: venue.id,
+        bracketId: matchSeed.bracketId ?? null,
+        code: matchSeed.code ?? null,
+        kickoffAt,
+        status: matchSeed.status ?? "finalized",
+        homeScore: matchSeed.homeScore,
+        awayScore: matchSeed.awayScore,
+        metadata,
+      })
+      .returning();
+
+    if (!match) {
+      throw new Error(
+        `Kunne ikke opprette kamp ${matchSeed.home ?? "TBD"} - ${matchSeed.away ?? "TBD"}`,
+      );
+    }
+
+    matchesSeeded.push(match);
+  }
+
+  return matchesSeeded;
+}
+
+async function seedHistoricalTopScorers(
+  client: DatabaseExecutor,
+  options: {
+    editionId: string;
+    entries: EntryDirectory;
+    squads: SquadDirectory;
+    matches: SeededMatch[];
+    topScorers: HistoricalSeedTopScorer[];
+  },
+) {
+  const matchIds = options.matches.map((match) => match.id);
+  if (matchIds.length > 0) {
+    await client
+      .delete(matchEvents)
+      .where(inArray(matchEvents.matchId, matchIds));
+  }
+
+  const matchesByEntryId = new Map<string, SeededMatch[]>();
+  for (const match of options.matches) {
+    if (match.homeEntryId) {
+      const list = matchesByEntryId.get(match.homeEntryId) ?? [];
+      list.push(match);
+      matchesByEntryId.set(match.homeEntryId, list);
+    }
+    if (match.awayEntryId) {
+      const list = matchesByEntryId.get(match.awayEntryId) ?? [];
+      list.push(match);
+      matchesByEntryId.set(match.awayEntryId, list);
+    }
+  }
+
+  const sortedTeamSlugs = Array.from(options.entries.keys()).sort((a, b) =>
+    a.localeCompare(b, "nb"),
+  );
+  if (!sortedTeamSlugs.length) {
+    throw new Error("Mangler lag for historiske toppscorere");
+  }
+
+  for (const [index, scorer] of options.topScorers.entries()) {
+    const teamSlug = scorer.team
+      ? competitionInternal.normalizeSlug(scorer.team)
+      : (sortedTeamSlugs[index % sortedTeamSlugs.length] ?? null);
+    if (!teamSlug) {
+      throw new Error(`Fant ikke lag for toppscorer ${scorer.name}`);
+    }
+    const entryRecord = options.entries.get(teamSlug);
+    const squadRecord = options.squads.get(teamSlug);
+
+    if (!entryRecord || !squadRecord) {
+      throw new Error(`Fant ikke lag for toppscorer ${scorer.name}`);
+    }
+
+    const { firstName, lastName } = splitPersonName(scorer.name);
+    const birthDate = deriveBirthDateFromName(scorer.name);
+    const person = await upsertHistoricalPerson(client, {
+      firstName,
+      lastName,
+      birthDate,
+    });
+    const membership = await upsertMembership(
+      client,
+      person.id,
+      entryRecord.team.id,
+    );
+
+    await client
+      .delete(squadMembers)
+      .where(
+        and(
+          eq(squadMembers.squadId, squadRecord.squad.id),
+          eq(squadMembers.personId, person.id),
+        ),
+      );
+
+    const [member] = await client
+      .insert(squadMembers)
+      .values({
+        squadId: squadRecord.squad.id,
+        personId: person.id,
+        membershipId: membership.id,
+      })
+      .returning();
+
+    if (!member) {
+      throw new Error(`Kunne ikke opprette spiller ${scorer.name}`);
+    }
+
+    const entryMatches = matchesByEntryId.get(entryRecord.entry.id) ?? [];
+    if (!entryMatches.length) {
+      throw new Error(`Mangler kamper for toppscorer ${scorer.name}`);
+    }
+
+    const match = entryMatches[index % entryMatches.length];
+    if (!match) {
+      throw new Error(`Mangler kamp for toppscorer ${scorer.name}`);
+    }
+    const teamSide =
+      match.homeEntryId === entryRecord.entry.id ? "home" : "away";
+
+    for (let goalIndex = 0; goalIndex < scorer.goals; goalIndex += 1) {
+      await client.insert(matchEvents).values({
+        matchId: match.id,
+        relatedMemberId: member.id,
+        teamSide,
+        eventType: "goal",
+        minute: goalIndex + 1,
+      });
+    }
+  }
+}
+
+async function upsertHistoricalPerson(
+  client: DatabaseExecutor,
+  input: {
+    firstName: string;
+    lastName: string;
+    birthDate: Date;
+  },
+) {
+  const [created] = await client
+    .insert(persons)
+    .values({
+      firstName: input.firstName,
+      lastName: input.lastName,
+      preferredName: null,
+      birthDate: input.birthDate,
+    })
+    .onConflictDoNothing()
+    .returning();
+
+  if (created) {
+    return created;
+  }
+
+  const existing = await client.query.persons.findFirst({
+    where: (table, { and: andFn, eq: equals }) =>
+      andFn(
+        equals(table.firstName, input.firstName),
+        equals(table.lastName, input.lastName),
+        equals(table.birthDate, input.birthDate),
+      ),
+  });
+
+  if (!existing) {
+    throw new Error(
+      `Kunne ikke finne spiller ${input.firstName} ${input.lastName}`,
+    );
+  }
+
+  return existing;
+}
+
+function splitPersonName(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return { firstName: "Ukjent", lastName: "" };
+  }
+
+  const parts = trimmed.split(/\s+/u);
+  if (parts.length === 1) {
+    return { firstName: parts[0] ?? trimmed, lastName: "" };
+  }
+
+  return {
+    firstName: parts[0] ?? trimmed,
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
+function deriveBirthDateFromName(name: string) {
+  let hash = 0;
+  for (const char of name) {
+    const code = char.codePointAt(0) ?? 0;
+    hash = (hash * 31 + code) >>> 0;
+  }
+
+  const year = 1980 + (hash % 25);
+  const month = (hash >>> 8) % 12;
+  const day = 1 + ((hash >>> 16) % 28);
+  const monthValue = String(month + 1).padStart(2, "0");
+  const dayValue = String(day).padStart(2, "0");
+  return new Date(`${year}-${monthValue}-${dayValue}`);
+}
+
+async function seedHistoricalHighlight(
+  client: DatabaseExecutor,
+  editionId: string,
+  highlight: HistoricalSeedHighlight,
+) {
+  const expiresAt = highlight.expiresAt
+    ? parseSeedDate(highlight.expiresAt, highlight.message)
+    : addMinutes(new Date(), 15);
+
+  await client.insert(scoreboardHighlights).values({
+    editionId,
+    message: highlight.message,
+    durationSeconds: highlight.durationSeconds ?? 120,
+    expiresAt,
+  });
+}
+
+function resolveRegistrationWindow(editionSeed: HistoricalSeedEdition) {
+  if (
+    editionSeed.registrationWindow?.opensAt ||
+    editionSeed.registrationWindow?.closesAt
+  ) {
+    return {
+      opensAt: editionSeed.registrationWindow?.opensAt
+        ? parseSeedDate(
+            editionSeed.registrationWindow.opensAt,
+            editionSeed.slug,
+          )
+        : null,
+      closesAt: editionSeed.registrationWindow?.closesAt
+        ? parseSeedDate(
+            editionSeed.registrationWindow.closesAt,
+            editionSeed.slug,
+          )
+        : null,
+    };
+  }
+
+  const baseDate = parseSeedDate(editionSeed.date, editionSeed.slug);
+  return {
+    opensAt: addDays(baseDate, -60),
+    closesAt: addDays(baseDate, 1),
+  };
+}
+
+function parseSeedDate(value: string, label: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`Ugyldig dato (${label}): ${value}`);
+  }
+  return parsed;
 }
 
 async function upsertCompetition(client: DatabaseExecutor) {

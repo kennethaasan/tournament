@@ -1,0 +1,641 @@
+{
+  "seedType": "historical-edition",
+  "competition": {
+    "name": "Vanvikan Julecup",
+    "slug": "vanvikan-julecup",
+    "defaultTimezone": "Europe/Oslo",
+    "description": "Historisk utgave for verifisering av kampoppsett og tabeller.",
+    "primaryColor": "#0B1F3A",
+    "secondaryColor": "#FFFFFF"
+  },
+  "edition": {
+    "slug": "2024",
+    "label": "Vanvikan Julecup 2024",
+    "status": "published",
+    "format": "round_robin",
+    "timezone": "Europe/Oslo",
+    "date": "2024-12-30T00:00:00+01:00",
+    "scoreboardRotationSeconds": 5,
+    "scoreboardTheme": {
+      "primaryColor": "#0B1F3A",
+      "secondaryColor": "#FFFFFF",
+      "backgroundImageUrl": null
+    }
+  },
+  "venues": [{ "name": "1", "slug": "1" }, { "name": "2", "slug": "2" }],
+  "groups": [
+    { "code": "A" },
+    { "code": "B" },
+    { "code": "C" },
+    { "code": "D" },
+    { "code": "E" },
+    { "code": "W" }
+  ],
+  "teams": [
+    { "name": "Posten 09" },
+    { "name": "Frp's Verste Frykt FC" },
+    { "name": "Kipping FC" },
+    { "name": "PJANKOW IL" },
+    { "name": "Skåle Mål" },
+    { "name": "Kjeks & Ballmiss" },
+    { "name": "Stjørnas Glade Gutter" },
+    { "name": "Anne Frankfurt" },
+    { "name": "Liggeunderlaget" },
+    { "name": "FC SKROVA" },
+    { "name": "Inter Ya Nan" },
+    { "name": "Leksvik Oldboys" },
+    { "name": "Tors Disipler" },
+    { "name": "Jerv" },
+    { "name": "Team Storsve&Jr" },
+    { "name": "Joga Bonito" },
+    { "name": "Glørsk BK" },
+    { "name": "Guttelim" },
+    { "name": "Samba De Fosen" },
+    { "name": "Redda BK" },
+    { "name": "Mannschaft" },
+    { "name": "Tuttisfrutti FC" },
+    { "name": "Servi FC (trukket lag)" },
+    { "name": "Røkla" },
+    { "name": "Stadsbygd damelag" },
+    { "name": "ROSENCROCS" }
+  ],
+  "matches": [
+    {
+      "kickoffAt": "2024-12-30T10:00:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Posten 09",
+      "away": "Kipping FC",
+      "homeScore": 4,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:00:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Frp's Verste Frykt FC",
+      "away": "PJANKOW IL",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:15:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Kjeks & Ballmiss",
+      "away": "Stjørnas Glade Gutter",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:30:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Leksvik Oldboys",
+      "homeScore": 5,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:30:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Jerv",
+      "away": "Tors Disipler",
+      "homeScore": 0,
+      "awayScore": 5,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:45:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Posten 09",
+      "away": "Skåle Mål",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T10:45:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Kipping FC",
+      "away": "PJANKOW IL",
+      "homeScore": 5,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:00:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Kjeks & Ballmiss",
+      "away": "Anne Frankfurt",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:00:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Stjørnas Glade Gutter",
+      "away": "Liggeunderlaget",
+      "homeScore": 0,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:15:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Team Storsve&Jr",
+      "homeScore": 6,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:15:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Leksvik Oldboys",
+      "away": "Tors Disipler",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:30:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Joga Bonito",
+      "away": "Samba De Fosen",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:30:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Glørsk BK",
+      "away": "Guttelim",
+      "homeScore": 2,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:45:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Redda BK",
+      "away": "Mannschaft",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T11:45:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Tuttisfrutti FC",
+      "away": "Servi FC (trukket lag)",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:00:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Røkla",
+      "away": "Stadsbygd damelag",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:00:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "FC SKROVA",
+      "away": "Liggeunderlaget",
+      "homeScore": 1,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:15:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Posten 09",
+      "away": "Frp's Verste Frykt FC",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:15:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Skåle Mål",
+      "away": "Kipping FC",
+      "homeScore": 0,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:30:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Kjeks & Ballmiss",
+      "away": "FC SKROVA",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:30:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Anne Frankfurt",
+      "away": "Stjørnas Glade Gutter",
+      "homeScore": 5,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:45:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Jerv",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T12:45:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Team Storsve&Jr",
+      "away": "Leksvik Oldboys",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:00:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Joga Bonito",
+      "away": "Glørsk BK",
+      "homeScore": 5,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:00:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Guttelim",
+      "away": "Samba De Fosen",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:15:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Redda BK",
+      "away": "Tuttisfrutti FC",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:15:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Servi FC (trukket lag)",
+      "away": "Mannschaft",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:30:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Røkla",
+      "away": "ROSENCROCS",
+      "homeScore": 8,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:45:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Posten 09",
+      "away": "PJANKOW IL",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T13:45:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Frp's Verste Frykt FC",
+      "away": "Skåle Mål",
+      "homeScore": 3,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:00:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "Kjeks & Ballmiss",
+      "away": "Liggeunderlaget",
+      "homeScore": 1,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:00:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "FC SKROVA",
+      "away": "Anne Frankfurt",
+      "homeScore": 1,
+      "awayScore": 5,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:15:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Inter Ya Nan",
+      "away": "Tors Disipler",
+      "homeScore": 3,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:15:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Jerv",
+      "away": "Team Storsve&Jr",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:30:00+01:00",
+      "venue": "1",
+      "groupCode": "D",
+      "home": "Joga Bonito",
+      "away": "Guttelim",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:30:00+01:00",
+      "venue": "2",
+      "groupCode": "D",
+      "home": "Glørsk BK",
+      "away": "Samba De Fosen",
+      "homeScore": 6,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:45:00+01:00",
+      "venue": "1",
+      "groupCode": "E",
+      "home": "Redda BK",
+      "away": "Servi FC (trukket lag)",
+      "homeScore": 3,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T14:45:00+01:00",
+      "venue": "2",
+      "groupCode": "E",
+      "home": "Tuttisfrutti FC",
+      "away": "Mannschaft",
+      "homeScore": 4,
+      "awayScore": 4,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:00:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Stadsbygd damelag",
+      "away": "ROSENCROCS",
+      "homeScore": 5,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:15:00+01:00",
+      "venue": "1",
+      "groupCode": "A",
+      "home": "Frp's Verste Frykt FC",
+      "away": "Kipping FC",
+      "homeScore": 2,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:15:00+01:00",
+      "venue": "2",
+      "groupCode": "A",
+      "home": "Skåle Mål",
+      "away": "PJANKOW IL",
+      "homeScore": 0,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:30:00+01:00",
+      "venue": "1",
+      "groupCode": "B",
+      "home": "FC SKROVA",
+      "away": "Stjørnas Glade Gutter",
+      "homeScore": 3,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:30:00+01:00",
+      "venue": "2",
+      "groupCode": "B",
+      "home": "Anne Frankfurt",
+      "away": "Liggeunderlaget",
+      "homeScore": 2,
+      "awayScore": 2,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:45:00+01:00",
+      "venue": "1",
+      "groupCode": "C",
+      "home": "Jerv",
+      "away": "Leksvik Oldboys",
+      "homeScore": 1,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T15:45:00+01:00",
+      "venue": "2",
+      "groupCode": "C",
+      "home": "Team Storsve&Jr",
+      "away": "Tors Disipler",
+      "homeScore": 1,
+      "awayScore": 8,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:00:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Røkla",
+      "away": "Stadsbygd damelag",
+      "homeScore": 4,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:15:00+01:00",
+      "venue": "1",
+      "code": "Q1",
+      "home": "Kipping FC",
+      "away": "Glørsk BK",
+      "homeScore": 4,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:15:00+01:00",
+      "venue": "2",
+      "code": "Q2",
+      "home": "Kjeks & Ballmiss",
+      "away": "Leksvik Oldboys",
+      "homeScore": 4,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:30:00+01:00",
+      "venue": "1",
+      "code": "Q3",
+      "home": "Inter Ya Nan",
+      "away": "Frp's Verste Frykt FC",
+      "homeScore": 3,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:30:00+01:00",
+      "venue": "2",
+      "code": "Q4",
+      "home": "Joga Bonito",
+      "away": "Redda BK",
+      "homeScore": 2,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T16:45:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Røkla",
+      "away": "ROSENCROCS",
+      "homeScore": 9,
+      "awayScore": 0,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T17:00:00+01:00",
+      "venue": "1",
+      "code": "S1",
+      "home": "Kipping FC",
+      "away": "Kjeks & Ballmiss",
+      "homeScore": 3,
+      "awayScore": 5,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T17:00:00+01:00",
+      "venue": "2",
+      "code": "S2",
+      "home": "Inter Ya Nan",
+      "away": "Joga Bonito",
+      "homeScore": 2,
+      "awayScore": 3,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T17:15:00+01:00",
+      "venue": "1",
+      "groupCode": "W",
+      "home": "Stadsbygd damelag",
+      "away": "ROSENCROCS",
+      "homeScore": 4,
+      "awayScore": 1,
+      "status": "finalized"
+    },
+    {
+      "kickoffAt": "2024-12-30T17:30:00+01:00",
+      "venue": "1",
+      "code": "F",
+      "home": "Kjeks & Ballmiss",
+      "away": "Joga Bonito",
+      "homeScore": 0,
+      "awayScore": 4,
+      "status": "finalized"
+    }
+  ],
+  "topScorers": [
+    { "name": "Niklas Saugestad", "goals": 11 },
+    { "name": "Thea-Sofie Fjeldvær", "goals": 10 },
+    { "name": "Andreas Akukwe", "goals": 7 },
+    { "name": "Sigurd Støbak", "goals": 6 },
+    { "name": "Sander Opheim", "goals": 6 },
+    { "name": "Martin Engvik", "goals": 6 },
+    { "name": "Erik Enebbakk", "goals": 6 },
+    { "name": "Sander Halgunset", "goals": 5 },
+    { "name": "Håkon Hammer", "goals": 5 },
+    { "name": "Leif-Arne Selbekk Ekren", "goals": 4 },
+    { "name": "Håvard Bjørnsvik", "goals": 4 },
+    { "name": "Hanne Larsen", "goals": 4 },
+    { "name": "Daniel Flathe", "goals": 4 },
+    { "name": "Arne Ramdal", "goals": 4 },
+    { "name": "Yafet", "goals": 3 },
+    { "name": "Stian Flataunet", "goals": 3 },
+    { "name": "Simon Askimdal", "goals": 3 },
+    { "name": "Øyvind Alseth", "goals": 3 },
+    { "name": "Mikkel Dahl", "goals": 3 },
+    { "name": "Magnus Vik Sylthe", "goals": 3 },
+    { "name": "Magnus Antonsen", "goals": 3 },
+    { "name": "Lena Larsen", "goals": 3 },
+    { "name": "Henrik Standahl", "goals": 3 },
+    { "name": "Elias Spjell", "goals": 3 },
+    { "name": "Daniel Øverland", "goals": 3 }
+  ]
+}

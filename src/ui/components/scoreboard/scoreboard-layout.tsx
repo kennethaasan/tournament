@@ -704,9 +704,10 @@ function LandingLayout({
   const liveMatches = data.matches.filter(
     (match) => match.status === "in_progress" || match.status === "disputed",
   );
-  const upcomingMatches = data.matches.filter(
+  const upcomingMatches = matches.filter(
     (match) => match.status === "scheduled",
   );
+  const nextMatches = upcomingMatches.slice(0, 4);
 
   return (
     <div className="space-y-8">
@@ -727,12 +728,12 @@ function LandingLayout({
         />
         <MatchSection
           title="Neste kamper"
-          matches={upcomingMatches}
+          matches={nextMatches}
           emptyText="Ingen kommende kamper registrert."
         />
       </div>
 
-      <ScheduleTable matches={matches} entryNames={entryNames} />
+      <ScheduleTable matches={nextMatches} entryNames={entryNames} />
 
       {data.tables.length > 0 ? (
         <div className="space-y-6">
@@ -788,7 +789,7 @@ function MatchSection({
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-lg font-semibold">
                 <span className="text-left">{match.home.name}</span>
                 <span className="rounded-lg border border-white/20 px-3 py-1 text-center text-xl">
-                  {match.home.score} – {match.away.score}
+                  {formatMatchScore(match)}
                 </span>
                 <span className="text-right">{match.away.name}</span>
               </div>
@@ -867,7 +868,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                       : match.away.name}
                   </td>
                   <td className="px-3 py-0.5 text-center text-[0.78rem] font-semibold">
-                    {match.home.score} – {match.away.score}
+                    {formatMatchScore(match)}
                   </td>
                 </tr>
               ))
@@ -938,7 +939,7 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
                     {match.venueName ?? "Ikke satt"}
                   </td>
                   <td className="px-5 py-3 text-center">
-                    {match.home.score} – {match.away.score}
+                    {formatMatchScore(match)}
                   </td>
                   <td className="px-5 py-3 text-xs text-white/70">
                     {statusLabel(match.status)}
@@ -1243,6 +1244,18 @@ function statusLabel(status: ScoreboardMatch["status"]): string {
     default:
       return "Planlagt";
   }
+}
+
+function formatMatchScore(match: ScoreboardMatch): string {
+  if (
+    match.status === "scheduled" &&
+    match.home.score === 0 &&
+    match.away.score === 0
+  ) {
+    return "";
+  }
+
+  return `${match.home.score} – ${match.away.score}`;
 }
 
 function formatDateOnly(date: Date): string {
