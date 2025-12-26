@@ -22,10 +22,7 @@
       "backgroundImageUrl": null
     }
   },
-  "venues": [
-    { "name": "1", "slug": "1" },
-    { "name": "2", "slug": "2" }
-  ],
+  "venues": [{ "name": "1", "slug": "1" }, { "name": "2", "slug": "2" }],
   "groups": [
     { "code": "A" },
     { "code": "B" },

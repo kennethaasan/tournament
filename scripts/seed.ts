@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { hashPassword } from "better-auth/crypto";
@@ -889,7 +889,7 @@ async function seedHistoricalMatches(
 
     const groupCode = matchSeed.groupCode?.trim() ?? null;
     const groupId = groupCode
-      ? options.groupsByCode.get(groupCode)?.id ?? null
+      ? (options.groupsByCode.get(groupCode)?.id ?? null)
       : null;
 
     if (groupCode && !groupId) {
@@ -1023,11 +1023,17 @@ async function seedHistoricalTopScorers(
   const sortedTeamSlugs = Array.from(options.entries.keys()).sort((a, b) =>
     a.localeCompare(b, "nb"),
   );
+  if (!sortedTeamSlugs.length) {
+    throw new Error("Mangler lag for historiske toppscorere");
+  }
 
   for (const [index, scorer] of options.topScorers.entries()) {
     const teamSlug = scorer.team
       ? competitionInternal.normalizeSlug(scorer.team)
-      : sortedTeamSlugs[index % sortedTeamSlugs.length];
+      : (sortedTeamSlugs[index % sortedTeamSlugs.length] ?? null);
+    if (!teamSlug) {
+      throw new Error(`Fant ikke lag for toppscorer ${scorer.name}`);
+    }
     const entryRecord = options.entries.get(teamSlug);
     const squadRecord = options.squads.get(teamSlug);
 
@@ -1076,6 +1082,9 @@ async function seedHistoricalTopScorers(
     }
 
     const match = entryMatches[index % entryMatches.length];
+    if (!match) {
+      throw new Error(`Mangler kamp for toppscorer ${scorer.name}`);
+    }
     const teamSide =
       match.homeEntryId === entryRecord.entry.id ? "home" : "away";
 
@@ -1188,10 +1197,16 @@ function resolveRegistrationWindow(editionSeed: HistoricalSeedEdition) {
   ) {
     return {
       opensAt: editionSeed.registrationWindow?.opensAt
-        ? parseSeedDate(editionSeed.registrationWindow.opensAt, editionSeed.slug)
+        ? parseSeedDate(
+            editionSeed.registrationWindow.opensAt,
+            editionSeed.slug,
+          )
         : null,
       closesAt: editionSeed.registrationWindow?.closesAt
-        ? parseSeedDate(editionSeed.registrationWindow.closesAt, editionSeed.slug)
+        ? parseSeedDate(
+            editionSeed.registrationWindow.closesAt,
+            editionSeed.slug,
+          )
         : null,
     };
   }

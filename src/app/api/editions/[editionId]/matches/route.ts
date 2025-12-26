@@ -153,10 +153,10 @@ function mapMatchResponse(
   const awayLabel = metadata.awayLabel;
   const homeEntryName = row.homeEntryId
     ? (entryNameMap.get(row.homeEntryId) ?? null)
-    : homeLabel ?? derivePlaceholderName(metadata.homeSource, bracketRounds);
+    : (homeLabel ?? derivePlaceholderName(metadata.homeSource, bracketRounds));
   const awayEntryName = row.awayEntryId
     ? (entryNameMap.get(row.awayEntryId) ?? null)
-    : awayLabel ?? derivePlaceholderName(metadata.awaySource, bracketRounds);
+    : (awayLabel ?? derivePlaceholderName(metadata.awaySource, bracketRounds));
 
   return {
     id: row.id,
