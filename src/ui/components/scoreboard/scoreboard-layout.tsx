@@ -708,6 +708,7 @@ function LandingLayout({
     (match) => match.status === "scheduled",
   );
   const nextMatches = upcomingMatches.slice(0, 4);
+  const hasLiveMatches = liveMatches.length > 0;
 
   return (
     <div className="space-y-8">
@@ -720,12 +721,14 @@ function LandingLayout({
         </div>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MatchSection
-          title="Live nå"
-          matches={liveMatches}
-          emptyText="Ingen kamper pågår akkurat nå."
-        />
+      <div className={`grid gap-6 ${hasLiveMatches ? "lg:grid-cols-2" : ""}`}>
+        {hasLiveMatches ? (
+          <MatchSection
+            title="Live nå"
+            matches={liveMatches}
+            emptyText="Ingen kamper pågår akkurat nå."
+          />
+        ) : null}
         <MatchSection
           title="Neste kamper"
           matches={nextMatches}
