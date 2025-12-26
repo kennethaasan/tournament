@@ -420,6 +420,14 @@ function buildMatchSide(
 
   const metadata = parseMatchMetadata(row.metadata);
   const source = side === "home" ? metadata.homeSource : metadata.awaySource;
+  const label = side === "home" ? metadata.homeLabel : metadata.awayLabel;
+  if (label) {
+    return {
+      entryId: null,
+      name: label,
+      score,
+    };
+  }
   const placeholder = derivePlaceholderName(source, bracketRounds);
 
   if (!placeholder) {

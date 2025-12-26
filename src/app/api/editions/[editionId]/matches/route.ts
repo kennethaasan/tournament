@@ -149,12 +149,14 @@ function mapMatchResponse(
   bracketRounds: Map<string, number>,
 ) {
   const metadata = parseMatchMetadata(row.metadata);
+  const homeLabel = metadata.homeLabel;
+  const awayLabel = metadata.awayLabel;
   const homeEntryName = row.homeEntryId
     ? (entryNameMap.get(row.homeEntryId) ?? null)
-    : derivePlaceholderName(metadata.homeSource, bracketRounds);
+    : homeLabel ?? derivePlaceholderName(metadata.homeSource, bracketRounds);
   const awayEntryName = row.awayEntryId
     ? (entryNameMap.get(row.awayEntryId) ?? null)
-    : derivePlaceholderName(metadata.awaySource, bracketRounds);
+    : awayLabel ?? derivePlaceholderName(metadata.awaySource, bracketRounds);
 
   return {
     id: row.id,
