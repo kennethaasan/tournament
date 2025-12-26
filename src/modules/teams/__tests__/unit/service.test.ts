@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { TeamServiceDeps } from "@/modules/teams/service";
 import { createTeam, listTeamRoster } from "@/modules/teams/service";
 
 type TeamRecord = {
@@ -30,7 +31,7 @@ describe("teams service", () => {
 
     const team = await createTeam(
       { name: "North Stars", contactEmail: "OWNER@MAIL.com" },
-      { db: fakeDb },
+      { db: fakeDb as unknown as TeamServiceDeps["db"] },
     );
 
     expect(team.slug).toBe("north-stars");
@@ -82,7 +83,9 @@ describe("teams service", () => {
       }),
     };
 
-    const roster = await listTeamRoster(team.id, { db: fakeDb });
+    const roster = await listTeamRoster(team.id, {
+      db: fakeDb as unknown as TeamServiceDeps["db"],
+    });
 
     expect(roster.team.name).toBe("Harbor United");
     expect(roster.members[0]?.person.firstName).toBe("Ida");

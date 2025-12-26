@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { ProblemError } from "@/lib/errors/problem";
+import { getPublicScoreboard } from "@/modules/public/scoreboard-service";
 import {
   DEFAULT_ROTATION,
   type ScoreboardSection,
 } from "@/modules/public/scoreboard-types";
-import { getPublicScoreboard } from "@/modules/public/scoreboard-service";
 
-const baseEdition = {
+type ScoreboardDependencies = Required<
+  NonNullable<Parameters<typeof getPublicScoreboard>[1]>
+>;
+type EditionRow = NonNullable<
+  Awaited<ReturnType<ScoreboardDependencies["findEdition"]>>
+>;
+
+const baseEdition: EditionRow = {
   id: "edition-1",
   label: "Elite Cup",
   slug: "elite-cup",
@@ -25,7 +32,7 @@ const baseEdition = {
     background_image_url: null,
   },
   publishedAt: new Date("2024-06-01T00:00:00Z"),
-} as const;
+};
 
 describe("getPublicScoreboard", () => {
   it("builds scoreboard data and rotation from provided dependencies", async () => {
@@ -196,6 +203,122 @@ describe("getPublicScoreboard", () => {
         { compositeSlug: "" },
         {
           findEdition: async () => ({ ...baseEdition, slug: "" }),
+          listEntries: async () => [],
+          listMatches: async () => [],
+          listScorerEvents: async () => [],
+          findActiveHighlight: async () => null,
+          now: () => new Date("2024-06-01T11:00:00Z"),
+        },
+      ),
+    ).rejects.toBeInstanceOf(ProblemError);
+  });
+
+  it("orders tied standings deterministically and enriches scorer names", async () => {
+    const entries = [
+      { id: "entry-a", name: "Alpha FC" },
+      { id: "entry-b", name: "Bravo FC" },
+      { id: "entry-c", name: "Charlie FC" },
+    ];
+
+    const matches = [
+      {
+        id: "match-a",
+        status: "finalized",
+        kickoffAt: new Date("2024-06-03T12:00:00Z"),
+        createdAt: new Date("2024-06-03T11:00:00Z"),
+        homeEntryId: "entry-a",
+        awayEntryId: "entry-b",
+        homeScore: 0,
+        awayScore: 0,
+        venueName: null,
+        code: null,
+        groupId: null,
+        groupCode: null,
+        groupName: null,
+      },
+      {
+        id: "match-b",
+        status: "scheduled",
+        kickoffAt: new Date("2024-06-04T12:00:00Z"),
+        createdAt: new Date("2024-06-03T10:00:00Z"),
+        homeEntryId: "missing-entry",
+        awayEntryId: "entry-c",
+        homeScore: 0,
+        awayScore: 0,
+        venueName: null,
+        code: null,
+        groupId: null,
+        groupCode: null,
+        groupName: null,
+      },
+    ];
+
+    const scorerEvents = [
+      {
+        eventType: "goal",
+        personId: "person-1",
+        entryId: "entry-a",
+        firstName: null,
+        lastName: null,
+      },
+      {
+        eventType: "red_card",
+        personId: "person-1",
+        entryId: "entry-a",
+        firstName: null,
+        lastName: null,
+      },
+      {
+        eventType: "assist",
+        personId: "person-2",
+        entryId: "entry-b",
+        firstName: "Bea",
+        lastName: "Strand",
+      },
+      {
+        eventType: "substitution",
+        personId: "person-3",
+        entryId: "entry-b",
+        firstName: "Ignore",
+        lastName: "Me",
+      },
+    ];
+
+    const result = await getPublicScoreboard(
+      { editionSlug: "tied-edition", competitionSlug: null },
+      {
+        findEdition: async () => ({
+          ...baseEdition,
+          slug: "tied-edition",
+          scoreboardModules: ["standings", "top_scorers"],
+        }),
+        listEntries: async () => entries,
+        listMatches: async () => matches,
+        listScorerEvents: async () => scorerEvents,
+        findActiveHighlight: async () => null,
+        now: () => new Date("2024-06-03T12:30:00Z"),
+      },
+    );
+
+    expect(result.standings.map((row) => row.entryId).slice(0, 2)).toEqual([
+      "entry-a",
+      "entry-b",
+    ]);
+    expect(result.topScorers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ entryId: "entry-a", name: "Alpha FC" }),
+        expect.objectContaining({ entryId: "entry-b", name: "Bea Strand" }),
+      ]),
+    );
+    expect(result.rotation).toEqual(["standings", "top_scorers"]);
+  });
+
+  it("throws when the edition cannot be found", async () => {
+    await expect(
+      getPublicScoreboard(
+        { editionSlug: "missing", competitionSlug: null },
+        {
+          findEdition: async () => null,
           listEntries: async () => [],
           listMatches: async () => [],
           listScorerEvents: async () => [],

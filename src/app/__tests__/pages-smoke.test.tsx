@@ -1,17 +1,21 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import type { ScoreboardData } from "@/modules/public/scoreboard-types";
-import LandingPage from "@/app/page";
 import AdminOverviewPage from "@/app/(dashboard)/dashboard/admin/overview/page";
 import CompetitionDetailPage from "@/app/(dashboard)/dashboard/competitions/[competitionId]/page";
-import ScoreboardPage from "@/app/(scoreboard)/competitions/[competitionSlug]/[editionSlug]/scoreboard/page";
 import LoginPage from "@/app/(public)/auth/login/page";
 import SignupPage from "@/app/(public)/auth/signup/page";
+import ScoreboardPage from "@/app/(scoreboard)/competitions/[competitionSlug]/[editionSlug]/scoreboard/page";
+import LandingPage from "@/app/page";
+import type { ScoreboardData } from "@/modules/public/scoreboard-types";
 
 vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+  default: ({
+    children,
+    href,
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => <a href={href}>{children}</a>,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -104,6 +108,11 @@ vi.mock("@/modules/admin/service", () => ({
         administrators: [{ userId: "user-1", name: "Admin" }],
         updatedAt: new Date(),
         status: "active",
+        health: {
+          lastAuditEventAt: new Date("2024-06-01T10:00:00Z"),
+          pendingEntries: 0,
+          unresolvedDisputes: 0,
+        },
       },
     ],
   })),
@@ -124,6 +133,10 @@ vi.mock("@/ui/components/navigation-links", () => ({
 
 vi.mock("@/ui/components/page-hero", () => ({
   PageHero: ({ title }: { title: string }) => <div>{title}</div>,
+}));
+
+vi.mock("@/ui/components/site-navbar", () => ({
+  SiteNavbar: () => <div>Site Navbar</div>,
 }));
 
 vi.mock("@/ui/components/scoreboard/scoreboard-layout", () => ({

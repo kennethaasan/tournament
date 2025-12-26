@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_ROTATION,
   buildEditionSlug,
+  DEFAULT_ROTATION,
   encodeEditionSlugParam,
   parseCompositeEditionSlug,
   toApiScoreboardPayload,
@@ -11,7 +11,9 @@ describe("scoreboard types helpers", () => {
   it("builds and encodes edition slugs", () => {
     expect(buildEditionSlug("elite", "cup-2025")).toBe("elite/cup-2025");
     expect(buildEditionSlug(null, "solo")).toBe("solo");
-    expect(encodeEditionSlugParam("elite", "cup 2025")).toBe("elite%2Fcup%202025");
+    expect(encodeEditionSlugParam("elite", "cup 2025")).toBe(
+      "elite%2Fcup%202025",
+    );
   });
 
   it("parses composite slugs", () => {

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  ProblemError,
-  Result,
   assertResult,
   createProblem,
   ensureProblem,
   isProblemError,
+  ProblemError,
+  Result,
 } from "@/lib/errors/problem";
 
 describe("problem helpers", () => {
