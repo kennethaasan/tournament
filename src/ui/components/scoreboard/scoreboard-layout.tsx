@@ -704,9 +704,10 @@ function LandingLayout({
   const liveMatches = data.matches.filter(
     (match) => match.status === "in_progress" || match.status === "disputed",
   );
-  const upcomingMatches = data.matches.filter(
+  const upcomingMatches = matches.filter(
     (match) => match.status === "scheduled",
   );
+  const nextMatches = upcomingMatches.slice(0, 4);
 
   return (
     <div className="space-y-8">
@@ -727,12 +728,12 @@ function LandingLayout({
         />
         <MatchSection
           title="Neste kamper"
-          matches={upcomingMatches}
+          matches={nextMatches}
           emptyText="Ingen kommende kamper registrert."
         />
       </div>
 
-      <ScheduleTable matches={matches} entryNames={entryNames} />
+      <ScheduleTable matches={nextMatches} entryNames={entryNames} />
 
       {data.tables.length > 0 ? (
         <div className="space-y-6">
