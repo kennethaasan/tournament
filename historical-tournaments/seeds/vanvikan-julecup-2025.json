@@ -637,7 +637,7 @@
       "awayScore": 0,
       "status": "scheduled",
       "homeLabel": "Vinner gruppe A",
-      "awayLabel": "Andreplass gruppe C"
+      "awayLabel": "3. beste andreplass"
     },
     {
       "kickoffAt": "2025-12-30T16:15:00+01:00",
@@ -661,7 +661,7 @@
       "awayScore": 0,
       "status": "scheduled",
       "homeLabel": "Vinner gruppe C",
-      "awayLabel": "Andreplass gruppe A"
+      "awayLabel": "Beste andreplass"
     },
     {
       "kickoffAt": "2025-12-30T16:30:00+01:00",
@@ -673,7 +673,7 @@
       "awayScore": 0,
       "status": "scheduled",
       "homeLabel": "Vinner gruppe B",
-      "awayLabel": "Andreplass gruppe B"
+      "awayLabel": "2. beste andreplass"
     },
     {
       "kickoffAt": "2025-12-30T17:00:00+01:00",
