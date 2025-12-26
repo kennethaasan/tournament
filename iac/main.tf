@@ -267,10 +267,13 @@ resource "aws_iam_role_policy_attachment" "ses_send" {
 }
 
 resource "aws_sns_topic" "ses_events" {
-  count             = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
-  name              = local.ses_event_topic_name
-  kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
-  tags              = local.default_tags
+  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  name  = local.ses_event_topic_name
+  # Note: Do NOT use KMS encryption for SES event topics.
+  # AWS-managed keys (alias/aws/sns) don't allow SES to publish messages.
+  # Customer-managed keys require additional KMS policy configuration.
+  # https://repost.aws/knowledge-center/encrypted-sns-topic-receives-no-notification
+  tags = local.default_tags
 }
 
 data "aws_iam_policy_document" "ses_events" {
@@ -308,6 +311,7 @@ resource "aws_ses_event_destination" "ses_events" {
   configuration_set_name = aws_ses_configuration_set.app[0].name
   enabled                = true
   matching_types         = ["bounce", "complaint", "delivery"]
+  depends_on             = [aws_sns_topic_policy.ses_events]
 
   sns_destination {
     topic_arn = aws_sns_topic.ses_events[0].arn
