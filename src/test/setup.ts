@@ -81,6 +81,30 @@ const mockUser = {
 };
 
 vi.mock("@/server/auth", async () => {
+  const isBrowser = typeof window !== "undefined";
+
+  if (isBrowser) {
+    return {
+      getSession: vi.fn().mockResolvedValue({
+        session: mockUser.session,
+        user: {
+          ...mockUser.user,
+          roles: [],
+        },
+      }),
+      getSessionFromHeaders: vi.fn().mockResolvedValue({
+        session: mockUser.session,
+        user: {
+          ...mockUser.user,
+          roles: [],
+        },
+      }),
+      userHasRole: vi.fn(() => false),
+      requireRoles: vi.fn(),
+      resolveTrustedOrigins: vi.fn(() => []),
+    };
+  }
+
   const actual =
     await vi.importActual<typeof import("@/server/auth")>("@/server/auth");
   return {
