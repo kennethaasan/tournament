@@ -29,7 +29,7 @@ export type ScoreboardEdition = {
 };
 
 export type ScoreboardMatchSide = {
-  entryId: string;
+  entryId: string | null;
   name: string;
   score: number;
 };
@@ -271,12 +271,12 @@ export function fromApiScoreboardPayload(
       code: match.code ?? null,
       groupCode: match.group_code ?? null,
       home: {
-        entryId: match.home.entry_id,
+        entryId: match.home.entry_id ?? null,
         name: match.home.name,
         score: match.home.score,
       },
       away: {
-        entryId: match.away.entry_id,
+        entryId: match.away.entry_id ?? null,
         name: match.away.name,
         score: match.away.score,
       },

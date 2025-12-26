@@ -389,8 +389,11 @@ async function buildMatchUpdate(
     update.awayExtraTime = away.extraTime;
     update.awayPenalties = away.penalties;
 
-    if (payload.status === "finalized") {
+    const nextStatus = payload.status ?? match.status;
+    if (nextStatus === "finalized" || nextStatus === "disputed") {
       update.outcome = computeOutcome(home, away);
+    } else if (payload.status) {
+      update.outcome = null;
     }
   }
 

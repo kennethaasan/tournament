@@ -57,6 +57,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-2",
@@ -72,6 +74,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-3",
@@ -87,6 +91,8 @@ describe("getPublicScoreboard", () => {
         groupId: "group-a",
         groupCode: "A",
         groupName: "Group A",
+        bracketId: null,
+        metadata: {},
       },
     ];
 
@@ -235,6 +241,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
       {
         id: "match-b",
@@ -250,6 +258,8 @@ describe("getPublicScoreboard", () => {
         groupId: null,
         groupCode: null,
         groupName: null,
+        bracketId: null,
+        metadata: {},
       },
     ];
 

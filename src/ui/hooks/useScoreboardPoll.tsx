@@ -102,7 +102,11 @@ function mergeEntryDirectory(
   }
 
   for (const match of data.matches) {
-    directory.set(match.home.entryId, match.home.name);
-    directory.set(match.away.entryId, match.away.name);
+    if (match.home.entryId) {
+      directory.set(match.home.entryId, match.home.name);
+    }
+    if (match.away.entryId) {
+      directory.set(match.away.entryId, match.away.name);
+    }
   }
 }

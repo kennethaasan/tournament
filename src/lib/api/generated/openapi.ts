@@ -679,10 +679,10 @@ export interface components {
       venue_id?: string | null;
       venue_name?: string | null;
       /** Format: uuid */
-      home_entry_id: string;
+      home_entry_id: string | null;
       home_entry_name?: string | null;
       /** Format: uuid */
-      away_entry_id: string;
+      away_entry_id: string | null;
       away_entry_name?: string | null;
       home_score?: components["schemas"]["ScoreBreakdown"];
       away_score?: components["schemas"]["ScoreBreakdown"];
@@ -876,7 +876,7 @@ export interface components {
       /** Format: uuid */
       id: string;
       /** Format: uuid */
-      entry_id: string;
+      entry_id: string | null;
       /** Format: date-time */
       locked_at: string | null;
       members?: components["schemas"]["SquadMember"][];
@@ -968,7 +968,7 @@ export interface components {
     };
     ScoreboardSide: {
       /** Format: uuid */
-      entry_id: string;
+      entry_id: string | null;
       name: string;
       score: number;
     };
