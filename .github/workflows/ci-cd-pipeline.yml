@@ -289,13 +289,6 @@ jobs:
       - *tf-setup
       - *tf-download-artifact
       - *tf-init
-      - name: Migrate Route53 records from module to direct resources
-        working-directory: iac
-        run: |
-          # One-time migration: move Route53 records from module to direct resources
-          # These commands are safe to run multiple times - they'll fail gracefully if source doesn't exist
-          terraform state mv 'module.dns_records.aws_route53_record.this["app_a"]' 'aws_route53_record.app_a' 2>/dev/null || true
-          terraform state mv 'module.dns_records.aws_route53_record.this["app_aaaa"]' 'aws_route53_record.app_aaaa' 2>/dev/null || true
       - name: Terraform apply
         working-directory: iac
         run: terraform apply -auto-approve -input=false
