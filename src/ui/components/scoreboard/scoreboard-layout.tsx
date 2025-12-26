@@ -708,6 +708,7 @@ function LandingLayout({
     (match) => match.status === "scheduled",
   );
   const nextMatches = upcomingMatches.slice(0, 4);
+  const hasLiveMatches = liveMatches.length > 0;
 
   return (
     <div className="space-y-8">
@@ -720,12 +721,14 @@ function LandingLayout({
         </div>
       ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <MatchSection
-          title="Live nå"
-          matches={liveMatches}
-          emptyText="Ingen kamper pågår akkurat nå."
-        />
+      <div className={`grid gap-6 ${hasLiveMatches ? "lg:grid-cols-2" : ""}`}>
+        {hasLiveMatches ? (
+          <MatchSection
+            title="Live nå"
+            matches={liveMatches}
+            emptyText="Ingen kamper pågår akkurat nå."
+          />
+        ) : null}
         <MatchSection
           title="Neste kamper"
           matches={nextMatches}
@@ -733,7 +736,7 @@ function LandingLayout({
         />
       </div>
 
-      <ScheduleTable matches={nextMatches} entryNames={entryNames} />
+      <ScheduleTable matches={matches} entryNames={entryNames} />
 
       {data.tables.length > 0 ? (
         <div className="space-y-6">
@@ -775,29 +778,44 @@ function MatchSection({
         <p className="text-sm text-white/70">{emptyText}</p>
       ) : (
         <div className="space-y-4">
-          {rows.map((match) => (
-            <article
-              key={match.id}
-              className="rounded-lg border border-white/10 bg-white/5 px-4 py-3"
-            >
-              <header className="mb-2 flex items-center justify-between text-xs uppercase tracking-wide text-white/60">
-                <span>{statusLabel(match.status)}</span>
-                <time dateTime={match.kickoffAt.toISOString()}>
-                  {formatKickoff(match.kickoffAt)}
-                </time>
-              </header>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-lg font-semibold">
-                <span className="text-left">{match.home.name}</span>
-                <span className="rounded-lg border border-white/20 px-3 py-1 text-center text-xl">
-                  {formatMatchScore(match)}
-                </span>
-                <span className="text-right">{match.away.name}</span>
-              </div>
-              {match.highlight ? (
-                <p className="mt-2 text-sm text-white/80">{match.highlight}</p>
-              ) : null}
-            </article>
-          ))}
+          {rows.map((match) => {
+            const formattedScore = formatMatchScore(match);
+            const showScore = formattedScore.length > 0;
+
+            return (
+              <article
+                key={match.id}
+                className="rounded-lg border border-white/10 bg-white/5 px-4 py-3"
+              >
+                <header className="mb-2 flex items-center justify-between text-xs uppercase tracking-wide text-white/60">
+                  <span>{statusLabel(match.status)}</span>
+                  <time dateTime={match.kickoffAt.toISOString()}>
+                    {formatKickoff(match.kickoffAt)}
+                  </time>
+                </header>
+                <div
+                  className={`items-center gap-3 text-lg font-semibold ${
+                    showScore
+                      ? "grid grid-cols-[1fr_auto_1fr]"
+                      : "grid grid-cols-2"
+                  }`}
+                >
+                  <span className="text-left">{match.home.name}</span>
+                  {showScore ? (
+                    <span className="rounded-lg border border-white/20 px-3 py-1 text-center text-xl">
+                      {formattedScore}
+                    </span>
+                  ) : null}
+                  <span className="text-right">{match.away.name}</span>
+                </div>
+                {match.highlight ? (
+                  <p className="mt-2 text-sm text-white/80">
+                    {match.highlight}
+                  </p>
+                ) : null}
+              </article>
+            );
+          })}
         </div>
       )}
     </section>
