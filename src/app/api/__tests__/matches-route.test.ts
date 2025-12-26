@@ -123,6 +123,56 @@ describe("matches route", () => {
     expect(body.events).toHaveLength(1);
   });
 
+  test("PATCH recomputes outcome when score changes after finalization", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const finalizeRequest = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          status: "finalized",
+          score: {
+            home: { regulation: 2 },
+            away: { regulation: 0 },
+          },
+        }),
+      },
+    );
+
+    const finalizeResponse = await PATCH(finalizeRequest, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const finalizedBody = await finalizeResponse.json();
+
+    expect(finalizeResponse.status).toBe(200);
+    expect(finalizedBody.outcome).toBe("home_win");
+
+    const correctionRequest = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          score: {
+            home: { regulation: 1 },
+            away: { regulation: 3 },
+          },
+        }),
+      },
+    );
+
+    const correctionResponse = await PATCH(correctionRequest, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const correctedBody = await correctionResponse.json();
+
+    expect(correctionResponse.status).toBe(200);
+    expect(correctedBody.outcome).toBe("away_win");
+  });
+
   test("PATCH updates match details and recomputes outcome", async () => {
     const auth = createCompetitionAdminContext(COMPETITION_ID);
     mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
@@ -166,5 +216,55 @@ describe("matches route", () => {
     expect(body.status).toBe("finalized");
     expect(body.outcome).toBe("home_win");
     expect(body.events).toHaveLength(1);
+  });
+
+  test("PATCH recomputes outcome when score changes after finalization", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const finalizeRequest = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          status: "finalized",
+          score: {
+            home: { regulation: 2 },
+            away: { regulation: 0 },
+          },
+        }),
+      },
+    );
+
+    const finalizeResponse = await PATCH(finalizeRequest, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const finalizedBody = await finalizeResponse.json();
+
+    expect(finalizeResponse.status).toBe(200);
+    expect(finalizedBody.outcome).toBe("home_win");
+
+    const correctionRequest = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          score: {
+            home: { regulation: 1 },
+            away: { regulation: 3 },
+          },
+        }),
+      },
+    );
+
+    const correctionResponse = await PATCH(correctionRequest, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const correctedBody = await correctionResponse.json();
+
+    expect(correctionResponse.status).toBe(200);
+    expect(correctedBody.outcome).toBe("away_win");
   });
 });
