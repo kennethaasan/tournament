@@ -139,9 +139,34 @@ module "acm" {
 
   domain_name            = var.app_domain
   validation_method      = "DNS"
-  create_route53_records = true
+  create_route53_records = false
+  validate_certificate   = false
   zone_id                = data.aws_route53_zone.zone.zone_id
   tags                   = local.default_tags
+}
+
+resource "aws_route53_record" "acm_validation" {
+  for_each = {
+    for dvo in module.acm.acm_certificate_domain_validation_options :
+    dvo.resource_record_name => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }
+  }
+
+  allow_overwrite = true
+  zone_id         = data.aws_route53_zone.zone.zone_id
+  name            = each.value.name
+  type            = each.value.type
+  ttl             = 60
+  records         = [each.value.value]
+}
+
+resource "aws_acm_certificate_validation" "app" {
+  provider                = aws.us_east_1
+  certificate_arn         = module.acm.acm_certificate_arn
+  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
 
 module "fn" {
@@ -382,7 +407,7 @@ module "cdn" {
 
   tags = local.default_tags
 
-  depends_on = [module.acm]
+  depends_on = [module.acm, aws_acm_certificate_validation.app]
 }
 
 resource "aws_lambda_permission" "allow_cloudfront" {
