@@ -3,13 +3,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  DEFAULT_ROTATION,
-  type ScoreboardData,
-  type ScoreboardGroupTable,
-  type ScoreboardMatch,
-  type ScoreboardStanding,
-  type ScoreboardTopScorer,
+import type {
+  ScoreboardData,
+  ScoreboardGroupTable,
+  ScoreboardMatch,
+  ScoreboardStanding,
+  ScoreboardTopScorer,
 } from "@/modules/public/scoreboard-types";
 import { useScoreboardPoll } from "@/ui/hooks/useScoreboardPoll";
 
@@ -31,10 +30,17 @@ type SeasonTheme =
   | "spring"
   | "summer"
   | "fall";
+type ThemeSource = "competition" | "season";
 
 const FULL_HD_WIDTH = 1920;
 const FULL_HD_HEIGHT = 1080;
 const SEASON_THEME_STORAGE_KEY = "scoreboard-season-theme";
+const THEME_SOURCE_STORAGE_KEY = "scoreboard-theme-source";
+const SCREEN_MATCH_LIMIT = 60;
+const SCREEN_STANDINGS_LIMIT = 8;
+const SCREEN_GROUP_TABLES_LIMIT = 6;
+const SCREEN_GROUP_STANDINGS_LIMIT = 5;
+const SCREEN_SCORERS_LIMIT = 30;
 
 export function ScoreboardProviders({ children }: ProvidersProps) {
   const [client] = useState(
@@ -105,18 +111,22 @@ export function ScoreboardScreen({
     return parts.length > 0 ? parts.join(" · ") : null;
   }, [scheduleSummary, venueSummary]);
 
-  const rotation = data.rotation.length ? data.rotation : DEFAULT_ROTATION;
   const lastUpdated = query.dataUpdatedAt
     ? new Date(query.dataUpdatedAt)
     : null;
   const themeOverrideParam = searchParams?.get("theme") ?? null;
   const [themePreference, setThemePreference] = useState<SeasonTheme>("auto");
-  const activeSeason =
+  const [themeSource, setThemeSource] = useState<ThemeSource>("season");
+  const seasonFromPreference =
     themePreference === "auto"
       ? deriveSeasonTheme(new Date())
       : themePreference;
-  const isSnowing = activeSeason === "winter" || activeSeason === "christmas";
-  const isChristmasTheme = activeSeason === "christmas";
+  const useSeasonTheme = themeSource === "season";
+  const isSnowing =
+    useSeasonTheme &&
+    (seasonFromPreference === "winter" || seasonFromPreference === "christmas");
+  const isChristmasTheme =
+    useSeasonTheme && seasonFromPreference === "christmas";
 
   useEffect(() => {
     setOverlayText(deriveOverlayMessage(data));
@@ -134,6 +144,18 @@ export function ScoreboardScreen({
     const stored = parseSeasonTheme(storage.getItem(SEASON_THEME_STORAGE_KEY));
     setThemePreference(override ?? stored ?? "auto");
   }, [themeOverrideParam]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storage = window.localStorage;
+    if (!storage || typeof storage.getItem !== "function") {
+      return;
+    }
+    const stored = parseThemeSource(storage.getItem(THEME_SOURCE_STORAGE_KEY));
+    setThemeSource(stored ?? "season");
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -171,6 +193,17 @@ export function ScoreboardScreen({
     storage.setItem(SEASON_THEME_STORAGE_KEY, themePreference);
   }, [themePreference]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const storage = window.localStorage;
+    if (!storage || typeof storage.setItem !== "function") {
+      return;
+    }
+    storage.setItem(THEME_SOURCE_STORAGE_KEY, themeSource);
+  }, [themeSource]);
+
   const hasHighlight = Boolean(
     data.overlayMessage || data.matches.find((match) => match.highlight),
   );
@@ -179,78 +212,95 @@ export function ScoreboardScreen({
     <div
       className={`mx-auto text-white ${
         mode === "screen"
-          ? "w-full max-w-[1760px] px-10 py-8"
-          : "max-w-6xl px-4 py-10 sm:px-6 lg:px-8"
+          ? "w-full max-w-[1920px] px-6 py-5 2xl:px-8 2xl:py-6"
+          : "max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8 2xl:max-w-[1680px]"
       }`}
     >
       <header
-        className={`flex flex-col gap-4 border-b border-white/20 pb-4 lg:flex-row lg:items-end lg:justify-between ${
-          mode === "screen" ? "mb-6" : "mb-8"
+        className={`grid gap-2 border-b border-white/20 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center ${
+          mode === "screen" ? "mb-3 pb-2" : "mb-8 pb-4"
         }`}
       >
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-white/70">
+        <div className={mode === "screen" ? "space-y-0.5" : "space-y-2"}>
+          <p
+            className={
+              mode === "screen"
+                ? "text-[0.65rem] uppercase tracking-[0.2em] text-white/70"
+                : "text-sm uppercase tracking-[0.2em] text-white/70"
+            }
+          >
             Offentlig visning
           </p>
           <h1
             className={
               mode === "screen"
-                ? "text-2xl font-semibold"
+                ? "text-xl font-semibold leading-tight"
                 : "text-3xl font-semibold"
             }
           >
             {data.edition.label}
           </h1>
-          <p
-            className={
-              mode === "screen"
-                ? "text-base font-medium text-white/80"
-                : "text-lg font-medium text-white/80"
-            }
-          >
-            {data.edition.slug} · {data.edition.competitionSlug}
-          </p>
-          {headerMeta ? (
-            <p
-              className={
-                mode === "screen"
-                  ? "text-sm text-white/70"
-                  : "text-sm text-white/80"
-              }
-            >
-              {headerMeta}
-            </p>
-          ) : null}
-          <p className="text-sm text-white/80">
-            Oppdateres hvert {data.edition.scoreboardRotationSeconds} sekunder
-          </p>
-          {lastUpdated ? (
-            <p className="text-xs text-white/60">
-              Sist oppdatert {formatTimestamp(lastUpdated)}
-            </p>
-          ) : null}
+          {mode === "screen" ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/80">
+              <span className="font-medium">
+                {data.edition.slug}
+                {data.edition.competitionSlug
+                  ? ` · ${data.edition.competitionSlug}`
+                  : ""}
+              </span>
+              {headerMeta ? (
+                <span className="text-white/70">{headerMeta}</span>
+              ) : null}
+              <span className="text-white/70">
+                Oppdateres hvert {data.edition.scoreboardRotationSeconds}{" "}
+                sekunder
+              </span>
+              {lastUpdated ? (
+                <span className="text-white/60">
+                  Sist oppdatert {formatTimestamp(lastUpdated)}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <>
+              <p className="text-lg font-medium text-white/80">
+                {data.edition.slug}
+                {data.edition.competitionSlug
+                  ? ` · ${data.edition.competitionSlug}`
+                  : ""}
+              </p>
+              {headerMeta ? (
+                <p className="text-sm text-white/80">{headerMeta}</p>
+              ) : null}
+              <p className="text-sm text-white/80">
+                Oppdateres hvert {data.edition.scoreboardRotationSeconds}{" "}
+                sekunder
+              </p>
+              {lastUpdated ? (
+                <p className="text-xs text-white/60">
+                  Sist oppdatert {formatTimestamp(lastUpdated)}
+                </p>
+              ) : null}
+            </>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <ModeToggle mode={mode} onChange={setMode} />
-          <SeasonToggle value={themePreference} onChange={setThemePreference} />
-          {mode === "screen" ? (
-            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-white/70">
-              {rotation.map((section) => (
-                <span
-                  key={section}
-                  className="rounded-full border border-white/30 px-3 py-1"
-                >
-                  {sectionLabel(section)}
-                </span>
-              ))}
-            </div>
-          ) : null}
+          <ThemeControls
+            source={themeSource}
+            onSourceChange={setThemeSource}
+            season={themePreference}
+            onSeasonChange={setThemePreference}
+            showSeason={useSeasonTheme}
+          />
+          {mode === "screen" ? null : null}
         </div>
       </header>
 
       {mode === "screen" ? (
         <ScreenLayout
           overlayText={overlayText}
+          hasHighlight={hasHighlight}
           matches={data.matches}
           standings={data.standings}
           tables={data.tables}
@@ -272,7 +322,9 @@ export function ScoreboardScreen({
     <div
       className="relative min-h-screen overflow-hidden"
       style={{
-        backgroundImage: `${seasonGradient(activeSeason)}, linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
+        backgroundImage: useSeasonTheme
+          ? `${seasonGradient(seasonFromPreference)}, linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`
+          : `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
       }}
     >
       {theme.backgroundImageUrl ? (
@@ -284,7 +336,9 @@ export function ScoreboardScreen({
       ) : null}
       {isSnowing ? (
         <SnowBackdrop
-          variant={activeSeason === "christmas" ? "christmas" : "winter"}
+          variant={
+            seasonFromPreference === "christmas" ? "christmas" : "winter"
+          }
         />
       ) : null}
       {isChristmasTheme ? <HolidayGlow /> : null}
@@ -300,12 +354,12 @@ type ModeToggleProps = {
 
 function ModeToggle({ mode, onChange }: ModeToggleProps) {
   return (
-    <div className="flex items-center gap-2 rounded-full border border-white/30 bg-white/10 p-1 text-xs font-semibold">
+    <div className="flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 p-1 text-xs font-semibold">
       <button
         type="button"
         onClick={() => onChange("landing")}
         aria-pressed={mode === "landing"}
-        className={`rounded-full px-3 py-1 transition ${
+        className={`rounded-lg px-3 py-1 transition ${
           mode === "landing"
             ? "bg-white text-slate-900"
             : "text-white/80 hover:text-white"
@@ -317,7 +371,7 @@ function ModeToggle({ mode, onChange }: ModeToggleProps) {
         type="button"
         onClick={() => onChange("screen")}
         aria-pressed={mode === "screen"}
-        className={`rounded-full px-3 py-1 transition ${
+        className={`rounded-lg px-3 py-1 transition ${
           mode === "screen"
             ? "bg-white text-slate-900"
             : "text-white/80 hover:text-white"
@@ -334,9 +388,58 @@ type SeasonToggleProps = {
   onChange: (value: SeasonTheme) => void;
 };
 
-function SeasonToggle({ value, onChange }: SeasonToggleProps) {
+type ThemeSourceSelectProps = {
+  value: ThemeSource;
+  onChange: (value: ThemeSource) => void;
+};
+
+type ThemeControlsProps = {
+  source: ThemeSource;
+  onSourceChange: (value: ThemeSource) => void;
+  season: SeasonTheme;
+  onSeasonChange: (value: SeasonTheme) => void;
+  showSeason: boolean;
+};
+
+function ThemeControls({
+  source,
+  onSourceChange,
+  season,
+  onSeasonChange,
+  showSeason,
+}: ThemeControlsProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-xs font-semibold">
+      <ThemeSourceSelect value={source} onChange={onSourceChange} />
+      {showSeason ? (
+        <SeasonSelect value={season} onChange={onSeasonChange} />
+      ) : null}
+    </div>
+  );
+}
+
+function ThemeSourceSelect({ value, onChange }: ThemeSourceSelectProps) {
+  return (
+    <label className="flex items-center gap-2">
+      <span className="text-[0.65rem] uppercase tracking-wide text-white/70">
+        Tema
+      </span>
+      <select
+        aria-label="Velg temakilde"
+        value={value}
+        onChange={(event) => onChange(event.target.value as ThemeSource)}
+        className="rounded-lg border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white outline-none"
+      >
+        <option value="season">Sesong</option>
+        <option value="competition">Konkurranse</option>
+      </select>
+    </label>
+  );
+}
+
+function SeasonSelect({ value, onChange }: SeasonToggleProps) {
   const options: Array<{ value: SeasonTheme; label: string }> = [
-    { value: "auto", label: "Sesong" },
+    { value: "auto", label: "Standard" },
     { value: "christmas", label: "Jul" },
     { value: "winter", label: "Vinter" },
     { value: "spring", label: "Vår" },
@@ -345,23 +448,23 @@ function SeasonToggle({ value, onChange }: SeasonToggleProps) {
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-1 rounded-full border border-white/30 bg-white/10 p-1 text-[0.65rem] font-semibold">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          aria-pressed={value === option.value}
-          className={`rounded-full px-2 py-1 transition ${
-            value === option.value
-              ? "bg-white text-slate-900"
-              : "text-white/80 hover:text-white"
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    <label className="flex items-center gap-2">
+      <span className="text-[0.65rem] uppercase tracking-wide text-white/70">
+        Sesong
+      </span>
+      <select
+        aria-label="Velg sesongtema"
+        value={value}
+        onChange={(event) => onChange(event.target.value as SeasonTheme)}
+        className="rounded-lg border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold text-white outline-none"
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
 
@@ -434,7 +537,7 @@ function FullHdFrame({ children }: FullHdFrameProps) {
       const availableWidth = Math.min(container.clientWidth, FULL_HD_WIDTH);
       const availableHeight = Math.min(container.clientHeight, FULL_HD_HEIGHT);
       const contentWidth = Math.max(content.scrollWidth, FULL_HD_WIDTH);
-      const contentHeight = content.scrollHeight;
+      const contentHeight = Math.max(content.scrollHeight, FULL_HD_HEIGHT);
       const widthScale = availableWidth / contentWidth;
       const heightScale = availableHeight / contentHeight;
       const nextScale = Math.min(1, widthScale, heightScale);
@@ -476,6 +579,7 @@ function FullHdFrame({ children }: FullHdFrameProps) {
 
 type ScreenLayoutProps = {
   overlayText: string;
+  hasHighlight: boolean;
   matches: ScoreboardMatch[];
   standings: ScoreboardStanding[];
   tables: ScoreboardGroupTable[];
@@ -485,6 +589,7 @@ type ScreenLayoutProps = {
 
 function ScreenLayout({
   overlayText,
+  hasHighlight,
   matches,
   standings,
   tables,
@@ -498,35 +603,57 @@ function ScreenLayout({
       ),
     [matches],
   );
+  const visibleMatches = useMemo(
+    () => orderedMatches.slice(0, SCREEN_MATCH_LIMIT),
+    [orderedMatches],
+  );
+  const visibleStandings = useMemo(
+    () => standings.slice(0, SCREEN_STANDINGS_LIMIT),
+    [standings],
+  );
+  const visibleScorers = useMemo(
+    () => scorers.slice(0, SCREEN_SCORERS_LIMIT),
+    [scorers],
+  );
+  const visibleTables = useMemo(
+    () =>
+      tables.slice(0, SCREEN_GROUP_TABLES_LIMIT).map((table) => ({
+        ...table,
+        standings: table.standings.slice(0, SCREEN_GROUP_STANDINGS_LIMIT),
+      })),
+    [tables],
+  );
 
   return (
     <>
-      <div
-        aria-live="polite"
-        className="mb-6 rounded-2xl border border-white/40 bg-white/10 px-6 py-3 text-center text-base font-semibold shadow-lg backdrop-blur"
-      >
-        {overlayText}
-      </div>
+      {hasHighlight ? (
+        <div
+          aria-live="polite"
+          className="mb-2 rounded-lg border border-white/40 bg-white/10 px-5 py-1.5 text-center text-sm font-semibold leading-snug shadow-lg backdrop-blur"
+        >
+          {overlayText}
+        </div>
+      ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-12">
-        <div className="xl:col-span-6">
+      <div className="grid gap-3 xl:grid-cols-12">
+        <div className="xl:col-span-7">
           <ScreenMatchesTable
-            matches={orderedMatches}
+            matches={visibleMatches}
             entryNames={entryNames}
           />
         </div>
-        <div className="xl:col-span-4 space-y-4">
-          {tables.length > 0 ? (
-            <ScreenGroupTables tables={tables} entryNames={entryNames} />
+        <div className="xl:col-span-3 space-y-3">
+          {visibleTables.length > 0 ? (
+            <ScreenGroupTables tables={visibleTables} entryNames={entryNames} />
           ) : (
             <ScreenStandingsTable
-              standings={standings}
+              standings={visibleStandings}
               entryNames={entryNames}
             />
           )}
         </div>
         <div className="xl:col-span-2">
-          <ScreenTopScorersTable scorers={scorers} />
+          <ScreenTopScorersTable scorers={visibleScorers} />
         </div>
       </div>
     </>
@@ -540,7 +667,7 @@ type ScreenGroupTablesProps = {
 
 function ScreenGroupTables({ tables, entryNames }: ScreenGroupTablesProps) {
   return (
-    <>
+    <div className="space-y-2">
       {tables.map((table) => (
         <ScreenStandingsTable
           key={table.groupId}
@@ -553,7 +680,7 @@ function ScreenGroupTables({ tables, entryNames }: ScreenGroupTablesProps) {
           entryNames={entryNames}
         />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -584,7 +711,7 @@ function LandingLayout({
   return (
     <div className="space-y-8">
       {hasHighlight ? (
-        <div className="rounded-2xl border border-white/30 bg-white/15 px-6 py-4 text-sm text-white/90 backdrop-blur">
+        <div className="rounded-lg border border-white/30 bg-white/15 px-6 py-4 text-sm text-white/90 backdrop-blur">
           <p className="text-xs uppercase tracking-[0.2em] text-white/60">
             Høydepunkt
           </p>
@@ -638,7 +765,7 @@ function MatchSection({
   const rows = matches.length ? matches : fallbackMatches.slice(0, 3);
 
   return (
-    <section className="rounded-3xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
+    <section className="rounded-xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
       <h2 className="mb-4 text-lg font-semibold uppercase tracking-wide text-white">
         {title}
       </h2>
@@ -650,7 +777,7 @@ function MatchSection({
           {rows.map((match) => (
             <article
               key={match.id}
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+              className="rounded-lg border border-white/10 bg-white/5 px-4 py-3"
             >
               <header className="mb-2 flex items-center justify-between text-xs uppercase tracking-wide text-white/60">
                 <span>{statusLabel(match.status)}</span>
@@ -660,7 +787,7 @@ function MatchSection({
               </header>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-lg font-semibold">
                 <span className="text-left">{match.home.name}</span>
-                <span className="rounded-2xl border border-white/20 px-3 py-1 text-center text-xl">
+                <span className="rounded-lg border border-white/20 px-3 py-1 text-center text-xl">
                   {match.home.score} – {match.away.score}
                 </span>
                 <span className="text-right">{match.away.name}</span>
@@ -683,23 +810,23 @@ type ScreenMatchesTableProps = {
 
 function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-4 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-1.5">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-white">
           Kampoppsett
         </h2>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left text-xs text-white/90">
+      <div>
+        <table className="w-full table-fixed text-left text-[0.68rem] text-white/90 leading-tight">
           <thead>
-            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
-              <th className="w-[12%] px-4 py-2">Tid</th>
-              <th className="w-[10%] px-4 py-2">Kamp</th>
-              <th className="w-[16%] px-4 py-2">Arena</th>
-              <th className="w-[14%] px-4 py-2">Status</th>
-              <th className="px-4 py-2">Hjemmelag</th>
-              <th className="px-4 py-2">Bortelag</th>
-              <th className="w-[14%] px-4 py-2 text-center">Res</th>
+            <tr className="text-[0.55rem] uppercase tracking-wide text-white/60">
+              <th className="w-[10%] px-3 py-1.5">Tid</th>
+              <th className="w-[10%] px-3 py-1.5">Kamp</th>
+              <th className="w-[16%] px-3 py-1.5">Arena</th>
+              <th className="w-[12%] px-3 py-1.5">Status</th>
+              <th className="px-3 py-1.5">Hjemmelag</th>
+              <th className="px-3 py-1.5">Bortelag</th>
+              <th className="w-[10%] px-3 py-1.5 text-center">Res</th>
             </tr>
           </thead>
           <tbody>
@@ -717,29 +844,29 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                     index % 2 === 0 ? "bg-white/5" : "bg-transparent"
                   }`}
                 >
-                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
-                    {formatKickoff(match.kickoffAt)}
+                  <td className="px-3 py-0.5 text-[0.64rem] text-white/70">
+                    {formatKickoffTime(match.kickoffAt)}
                   </td>
-                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                  <td className="px-3 py-0.5 text-[0.64rem] text-white/70">
                     {match.code ?? match.groupCode ?? "—"}
                   </td>
-                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                  <td className="px-3 py-0.5 text-[0.64rem] text-white/70">
                     {match.venueName ?? "Ikke satt"}
                   </td>
-                  <td className="px-4 py-2 text-[0.7rem] text-white/70">
+                  <td className="px-3 py-0.5 text-[0.64rem] text-white/70">
                     {statusLabel(match.status)}
                   </td>
-                  <td className="px-4 py-2 text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-[0.78rem] font-semibold">
                     {match.home.entryId
                       ? (entryNames.get(match.home.entryId) ?? match.home.name)
                       : match.home.name}
                   </td>
-                  <td className="px-4 py-2 text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-[0.78rem] font-semibold">
                     {match.away.entryId
                       ? (entryNames.get(match.away.entryId) ?? match.away.name)
                       : match.away.name}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-center text-[0.78rem] font-semibold">
                     {match.home.score} – {match.away.score}
                   </td>
                 </tr>
@@ -759,7 +886,7 @@ type ScheduleTableProps = {
 
 function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <div className="border-b border-white/10 px-5 py-3">
         <h2 className="text-lg font-semibold uppercase tracking-wide text-white">
           Kampoversikt
@@ -838,7 +965,7 @@ function StandingsTable({
   title = "Tabell",
 }: StandingsProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <h2 className="border-b border-white/10 px-5 py-3 text-lg font-semibold uppercase tracking-wide text-white">
         {title}
       </h2>
@@ -906,25 +1033,25 @@ function ScreenStandingsTable({
   title = "Tabell",
 }: ScreenStandingsTableProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-4 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-1.5">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-white">
           {title}
         </h2>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full table-fixed text-left text-xs text-white/90">
+      <div>
+        <table className="w-full table-fixed text-left text-[0.68rem] text-white/90 leading-tight">
           <thead>
-            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
-              <th className="w-[10%] px-3 py-2">#</th>
-              <th className="px-3 py-2">Lag</th>
-              <th className="w-[8%] px-2 py-2 text-center">K</th>
-              <th className="w-[8%] px-2 py-2 text-center">V</th>
-              <th className="w-[8%] px-2 py-2 text-center">U</th>
-              <th className="w-[8%] px-2 py-2 text-center">T</th>
-              <th className="w-[12%] px-2 py-2 text-center">Mål</th>
-              <th className="w-[10%] px-2 py-2 text-center">+/-</th>
-              <th className="w-[8%] px-2 py-2 text-center">P</th>
+            <tr className="text-[0.55rem] uppercase tracking-wide text-white/60">
+              <th className="w-[10%] px-3 py-1.5">#</th>
+              <th className="px-3 py-1.5">Lag</th>
+              <th className="w-[8%] px-2 py-1.5 text-center">K</th>
+              <th className="w-[8%] px-2 py-1.5 text-center">V</th>
+              <th className="w-[8%] px-2 py-1.5 text-center">U</th>
+              <th className="w-[8%] px-2 py-1.5 text-center">T</th>
+              <th className="w-[12%] px-2 py-1.5 text-center">Mål</th>
+              <th className="w-[10%] px-2 py-1.5 text-center">+/-</th>
+              <th className="w-[8%] px-2 py-1.5 text-center">P</th>
             </tr>
           </thead>
           <tbody>
@@ -942,23 +1069,23 @@ function ScreenStandingsTable({
                     index % 2 === 0 ? "bg-white/5" : "bg-transparent"
                   }`}
                 >
-                  <td className="px-3 py-2 text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-[0.78rem] font-semibold">
                     {row.position}
                   </td>
-                  <td className="px-3 py-2 text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-[0.78rem] font-semibold">
                     {entryNames.get(row.entryId) ?? row.entryId}
                   </td>
-                  <td className="px-2 py-2 text-center">{row.played}</td>
-                  <td className="px-2 py-2 text-center">{row.won}</td>
-                  <td className="px-2 py-2 text-center">{row.drawn}</td>
-                  <td className="px-2 py-2 text-center">{row.lost}</td>
-                  <td className="px-2 py-2 text-center">
+                  <td className="px-2 py-0.5 text-center">{row.played}</td>
+                  <td className="px-2 py-0.5 text-center">{row.won}</td>
+                  <td className="px-2 py-0.5 text-center">{row.drawn}</td>
+                  <td className="px-2 py-0.5 text-center">{row.lost}</td>
+                  <td className="px-2 py-0.5 text-center">
                     {row.goalsFor} – {row.goalsAgainst}
                   </td>
-                  <td className="px-2 py-2 text-center">
+                  <td className="px-2 py-0.5 text-center">
                     {row.goalDifference}
                   </td>
-                  <td className="px-2 py-2 text-center font-semibold">
+                  <td className="px-2 py-0.5 text-center font-semibold">
                     {row.points}
                   </td>
                 </tr>
@@ -1004,7 +1131,7 @@ function TopScorersList({ scorers, entryNames }: TopScorersProps) {
   const rows = useMemo(() => scorers.slice(0, 8), [scorers]);
 
   return (
-    <section className="rounded-3xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
+    <section className="rounded-xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
       <h2 className="mb-4 text-lg font-semibold uppercase tracking-wide text-white">
         Toppscorere
       </h2>
@@ -1017,7 +1144,7 @@ function TopScorersList({ scorers, entryNames }: TopScorersProps) {
           {rows.map((player) => (
             <li
               key={`${player.entryId}-${player.personId}`}
-              className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3"
+              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-4 py-3"
             >
               <div>
                 <p className="text-base font-semibold">
@@ -1046,18 +1173,18 @@ type ScreenTopScorersTableProps = {
 
 function ScreenTopScorersTable({ scorers }: ScreenTopScorersTableProps) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-4 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-white">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-4 py-1.5">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-white">
           Toppscorer
         </h2>
       </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs text-white/90">
+      <div>
+        <table className="w-full text-left text-[0.68rem] text-white/90 leading-tight">
           <thead>
-            <tr className="text-[0.65rem] uppercase tracking-wide text-white/60">
-              <th className="px-4 py-2">Spiller</th>
-              <th className="px-4 py-2 text-center">Mål</th>
+            <tr className="text-[0.55rem] uppercase tracking-wide text-white/60">
+              <th className="px-3 py-1.5">Spiller</th>
+              <th className="px-3 py-1.5 text-center">Mål</th>
             </tr>
           </thead>
           <tbody>
@@ -1075,10 +1202,10 @@ function ScreenTopScorersTable({ scorers }: ScreenTopScorersTableProps) {
                     index % 2 === 0 ? "bg-white/5" : "bg-transparent"
                   }`}
                 >
-                  <td className="px-4 py-2 text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-[0.78rem] font-semibold">
                     {player.name || "Navn mangler"}
                   </td>
-                  <td className="px-4 py-2 text-center text-sm font-semibold">
+                  <td className="px-3 py-0.5 text-center text-[0.78rem] font-semibold">
                     {player.goals}
                   </td>
                 </tr>
@@ -1098,7 +1225,7 @@ type StatPillProps = {
 
 function StatPill({ label, value }: StatPillProps) {
   return (
-    <div className="min-w-[3rem] rounded-2xl border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold">
+    <div className="min-w-[3rem] rounded-lg border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold">
       <p className="text-white/70">{label}</p>
       <p className="text-lg text-white">{value}</p>
     </div>
@@ -1118,21 +1245,6 @@ function statusLabel(status: ScoreboardMatch["status"]): string {
   }
 }
 
-function sectionLabel(section: string): string {
-  switch (section) {
-    case "live_matches":
-      return "Live";
-    case "upcoming":
-      return "Kommende";
-    case "standings":
-      return "Tabell";
-    case "top_scorers":
-      return "Toppscorere";
-    default:
-      return section;
-  }
-}
-
 function formatDateOnly(date: Date): string {
   return new Intl.DateTimeFormat("nb-NO", {
     dateStyle: "medium",
@@ -1142,6 +1254,12 @@ function formatDateOnly(date: Date): string {
 function formatKickoff(date: Date): string {
   return new Intl.DateTimeFormat("nb-NO", {
     dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+function formatKickoffTime(date: Date): string {
+  return new Intl.DateTimeFormat("nb-NO", {
     timeStyle: "short",
   }).format(date);
 }
@@ -1253,6 +1371,17 @@ function parseSeasonTheme(value: string | null): SeasonTheme | null {
     normalized === "fall"
   ) {
     return normalized as SeasonTheme;
+  }
+  return null;
+}
+
+function parseThemeSource(value: string | null): ThemeSource | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "competition" || normalized === "season") {
+    return normalized as ThemeSource;
   }
   return null;
 }

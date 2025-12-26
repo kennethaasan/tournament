@@ -14,9 +14,9 @@ import {
 import { PageHero } from "@/ui/components/page-hero";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     competitionId?: string;
-  };
+  }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -27,7 +27,8 @@ const datetimeFormatter = new Intl.DateTimeFormat("nb-NO", {
 });
 
 export default async function CompetitionDetailPage({ params }: PageProps) {
-  const competitionId = params.competitionId;
+  const resolvedParams = await params;
+  const competitionId = resolvedParams.competitionId;
   if (!competitionId) {
     notFound();
   }
@@ -228,6 +229,14 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                         className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
                       >
                         Scoreboard
+                      </Link>
+                      <Link
+                        href={
+                          `/competitions/${competition.slug}/${edition.slug}/scoreboard` as Route
+                        }
+                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
+                      >
+                        Offentlig scoreboard
                       </Link>
                     </div>
                   </div>

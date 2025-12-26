@@ -170,7 +170,7 @@ describe("app pages smoke test", () => {
     render(adminOverview as React.ReactElement);
 
     const competitionDetail = await CompetitionDetailPage({
-      params: { competitionId: "comp-1" },
+      params: Promise.resolve({ competitionId: "comp-1" }),
     });
     render(competitionDetail as React.ReactElement);
 

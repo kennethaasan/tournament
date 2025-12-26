@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { ResultsDashboard } from "./results-dashboard";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     editionId?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: "Registrer resultater og kampstatus for utgaven.",
 };
 
-export default function EditionResultsPage({ params }: PageProps) {
-  const editionId = params.editionId;
+export default async function EditionResultsPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const editionId = resolvedParams.editionId;
   if (!editionId) {
     notFound();
   }

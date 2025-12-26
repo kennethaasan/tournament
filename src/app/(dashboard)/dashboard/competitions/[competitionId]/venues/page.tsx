@@ -3,9 +3,9 @@ import { notFound } from "next/navigation";
 import { VenuesPanel } from "./venues-panel";
 
 type PageProps = {
-  params: {
+  params: Promise<{
     competitionId?: string;
-  };
+  }>;
 };
 
 export const metadata: Metadata = {
@@ -13,8 +13,9 @@ export const metadata: Metadata = {
   description: "Administrer arenaer og baner for konkurransen.",
 };
 
-export default function CompetitionVenuesPage({ params }: PageProps) {
-  const competitionId = params.competitionId;
+export default async function CompetitionVenuesPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const competitionId = resolvedParams.competitionId;
   if (!competitionId) {
     notFound();
   }
