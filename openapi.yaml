@@ -978,6 +978,9 @@ components:
         competition_id:
           type: string
           format: uuid
+        competition_slug:
+          type: string
+          description: Competition slug for contextual scoreboard links
         label:
           type: string
         slug:

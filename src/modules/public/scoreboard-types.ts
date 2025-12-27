@@ -140,6 +140,7 @@ export function toApiScoreboardPayload(
     edition: {
       id: data.edition.id,
       competition_id: data.edition.competitionId,
+      competition_slug: data.edition.competitionSlug,
       label: data.edition.label,
       slug: data.edition.slug,
       status: data.edition.status,
@@ -235,7 +236,7 @@ export function fromApiScoreboardPayload(
     edition: {
       id: payload.edition.id,
       competitionId: payload.edition.competition_id,
-      competitionSlug: "",
+      competitionSlug: payload.edition.competition_slug ?? "",
       label: payload.edition.label,
       slug: payload.edition.slug,
       status: payload.edition.status,

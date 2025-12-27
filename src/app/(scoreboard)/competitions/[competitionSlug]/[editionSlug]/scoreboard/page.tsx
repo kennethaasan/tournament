@@ -67,6 +67,7 @@ function buildFallbackScoreboard(params: PageParams): ScoreboardData {
     edition: {
       id: `${params.editionSlug}-edition`,
       competition_id: `${params.competitionSlug}-competition`,
+      competition_slug: params.competitionSlug,
       label: params.editionSlug,
       slug: params.editionSlug,
       status: "published",

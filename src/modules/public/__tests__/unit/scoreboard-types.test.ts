@@ -84,6 +84,7 @@ describe("scoreboard types helpers", () => {
     });
 
     expect(payload.matches[0]?.kickoff_at).toBe("2024-06-02T12:00:00.000Z");
+    expect(payload.edition.competition_slug).toBe("elite");
     expect(payload.edition.scoreboard_modules).toEqual(DEFAULT_ROTATION);
     expect(payload.standings[0]?.points).toBe(3);
   });

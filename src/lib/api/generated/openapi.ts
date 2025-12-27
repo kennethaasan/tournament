@@ -546,6 +546,8 @@ export interface components {
       id: string;
       /** Format: uuid */
       competition_id: string;
+      /** @description Competition slug for contextual scoreboard links */
+      competition_slug?: string;
       label: string;
       slug: string;
       /** @enum {string} */
