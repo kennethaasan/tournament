@@ -137,13 +137,13 @@ module "acm" {
   version   = "6.1.0"
   providers = { aws = aws.us_east_1 }
 
-  domain_name            = var.app_domain
+  domain_name               = var.app_domain
   subject_alternative_names = local.extra_domains
-  validation_method      = "DNS"
-  create_route53_records = false
-  validate_certificate   = false
-  zone_id                = data.aws_route53_zone.zone.zone_id
-  tags                   = local.default_tags
+  validation_method         = "DNS"
+  create_route53_records    = false
+  validate_certificate      = false
+  zone_id                   = data.aws_route53_zone.zone.zone_id
+  tags                      = local.default_tags
 }
 
 resource "aws_route53_record" "acm_validation" {
@@ -166,8 +166,8 @@ resource "aws_route53_record" "acm_validation" {
 }
 
 resource "aws_acm_certificate_validation" "app" {
-  provider                = aws.us_east_1
-  certificate_arn         = module.acm.acm_certificate_arn
+  provider        = aws.us_east_1
+  certificate_arn = module.acm.acm_certificate_arn
   validation_record_fqdns = [
     for dvo in module.acm.acm_certificate_domain_validation_options :
     dvo.resource_record_name
