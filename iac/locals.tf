@@ -27,11 +27,13 @@ locals {
   better_auth_url          = local.better_auth_url_input != "" ? local.better_auth_url_input : local.app_url
   extra_domains            = distinct(compact(local.extra_domains_input))
   extra_trusted_origins    = [for domain in local.extra_domains : "https://${domain}"]
-  better_auth_trusted_origins = local.better_auth_trusted_origins_input != "" ? local.better_auth_trusted_origins_input : join(",", distinct(compact([
-    local.app_url,
-    "https://turnering.vanvikil.no",
-    local.extra_trusted_origins...,
-  ])))
+  better_auth_trusted_origins = local.better_auth_trusted_origins_input != "" ? local.better_auth_trusted_origins_input : join(",", distinct(compact(concat(
+    [
+      local.app_url,
+      "https://turnering.vanvikil.no",
+    ],
+    local.extra_trusted_origins,
+  ))))
   ses_source_email     = local.ses_source_email_input != "" ? local.ses_source_email_input : local.better_auth_email_sender
   ses_region           = local.ses_region_input != "" ? local.ses_region_input : var.aws_region
   ses_domain           = local.ses_domain_input != "" ? local.ses_domain_input : var.app_domain
