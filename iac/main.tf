@@ -150,15 +150,19 @@ resource "aws_route53_record" "acm_validation" {
   for_each = {
     for dvo in module.acm.acm_certificate_domain_validation_options :
     dvo.resource_record_name => {
-      name  = dvo.resource_record_name
-      type  = dvo.resource_record_type
-      value = dvo.resource_record_value
+      name    = dvo.resource_record_name
+      type    = dvo.resource_record_type
+      value   = dvo.resource_record_value
+      zone_id = endswith(lower(dvo.domain_name), lower(var.parent_domain)) ? data.aws_route53_zone.zone.zone_id : lookup(local.extra_domain_zone_ids, lower(dvo.domain_name), null)
     }
-    if endswith(lower(dvo.domain_name), lower(var.parent_domain))
+    if(
+      endswith(lower(dvo.domain_name), lower(var.parent_domain)) ||
+      contains(keys(local.extra_domain_zone_ids), lower(dvo.domain_name))
+    )
   }
 
   allow_overwrite = true
-  zone_id         = data.aws_route53_zone.zone.zone_id
+  zone_id         = each.value.zone_id
   name            = each.value.name
   type            = each.value.type
   ttl             = 60

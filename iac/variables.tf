@@ -31,7 +31,7 @@ variable "app_domain" {
 variable "extra_domains" {
   description = "Additional FQDNs for CloudFront + ACM (no scheme, e.g., turnering.vanvikil.no)"
   type        = list(string)
-  default     = []
+  default     = ["turnering.vanvikil.no"]
 
   validation {
     condition = alltrue([
@@ -39,6 +39,20 @@ variable "extra_domains" {
       trimspace(domain) != "" && !can(regex("://", trimspace(domain)))
     ])
     error_message = "extra_domains must be non-empty FQDNs without a scheme."
+  }
+}
+
+variable "extra_domain_zone_ids" {
+  description = "Route53 zone IDs for ACM validation of extra_domains (map of FQDN -> zone ID)"
+  type        = map(string)
+  default     = {}
+
+  validation {
+    condition = alltrue([
+      for domain in keys(var.extra_domain_zone_ids) :
+      contains(var.extra_domains, domain)
+    ])
+    error_message = "extra_domain_zone_ids keys must be listed in extra_domains."
   }
 }
 
