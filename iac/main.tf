@@ -138,6 +138,7 @@ module "acm" {
   providers = { aws = aws.us_east_1 }
 
   domain_name            = var.app_domain
+  subject_alternative_names = local.extra_domains
   validation_method      = "DNS"
   create_route53_records = false
   validate_certificate   = false
@@ -153,6 +154,7 @@ resource "aws_route53_record" "acm_validation" {
       type  = dvo.resource_record_type
       value = dvo.resource_record_value
     }
+    if endswith(lower(dvo.domain_name), lower(var.parent_domain))
   }
 
   allow_overwrite = true
@@ -166,7 +168,11 @@ resource "aws_route53_record" "acm_validation" {
 resource "aws_acm_certificate_validation" "app" {
   provider                = aws.us_east_1
   certificate_arn         = module.acm.acm_certificate_arn
-  validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
+  validation_record_fqdns = [
+    for dvo in module.acm.acm_certificate_domain_validation_options :
+    dvo.resource_record_name
+  ]
+  depends_on = [aws_route53_record.acm_validation]
 }
 
 module "fn" {
@@ -342,7 +348,7 @@ module "cdn" {
   source  = "terraform-aws-modules/cloudfront/aws"
   version = "5.0.0"
 
-  aliases         = [var.app_domain]
+  aliases         = distinct(compact(concat([var.app_domain], local.extra_domains)))
   enabled         = true
   is_ipv6_enabled = true
   price_class     = var.cloudfront_price_class

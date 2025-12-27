@@ -28,6 +28,20 @@ variable "app_domain" {
   default     = "competitions.aws.aasan.dev"
 }
 
+variable "extra_domains" {
+  description = "Additional FQDNs for CloudFront + ACM (no scheme, e.g., turnering.vanvikil.no)"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for domain in var.extra_domains :
+      trimspace(domain) != "" && !can(regex("://", trimspace(domain)))
+    ])
+    error_message = "extra_domains must be non-empty FQDNs without a scheme."
+  }
+}
+
 variable "app_url" {
   description = "Public base URL for the application (defaults to https://app_domain)"
   type        = string
@@ -298,7 +312,7 @@ variable "better_auth_url" {
 }
 
 variable "better_auth_trusted_origins" {
-  description = "Comma-separated list of trusted origins for Better Auth (defaults to app_url plus http://turnering.vanvikil.no)"
+  description = "Comma-separated list of trusted origins for Better Auth (defaults to app_url plus https://turnering.vanvikil.no and extra_domains over https)"
   type        = string
   default     = null
 }

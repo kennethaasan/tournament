@@ -20,13 +20,17 @@ locals {
   ses_configuration_set_input    = var.ses_configuration_set == null ? "" : trimspace(var.ses_configuration_set)
   ses_event_topic_input          = var.ses_event_topic_name == null ? "" : trimspace(var.ses_event_topic_name)
   ses_dmarc_rua_input            = var.ses_dmarc_rua_email == null ? "" : trimspace(var.ses_dmarc_rua_email)
+  extra_domains_input            = [for domain in var.extra_domains : trimspace(domain)]
 
   better_auth_email_sender = local.better_auth_email_sender_input != "" ? local.better_auth_email_sender_input : local.default_email_sender
   app_url                  = local.app_url_input != "" ? local.app_url_input : "https://${var.app_domain}"
   better_auth_url          = local.better_auth_url_input != "" ? local.better_auth_url_input : local.app_url
+  extra_domains            = distinct(compact(local.extra_domains_input))
+  extra_trusted_origins    = [for domain in local.extra_domains : "https://${domain}"]
   better_auth_trusted_origins = local.better_auth_trusted_origins_input != "" ? local.better_auth_trusted_origins_input : join(",", distinct(compact([
     local.app_url,
-    "http://turnering.vanvikil.no",
+    "https://turnering.vanvikil.no",
+    local.extra_trusted_origins...,
   ])))
   ses_source_email     = local.ses_source_email_input != "" ? local.ses_source_email_input : local.better_auth_email_sender
   ses_region           = local.ses_region_input != "" ? local.ses_region_input : var.aws_region
