@@ -42,42 +42,37 @@ data "aws_caller_identity" "current" {}
 ###########################
 
 resource "aws_ses_domain_identity" "app" {
-  count  = var.ses_enabled ? 1 : 0
   domain = local.ses_domain
 }
 
 resource "aws_route53_record" "ses_verification" {
-  count   = var.ses_enabled ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = "_amazonses.${local.ses_domain}"
   type    = "TXT"
   ttl     = 600
-  records = [aws_ses_domain_identity.app[0].verification_token]
+  records = [aws_ses_domain_identity.app.verification_token]
 }
 
 resource "aws_ses_domain_identity_verification" "app" {
-  count      = var.ses_enabled ? 1 : 0
-  domain     = aws_ses_domain_identity.app[0].domain
+  domain     = aws_ses_domain_identity.app.domain
   depends_on = [aws_route53_record.ses_verification]
 }
 
 resource "aws_ses_domain_dkim" "app" {
-  count  = var.ses_enabled ? 1 : 0
-  domain = aws_ses_domain_identity.app[0].domain
+  domain = aws_ses_domain_identity.app.domain
 }
 
 resource "aws_route53_record" "ses_dkim" {
-  count = var.ses_enabled ? 3 : 0
+  count = 3
 
   zone_id = data.aws_route53_zone.zone.zone_id
-  name    = "${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}._domainkey.${local.ses_domain}"
+  name    = "${aws_ses_domain_dkim.app.dkim_tokens[count.index]}._domainkey.${local.ses_domain}"
   type    = "CNAME"
   ttl     = 600
-  records = ["${aws_ses_domain_dkim.app[0].dkim_tokens[count.index]}.dkim.amazonses.com"]
+  records = ["${aws_ses_domain_dkim.app.dkim_tokens[count.index]}.dkim.amazonses.com"]
 }
 
 resource "aws_route53_record" "ses_dmarc" {
-  count   = var.ses_enabled ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = "_dmarc.${local.ses_domain}"
   type    = "TXT"
@@ -86,14 +81,12 @@ resource "aws_route53_record" "ses_dmarc" {
 }
 
 resource "aws_ses_domain_mail_from" "app" {
-  count                  = var.ses_enabled ? 1 : 0
-  domain                 = aws_ses_domain_identity.app[0].domain
+  domain                 = aws_ses_domain_identity.app.domain
   mail_from_domain       = local.ses_mail_from_domain
   behavior_on_mx_failure = "UseDefaultValue"
 }
 
 resource "aws_route53_record" "ses_mail_from_mx" {
-  count   = var.ses_enabled ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = local.ses_mail_from_domain
   type    = "MX"
@@ -102,7 +95,6 @@ resource "aws_route53_record" "ses_mail_from_mx" {
 }
 
 resource "aws_route53_record" "ses_mail_from_txt" {
-  count   = var.ses_enabled ? 1 : 0
   zone_id = data.aws_route53_zone.zone.zone_id
   name    = local.ses_mail_from_domain
   type    = "TXT"
@@ -111,7 +103,7 @@ resource "aws_route53_record" "ses_mail_from_txt" {
 }
 
 resource "aws_ses_configuration_set" "app" {
-  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  count = local.ses_configuration_set_name != "" ? 1 : 0
   name  = local.ses_configuration_set_name
 
   delivery_options {
@@ -124,8 +116,6 @@ resource "aws_ses_configuration_set" "app" {
 ###########################
 
 resource "aws_sqs_queue" "lambda_dlq" {
-  count = var.enable_lambda_reliability ? 1 : 0
-
   name                       = "${local.stack_name}-lambda-dlq"
   message_retention_seconds  = 1209600 # 14 days (maximum)
   visibility_timeout_seconds = 300
@@ -182,13 +172,13 @@ module "fn" {
 
   # Reliability: reserved concurrency (-1 = unreserved, avoids account concurrency limit issues)
   # Note: Setting a value > 0 requires sufficient account-level concurrency quota
-  reserved_concurrent_executions = var.enable_lambda_reliability ? var.lambda_reserved_concurrency : null
+  reserved_concurrent_executions = var.lambda_reserved_concurrency
 
   # Reliability: Dead Letter Queue for failed invocations (SQS free tier: 1M requests/month)
-  dead_letter_target_arn = var.enable_lambda_reliability ? aws_sqs_queue.lambda_dlq[0].arn : null
+  dead_letter_target_arn = aws_sqs_queue.lambda_dlq.arn
 
   # Observability: X-Ray tracing (free tier: 100K traces/month)
-  tracing_mode = var.enable_lambda_reliability ? "Active" : "PassThrough"
+  tracing_mode = "Active"
 
   # use pre-built artifact supplied by CI
   create_package         = false
@@ -209,7 +199,7 @@ module "fn" {
       BETTER_AUTH_URL                = local.better_auth_url
       BETTER_AUTH_TRUSTED_ORIGINS    = local.better_auth_trusted_origins
       NEXT_PUBLIC_APP_URL            = local.app_url
-      SES_ENABLED                    = tostring(var.ses_enabled)
+      SES_ENABLED                    = "true"
       SES_REGION                     = local.ses_region
       SES_SOURCE_EMAIL               = local.ses_source_email
       POWERTOOLS_SERVICE_NAME        = lookup(var.lambda_environment, "POWERTOOLS_SERVICE_NAME", var.app_name)
@@ -225,8 +215,8 @@ module "fn" {
   cloudwatch_logs_retention_in_days = var.lambda_log_retention_days
   tags                              = local.default_tags
 
-  attach_policy_statements = var.enable_lambda_reliability
-  policy_statements = var.enable_lambda_reliability ? {
+  attach_policy_statements = true
+  policy_statements = {
     xray = {
       effect    = "Allow"
       actions   = ["xray:PutTraceSegments", "xray:PutTelemetryRecords"]
@@ -235,37 +225,33 @@ module "fn" {
     dlq = {
       effect    = "Allow"
       actions   = ["sqs:SendMessage"]
-      resources = [aws_sqs_queue.lambda_dlq[0].arn]
+      resources = [aws_sqs_queue.lambda_dlq.arn]
     }
-  } : {}
+  }
 }
 
 data "aws_iam_policy_document" "ses_send" {
-  count = var.ses_enabled ? 1 : 0
-
   statement {
     sid       = "AllowSesSend"
     effect    = "Allow"
     actions   = ["ses:SendEmail", "ses:SendRawEmail"]
-    resources = [aws_ses_domain_identity.app[0].arn]
+    resources = [aws_ses_domain_identity.app.arn]
   }
 }
 
 resource "aws_iam_policy" "ses_send" {
-  count  = var.ses_enabled ? 1 : 0
   name   = "${local.stack_name}-ses-send"
-  policy = data.aws_iam_policy_document.ses_send[0].json
+  policy = data.aws_iam_policy_document.ses_send.json
   tags   = local.default_tags
 }
 
 resource "aws_iam_role_policy_attachment" "ses_send" {
-  count      = var.ses_enabled ? 1 : 0
   role       = module.fn.lambda_role_name
-  policy_arn = aws_iam_policy.ses_send[0].arn
+  policy_arn = aws_iam_policy.ses_send.arn
 }
 
 resource "aws_sns_topic" "ses_events" {
-  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  count = local.ses_configuration_set_name != "" ? 1 : 0
   name  = local.ses_event_topic_name
   # Note: Do NOT use KMS encryption for SES event topics.
   # AWS-managed keys (alias/aws/sns) don't allow SES to publish messages.
@@ -275,7 +261,7 @@ resource "aws_sns_topic" "ses_events" {
 }
 
 data "aws_iam_policy_document" "ses_events" {
-  count = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  count = local.ses_configuration_set_name != "" ? 1 : 0
 
   statement {
     sid    = "AllowSesPublish"
@@ -298,13 +284,13 @@ data "aws_iam_policy_document" "ses_events" {
 }
 
 resource "aws_sns_topic_policy" "ses_events" {
-  count  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  count  = local.ses_configuration_set_name != "" ? 1 : 0
   arn    = aws_sns_topic.ses_events[0].arn
   policy = data.aws_iam_policy_document.ses_events[0].json
 }
 
 resource "aws_ses_event_destination" "ses_events" {
-  count                  = var.ses_enabled && local.ses_configuration_set_name != "" ? 1 : 0
+  count                  = local.ses_configuration_set_name != "" ? 1 : 0
   name                   = "ses-events"
   configuration_set_name = aws_ses_configuration_set.app[0].name
   enabled                = true
@@ -449,21 +435,13 @@ resource "aws_route53_record" "app_aaaa" {
 # CloudWatch Alarms (Free Tier: up to 10 alarms)
 ###########################
 
-locals {
-  alarms_topic_arn          = length(aws_sns_topic.alarms) > 0 ? aws_sns_topic.alarms[0].arn : null
-  alarms_topic_arn_us_east1 = length(aws_sns_topic.alarms_us_east1) > 0 ? aws_sns_topic.alarms_us_east1[0].arn : null
-}
-
 resource "aws_sns_topic" "alarms" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   name              = "${local.stack_name}-alarms"
   kms_master_key_id = "alias/aws/sns" # AWS-managed key (free tier)
   tags              = local.default_tags
 }
 
 resource "aws_sns_topic" "alarms_us_east1" {
-  count    = var.enable_lambda_alarms ? 1 : 0
   provider = aws.us_east_1
 
   name              = "${local.stack_name}-alarms"
@@ -473,8 +451,6 @@ resource "aws_sns_topic" "alarms_us_east1" {
 
 # Alarm 1: Lambda errors
 resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   alarm_name          = "${local.stack_name}-lambda-errors"
   alarm_description   = "Lambda function errors exceeded threshold"
   comparison_operator = "GreaterThanThreshold"
@@ -485,8 +461,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
   statistic           = "Sum"
   threshold           = 5
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
-  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -497,8 +473,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
 
 # Alarm 2: Lambda throttles
 resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   alarm_name          = "${local.stack_name}-lambda-throttles"
   alarm_description   = "Lambda function throttles detected"
   comparison_operator = "GreaterThanThreshold"
@@ -509,8 +483,8 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
   statistic           = "Sum"
   threshold           = 1
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
-  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -521,8 +495,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_throttles" {
 
 # Alarm 3: Lambda duration (approaching timeout)
 resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   alarm_name          = "${local.stack_name}-lambda-duration"
   alarm_description   = "Lambda function duration approaching timeout"
   comparison_operator = "GreaterThanThreshold"
@@ -533,7 +505,7 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
   extended_statistic  = "p95"
   threshold           = var.lambda_timeout * 1000 * 0.8 # 80% of timeout in ms
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = [aws_sns_topic.alarms.arn]
 
   dimensions = {
     FunctionName = module.fn.lambda_function_name
@@ -544,8 +516,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_duration" {
 
 # Alarm 4: DLQ messages (failed Lambda invocations)
 resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
-  count = var.enable_lambda_alarms && var.enable_lambda_reliability ? 1 : 0
-
   alarm_name          = "${local.stack_name}-dlq-messages"
   alarm_description   = "Messages in Dead Letter Queue indicate failed invocations"
   comparison_operator = "GreaterThanThreshold"
@@ -556,11 +526,11 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
   statistic           = "Maximum"
   threshold           = 0
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
-  ok_actions          = local.alarms_topic_arn == null ? [] : [local.alarms_topic_arn]
+  alarm_actions       = [aws_sns_topic.alarms.arn]
+  ok_actions          = [aws_sns_topic.alarms.arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.lambda_dlq[0].name
+    QueueName = aws_sqs_queue.lambda_dlq.name
   }
 
   tags = local.default_tags
@@ -568,8 +538,6 @@ resource "aws_cloudwatch_metric_alarm" "dlq_messages" {
 
 # Alarm 5: CloudFront 5xx errors
 resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
 
   alarm_name          = "${local.stack_name}-cloudfront-5xx"
@@ -582,8 +550,8 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
   statistic           = "Average"
   threshold           = 5 # 5% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
-  ok_actions          = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
+  alarm_actions       = [aws_sns_topic.alarms_us_east1.arn]
+  ok_actions          = [aws_sns_topic.alarms_us_east1.arn]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id
@@ -595,8 +563,6 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_5xx" {
 
 # Alarm 6: CloudFront 4xx errors (client errors, may indicate attacks)
 resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
-  count = var.enable_lambda_alarms ? 1 : 0
-
   provider = aws.us_east_1 # CloudFront metrics are only in us-east-1
 
   alarm_name          = "${local.stack_name}-cloudfront-4xx"
@@ -609,7 +575,7 @@ resource "aws_cloudwatch_metric_alarm" "cloudfront_4xx" {
   statistic           = "Average"
   threshold           = 15 # 15% error rate
   treat_missing_data  = "notBreaching"
-  alarm_actions       = local.alarms_topic_arn_us_east1 == null ? [] : [local.alarms_topic_arn_us_east1]
+  alarm_actions       = [aws_sns_topic.alarms_us_east1.arn]
 
   dimensions = {
     DistributionId = module.cdn.cloudfront_distribution_id

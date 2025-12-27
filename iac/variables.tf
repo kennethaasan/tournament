@@ -138,18 +138,6 @@ variable "lambda_log_retention_days" {
   default     = 14
 }
 
-variable "enable_lambda_reliability" {
-  description = "Enable Lambda reliability features (DLQ, reserved concurrency, and X-Ray tracing)"
-  type        = bool
-  default     = true
-}
-
-variable "enable_lambda_alarms" {
-  description = "Create CloudWatch alarms for Lambda, DLQ, and CloudFront"
-  type        = bool
-  default     = true
-}
-
 variable "lambda_reserved_concurrency" {
   description = "Reserved concurrent executions for Lambda (-1 = no reservation, prevents runaway scaling when set)"
   type        = number
@@ -166,10 +154,9 @@ variable "lambda_environment" {
   description = "Base environment variables for the Lambda function"
   type        = map(string)
   default = {
-    NODE_ENV                       = "production"
-    POWERTOOLS_LOG_LEVEL           = "INFO"
-    POWERTOOLS_TRACING_SAMPLE_RATE = "0"
-    POWERTOOLS_SERVICE_NAME        = "competitions"
+    NODE_ENV                = "production"
+    POWERTOOLS_LOG_LEVEL    = "INFO"
+    POWERTOOLS_SERVICE_NAME = "competitions"
   }
 }
 
@@ -207,33 +194,10 @@ variable "ses_source_email" {
   }
 }
 
-variable "ses_enabled" {
-  description = "Toggle invitation emails via SES"
-  type        = bool
-  default     = true
-}
-
-variable "ses_region" {
-  description = "SES region (defaults to aws_region)"
-  type        = string
-  default     = null
-
-  validation {
-    condition     = var.ses_region == null || trimspace(var.ses_region) == "" || var.ses_region == var.aws_region
-    error_message = "ses_region must match aws_region when set. SES should run in the same region as Lambda."
-  }
-}
-
 variable "ses_configuration_set" {
   description = "Optional SES configuration set name"
   type        = string
   default     = null
-}
-
-variable "ses_create_configuration_set" {
-  description = "Create the SES configuration set if ses_configuration_set is provided"
-  type        = bool
-  default     = true
 }
 
 variable "ses_domain" {
@@ -326,7 +290,7 @@ variable "better_auth_url" {
 }
 
 variable "better_auth_trusted_origins" {
-  description = "Comma-separated list of trusted origins for Better Auth (defaults to app_url plus https://turnering.vanvikil.no and extra_domains over https)"
+  description = "Comma-separated list of trusted origins for Better Auth (defaults to app_url and extra_domains over https)"
   type        = string
   default     = null
 }
