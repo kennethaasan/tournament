@@ -26,6 +26,19 @@ locals {
     lower(trimspace(domain)) => trimspace(zone_id)
     if trimspace(domain) != "" && trimspace(zone_id) != ""
   }
+  app_domain_normalized = lower(var.app_domain)
+  managed_validation_zones = merge(
+    { (local.app_domain_normalized) = data.aws_route53_zone.zone.zone_id },
+    local.extra_domain_zone_ids,
+  )
+  acm_validation_records_by_domain = {
+    for dvo in module.acm.acm_certificate_domain_validation_options :
+    lower(dvo.domain_name) => {
+      name  = dvo.resource_record_name
+      type  = dvo.resource_record_type
+      value = dvo.resource_record_value
+    }
+  }
 
   better_auth_email_sender = local.better_auth_email_sender_input != "" ? local.better_auth_email_sender_input : local.default_email_sender
   app_url                  = local.app_url_input != "" ? local.app_url_input : "https://${var.app_domain}"
