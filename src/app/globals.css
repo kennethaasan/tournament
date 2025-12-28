@@ -236,7 +236,10 @@ body {
       rgba(255, 255, 255, 0.6) 55%,
       transparent 60%
     );
-  background-size: 180px 180px, 260px 260px, 340px 340px;
+  background-size:
+    180px 180px,
+    260px 260px,
+    340px 340px;
   animation: scoreboard-snow 20s linear infinite;
   will-change: background-position;
 }

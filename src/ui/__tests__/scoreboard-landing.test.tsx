@@ -163,7 +163,7 @@ describe("Scoreboard landing view", () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByText("Kampoppsett")).toBeInTheDocument(),
+      expect(screen.getByText(/Kampoppsett/)).toBeInTheDocument(),
     );
     expect(screen.getByText("Toppscorere")).toBeInTheDocument();
     expect(screen.getAllByText("Live").length).toBeGreaterThan(0);
