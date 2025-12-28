@@ -57,6 +57,57 @@ export function formatTimestamp(date: Date): string {
   }).format(date);
 }
 
+/**
+ * Compare venue names for sorting, extracting numeric suffixes.
+ * E.g., "Bane 1" < "Bane 2" < "Bane 10"
+ */
+function compareVenues(a: string | null, b: string | null): number {
+  const venueA = a ?? "";
+  const venueB = b ?? "";
+
+  // Extract the numeric suffix if present
+  const numMatchA = venueA.match(/(\d+)\s*$/);
+  const numMatchB = venueB.match(/(\d+)\s*$/);
+
+  if (numMatchA && numMatchB) {
+    const prefixA = venueA.slice(0, numMatchA.index).trim();
+    const prefixB = venueB.slice(0, numMatchB.index).trim();
+
+    // If prefixes are the same, compare numerically
+    if (prefixA === prefixB) {
+      return (
+        Number.parseInt(numMatchA[1] ?? "0", 10) -
+        Number.parseInt(numMatchB[1] ?? "0", 10)
+      );
+    }
+  }
+
+  return venueA.localeCompare(venueB);
+}
+
+/**
+ * Default match sorting: time -> venue (numerically) -> group code
+ */
+export function compareMatchesDefault(
+  a: ScoreboardMatch,
+  b: ScoreboardMatch,
+): number {
+  // Primary: kickoff time
+  const timeDiff = a.kickoffAt.getTime() - b.kickoffAt.getTime();
+  if (timeDiff !== 0) {
+    return timeDiff;
+  }
+
+  // Secondary: venue (with numeric sorting for "Bane 1", "Bane 2", etc.)
+  const venueDiff = compareVenues(a.venueName ?? null, b.venueName ?? null);
+  if (venueDiff !== 0) {
+    return venueDiff;
+  }
+
+  // Tertiary: group code
+  return (a.groupCode ?? "").localeCompare(b.groupCode ?? "");
+}
+
 export function formatCountdown(targetDate: Date): string {
   const now = new Date();
   const diffMs = targetDate.getTime() - now.getTime();
@@ -124,6 +175,10 @@ export function deriveVenueSummary(matches: ScoreboardMatch[]): string | null {
   if (venues.length === 0) {
     return null;
   }
+
+  // Sort venues naturally (handles "Bane 1", "Bane 2", "Bane 10" correctly)
+  venues.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+
   if (venues.length === 1) {
     return venues[0] ?? null;
   }

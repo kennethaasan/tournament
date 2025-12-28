@@ -213,39 +213,6 @@ export function StandingsRowSkeleton() {
   );
 }
 
-type TeamColorIndicatorProps = {
-  teamName: string;
-  size?: "sm" | "md";
-};
-
-export function TeamColorIndicator({
-  teamName,
-  size = "sm",
-}: TeamColorIndicatorProps) {
-  // Generate a consistent color based on team name hash
-  let hash = 0;
-  for (let i = 0; i < teamName.length; i++) {
-    const char = teamName.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  const hue = Math.abs(hash % 360);
-  const color = `hsl(${hue}, 70%, 50%)`;
-
-  const sizeClasses = {
-    sm: "h-2.5 w-2.5",
-    md: "h-3.5 w-3.5",
-  };
-
-  return (
-    <span
-      className={`inline-block rounded-full ${sizeClasses[size]}`}
-      style={{ backgroundColor: color }}
-      aria-hidden="true"
-    />
-  );
-}
-
 type CountdownBadgeProps = {
   targetDate: Date;
 };
@@ -342,9 +309,214 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-white/20 bg-white/10 py-2 pl-10 pr-4 text-sm text-white placeholder-white/50 outline-none transition focus:border-white/40 focus:ring-2 focus:ring-white/20"
+        className="scoreboard-search w-full rounded-lg border border-white/20 bg-white/10 py-2 pl-10 pr-4 text-sm text-white outline-none transition focus:border-white/40 focus:ring-2 focus:ring-white/20"
         aria-label={placeholder}
       />
     </div>
+  );
+}
+
+// =============================================================================
+// Table Components
+// =============================================================================
+
+type TableVariant = "compact" | "normal";
+
+type TableProps = {
+  children: React.ReactNode;
+  variant?: TableVariant;
+  fixed?: boolean;
+  className?: string;
+};
+
+/**
+ * Base table component with consistent styling for scoreboard tables.
+ * - `variant="compact"` for storskjerm mode (smaller text)
+ * - `variant="normal"` for landing/publikumsvisning mode
+ * - `fixed` enables table-fixed layout
+ */
+export function Table({
+  children,
+  variant = "normal",
+  fixed = false,
+  className = "",
+}: TableProps) {
+  const baseClasses = "w-full text-left text-white/90";
+  const variantClasses = variant === "compact" ? "text-xs" : "text-sm";
+  const fixedClass = fixed ? "table-fixed" : "";
+
+  return (
+    <table
+      className={`${baseClasses} ${variantClasses} ${fixedClass} ${className}`}
+    >
+      {children}
+    </table>
+  );
+}
+
+type TableHeadProps = {
+  children: React.ReactNode;
+  sticky?: boolean;
+  className?: string;
+};
+
+/**
+ * Table head with consistent background styling.
+ * - `sticky` enables sticky positioning with backdrop blur
+ */
+export function TableHead({
+  children,
+  sticky = false,
+  className = "",
+}: TableHeadProps) {
+  const baseClasses = "bg-white/5";
+  const stickyClasses = sticky ? "sticky top-0 backdrop-blur" : "";
+
+  return (
+    <thead className={`${baseClasses} ${stickyClasses} ${className}`}>
+      {children}
+    </thead>
+  );
+}
+
+type TableHeadRowProps = {
+  children: React.ReactNode;
+  variant?: TableVariant;
+  className?: string;
+};
+
+/**
+ * Table header row with consistent text styling.
+ */
+export function TableHeadRow({
+  children,
+  variant = "normal",
+  className = "",
+}: TableHeadRowProps) {
+  const textSize = variant === "compact" ? "text-[0.55rem]" : "text-xs";
+  const baseClasses = `${textSize} uppercase tracking-wide text-white/60`;
+
+  return <tr className={`${baseClasses} ${className}`}>{children}</tr>;
+}
+
+type TableHeaderCellProps = {
+  children: React.ReactNode;
+  width?: string;
+  align?: "left" | "center" | "right";
+  variant?: TableVariant;
+  className?: string;
+};
+
+/**
+ * Table header cell with consistent padding.
+ */
+export function TableHeaderCell({
+  children,
+  width,
+  align = "left",
+  variant = "normal",
+  className = "",
+}: TableHeaderCellProps) {
+  const padding = variant === "compact" ? "px-2 py-1" : "px-4 py-3";
+  const alignClass =
+    align === "center" ? "text-center" : align === "right" ? "text-right" : "";
+  const widthStyle = width ? { width } : undefined;
+
+  return (
+    <th className={`${padding} ${alignClass} ${className}`} style={widthStyle}>
+      {children}
+    </th>
+  );
+}
+
+type TableBodyProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+/**
+ * Table body wrapper.
+ */
+export function TableBody({ children, className = "" }: TableBodyProps) {
+  return <tbody className={className}>{children}</tbody>;
+}
+
+type TableRowProps = {
+  children: React.ReactNode;
+  index?: number;
+  highlight?: boolean;
+  current?: boolean;
+  className?: string;
+};
+
+/**
+ * Table row with consistent border and alternating background.
+ * - `index` enables zebra striping (even rows get subtle background)
+ * - `highlight` adds red highlight for live matches
+ * - `current` sets aria-current for accessibility
+ */
+export function TableRow({
+  children,
+  index,
+  highlight = false,
+  current = false,
+  className = "",
+}: TableRowProps) {
+  const borderClass = "border-t border-white/5";
+  const zebraClass =
+    index !== undefined && index % 2 === 0 ? "bg-white/[0.02]" : "";
+  const highlightClass = highlight ? "bg-red-500/15" : "";
+
+  return (
+    <tr
+      className={`${borderClass} ${zebraClass} ${highlightClass} ${className}`}
+      aria-current={current ? "true" : undefined}
+    >
+      {children}
+    </tr>
+  );
+}
+
+type TableCellProps = {
+  children: React.ReactNode;
+  align?: "left" | "center" | "right";
+  variant?: TableVariant;
+  muted?: boolean;
+  bold?: boolean;
+  truncate?: boolean;
+  className?: string;
+  colSpan?: number;
+};
+
+/**
+ * Table cell with consistent padding and optional styling.
+ * - `muted` applies lighter text color
+ * - `bold` applies font-bold
+ * - `truncate` enables text truncation
+ */
+export function TableCell({
+  children,
+  align = "left",
+  variant = "normal",
+  muted = false,
+  bold = false,
+  truncate = false,
+  className = "",
+  colSpan,
+}: TableCellProps) {
+  const padding = variant === "compact" ? "px-2 py-1" : "px-4 py-3";
+  const alignClass =
+    align === "center" ? "text-center" : align === "right" ? "text-right" : "";
+  const mutedClass = muted ? "text-white/70" : "";
+  const boldClass = bold ? "font-bold" : "";
+  const truncateClass = truncate ? "truncate" : "";
+
+  return (
+    <td
+      className={`${padding} ${alignClass} ${mutedClass} ${boldClass} ${truncateClass} ${className}`}
+      colSpan={colSpan}
+    >
+      {children}
+    </td>
   );
 }

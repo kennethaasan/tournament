@@ -202,3 +202,81 @@ body {
 .dark .pill {
   background: rgba(255, 255, 255, 0.06);
 }
+
+/* Scoreboard animations - kept in globals.css to avoid re-render blinking */
+@keyframes scoreboard-snow {
+  0% {
+    background-position:
+      0 0,
+      0 0,
+      0 0;
+  }
+  100% {
+    background-position:
+      400px 900px,
+      240px 500px,
+      120px 300px;
+  }
+}
+
+.scoreboard-snow {
+  background-image:
+    radial-gradient(
+      1px 1px at 20px 30px,
+      rgba(255, 255, 255, 0.9) 55%,
+      transparent 60%
+    ),
+    radial-gradient(
+      1.5px 1.5px at 120px 80px,
+      rgba(255, 255, 255, 0.8) 55%,
+      transparent 60%
+    ),
+    radial-gradient(
+      2px 2px at 60px 140px,
+      rgba(255, 255, 255, 0.6) 55%,
+      transparent 60%
+    );
+  background-size: 180px 180px, 260px 260px, 340px 340px;
+  animation: scoreboard-snow 20s linear infinite;
+  will-change: background-position;
+}
+
+.scoreboard-snow--christmas {
+  animation-duration: 16s;
+}
+
+@keyframes scoreboard-slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scoreboard-slide-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 2000px;
+  }
+}
+
+.scoreboard-animate-slide-in-down {
+  animation: scoreboard-slide-in-down 0.5s ease-out;
+}
+
+.scoreboard-animate-slide-down {
+  animation: scoreboard-slide-down 0.3s ease-out;
+}
+
+/* Scoreboard search placeholder styling */
+.scoreboard-search::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}

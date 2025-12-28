@@ -68,7 +68,7 @@ export const FULL_HD_WIDTH = 1920;
 export const FULL_HD_HEIGHT = 1080;
 export const SEASON_THEME_STORAGE_KEY = "scoreboard-season-theme";
 export const THEME_SOURCE_STORAGE_KEY = "scoreboard-theme-source";
-export const SCREEN_MATCH_LIMIT = 40;
+// No limit - show all matches in screen mode
 export const SCREEN_STANDINGS_LIMIT = 8;
 export const SCREEN_GROUP_TABLES_LIMIT = 6;
 export const SCREEN_GROUP_STANDINGS_LIMIT = 5;

@@ -7,7 +7,13 @@ import {
   MatchRowSkeleton,
   SearchInput,
   StatusBadge,
-  TeamColorIndicator,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableHeadRow,
+  TableRow,
 } from "./scoreboard-shared";
 import type {
   LandingLayoutProps,
@@ -18,6 +24,7 @@ import type {
   ScoreboardTopScorer,
 } from "./scoreboard-ui-types";
 import {
+  compareMatchesDefault,
   computeMatchStats,
   formatKickoff,
   formatMatchScore,
@@ -46,7 +53,7 @@ function CollapsibleSection({
         className="flex w-full items-center justify-between border-b border-white/10 px-5 py-3 text-left transition hover:bg-white/5"
         aria-expanded={isOpen}
       >
-        <h2 className="text-lg font-semibold uppercase tracking-wide text-white">
+        <h2 className="text-lg font-semibold text-white">
           {title}
           {count !== undefined ? (
             <span className="ml-2 text-sm font-normal text-white/60">
@@ -69,7 +76,9 @@ function CollapsibleSection({
           />
         </svg>
       </button>
-      {isOpen ? <div className="animate-slide-down">{children}</div> : null}
+      {isOpen ? (
+        <div className="scoreboard-animate-slide-down">{children}</div>
+      ) : null}
     </section>
   );
 }
@@ -203,7 +212,8 @@ export function LandingLayout({
         case "group":
           return (a.groupCode ?? "").localeCompare(b.groupCode ?? "");
         default:
-          return a.kickoffAt.getTime() - b.kickoffAt.getTime();
+          // Default: time -> venue -> group
+          return compareMatchesDefault(a, b);
       }
     });
 
@@ -277,17 +287,19 @@ export function LandingLayout({
 
       {/* Full Schedule with Filters */}
       <CollapsibleSection title="Kampoversikt" count={filteredMatches.length}>
-        <div className="space-y-4 p-5">
-          <FilterBar
-            searchQuery={searchQuery}
-            onSearchChange={onSearchChange}
-            statusFilter={statusFilter}
-            onStatusFilterChange={onStatusFilterChange}
-            sortOption={sortOption}
-            onSortOptionChange={onSortOptionChange}
-          />
+        <div className="space-y-4">
+          <div className="px-5 pt-5">
+            <FilterBar
+              searchQuery={searchQuery}
+              onSearchChange={onSearchChange}
+              statusFilter={statusFilter}
+              onStatusFilterChange={onStatusFilterChange}
+              sortOption={sortOption}
+              onSortOptionChange={onSortOptionChange}
+            />
+          </div>
           {isLoading ? (
-            <div className="space-y-0">
+            <div className="space-y-0 px-5 pb-5">
               <MatchRowSkeleton />
               <MatchRowSkeleton />
               <MatchRowSkeleton />
@@ -424,19 +436,13 @@ function MatchSection({
                       : "grid grid-cols-2"
                   }`}
                 >
-                  <span className="flex items-center gap-2 text-left">
-                    <TeamColorIndicator teamName={homeName} />
-                    {homeName}
-                  </span>
+                  <span className="text-left">{homeName}</span>
                   {showScore ? (
                     <span className="rounded-lg border border-white/20 bg-black/20 px-3 py-1 text-center text-xl tabular-nums">
                       {formattedScore}
                     </span>
                   ) : null}
-                  <span className="flex items-center justify-end gap-2 text-right">
-                    {awayName}
-                    <TeamColorIndicator teamName={awayName} />
-                  </span>
+                  <span className="text-right">{awayName}</span>
                 </div>
                 {match.highlight ? (
                   <p className="mt-2 text-sm text-white/80">
@@ -460,74 +466,69 @@ type ScheduleTableProps = {
 function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
   if (matches.length === 0) {
     return (
-      <EmptyState
-        icon="matches"
-        title="Ingen kamper funnet"
-        description="Prøv et annet søk eller filter"
-      />
+      <div className="px-5 pb-5">
+        <EmptyState
+          icon="matches"
+          title="Ingen kamper funnet"
+          description="Prøv et annet søk eller filter"
+        />
+      </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm text-white/90">
-        <thead>
-          <tr className="text-xs uppercase tracking-wide text-white/60">
-            <th className="px-4 py-3">Tidspunkt</th>
-            <th className="px-4 py-3">Kamp</th>
-            <th className="px-4 py-3">Hjemmelag</th>
-            <th className="px-4 py-3">Bortelag</th>
-            <th className="px-4 py-3">Arena</th>
-            <th className="px-4 py-3 text-center">Resultat</th>
-            <th className="px-4 py-3">Status</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="min-w-full">
+        <TableHead>
+          <TableHeadRow>
+            <TableHeaderCell>Tidspunkt</TableHeaderCell>
+            <TableHeaderCell>Kamp</TableHeaderCell>
+            <TableHeaderCell>Hjemmelag</TableHeaderCell>
+            <TableHeaderCell>Bortelag</TableHeaderCell>
+            <TableHeaderCell>Arena</TableHeaderCell>
+            <TableHeaderCell align="center">Resultat</TableHeaderCell>
+            <TableHeaderCell>Status</TableHeaderCell>
+          </TableHeadRow>
+        </TableHead>
+        <TableBody>
           {matches.map((match) => {
             const isLive =
               match.status === "in_progress" || match.status === "disputed";
             return (
-              <tr
-                key={match.id}
-                className={`border-t border-white/5 ${isLive ? "bg-red-500/10" : ""}`}
-                aria-current={isLive ? "true" : undefined}
-              >
-                <td className="px-4 py-3 text-xs text-white/70">
+              <TableRow key={match.id} highlight={isLive} current={isLive}>
+                <TableCell muted className="text-xs">
                   {formatKickoff(match.kickoffAt)}
-                </td>
-                <td className="px-4 py-3 text-xs text-white/70">
+                </TableCell>
+                <TableCell muted className="text-xs">
                   {match.code ?? match.groupCode ?? "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span className="flex items-center gap-2">
-                    <TeamColorIndicator teamName={match.home.name} size="sm" />
-                    {match.home.entryId
-                      ? (entryNames.get(match.home.entryId) ?? match.home.name)
-                      : match.home.name}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="flex items-center gap-2">
-                    <TeamColorIndicator teamName={match.away.name} size="sm" />
-                    {match.away.entryId
-                      ? (entryNames.get(match.away.entryId) ?? match.away.name)
-                      : match.away.name}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-xs text-white/70">
+                </TableCell>
+                <TableCell>
+                  {match.home.entryId
+                    ? (entryNames.get(match.home.entryId) ?? match.home.name)
+                    : match.home.name}
+                </TableCell>
+                <TableCell>
+                  {match.away.entryId
+                    ? (entryNames.get(match.away.entryId) ?? match.away.name)
+                    : match.away.name}
+                </TableCell>
+                <TableCell muted className="text-xs">
                   {match.venueName ?? "Ikke satt"}
-                </td>
-                <td className="px-4 py-3 text-center font-semibold tabular-nums">
+                </TableCell>
+                <TableCell
+                  align="center"
+                  className="font-semibold tabular-nums"
+                >
                   {formatMatchScore(match) || "—"}
-                </td>
-                <td className="px-4 py-3">
+                </TableCell>
+                <TableCell>
                   <StatusBadge status={match.status} compact />
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -551,54 +552,70 @@ function StandingsTableContent({
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm text-white/90">
-        <thead>
-          <tr className="text-xs uppercase tracking-wide text-white/60">
-            <th className="px-5 py-2">#</th>
-            <th className="px-5 py-2">Lag</th>
-            <th className="px-3 py-2 text-center">K</th>
-            <th className="px-3 py-2 text-center">V</th>
-            <th className="px-3 py-2 text-center">U</th>
-            <th className="px-3 py-2 text-center">T</th>
-            <th className="px-3 py-2 text-center">Mål</th>
-            <th className="px-3 py-2 text-center">+/-</th>
-            <th className="px-3 py-2 text-center">P</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHead>
+          <TableHeadRow>
+            <TableHeaderCell className="px-5">#</TableHeaderCell>
+            <TableHeaderCell className="px-5">Lag</TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              K
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              V
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              U
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              T
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              Mål
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              +/-
+            </TableHeaderCell>
+            <TableHeaderCell align="center" className="px-3">
+              P
+            </TableHeaderCell>
+          </TableHeadRow>
+        </TableHead>
+        <TableBody>
           {standings.map((row, index) => (
-            <tr
-              key={row.entryId}
-              className={`border-t border-white/5 ${index % 2 === 0 ? "bg-white/[0.02]" : ""}`}
-            >
-              <td className="px-5 py-2 font-semibold">{row.position}</td>
-              <td className="px-5 py-2">
-                <span className="flex items-center gap-2">
-                  <TeamColorIndicator
-                    teamName={entryNames.get(row.entryId) ?? row.entryId}
-                  />
-                  {entryNames.get(row.entryId) ?? row.entryId}
-                </span>
-              </td>
-              <td className="px-3 py-2 text-center">{row.played}</td>
-              <td className="px-3 py-2 text-center">{row.won}</td>
-              <td className="px-3 py-2 text-center">{row.drawn}</td>
-              <td className="px-3 py-2 text-center">{row.lost}</td>
-              <td className="px-3 py-2 text-center">
+            <TableRow key={row.entryId} index={index}>
+              <TableCell className="px-5 font-semibold">
+                {row.position}
+              </TableCell>
+              <TableCell className="px-5">
+                {entryNames.get(row.entryId) ?? row.entryId}
+              </TableCell>
+              <TableCell align="center" className="px-3">
+                {row.played}
+              </TableCell>
+              <TableCell align="center" className="px-3">
+                {row.won}
+              </TableCell>
+              <TableCell align="center" className="px-3">
+                {row.drawn}
+              </TableCell>
+              <TableCell align="center" className="px-3">
+                {row.lost}
+              </TableCell>
+              <TableCell align="center" className="px-3">
                 {row.goalsFor} – {row.goalsAgainst}
-              </td>
-              <td className="px-3 py-2 text-center">
+              </TableCell>
+              <TableCell align="center" className="px-3">
                 {row.goalDifference > 0
                   ? `+${row.goalDifference}`
                   : row.goalDifference}
-              </td>
-              <td className="px-3 py-2 text-center font-semibold">
+              </TableCell>
+              <TableCell align="center" className="px-3 font-semibold">
                 {row.points}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

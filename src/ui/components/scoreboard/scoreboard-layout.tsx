@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useScoreboardPoll } from "@/ui/hooks/useScoreboardPoll";
-import { FullHdFrame, HolidayGlow, SnowBackdrop } from "./scoreboard-backdrop";
+import { FullHdFrame, ScoreboardBackground } from "./scoreboard-backdrop";
 import {
   ConnectionStatusIndicator,
   ModeToggle,
@@ -31,7 +31,6 @@ import {
   deriveScheduleSummary,
   deriveSeasonTheme,
   deriveVenueSummary,
-  seasonGradient,
 } from "./scoreboard-utils";
 
 type ProvidersProps = {
@@ -101,16 +100,15 @@ export function ScoreboardScreen({
   const { themePreference, setThemePreference, themeSource, setThemeSource } =
     usePersistedTheme(themeOverrideParam);
 
-  const seasonFromPreference =
-    themePreference === "auto"
-      ? deriveSeasonTheme(new Date())
-      : themePreference;
+  // Memoize season derivation to avoid recalculating on every render
+  const seasonFromPreference = useMemo(() => {
+    if (themePreference === "auto") {
+      return deriveSeasonTheme(new Date());
+    }
+    return themePreference;
+  }, [themePreference]);
+
   const useSeasonTheme = themeSource === "season";
-  const isSnowing =
-    useSeasonTheme &&
-    (seasonFromPreference === "winter" || seasonFromPreference === "christmas");
-  const isChristmasTheme =
-    useSeasonTheme && seasonFromPreference === "christmas";
 
   // Landing mode filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -204,6 +202,14 @@ export function ScoreboardScreen({
                 {headerMeta ? (
                   <span className="text-white/70">{headerMeta}</span>
                 ) : null}
+                <span className="text-white/70">
+                  Oppdateres hvert {data.edition.scoreboardRotationSeconds}{" "}
+                  sekunder
+                </span>
+                <ConnectionStatusIndicator
+                  status={connectionStatus}
+                  lastUpdated={lastUpdated}
+                />
               </div>
             </>
           ) : (
@@ -285,67 +291,17 @@ export function ScoreboardScreen({
   );
 
   return (
-    <div
-      className="relative min-h-screen overflow-hidden"
-      style={{
-        backgroundImage: useSeasonTheme
-          ? `${seasonGradient(seasonFromPreference)}, linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`
-          : `linear-gradient(135deg, ${theme.primaryColor} 0%, ${theme.secondaryColor} 100%)`,
-      }}
-    >
-      {/* Background Image */}
-      {theme.backgroundImageUrl ? (
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-20"
-          style={{ backgroundImage: `url(${theme.backgroundImageUrl})` }}
-        />
-      ) : null}
-
-      {/* Seasonal Effects */}
-      {isSnowing ? (
-        <SnowBackdrop
-          variant={
-            seasonFromPreference === "christmas" ? "christmas" : "winter"
-          }
-        />
-      ) : null}
-      {isChristmasTheme ? <HolidayGlow /> : null}
-
-      {/* Animations CSS */}
-      <style>
-        {`
-          @keyframes slide-in-down {
-            from {
-              opacity: 0;
-              transform: translateY(-20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          @keyframes slide-down {
-            from {
-              opacity: 0;
-              max-height: 0;
-            }
-            to {
-              opacity: 1;
-              max-height: 2000px;
-            }
-          }
-          .animate-slide-in-down {
-            animation: slide-in-down 0.5s ease-out;
-          }
-          .animate-slide-down {
-            animation: slide-down 0.3s ease-out;
-          }
-        `}
-      </style>
-
-      {/* Content */}
-      {mode === "screen" ? <FullHdFrame>{content}</FullHdFrame> : content}
+    <div className="relative min-h-screen overflow-hidden">
+      <ScoreboardBackground
+        primaryColor={theme.primaryColor}
+        secondaryColor={theme.secondaryColor}
+        backgroundImageUrl={theme.backgroundImageUrl}
+        useSeasonTheme={useSeasonTheme}
+        season={seasonFromPreference}
+      />
+      <div className="relative z-10">
+        {mode === "screen" ? <FullHdFrame>{content}</FullHdFrame> : content}
+      </div>
     </div>
   );
 }

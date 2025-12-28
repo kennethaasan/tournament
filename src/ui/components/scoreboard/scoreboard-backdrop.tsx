@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { FULL_HD_HEIGHT, FULL_HD_WIDTH } from "./scoreboard-ui-types";
+import { memo, useEffect, useRef, useState } from "react";
+import {
+  FULL_HD_HEIGHT,
+  FULL_HD_WIDTH,
+  type SeasonTheme,
+} from "./scoreboard-ui-types";
+import { deriveSeasonTheme, seasonGradient } from "./scoreboard-utils";
 
 type SnowBackdropProps = {
   variant: "winter" | "christmas";
@@ -9,29 +14,12 @@ type SnowBackdropProps = {
 
 export function SnowBackdrop({ variant }: SnowBackdropProps) {
   return (
-    <>
-      <style>
-        {`
-          @keyframes scoreboard-snow {
-            0% { background-position: 0 0, 0 0, 0 0; }
-            100% { background-position: 400px 900px, 240px 500px, 120px 300px; }
-          }
-        `}
-      </style>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-80 mix-blend-screen"
-        style={{
-          backgroundImage:
-            "radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.9) 55%, transparent 60%), radial-gradient(1.5px 1.5px at 120px 80px, rgba(255,255,255,0.8) 55%, transparent 60%), radial-gradient(2px 2px at 60px 140px, rgba(255,255,255,0.6) 55%, transparent 60%)",
-          backgroundSize: "180px 180px, 260px 260px, 340px 340px",
-          animation:
-            variant === "christmas"
-              ? "scoreboard-snow 16s linear infinite"
-              : "scoreboard-snow 20s linear infinite",
-        }}
-      />
-    </>
+    <div
+      aria-hidden="true"
+      className={`scoreboard-snow pointer-events-none absolute inset-0 opacity-80 mix-blend-screen ${
+        variant === "christmas" ? "scoreboard-snow--christmas" : ""
+      }`}
+    />
   );
 }
 
@@ -111,3 +99,52 @@ export function FullHdFrame({ children }: FullHdFrameProps) {
     </div>
   );
 }
+
+type ScoreboardBackgroundProps = {
+  primaryColor: string;
+  secondaryColor: string;
+  backgroundImageUrl: string | null;
+  useSeasonTheme: boolean;
+  season: SeasonTheme;
+};
+
+export const ScoreboardBackground = memo(function ScoreboardBackground({
+  primaryColor,
+  secondaryColor,
+  backgroundImageUrl,
+  useSeasonTheme,
+  season,
+}: ScoreboardBackgroundProps) {
+  const resolvedSeason =
+    season === "auto" ? deriveSeasonTheme(new Date()) : season;
+  const backgroundImage = useSeasonTheme
+    ? `${seasonGradient(resolvedSeason)}, linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`
+    : `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`;
+  const isSnowing =
+    useSeasonTheme &&
+    (resolvedSeason === "winter" || resolvedSeason === "christmas");
+  const isChristmasTheme = useSeasonTheme && resolvedSeason === "christmas";
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{ backgroundImage }}
+    >
+      {backgroundImageUrl ? (
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center opacity-20"
+          style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+        />
+      ) : null}
+
+      {isSnowing ? (
+        <SnowBackdrop
+          variant={resolvedSeason === "christmas" ? "christmas" : "winter"}
+        />
+      ) : null}
+      {isChristmasTheme ? <HolidayGlow /> : null}
+    </div>
+  );
+});
