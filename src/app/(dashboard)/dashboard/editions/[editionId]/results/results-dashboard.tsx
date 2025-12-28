@@ -184,8 +184,10 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                     matchId: match.id,
                     payload,
                   });
+                  return true;
                 } catch {
                   // handled in mutation callbacks
+                  return false;
                 }
               }}
             />
@@ -204,7 +206,7 @@ type MatchEditorCardProps = {
   isSaving: boolean;
   onSave: (
     payload: components["schemas"]["UpdateMatchRequest"],
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 };
 
 function MatchEditorCard({
@@ -226,12 +228,16 @@ function MatchEditorCard({
   const [homeEntryId, setHomeEntryId] = useState(match.home_entry_id ?? "");
   const [awayEntryId, setAwayEntryId] = useState(match.away_entry_id ?? "");
   const [matchError, setMatchError] = useState<string | null>(null);
+  const [statusNotice, setStatusNotice] = useState<string | null>(null);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [eventRows, setEventRows] = useState<MatchEventDraft[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [eventsDirty, setEventsDirty] = useState(false);
   const [eventsError, setEventsError] = useState<string | null>(null);
   const [eventsSaving, setEventsSaving] = useState(false);
+  const [pendingEventFocusId, setPendingEventFocusId] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     setHomeScore(match.home_score?.regulation ?? 0);
@@ -243,11 +249,12 @@ function MatchEditorCard({
     setHomeEntryId(match.home_entry_id ?? "");
     setAwayEntryId(match.away_entry_id ?? "");
     setMatchError(null);
-    setEventsOpen(false);
+    setStatusNotice(null);
     setEventRows([]);
     setEventsLoaded(false);
     setEventsDirty(false);
     setEventsError(null);
+    setPendingEventFocusId(null);
   }, [
     match.home_score?.regulation,
     match.away_score?.regulation,
@@ -437,6 +444,42 @@ function MatchEditorCard({
               ? awaySquadMembersQuery.error.message
               : null;
 
+  useEffect(() => {
+    if (!pendingEventFocusId) {
+      return;
+    }
+    const element = document.getElementById(
+      `${idBase}-player-${pendingEventFocusId}`,
+    );
+    if (element instanceof HTMLSelectElement) {
+      element.focus();
+      setPendingEventFocusId(null);
+    }
+  }, [idBase, pendingEventFocusId]);
+
+  function handleScoreChange(side: "home" | "away", value: string) {
+    const nextScore = parseScore(value);
+    const nextHomeScore = side === "home" ? nextScore : homeScore;
+    const nextAwayScore = side === "away" ? nextScore : awayScore;
+
+    if (side === "home") {
+      setHomeScore(nextScore);
+    } else {
+      setAwayScore(nextScore);
+    }
+
+    if (nextHomeScore !== 0 || nextAwayScore !== 0) {
+      if (status !== "finalized") {
+        setStatus("finalized");
+      }
+      setStatusNotice(
+        "Resultat registrert. Status settes automatisk til Fullført.",
+      );
+    } else {
+      setStatusNotice(null);
+    }
+  }
+
   function updateEventRow(id: string, patch: Partial<MatchEventDraft>) {
     setEventRows((prev) =>
       prev.map((row) => (row.id === id ? { ...row, ...patch } : row)),
@@ -445,8 +488,16 @@ function MatchEditorCard({
   }
 
   function addEventRow() {
-    setEventRows((prev) => [...prev, createEventDraft()]);
+    const draft = createEventDraft();
+    setEventRows((prev) => [...prev, draft]);
     setEventsDirty(true);
+  }
+
+  function addGoalRow(side: MatchEventSide) {
+    const draft = createEventDraft({ teamSide: side, eventType: "goal" });
+    setEventRows((prev) => [...prev, draft]);
+    setEventsDirty(true);
+    setPendingEventFocusId(draft.id);
   }
 
   function removeEventRow(id: string) {
@@ -498,7 +549,10 @@ function MatchEditorCard({
       payload.away_entry_id = awayEntryId;
     }
 
-    await onSave(payload);
+    const didSave = await onSave(payload);
+    if (didSave) {
+      setEventsOpen(true);
+    }
   }
 
   async function handleSaveEvents() {
@@ -529,9 +583,10 @@ function MatchEditorCard({
       const resolvedEvents: MatchEventInput[] = [];
 
       for (const row of eventRows) {
-        const minute = parseMinute(row.minute);
-        if (minute === null) {
-          throw new Error("Oppgi et gyldig minutt for alle hendelser.");
+        const minuteInput = row.minute.trim();
+        const minute = minuteInput ? parseMinute(row.minute) : null;
+        if (minuteInput && minute === null) {
+          throw new Error("Oppgi et gyldig minutt når det er fylt inn.");
         }
 
         const stoppageTime = parseMinute(row.stoppageTime);
@@ -564,13 +619,16 @@ function MatchEditorCard({
         resolvedEvents.push({
           team_side: row.teamSide,
           event_type: row.eventType,
-          minute,
+          minute: minute ?? 0,
           stoppage_time: stoppageTime ?? undefined,
           squad_member_id: squadMemberId,
         });
       }
 
-      await onSave({ events: resolvedEvents });
+      const didSave = await onSave({ events: resolvedEvents });
+      if (!didSave) {
+        throw new Error("Kunne ikke lagre hendelsene.");
+      }
       setEventsDirty(false);
     } catch (error) {
       setEventsError(
@@ -623,6 +681,7 @@ function MatchEditorCard({
             id={`${idBase}-code`}
             value={code}
             onChange={(event) => setCode(event.target.value)}
+            placeholder="Valgfritt"
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -683,7 +742,7 @@ function MatchEditorCard({
             type="number"
             min={0}
             value={homeScore}
-            onChange={(event) => setHomeScore(parseScore(event.target.value))}
+            onChange={(event) => handleScoreChange("home", event.target.value)}
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -699,7 +758,7 @@ function MatchEditorCard({
             type="number"
             min={0}
             value={awayScore}
-            onChange={(event) => setAwayScore(parseScore(event.target.value))}
+            onChange={(event) => handleScoreChange("away", event.target.value)}
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -713,7 +772,10 @@ function MatchEditorCard({
           <select
             id={`${idBase}-status`}
             value={status}
-            onChange={(event) => setStatus(event.target.value as MatchStatus)}
+            onChange={(event) => {
+              setStatus(event.target.value as MatchStatus);
+              setStatusNotice(null);
+            }}
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <option value="scheduled">Planlagt</option>
@@ -721,6 +783,11 @@ function MatchEditorCard({
             <option value="finalized">Fullført</option>
             <option value="disputed">Tvist</option>
           </select>
+          {statusNotice ? (
+            <output aria-live="polite" className="text-xs text-primary">
+              {statusNotice}
+            </output>
+          ) : null}
         </div>
       </div>
 
@@ -737,6 +804,7 @@ function MatchEditorCard({
             type="datetime-local"
             value={kickoffAt}
             onChange={(event) => setKickoffAt(event.target.value)}
+            placeholder="Valgfritt"
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
@@ -855,8 +923,8 @@ function MatchEditorCard({
                               }
                               className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                             >
-                              <option value="home">Hjemme</option>
-                              <option value="away">Borte</option>
+                              <option value="home">Hjemme · {homeLabel}</option>
+                              <option value="away">Borte · {awayLabel}</option>
                             </select>
                           </div>
                           <div className="space-y-1">
@@ -928,6 +996,7 @@ function MatchEditorCard({
                                   minute: event.target.value,
                                 })
                               }
+                              placeholder="Valgfritt"
                               className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                             />
                           </div>
@@ -946,6 +1015,7 @@ function MatchEditorCard({
                                   stoppageTime: event.target.value,
                                 })
                               }
+                              placeholder="Valgfritt"
                               className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                             />
                           </div>
@@ -965,13 +1035,29 @@ function MatchEditorCard({
                 )}
 
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={addEventRow}
-                    className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                  >
-                    Legg til hendelse
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => addGoalRow("home")}
+                      className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
+                    >
+                      Hjemmemål ({homeLabel})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addGoalRow("away")}
+                      className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
+                    >
+                      Bortemål ({awayLabel})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={addEventRow}
+                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                    >
+                      Legg til hendelse
+                    </button>
+                  </div>
                   <button
                     type="button"
                     disabled={
@@ -1022,8 +1108,10 @@ function buildRosterOptions(roster: TeamRoster | null): RosterOption[] {
     .sort((left, right) => left.label.localeCompare(right.label, "nb"));
 }
 
-function createEventDraft(): MatchEventDraft {
-  return {
+function createEventDraft(
+  overrides: Partial<MatchEventDraft> = {},
+): MatchEventDraft {
+  const base: MatchEventDraft = {
     id:
       typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()),
     teamSide: "home",
@@ -1033,6 +1121,8 @@ function createEventDraft(): MatchEventDraft {
     membershipId: "",
     squadMemberId: null,
   };
+
+  return { ...base, ...overrides };
 }
 
 function parseMinute(value: string): number | null {

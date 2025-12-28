@@ -217,6 +217,12 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                         Kampoppsett
                       </Link>
                       <Link
+                        href={`/dashboard/editions/${edition.id}/teams`}
+                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
+                      >
+                        Lag og tropp
+                      </Link>
+                      <Link
                         href={
                           `/dashboard/editions/${edition.id}/results` as Route
                         }
