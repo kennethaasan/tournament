@@ -283,7 +283,7 @@ export function ScoreboardScreen({
             onSortOptionChange={setSortOption}
             connectionStatus={connectionStatus}
             lastUpdated={lastUpdated}
-            isLoading={query.isFetching}
+            isLoading={query.isLoading}
           />
         )}
       </div>
