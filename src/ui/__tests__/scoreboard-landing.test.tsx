@@ -165,7 +165,7 @@ describe("Scoreboard landing view", () => {
     await waitFor(() =>
       expect(screen.getByText("Kampoppsett")).toBeInTheDocument(),
     );
-    expect(screen.getByText("Toppscorer")).toBeInTheDocument();
+    expect(screen.getByText("Toppscorere")).toBeInTheDocument();
     expect(screen.getAllByText("Live").length).toBeGreaterThan(0);
   });
 
@@ -227,10 +227,10 @@ describe("Scoreboard landing view", () => {
     );
 
     expect(
-      screen.getByText("Ingen kamper registrert enda."),
+      screen.getByText("Ingen kommende kamper registrert."),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Ingen tabell tilgjengelig enda."),
+      screen.getByText("Ingen tabell tilgjengelig enda"),
     ).toBeInTheDocument();
   });
 });

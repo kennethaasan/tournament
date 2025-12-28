@@ -161,7 +161,7 @@ test.describe("Public scoreboard", () => {
 
     await page.goto("/competitions/trondheim-cup/2025/scoreboard");
 
-    await page.getByRole("button", { name: /Storskjerm/i }).click();
+    await page.getByRole("tab", { name: /Storskjerm/i }).click();
 
     const overlay = page.locator('[aria-live="polite"]');
     await expect(overlay).toHaveText("Mål for Trondheim Nord!");
