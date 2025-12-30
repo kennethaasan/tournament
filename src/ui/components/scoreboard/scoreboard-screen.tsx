@@ -78,7 +78,7 @@ export function ScreenLayout({
   );
 
   return (
-    <div className="flex flex-col gap-2 p-3">
+    <div className="flex flex-col gap-2 px-4 py-3">
       {/* Highlight Banner */}
       {hasHighlight && overlayText ? (
         <div
@@ -104,16 +104,16 @@ export function ScreenLayout({
         </div>
       ) : null}
 
-      {/* Main Grid - matches scroll, sidebars sticky */}
-      <div className="grid gap-2 xl:grid-cols-12">
+      {/* Main Layout - matches scroll, sidebars sticky */}
+      <div className="flex flex-col gap-2 xl:flex-row">
         {/* Matches Table - scrolls with page */}
-        <div className="xl:col-span-8">
+        <div className="min-w-0 xl:flex-[8]">
           <ScreenMatchesTable matches={otherMatches} entryNames={entryNames} />
         </div>
 
         {/* Standings - sticky */}
-        <div className="xl:col-span-2">
-          <div className="sticky top-2 space-y-2">
+        <div className="xl:flex-[2]">
+          <div className="sticky top-3 max-h-[calc(100vh-1rem)] space-y-2 overflow-auto">
             {visibleTables.length > 0 ? (
               <ScreenGroupTables
                 tables={visibleTables}
@@ -129,8 +129,8 @@ export function ScreenLayout({
         </div>
 
         {/* Top Scorers - sticky */}
-        <div className="xl:col-span-2">
-          <div className="sticky top-2">
+        <div className="xl:flex-[2]">
+          <div className="sticky top-3 max-h-[calc(100vh-1rem)] overflow-auto">
             <ScreenTopScorersTable
               scorers={visibleScorers}
               entryNames={entryNames}
