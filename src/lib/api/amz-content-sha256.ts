@@ -3,7 +3,7 @@ import type { BetterFetchPlugin } from "@better-fetch/fetch";
 const EMPTY_PAYLOAD_HASH =
   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
-const METHODS_REQUIRING_HASH = new Set(["POST", "PUT"]);
+const METHODS_REQUIRING_HASH = new Set(["POST", "PUT", "PATCH"]);
 
 async function hashToHex(data: Uint8Array): Promise<string> {
   if (data.byteLength === 0) {
