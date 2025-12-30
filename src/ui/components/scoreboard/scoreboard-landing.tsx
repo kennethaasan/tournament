@@ -92,9 +92,6 @@ type FilterBarProps = {
   onSortOptionChange: (option: MatchSortOption) => void;
 };
 
-const isLiveMatchStatus = (status: ScoreboardMatch["status"]) =>
-  status === "in_progress" || status === "disputed";
-
 function FilterBar({
   searchQuery,
   onSearchChange,
@@ -201,12 +198,7 @@ export function LandingLayout({
     if (statusFilter !== "all") {
       matches = matches.filter((match) => {
         if (statusFilter === "live") {
-          return isLiveMatchStatus(match.status);
-        }
-        if (statusFilter === "scheduled") {
-          return (
-            match.status === "scheduled" || isLiveMatchStatus(match.status)
-          );
+          return match.status === "in_progress" || match.status === "disputed";
         }
         return match.status === statusFilter;
       });
