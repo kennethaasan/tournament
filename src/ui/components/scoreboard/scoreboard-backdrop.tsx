@@ -1,11 +1,7 @@
 "use client";
 
-import { memo, useEffect, useRef, useState } from "react";
-import {
-  FULL_HD_HEIGHT,
-  FULL_HD_WIDTH,
-  type SeasonTheme,
-} from "./scoreboard-ui-types";
+import { memo } from "react";
+import type { SeasonTheme } from "./scoreboard-ui-types";
 import { deriveSeasonTheme, seasonGradient } from "./scoreboard-utils";
 
 type SnowBackdropProps = {
@@ -41,61 +37,11 @@ type FullHdFrameProps = {
 };
 
 export function FullHdFrame({ children }: FullHdFrameProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(1);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const container = containerRef.current;
-    const content = contentRef.current;
-    if (!container || !content) {
-      return;
-    }
-
-    const updateScale = () => {
-      const availableWidth = Math.min(container.clientWidth, FULL_HD_WIDTH);
-      const availableHeight = Math.min(container.clientHeight, FULL_HD_HEIGHT);
-      const contentWidth = Math.max(content.scrollWidth, FULL_HD_WIDTH);
-      const contentHeight = Math.max(content.scrollHeight, FULL_HD_HEIGHT);
-      const widthScale = availableWidth / contentWidth;
-      const heightScale = availableHeight / contentHeight;
-      const nextScale = Math.min(1, widthScale, heightScale);
-
-      setScale((previous) =>
-        Math.abs(previous - nextScale) > 0.001 ? nextScale : previous,
-      );
-    };
-
-    updateScale();
-
-    const resizeObserver =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(updateScale);
-    resizeObserver?.observe(container);
-    resizeObserver?.observe(content);
-    window.addEventListener("resize", updateScale);
-
-    return () => {
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", updateScale);
-    };
-  }, []);
-
+  // For storskjerm mode, we use a fixed width container but allow natural height
+  // This enables native browser scrolling while maintaining 1920px max width
   return (
-    <div
-      ref={containerRef}
-      className="relative flex h-[1080px] w-full items-start justify-center overflow-hidden"
-    >
-      <div className="origin-top" style={{ transform: `scale(${scale})` }}>
-        <div ref={contentRef} className="h-[1080px] w-[1920px]">
-          {children}
-        </div>
-      </div>
+    <div className="flex w-full justify-center">
+      <div className="w-full max-w-[1920px]">{children}</div>
     </div>
   );
 }
@@ -128,7 +74,7 @@ export const ScoreboardBackground = memo(function ScoreboardBackground({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0"
+      className="pointer-events-none fixed inset-0"
       style={{ backgroundImage }}
     >
       {backgroundImageUrl ? (
