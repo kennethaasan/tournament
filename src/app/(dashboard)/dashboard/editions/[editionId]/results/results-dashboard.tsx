@@ -184,7 +184,11 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
         const rightTime = right.kickoff_at
           ? new Date(right.kickoff_at).getTime()
           : 0;
-        return leftTime - rightTime;
+        if (leftTime !== rightTime) {
+          return leftTime - rightTime;
+        }
+        // Stable sort by id when kickoff times are equal
+        return left.id.localeCompare(right.id);
       }),
     [matches],
   );
