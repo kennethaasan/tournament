@@ -90,6 +90,11 @@ const EMPTY_VENUES: Venue[] = [];
 export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [filterNotice, setFilterNotice] = useState<{
+    matchId: string;
+    matchLabel: string;
+    status: MatchStatus;
+  } | null>(null);
   const [filters, setFilters] = useState<ResultsFilters>({
     query: "",
     status: "all",
@@ -99,6 +104,9 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     teamId: "all",
     view: "comfortable",
   });
+  const [pinnedMatchIds, setPinnedMatchIds] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [expandedMatchIds, setExpandedMatchIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -182,45 +190,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   );
 
   const matchIndexes = useMemo(
-    () =>
-      matches.map((match) => {
-        const labels = resolveMatchLabels(match, entryMap);
-        const venueName =
-          (match.venue_id ? venueMap.get(match.venue_id)?.name : null) ??
-          match.venue_name ??
-          null;
-        const searchable = [
-          labels.matchLabel,
-          labels.homeLabel,
-          labels.awayLabel,
-          match.round_label,
-          match.group_code,
-          venueName,
-          match.code,
-          match.id,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-
-        return {
-          id: match.id,
-          status: match.status,
-          kickoffAt: match.kickoff_at ?? null,
-          roundLabel: match.round_label ?? null,
-          groupCode: match.group_code ?? null,
-          venueId: match.venue_id ?? null,
-          venueName,
-          homeEntryId: match.home_entry_id ?? null,
-          awayEntryId: match.away_entry_id ?? null,
-          homeTeamId: labels.homeTeamId,
-          awayTeamId: labels.awayTeamId,
-          homeLabel: labels.homeLabel,
-          awayLabel: labels.awayLabel,
-          matchLabel: labels.matchLabel,
-          searchable,
-        } satisfies MatchIndex;
-      }),
+    () => matches.map((match) => buildMatchIndex(match, entryMap, venueMap)),
     [entryMap, matches, venueMap],
   );
 
@@ -269,56 +239,28 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   }, [entries]);
 
   const filteredMatches = useMemo(() => {
-    const query = filters.query.trim().toLowerCase();
     return sortedMatches.filter((match) => {
       const index = matchIndexById.get(match.id);
       if (!index) {
         return false;
       }
-      if (filters.status !== "all" && index.status !== filters.status) {
-        return false;
-      }
-      if (
-        filters.roundLabel !== "all" &&
-        index.roundLabel !== filters.roundLabel
-      ) {
-        return false;
-      }
-      if (
-        filters.groupCode !== "all" &&
-        index.groupCode !== filters.groupCode
-      ) {
-        return false;
-      }
-      if (filters.venueId !== "all" && index.venueId !== filters.venueId) {
-        return false;
-      }
-      if (
-        filters.teamId !== "all" &&
-        index.homeTeamId !== filters.teamId &&
-        index.awayTeamId !== filters.teamId
-      ) {
-        return false;
-      }
-      if (query.length > 0 && !index.searchable.includes(query)) {
-        return false;
-      }
-      return true;
+      return doesMatchIndexPassFilters(index, filters);
     });
-  }, [
-    filters.groupCode,
-    filters.query,
-    filters.roundLabel,
-    filters.status,
-    filters.teamId,
-    filters.venueId,
-    matchIndexById,
-    sortedMatches,
-  ]);
+  }, [filters, matchIndexById, sortedMatches]);
+
+  const pinnedMatches = useMemo(
+    () => sortedMatches.filter((match) => pinnedMatchIds.has(match.id)),
+    [pinnedMatchIds, sortedMatches],
+  );
+
+  const filteredMatchesWithoutPinned = useMemo(
+    () => filteredMatches.filter((match) => !pinnedMatchIds.has(match.id)),
+    [filteredMatches, pinnedMatchIds],
+  );
 
   const groupedMatches = useMemo(
-    () => groupMatches(filteredMatches),
-    [filteredMatches],
+    () => groupMatches(filteredMatchesWithoutPinned),
+    [filteredMatchesWithoutPinned],
   );
 
   useEffect(() => {
@@ -347,6 +289,111 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       return next.size === current.size ? current : next;
     });
   }, [filteredMatches]);
+
+  useEffect(() => {
+    setPinnedMatchIds((current) => {
+      if (current.size === 0) {
+        return current;
+      }
+      const availableIds = new Set(matches.map((match) => match.id));
+      const next = new Set(
+        Array.from(current).filter((id) => availableIds.has(id)),
+      );
+      return next.size === current.size ? current : next;
+    });
+  }, [matches]);
+
+  const renderMatchBlock = (match: Match) => {
+    const isExpanded = expandedMatchIds.has(match.id);
+    const labels = matchIndexById.get(match.id);
+    return (
+      <div key={match.id} className="space-y-2">
+        {filters.view === "compact" || !isExpanded ? (
+          <MatchSummaryRow
+            match={match}
+            labels={labels}
+            isExpanded={isExpanded}
+            onToggle={() =>
+              setExpandedMatchIds((current) => {
+                const next = new Set(current);
+                if (next.has(match.id)) {
+                  next.delete(match.id);
+                } else {
+                  next.add(match.id);
+                }
+                return next;
+              })
+            }
+          />
+        ) : null}
+        {isExpanded ? (
+          <div className="space-y-2">
+            {filters.view === "comfortable" ? (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setExpandedMatchIds((current) => {
+                      const next = new Set(current);
+                      next.delete(match.id);
+                      return next;
+                    })
+                  }
+                  className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                >
+                  Skjul detaljer
+                </button>
+              </div>
+            ) : null}
+            <MatchEditorCard
+              match={match}
+              entries={entries}
+              entryMap={entryMap}
+              venues={venues}
+              isSaving={updateMutation.isPending}
+              onSave={async (payload) => {
+                setActionError(null);
+                try {
+                  const updatedMatch = await updateMutation.mutateAsync({
+                    matchId: match.id,
+                    payload,
+                  });
+                  const updatedIndex = buildMatchIndex(
+                    updatedMatch,
+                    entryMap,
+                    venueMap,
+                  );
+                  setPinnedMatchIds((current) => {
+                    const next = new Set(current);
+                    next.add(updatedMatch.id);
+                    return next;
+                  });
+                  setExpandedMatchIds((current) => {
+                    const next = new Set(current);
+                    next.add(updatedMatch.id);
+                    return next;
+                  });
+                  if (!doesMatchIndexPassFilters(updatedIndex, filters)) {
+                    setFilterNotice({
+                      matchId: updatedMatch.id,
+                      matchLabel: updatedIndex.matchLabel,
+                      status: updatedMatch.status,
+                    });
+                  } else {
+                    setFilterNotice(null);
+                  }
+                  return true;
+                } catch {
+                  // handled in mutation callbacks
+                  return false;
+                }
+              }}
+            />
+          </div>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-8">
@@ -599,171 +646,193 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
             </div>
           </section>
 
-          {filteredMatches.length === 0 ? (
+          {filterNotice ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold">
+                    {filterNotice.matchLabel} er lagret, men filtrert bort.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Status: {statusLabel(filterNotice.status)}
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPinnedMatchIds((current) => {
+                        const next = new Set(current);
+                        next.add(filterNotice.matchId);
+                        return next;
+                      });
+                      setExpandedMatchIds((current) => {
+                        const next = new Set(current);
+                        next.add(filterNotice.matchId);
+                        return next;
+                      });
+                      setFilterNotice(null);
+                    }}
+                    className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
+                  >
+                    Vis kampen
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilters((current) => ({
+                        ...current,
+                        status: "all",
+                      }));
+                      setFilterNotice(null);
+                    }}
+                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                  >
+                    Fjern statusfilter
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {filteredMatches.length === 0 && pinnedMatches.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
               Ingen kamper matcher filteret.
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setExpandedMatchIds(
-                        new Set(filteredMatches.map((match) => match.id)),
-                      )
-                    }
-                    className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                  >
-                    Vis alle
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setExpandedMatchIds(new Set())}
-                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                  >
-                    Skjul alle
-                  </button>
-                </div>
-                {groupedMatches.length > 1 ? (
-                  <div className="flex flex-wrap items-center gap-2">
+              {pinnedMatches.length > 0 ? (
+                <section className="rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-sm">
+                  <header className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Aktiv kamp
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Festet mens du registrerer hendelser.
+                      </p>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setCollapsedGroupKeys(new Set())}
+                      onClick={() => setPinnedMatchIds(new Set())}
                       className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
                     >
-                      Åpne alle grupper
+                      Fjern alle
                     </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCollapsedGroupKeys(
-                          new Set(groupedMatches.map((group) => group.key)),
-                        )
-                      }
-                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                    >
-                      Skjul alle grupper
-                    </button>
+                  </header>
+                  <div className="mt-4 space-y-3">
+                    {pinnedMatches.map((match) => renderMatchBlock(match))}
                   </div>
-                ) : null}
-              </div>
+                </section>
+              ) : null}
 
-              {groupedMatches.map((group) => {
-                const isCollapsed = collapsedGroupKeys.has(group.key);
-                return (
-                  <section
-                    key={group.key}
-                    className="rounded-2xl border border-border/60 bg-card/40 p-4 shadow-sm"
-                  >
-                    <header className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground">
-                          {group.title}
-                        </h3>
-                        {group.subtitle ? (
-                          <p className="text-xs text-muted-foreground">
-                            {group.subtitle}
-                          </p>
-                        ) : null}
-                        <p className="text-xs text-muted-foreground">
-                          {group.matches.length} kamper
-                        </p>
-                      </div>
+              {filteredMatchesWithoutPinned.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
+                  Ingen kamper matcher filteret.
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={() =>
-                          setCollapsedGroupKeys((current) => {
-                            const next = new Set(current);
-                            if (next.has(group.key)) {
-                              next.delete(group.key);
-                            } else {
-                              next.add(group.key);
-                            }
-                            return next;
-                          })
+                          setExpandedMatchIds(
+                            new Set(
+                              filteredMatchesWithoutPinned.map(
+                                (match) => match.id,
+                              ),
+                            ),
+                          )
                         }
+                        className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
+                      >
+                        Vis alle
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedMatchIds(new Set())}
                         className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
                       >
-                        {isCollapsed ? "Vis" : "Skjul"}
+                        Skjul alle
                       </button>
-                    </header>
-
-                    {isCollapsed ? null : (
-                      <div className="mt-4 space-y-3">
-                        {group.matches.map((match) => {
-                          const isExpanded = expandedMatchIds.has(match.id);
-                          const labels = matchIndexById.get(match.id);
-                          return (
-                            <div key={match.id} className="space-y-2">
-                              {filters.view === "compact" || !isExpanded ? (
-                                <MatchSummaryRow
-                                  match={match}
-                                  labels={labels}
-                                  isExpanded={isExpanded}
-                                  onToggle={() =>
-                                    setExpandedMatchIds((current) => {
-                                      const next = new Set(current);
-                                      if (next.has(match.id)) {
-                                        next.delete(match.id);
-                                      } else {
-                                        next.add(match.id);
-                                      }
-                                      return next;
-                                    })
-                                  }
-                                />
-                              ) : null}
-                              {isExpanded ? (
-                                <div className="space-y-2">
-                                  {filters.view === "comfortable" ? (
-                                    <div className="flex justify-end">
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setExpandedMatchIds((current) => {
-                                            const next = new Set(current);
-                                            next.delete(match.id);
-                                            return next;
-                                          })
-                                        }
-                                        className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                                      >
-                                        Skjul detaljer
-                                      </button>
-                                    </div>
-                                  ) : null}
-                                  <MatchEditorCard
-                                    match={match}
-                                    entries={entries}
-                                    entryMap={entryMap}
-                                    venues={venues}
-                                    isSaving={updateMutation.isPending}
-                                    onSave={async (payload) => {
-                                      setActionError(null);
-                                      try {
-                                        await updateMutation.mutateAsync({
-                                          matchId: match.id,
-                                          payload,
-                                        });
-                                        return true;
-                                      } catch {
-                                        // handled in mutation callbacks
-                                        return false;
-                                      }
-                                    }}
-                                  />
-                                </div>
-                              ) : null}
-                            </div>
-                          );
-                        })}
+                    </div>
+                    {groupedMatches.length > 1 ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setCollapsedGroupKeys(new Set())}
+                          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                        >
+                          Åpne alle grupper
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setCollapsedGroupKeys(
+                              new Set(groupedMatches.map((group) => group.key)),
+                            )
+                          }
+                          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                        >
+                          Skjul alle grupper
+                        </button>
                       </div>
-                    )}
-                  </section>
-                );
-              })}
+                    ) : null}
+                  </div>
+
+                  {groupedMatches.map((group) => {
+                    const isCollapsed = collapsedGroupKeys.has(group.key);
+                    return (
+                      <section
+                        key={group.key}
+                        className="rounded-2xl border border-border/60 bg-card/40 p-4 shadow-sm"
+                      >
+                        <header className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <h3 className="text-sm font-semibold text-foreground">
+                              {group.title}
+                            </h3>
+                            {group.subtitle ? (
+                              <p className="text-xs text-muted-foreground">
+                                {group.subtitle}
+                              </p>
+                            ) : null}
+                            <p className="text-xs text-muted-foreground">
+                              {group.matches.length} kamper
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCollapsedGroupKeys((current) => {
+                                const next = new Set(current);
+                                if (next.has(group.key)) {
+                                  next.delete(group.key);
+                                } else {
+                                  next.add(group.key);
+                                }
+                                return next;
+                              })
+                            }
+                            className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                          >
+                            {isCollapsed ? "Vis" : "Skjul"}
+                          </button>
+                        </header>
+
+                        {isCollapsed ? null : (
+                          <div className="mt-4 space-y-3">
+                            {group.matches.map((match) =>
+                              renderMatchBlock(match),
+                            )}
+                          </div>
+                        )}
+                      </section>
+                    );
+                  })}
+                </>
+              )}
             </div>
           )}
         </>
@@ -1116,35 +1185,7 @@ function MatchEditorCard({
     setEventsDirty(true);
   }
 
-  function addEventRow() {
-    const draft = createEventDraft();
-    setEventRows((prev) => [...prev, draft]);
-    setEventsDirty(true);
-  }
-
-  function addGoalRow(side: MatchEventSide) {
-    const draft = createEventDraft({ teamSide: side, eventType: "goal" });
-    setEventRows((prev) => [...prev, draft]);
-    setEventsDirty(true);
-    setPendingEventFocusId(draft.id);
-  }
-
-  function removeEventRow(id: string) {
-    setEventRows((prev) => prev.filter((row) => row.id !== id));
-    setEventsDirty(true);
-  }
-
-  async function handleSaveMatch() {
-    setMatchError(null);
-    if (!homeEntryId || !awayEntryId) {
-      setMatchError("Velg hjemme- og bortelag før du lagrer.");
-      return;
-    }
-    if (homeEntryId === awayEntryId) {
-      setMatchError("Hjemmelag og bortelag kan ikke være det samme.");
-      return;
-    }
-
+  function buildMatchPayload(): components["schemas"]["UpdateMatchRequest"] {
     const payload: components["schemas"]["UpdateMatchRequest"] = {
       status,
       score: {
@@ -1178,7 +1219,39 @@ function MatchEditorCard({
       payload.away_entry_id = awayEntryId;
     }
 
-    const didSave = await onSave(payload);
+    return payload;
+  }
+
+  function addEventRow() {
+    const draft = createEventDraft();
+    setEventRows((prev) => [...prev, draft]);
+    setEventsDirty(true);
+  }
+
+  function addGoalRow(side: MatchEventSide) {
+    const draft = createEventDraft({ teamSide: side, eventType: "goal" });
+    setEventRows((prev) => [...prev, draft]);
+    setEventsDirty(true);
+    setPendingEventFocusId(draft.id);
+  }
+
+  function removeEventRow(id: string) {
+    setEventRows((prev) => prev.filter((row) => row.id !== id));
+    setEventsDirty(true);
+  }
+
+  async function handleSaveMatch() {
+    setMatchError(null);
+    if (!homeEntryId || !awayEntryId) {
+      setMatchError("Velg hjemme- og bortelag før du lagrer.");
+      return;
+    }
+    if (homeEntryId === awayEntryId) {
+      setMatchError("Hjemmelag og bortelag kan ikke være det samme.");
+      return;
+    }
+
+    const didSave = await onSave(buildMatchPayload());
     if (didSave) {
       setEventsOpen(true);
     }
@@ -1192,6 +1265,10 @@ function MatchEditorCard({
     }
     if (!homeSquadId || !awaySquadId) {
       setEventsError("Troppene er ikke klare enda. Prøv igjen om litt.");
+      return;
+    }
+    if (homeEntryId === awayEntryId) {
+      setEventsError("Hjemmelag og bortelag kan ikke være det samme.");
       return;
     }
 
@@ -1254,7 +1331,10 @@ function MatchEditorCard({
         });
       }
 
-      const didSave = await onSave({ events: resolvedEvents });
+      const payload = buildMatchPayload();
+      payload.events = resolvedEvents;
+
+      const didSave = await onSave(payload);
       if (!didSave) {
         throw new Error("Kunne ikke lagre hendelsene.");
       }
@@ -1816,6 +1896,76 @@ function statusLabel(status: MatchStatus) {
     default:
       return status;
   }
+}
+
+function buildMatchIndex(
+  match: Match,
+  entryMap: Map<string, EntryReview>,
+  venueMap: Map<string, Venue>,
+): MatchIndex {
+  const labels = resolveMatchLabels(match, entryMap);
+  const venueName =
+    (match.venue_id ? venueMap.get(match.venue_id)?.name : null) ??
+    match.venue_name ??
+    null;
+  const searchable = [
+    labels.matchLabel,
+    labels.homeLabel,
+    labels.awayLabel,
+    match.round_label,
+    match.group_code,
+    venueName,
+    match.code,
+    match.id,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return {
+    id: match.id,
+    status: match.status,
+    kickoffAt: match.kickoff_at ?? null,
+    roundLabel: match.round_label ?? null,
+    groupCode: match.group_code ?? null,
+    venueId: match.venue_id ?? null,
+    venueName,
+    homeEntryId: match.home_entry_id ?? null,
+    awayEntryId: match.away_entry_id ?? null,
+    homeTeamId: labels.homeTeamId,
+    awayTeamId: labels.awayTeamId,
+    homeLabel: labels.homeLabel,
+    awayLabel: labels.awayLabel,
+    matchLabel: labels.matchLabel,
+    searchable,
+  };
+}
+
+function doesMatchIndexPassFilters(index: MatchIndex, filters: ResultsFilters) {
+  if (filters.status !== "all" && index.status !== filters.status) {
+    return false;
+  }
+  if (filters.roundLabel !== "all" && index.roundLabel !== filters.roundLabel) {
+    return false;
+  }
+  if (filters.groupCode !== "all" && index.groupCode !== filters.groupCode) {
+    return false;
+  }
+  if (filters.venueId !== "all" && index.venueId !== filters.venueId) {
+    return false;
+  }
+  if (
+    filters.teamId !== "all" &&
+    index.homeTeamId !== filters.teamId &&
+    index.awayTeamId !== filters.teamId
+  ) {
+    return false;
+  }
+  const query = filters.query.trim().toLowerCase();
+  if (query.length > 0 && !index.searchable.includes(query)) {
+    return false;
+  }
+  return true;
 }
 
 type MatchGroup = {
