@@ -87,6 +87,9 @@ export const squadMembers = pgTable(
     uniqueJersey: uniqueIndex("squad_members_unique_jersey")
       .on(table.squadId, table.jerseyNumber)
       .where(sql`${table.jerseyNumber} IS NOT NULL`),
+    uniqueMembership: uniqueIndex("squad_members_unique_membership")
+      .on(table.squadId, table.membershipId)
+      .where(sql`${table.membershipId} IS NOT NULL`),
   }),
 );
 

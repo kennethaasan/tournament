@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "squad_members_unique_membership" ON "squad_members" USING btree ("squad_id","membership_id") WHERE "squad_members"."membership_id" IS NOT NULL;

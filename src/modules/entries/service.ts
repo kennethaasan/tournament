@@ -293,7 +293,7 @@ export async function addSquadMember(
         notes: input.notes?.trim() ?? null,
       })
       .onConflictDoUpdate({
-        target: squadMembers.membershipId,
+        target: [squadMembers.squadId, squadMembers.membershipId],
         set: {
           jerseyNumber:
             typeof input.jerseyNumber === "number" ? input.jerseyNumber : null,
