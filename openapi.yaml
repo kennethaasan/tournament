@@ -557,6 +557,47 @@ paths:
                 $ref: '#/components/schemas/TeamMember'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+  /api/teams/{team_id}/members/{membership_id}:
+    patch:
+      tags: [teams]
+      summary: Update a team member
+      operationId: update_team_member
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - $ref: '#/components/parameters/MembershipId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamMemberRequest'
+      responses:
+        '200':
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamMember'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags: [teams]
+      summary: Remove a member from a team roster
+      operationId: remove_team_member
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+        - $ref: '#/components/parameters/MembershipId'
+      responses:
+        '204':
+          description: Member removed
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/teams/{team_id}/entries:
     post:
       tags: [teams]
@@ -785,6 +826,13 @@ components:
         format: uuid
     TeamId:
       name: team_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    MembershipId:
+      name: membership_id
       in: path
       required: true
       schema:
@@ -1479,6 +1527,22 @@ components:
         role:
           type: string
           enum: [player, coach, manager, staff]
+    UpdateTeamMemberRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        preferred_name:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        role:
+          type: string
+          enum: [player, coach, manager, staff]
     TeamMember:
       type: object
       required: [membership_id, person]
@@ -1708,6 +1772,13 @@ components:
           format: uuid
         full_name:
           type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        preferred_name:
+          type: string
+          nullable: true
         date_of_birth:
           type: string
           format: date

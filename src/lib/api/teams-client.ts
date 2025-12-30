@@ -107,6 +107,54 @@ export async function addTeamMember(
   });
 }
 
+export async function updateTeamMember(
+  teamId: string,
+  membershipId: string,
+  payload: components["schemas"]["UpdateTeamMemberRequest"],
+): Promise<TeamMember> {
+  const { data, error, response } = await apiClient.PATCH(
+    "/api/teams/{team_id}/members/{membership_id}",
+    {
+      params: {
+        path: {
+          team_id: teamId,
+          membership_id: membershipId,
+        },
+      },
+      body: payload,
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({
+    data,
+    error,
+    response,
+  });
+}
+
+export async function removeTeamMember(
+  teamId: string,
+  membershipId: string,
+): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/api/teams/{team_id}/members/{membership_id}",
+    {
+      params: {
+        path: {
+          team_id: teamId,
+          membership_id: membershipId,
+        },
+      },
+      credentials: "include",
+    },
+  );
+
+  if (error) {
+    unwrapResponse({ data: undefined, error, response });
+  }
+}
+
 export async function registerTeamEntry(
   teamId: string,
   payload: components["schemas"]["RegisterEntryRequest"],
