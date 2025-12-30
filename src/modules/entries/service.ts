@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { createProblem } from "@/lib/errors/problem";
 import { db, withTransaction } from "@/server/db/client";
 import {
@@ -294,6 +294,7 @@ export async function addSquadMember(
       })
       .onConflictDoUpdate({
         target: [squadMembers.squadId, squadMembers.membershipId],
+        targetWhere: sql`${squadMembers.membershipId} IS NOT NULL`,
         set: {
           jerseyNumber:
             typeof input.jerseyNumber === "number" ? input.jerseyNumber : null,
