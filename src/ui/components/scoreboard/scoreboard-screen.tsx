@@ -78,22 +78,22 @@ export function ScreenLayout({
   );
 
   return (
-    <div className="flex h-full flex-col gap-3 p-4">
+    <div className="flex flex-col gap-2 p-3">
       {/* Highlight Banner */}
       {hasHighlight && overlayText ? (
         <div
           aria-live="polite"
-          className={`rounded-lg border border-white/40 bg-white/15 px-4 py-2 text-center shadow-lg backdrop-blur transition-all duration-500 ${
+          className={`rounded-lg border border-white/40 bg-white/15 px-3 py-1.5 text-center shadow-lg backdrop-blur transition-all duration-500 ${
             highlightAnimating ? "scoreboard-animate-slide-in-down" : ""
           }`}
         >
-          <p className="text-lg font-bold leading-snug">{overlayText}</p>
+          <p className="text-base font-bold leading-snug">{overlayText}</p>
         </div>
       ) : null}
 
       {/* Live Matches - Prominent Display (compact) */}
       {liveMatches.length > 0 ? (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
           {liveMatches.map((match) => (
             <LiveMatchCard
               key={match.id}
@@ -104,31 +104,38 @@ export function ScreenLayout({
         </div>
       ) : null}
 
-      {/* Main Grid */}
-      <div className="grid flex-1 gap-3 xl:grid-cols-12">
-        {/* Matches Table - takes more space */}
+      {/* Main Grid - matches scroll, sidebars sticky */}
+      <div className="grid gap-2 xl:grid-cols-12">
+        {/* Matches Table - scrolls with page */}
         <div className="xl:col-span-8">
           <ScreenMatchesTable matches={otherMatches} entryNames={entryNames} />
         </div>
 
-        {/* Standings */}
-        <div className="space-y-3 xl:col-span-2">
-          {visibleTables.length > 0 ? (
-            <ScreenGroupTables tables={visibleTables} entryNames={entryNames} />
-          ) : (
-            <ScreenStandingsTable
-              standings={visibleStandings}
-              entryNames={entryNames}
-            />
-          )}
+        {/* Standings - sticky */}
+        <div className="xl:col-span-2">
+          <div className="sticky top-2 space-y-2">
+            {visibleTables.length > 0 ? (
+              <ScreenGroupTables
+                tables={visibleTables}
+                entryNames={entryNames}
+              />
+            ) : (
+              <ScreenStandingsTable
+                standings={visibleStandings}
+                entryNames={entryNames}
+              />
+            )}
+          </div>
         </div>
 
-        {/* Top Scorers */}
+        {/* Top Scorers - sticky */}
         <div className="xl:col-span-2">
-          <ScreenTopScorersTable
-            scorers={visibleScorers}
-            entryNames={entryNames}
-          />
+          <div className="sticky top-2">
+            <ScreenTopScorersTable
+              scorers={visibleScorers}
+              entryNames={entryNames}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -195,13 +202,13 @@ type ScreenMatchesTableProps = {
 
 function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-4 py-2">
-        <h2 className="text-xs font-bold text-white">
+    <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-3 py-1">
+        <h2 className="text-[0.65rem] font-bold text-white">
           Kampoppsett ({matches.length} kamper)
         </h2>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div>
         <Table variant="compact" fixed>
           <TableHead sticky>
             <TableHeadRow variant="compact">
@@ -304,7 +311,7 @@ type ScreenGroupTablesProps = {
 
 function ScreenGroupTables({ tables, entryNames }: ScreenGroupTablesProps) {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {tables.map((table) => (
         <ScreenStandingsTable
           key={table.groupId}
@@ -334,8 +341,8 @@ function ScreenStandingsTable({
 }: ScreenStandingsTableProps) {
   return (
     <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-3 py-1.5">
-        <h2 className="text-[0.65rem] font-bold text-white">{title}</h2>
+      <div className="border-b border-white/10 px-2 py-1">
+        <h2 className="text-[0.6rem] font-bold text-white">{title}</h2>
       </div>
       <div className="overflow-auto">
         <Table variant="compact" fixed>
@@ -427,11 +434,11 @@ function ScreenTopScorersTable({
   entryNames,
 }: ScreenTopScorersTableProps) {
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
-      <div className="border-b border-white/10 px-3 py-1.5">
-        <h2 className="text-[0.65rem] font-bold text-white">Toppscorere</h2>
+    <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+      <div className="border-b border-white/10 px-2 py-1">
+        <h2 className="text-[0.6rem] font-bold text-white">Toppscorere</h2>
       </div>
-      <div className="flex-1 overflow-auto">
+      <div>
         {scorers.length === 0 ? (
           <div className="py-2">
             <EmptyState icon="scorers" title="Ingen mål enda" />

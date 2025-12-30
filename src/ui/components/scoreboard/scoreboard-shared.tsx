@@ -417,7 +417,7 @@ export function TableHeaderCell({
   variant = "normal",
   className = "",
 }: TableHeaderCellProps) {
-  const padding = variant === "compact" ? "px-2 py-1" : "px-4 py-3";
+  const padding = variant === "compact" ? "px-1.5 py-0.5" : "px-4 py-3";
   const alignClass =
     align === "center" ? "text-center" : align === "right" ? "text-right" : "";
   const widthStyle = width ? { width } : undefined;
@@ -504,7 +504,7 @@ export function TableCell({
   className = "",
   colSpan,
 }: TableCellProps) {
-  const padding = variant === "compact" ? "px-2 py-1" : "px-4 py-3";
+  const padding = variant === "compact" ? "px-1.5 py-0.5" : "px-4 py-3";
   const alignClass =
     align === "center" ? "text-center" : align === "right" ? "text-right" : "";
   const mutedClass = muted ? "text-white/70" : "";

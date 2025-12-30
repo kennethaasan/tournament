@@ -167,7 +167,7 @@ export function ScoreboardScreen({
     <div
       className={`mx-auto text-white ${
         mode === "screen"
-          ? "flex h-full w-full max-w-[1920px] flex-col"
+          ? "w-full max-w-[1920px]"
           : "max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8 2xl:max-w-[1680px]"
       }`}
     >
@@ -256,7 +256,6 @@ export function ScoreboardScreen({
         id={mode === "screen" ? "screen-panel" : "landing-panel"}
         role="tabpanel"
         aria-labelledby={mode === "screen" ? "screen-tab" : "landing-tab"}
-        className={mode === "screen" ? "flex-1" : ""}
       >
         {mode === "screen" ? (
           <ScreenLayout
@@ -291,7 +290,7 @@ export function ScoreboardScreen({
   );
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen">
       <ScoreboardBackground
         primaryColor={theme.primaryColor}
         secondaryColor={theme.secondaryColor}
