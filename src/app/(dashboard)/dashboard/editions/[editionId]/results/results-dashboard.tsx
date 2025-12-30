@@ -39,6 +39,36 @@ type MatchEventInput = components["schemas"]["MatchEventInput"];
 type MatchEventSide = MatchEventInput["team_side"];
 type MatchEventType = MatchEventInput["event_type"];
 
+type ResultsView = "compact" | "comfortable";
+
+type ResultsFilters = {
+  query: string;
+  status: MatchStatus | "all";
+  roundLabel: string | "all";
+  groupCode: string | "all";
+  venueId: string | "all";
+  teamId: string | "all";
+  view: ResultsView;
+};
+
+type MatchIndex = {
+  id: string;
+  status: MatchStatus;
+  kickoffAt: string | null;
+  roundLabel: string | null;
+  groupCode: string | null;
+  venueId: string | null;
+  venueName: string | null;
+  homeEntryId: string | null;
+  awayEntryId: string | null;
+  homeTeamId: string | null;
+  awayTeamId: string | null;
+  homeLabel: string;
+  awayLabel: string;
+  matchLabel: string;
+  searchable: string;
+};
+
 type MatchEventDraft = {
   id: string;
   teamSide: MatchEventSide;
@@ -53,9 +83,28 @@ type ResultsDashboardProps = {
   editionId: string;
 };
 
+const EMPTY_ENTRIES: EntryReview[] = [];
+const EMPTY_MATCHES: Match[] = [];
+const EMPTY_VENUES: Venue[] = [];
+
 export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<ResultsFilters>({
+    query: "",
+    status: "all",
+    roundLabel: "all",
+    groupCode: "all",
+    venueId: "all",
+    teamId: "all",
+    view: "comfortable",
+  });
+  const [expandedMatchIds, setExpandedMatchIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const matchesQuery = useQuery({
     queryKey: editionMatchesQueryKey(editionId),
@@ -96,13 +145,17 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     },
   });
 
-  const matches = matchesQuery.data ?? [];
-  const entries = entriesQuery.data ?? [];
+  const matches = matchesQuery.data ?? EMPTY_MATCHES;
+  const entries = entriesQuery.data ?? EMPTY_ENTRIES;
   const entryMap = useMemo(
     () => new Map(entries.map((entry) => [entry.entry.id, entry])),
     [entries],
   );
-  const venues = venuesQuery.data ?? [];
+  const venues = venuesQuery.data ?? EMPTY_VENUES;
+  const venueMap = useMemo(
+    () => new Map(venues.map((venue) => [venue.id, venue])),
+    [venues],
+  );
   const isLoading =
     matchesQuery.isLoading || venuesQuery.isLoading || entriesQuery.isLoading;
   const loadError =
@@ -127,6 +180,173 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       }),
     [matches],
   );
+
+  const matchIndexes = useMemo(
+    () =>
+      matches.map((match) => {
+        const labels = resolveMatchLabels(match, entryMap);
+        const venueName =
+          (match.venue_id ? venueMap.get(match.venue_id)?.name : null) ??
+          match.venue_name ??
+          null;
+        const searchable = [
+          labels.matchLabel,
+          labels.homeLabel,
+          labels.awayLabel,
+          match.round_label,
+          match.group_code,
+          venueName,
+          match.code,
+          match.id,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return {
+          id: match.id,
+          status: match.status,
+          kickoffAt: match.kickoff_at ?? null,
+          roundLabel: match.round_label ?? null,
+          groupCode: match.group_code ?? null,
+          venueId: match.venue_id ?? null,
+          venueName,
+          homeEntryId: match.home_entry_id ?? null,
+          awayEntryId: match.away_entry_id ?? null,
+          homeTeamId: labels.homeTeamId,
+          awayTeamId: labels.awayTeamId,
+          homeLabel: labels.homeLabel,
+          awayLabel: labels.awayLabel,
+          matchLabel: labels.matchLabel,
+          searchable,
+        } satisfies MatchIndex;
+      }),
+    [entryMap, matches, venueMap],
+  );
+
+  const matchIndexById = useMemo(
+    () => new Map(matchIndexes.map((match) => [match.id, match])),
+    [matchIndexes],
+  );
+
+  const roundOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          matchIndexes
+            .map((match) => match.roundLabel)
+            .filter((label): label is string => Boolean(label)),
+        ),
+      ).sort((left, right) => left.localeCompare(right, "nb")),
+    [matchIndexes],
+  );
+
+  const groupOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          matchIndexes
+            .map((match) => match.groupCode)
+            .filter((code): code is string => Boolean(code)),
+        ),
+      ).sort((left, right) => left.localeCompare(right, "nb")),
+    [matchIndexes],
+  );
+
+  const teamOptions = useMemo(() => {
+    const uniqueTeams = new Map<string, { id: string; name: string }>();
+    for (const entry of entries) {
+      if (!uniqueTeams.has(entry.team.id)) {
+        uniqueTeams.set(entry.team.id, {
+          id: entry.team.id,
+          name: entry.team.name,
+        });
+      }
+    }
+    return Array.from(uniqueTeams.values()).sort((left, right) =>
+      left.name.localeCompare(right.name, "nb"),
+    );
+  }, [entries]);
+
+  const filteredMatches = useMemo(() => {
+    const query = filters.query.trim().toLowerCase();
+    return sortedMatches.filter((match) => {
+      const index = matchIndexById.get(match.id);
+      if (!index) {
+        return false;
+      }
+      if (filters.status !== "all" && index.status !== filters.status) {
+        return false;
+      }
+      if (
+        filters.roundLabel !== "all" &&
+        index.roundLabel !== filters.roundLabel
+      ) {
+        return false;
+      }
+      if (
+        filters.groupCode !== "all" &&
+        index.groupCode !== filters.groupCode
+      ) {
+        return false;
+      }
+      if (filters.venueId !== "all" && index.venueId !== filters.venueId) {
+        return false;
+      }
+      if (
+        filters.teamId !== "all" &&
+        index.homeTeamId !== filters.teamId &&
+        index.awayTeamId !== filters.teamId
+      ) {
+        return false;
+      }
+      if (query.length > 0 && !index.searchable.includes(query)) {
+        return false;
+      }
+      return true;
+    });
+  }, [
+    filters.groupCode,
+    filters.query,
+    filters.roundLabel,
+    filters.status,
+    filters.teamId,
+    filters.venueId,
+    matchIndexById,
+    sortedMatches,
+  ]);
+
+  const groupedMatches = useMemo(
+    () => groupMatches(filteredMatches),
+    [filteredMatches],
+  );
+
+  useEffect(() => {
+    setExpandedMatchIds((current) => {
+      if (filters.view === "comfortable") {
+        return new Set(filteredMatches.map((match) => match.id));
+      }
+      if (current.size === 0) {
+        return current;
+      }
+      return new Set();
+    });
+  }, [filters.view, filteredMatches]);
+
+  useEffect(() => {
+    setExpandedMatchIds((current) => {
+      if (current.size === 0) {
+        return current;
+      }
+      const next = new Set<string>();
+      for (const match of filteredMatches) {
+        if (current.has(match.id)) {
+          next.add(match.id);
+        }
+      }
+      return next.size === current.size ? current : next;
+    });
+  }, [filteredMatches]);
 
   return (
     <div className="space-y-8">
@@ -168,32 +388,441 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
           Ingen kamper registrert ennå.
         </div>
       ) : (
-        <div className="space-y-4">
-          {sortedMatches.map((match) => (
-            <MatchEditorCard
-              key={match.id}
-              match={match}
-              entries={entries}
-              entryMap={entryMap}
-              venues={venues}
-              isSaving={updateMutation.isPending}
-              onSave={async (payload) => {
-                setActionError(null);
-                try {
-                  await updateMutation.mutateAsync({
-                    matchId: match.id,
-                    payload,
-                  });
-                  return true;
-                } catch {
-                  // handled in mutation callbacks
-                  return false;
-                }
-              }}
-            />
-          ))}
-        </div>
+        <>
+          <section className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-sm">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="min-w-[220px] flex-1 space-y-2">
+                <label
+                  htmlFor="match-search"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Søk
+                </label>
+                <input
+                  id="match-search"
+                  value={filters.query}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      query: event.target.value,
+                    }))
+                  }
+                  placeholder="Lag, kode, runde eller arena"
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <div className="min-w-[160px] space-y-2">
+                <label
+                  htmlFor="match-status"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Status
+                </label>
+                <select
+                  id="match-status"
+                  value={filters.status}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      status: event.target.value as MatchStatus | "all",
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">Alle</option>
+                  <option value="scheduled">Planlagt</option>
+                  <option value="in_progress">Pågår</option>
+                  <option value="finalized">Fullført</option>
+                  <option value="disputed">Tvist</option>
+                </select>
+              </div>
+              <div className="min-w-[160px] space-y-2">
+                <label
+                  htmlFor="match-round"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Runde
+                </label>
+                <select
+                  id="match-round"
+                  value={filters.roundLabel}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      roundLabel: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">Alle</option>
+                  {roundOptions.map((label) => (
+                    <option key={label} value={label}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-[160px] space-y-2">
+                <label
+                  htmlFor="match-group"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Gruppe
+                </label>
+                <select
+                  id="match-group"
+                  value={filters.groupCode}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      groupCode: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">Alle</option>
+                  {groupOptions.map((code) => (
+                    <option key={code} value={code}>
+                      {code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-[160px] space-y-2">
+                <label
+                  htmlFor="match-venue"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Arena
+                </label>
+                <select
+                  id="match-venue"
+                  value={filters.venueId}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      venueId: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">Alle</option>
+                  {venues.map((venue) => (
+                    <option key={venue.id} value={venue.id}>
+                      {venue.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="min-w-[180px] space-y-2">
+                <label
+                  htmlFor="match-team"
+                  className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Lag
+                </label>
+                <select
+                  id="match-team"
+                  value={filters.teamId}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      teamId: event.target.value,
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="all">Alle</option>
+                  {teamOptions.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-1 flex-wrap items-center justify-between gap-3 md:justify-end">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilters((current) => ({
+                        ...current,
+                        view: "compact",
+                      }))
+                    }
+                    className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                      filters.view === "compact"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/70 text-foreground hover:bg-primary/5"
+                    }`}
+                  >
+                    Kompakt
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFilters((current) => ({
+                        ...current,
+                        view: "comfortable",
+                      }))
+                    }
+                    className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
+                      filters.view === "comfortable"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border/70 text-foreground hover:bg-primary/5"
+                    }`}
+                  >
+                    Komfort
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      query: "",
+                      status: "all",
+                      roundLabel: "all",
+                      groupCode: "all",
+                      venueId: "all",
+                      teamId: "all",
+                    }))
+                  }
+                  className="rounded-md border border-border/70 px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/5"
+                >
+                  Nullstill
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-muted-foreground">
+              Viser {filteredMatches.length} av {sortedMatches.length} kamper.
+            </div>
+          </section>
+
+          {filteredMatches.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
+              Ingen kamper matcher filteret.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedMatchIds(
+                        new Set(filteredMatches.map((match) => match.id)),
+                      )
+                    }
+                    className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
+                  >
+                    Vis alle
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedMatchIds(new Set())}
+                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                  >
+                    Skjul alle
+                  </button>
+                </div>
+                {groupedMatches.length > 1 ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCollapsedGroupKeys(new Set())}
+                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                    >
+                      Åpne alle grupper
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCollapsedGroupKeys(
+                          new Set(groupedMatches.map((group) => group.key)),
+                        )
+                      }
+                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                    >
+                      Skjul alle grupper
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+
+              {groupedMatches.map((group) => {
+                const isCollapsed = collapsedGroupKeys.has(group.key);
+                return (
+                  <section
+                    key={group.key}
+                    className="rounded-2xl border border-border/60 bg-card/40 p-4 shadow-sm"
+                  >
+                    <header className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {group.title}
+                        </h3>
+                        {group.subtitle ? (
+                          <p className="text-xs text-muted-foreground">
+                            {group.subtitle}
+                          </p>
+                        ) : null}
+                        <p className="text-xs text-muted-foreground">
+                          {group.matches.length} kamper
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCollapsedGroupKeys((current) => {
+                            const next = new Set(current);
+                            if (next.has(group.key)) {
+                              next.delete(group.key);
+                            } else {
+                              next.add(group.key);
+                            }
+                            return next;
+                          })
+                        }
+                        className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                      >
+                        {isCollapsed ? "Vis" : "Skjul"}
+                      </button>
+                    </header>
+
+                    {isCollapsed ? null : (
+                      <div className="mt-4 space-y-3">
+                        {group.matches.map((match) => {
+                          const isExpanded = expandedMatchIds.has(match.id);
+                          const labels = matchIndexById.get(match.id);
+                          return (
+                            <div key={match.id} className="space-y-2">
+                              {filters.view === "compact" || !isExpanded ? (
+                                <MatchSummaryRow
+                                  match={match}
+                                  labels={labels}
+                                  isExpanded={isExpanded}
+                                  onToggle={() =>
+                                    setExpandedMatchIds((current) => {
+                                      const next = new Set(current);
+                                      if (next.has(match.id)) {
+                                        next.delete(match.id);
+                                      } else {
+                                        next.add(match.id);
+                                      }
+                                      return next;
+                                    })
+                                  }
+                                />
+                              ) : null}
+                              {isExpanded ? (
+                                <div className="space-y-2">
+                                  {filters.view === "comfortable" ? (
+                                    <div className="flex justify-end">
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setExpandedMatchIds((current) => {
+                                            const next = new Set(current);
+                                            next.delete(match.id);
+                                            return next;
+                                          })
+                                        }
+                                        className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                                      >
+                                        Skjul detaljer
+                                      </button>
+                                    </div>
+                                  ) : null}
+                                  <MatchEditorCard
+                                    match={match}
+                                    entries={entries}
+                                    entryMap={entryMap}
+                                    venues={venues}
+                                    isSaving={updateMutation.isPending}
+                                    onSave={async (payload) => {
+                                      setActionError(null);
+                                      try {
+                                        await updateMutation.mutateAsync({
+                                          matchId: match.id,
+                                          payload,
+                                        });
+                                        return true;
+                                      } catch {
+                                        // handled in mutation callbacks
+                                        return false;
+                                      }
+                                    }}
+                                  />
+                                </div>
+                              ) : null}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
+    </div>
+  );
+}
+
+type MatchSummaryRowProps = {
+  match: Match;
+  labels: MatchIndex | undefined;
+  isExpanded: boolean;
+  onToggle: () => void;
+};
+
+function MatchSummaryRow({
+  match,
+  labels,
+  isExpanded,
+  onToggle,
+}: MatchSummaryRowProps) {
+  const kickoffLabel = match.kickoff_at
+    ? new Date(match.kickoff_at).toLocaleString("no-NB")
+    : "Tidspunkt ikke satt";
+  const homeScore = match.home_score?.regulation ?? 0;
+  const awayScore = match.away_score?.regulation ?? 0;
+  const summaryLabel =
+    labels?.matchLabel ?? match.code ?? match.group_code ?? "Uten kode";
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3">
+      <div className="space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+          {summaryLabel}
+        </p>
+        <p className="text-sm font-semibold text-foreground">
+          {labels?.homeLabel ?? match.home_entry_name ?? "Ukjent"} –{" "}
+          {labels?.awayLabel ?? match.away_entry_name ?? "Ukjent"}
+        </p>
+        <p className="text-xs text-muted-foreground">{kickoffLabel}</p>
+        {labels?.venueName ? (
+          <p className="text-xs text-muted-foreground">{labels.venueName}</p>
+        ) : null}
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground">
+          {statusLabel(match.status)}
+        </span>
+        <span className="text-sm font-semibold text-foreground">
+          {homeScore}–{awayScore}
+        </span>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+        >
+          {isExpanded ? "Skjul" : "Rediger"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -672,21 +1301,6 @@ function MatchEditorCard({
       <div className="grid gap-4 md:grid-cols-[1fr_1fr_1fr]">
         <div className="space-y-2">
           <label
-            htmlFor={`${idBase}-code`}
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            Kampkode
-          </label>
-          <input
-            id={`${idBase}-code`}
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            placeholder="Valgfritt"
-            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        <div className="space-y-2">
-          <label
             htmlFor={`${idBase}-home-entry`}
             className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
           >
@@ -727,40 +1341,80 @@ function MatchEditorCard({
             ))}
           </select>
         </div>
-      </div>
-
-      <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_1fr]">
         <div className="space-y-2">
           <label
-            htmlFor={`${idBase}-home-score`}
+            htmlFor={`${idBase}-code`}
             className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
           >
-            Hjemmelag
+            Kampkode
           </label>
           <input
-            id={`${idBase}-home-score`}
-            type="number"
-            min={0}
-            value={homeScore}
-            onChange={(event) => handleScoreChange("home", event.target.value)}
+            id={`${idBase}-code`}
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            placeholder="Valgfritt"
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
-        <div className="space-y-2">
-          <label
-            htmlFor={`${idBase}-away-score`}
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            Bortelag
-          </label>
-          <input
-            id={`${idBase}-away-score`}
-            type="number"
-            min={0}
-            value={awayScore}
-            onChange={(event) => handleScoreChange("away", event.target.value)}
-            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Resultat
+          </p>
+          <div className="space-y-2">
+            <div className="grid items-center gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3 md:grid-cols-[minmax(0,1fr)_96px]">
+              <div>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Hjemmelag
+                </p>
+                <p className="text-sm font-semibold text-foreground">
+                  {homeLabel}
+                </p>
+              </div>
+              <div className="flex items-center justify-end">
+                <label htmlFor={`${idBase}-home-score`} className="sr-only">
+                  Hjemmelag score
+                </label>
+                <input
+                  id={`${idBase}-home-score`}
+                  type="number"
+                  min={0}
+                  value={homeScore}
+                  onChange={(event) =>
+                    handleScoreChange("home", event.target.value)
+                  }
+                  className="w-20 rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+            <div className="grid items-center gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3 md:grid-cols-[minmax(0,1fr)_96px]">
+              <div>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Bortelag
+                </p>
+                <p className="text-sm font-semibold text-foreground">
+                  {awayLabel}
+                </p>
+              </div>
+              <div className="flex items-center justify-end">
+                <label htmlFor={`${idBase}-away-score`} className="sr-only">
+                  Bortelag score
+                </label>
+                <input
+                  id={`${idBase}-away-score`}
+                  type="number"
+                  min={0}
+                  value={awayScore}
+                  onChange={(event) =>
+                    handleScoreChange("away", event.target.value)
+                  }
+                  className="w-20 rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <div className="space-y-2">
           <label
@@ -1162,4 +1816,66 @@ function statusLabel(status: MatchStatus) {
     default:
       return status;
   }
+}
+
+type MatchGroup = {
+  key: string;
+  title: string;
+  subtitle: string | null;
+  matches: Match[];
+};
+
+function groupMatches(matches: Match[]): MatchGroup[] {
+  const groups: MatchGroup[] = [];
+  const groupMap = new Map<string, MatchGroup>();
+
+  for (const match of matches) {
+    const roundLabel = match.round_label ?? "Ukjent runde";
+    const subtitle = match.group_code ? `Gruppe ${match.group_code}` : null;
+    const key = `${roundLabel}::${match.group_code ?? "none"}`;
+
+    const existing = groupMap.get(key);
+    if (existing) {
+      existing.matches.push(match);
+      continue;
+    }
+
+    const group: MatchGroup = {
+      key,
+      title: roundLabel,
+      subtitle,
+      matches: [match],
+    };
+    groupMap.set(key, group);
+    groups.push(group);
+  }
+
+  return groups;
+}
+
+function resolveMatchLabels(match: Match, entryMap: Map<string, EntryReview>) {
+  const homeEntry = match.home_entry_id
+    ? (entryMap.get(match.home_entry_id) ?? null)
+    : null;
+  const awayEntry = match.away_entry_id
+    ? (entryMap.get(match.away_entry_id) ?? null)
+    : null;
+
+  const matchLabel = match.code?.trim() || match.group_code || "Uten kode";
+
+  return {
+    matchLabel,
+    homeLabel:
+      homeEntry?.team.name ??
+      match.home_entry_name ??
+      match.home_entry_id ??
+      "Ukjent",
+    awayLabel:
+      awayEntry?.team.name ??
+      match.away_entry_name ??
+      match.away_entry_id ??
+      "Ukjent",
+    homeTeamId: homeEntry?.team.id ?? null,
+    awayTeamId: awayEntry?.team.id ?? null,
+  };
 }

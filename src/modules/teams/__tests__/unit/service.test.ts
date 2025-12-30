@@ -299,7 +299,7 @@ describe("teams service", () => {
         leftAt: null,
       };
 
-      let updatedMembership: MembershipRecord | null = null;
+      let updatedMembership: MembershipRecord = existingMembership;
 
       const fakeDb = {
         query: {
@@ -325,9 +325,8 @@ describe("teams service", () => {
         { db: fakeDb as unknown as TeamServiceDeps["db"] },
       );
 
-      expect(updatedMembership).not.toBeNull();
-      expect(updatedMembership!.status).toBe("inactive");
-      expect(updatedMembership!.leftAt).toBeInstanceOf(Date);
+      expect(updatedMembership.status).toBe("inactive");
+      expect(updatedMembership.leftAt).toBeInstanceOf(Date);
     });
 
     it("throws when membership not found", async () => {
