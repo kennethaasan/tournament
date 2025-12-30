@@ -336,6 +336,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/teams/{team_id}/members/{membership_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove a member from a team roster */
+    delete: operations["remove_team_member"];
+    options?: never;
+    head?: never;
+    /** Update a team member */
+    patch: operations["update_team_member"];
+    trace?: never;
+  };
   "/api/teams/{team_id}/entries": {
     parameters: {
       query?: never;
@@ -814,6 +832,14 @@ export interface components {
       /** @enum {string} */
       role?: "player" | "coach" | "manager" | "staff";
     };
+    UpdateTeamMemberRequest: {
+      first_name?: string;
+      last_name?: string;
+      preferred_name?: string | null;
+      country?: string | null;
+      /** @enum {string} */
+      role?: "player" | "coach" | "manager" | "staff";
+    };
     TeamMember: {
       /** Format: uuid */
       membership_id: string;
@@ -925,6 +951,9 @@ export interface components {
       /** Format: uuid */
       id: string;
       full_name: string;
+      first_name?: string;
+      last_name?: string;
+      preferred_name?: string | null;
       /** Format: date */
       date_of_birth?: string | null;
       /** @enum {string} */
@@ -1089,6 +1118,7 @@ export interface components {
     MatchId: string;
     VenueId: string;
     TeamId: string;
+    MembershipId: string;
     EntryId: string;
     SquadId: string;
     /** @description Continue notification pagination */
@@ -1803,6 +1833,59 @@ export interface operations {
           "application/json": components["schemas"]["TeamMember"];
         };
       };
+      404: components["responses"]["ProblemDetails"];
+    };
+  };
+  remove_team_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+        membership_id: components["parameters"]["MembershipId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Member removed */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+    };
+  };
+  update_team_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+        membership_id: components["parameters"]["MembershipId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTeamMemberRequest"];
+      };
+    };
+    responses: {
+      /** @description Member updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamMember"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
     };
   };

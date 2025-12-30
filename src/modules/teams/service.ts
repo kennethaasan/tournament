@@ -38,6 +38,14 @@ export type CreatePersonInput = {
   country?: string | null;
 };
 
+export type UpdateTeamMemberInput = {
+  firstName?: string;
+  lastName?: string;
+  preferredName?: string | null;
+  country?: string | null;
+  role?: TeamMembership["role"];
+};
+
 export type RosterMember = {
   membershipId: string;
   person: Person;
@@ -296,4 +304,129 @@ export async function updateTeam(
   }
 
   return updatedTeam;
+}
+
+export async function updateTeamMember(
+  options: {
+    teamId: string;
+    membershipId: string;
+    updates: UpdateTeamMemberInput;
+  },
+  deps: TeamServiceDeps = {},
+): Promise<RosterMember> {
+  const withTransaction = deps.withTransaction ?? defaultWithTransaction;
+
+  return await withTransaction(async (tx) => {
+    // Find membership with person
+    const membershipRows = await tx
+      .select({
+        membership: teamMemberships,
+        person: persons,
+      })
+      .from(teamMemberships)
+      .innerJoin(persons, eq(teamMemberships.personId, persons.id))
+      .where(
+        and(
+          eq(teamMemberships.id, options.membershipId),
+          eq(teamMemberships.teamId, options.teamId),
+        ),
+      )
+      .limit(1);
+
+    const row = membershipRows[0];
+    if (!row) {
+      throw createProblem({
+        type: "https://tournament.app/problems/membership-not-found",
+        title: "Team member not found",
+        status: 404,
+        detail: "The team member you are trying to update does not exist.",
+      });
+    }
+
+    // Update person fields if provided
+    const personUpdates: Partial<Person> = {};
+    if (options.updates.firstName !== undefined) {
+      personUpdates.firstName = options.updates.firstName.trim();
+    }
+    if (options.updates.lastName !== undefined) {
+      personUpdates.lastName = options.updates.lastName.trim();
+    }
+    if (options.updates.preferredName !== undefined) {
+      personUpdates.preferredName =
+        options.updates.preferredName?.trim() || null;
+    }
+    if (options.updates.country !== undefined) {
+      personUpdates.country = options.updates.country?.trim() || null;
+    }
+
+    let updatedPerson = row.person;
+    if (Object.keys(personUpdates).length > 0) {
+      const [updated] = await tx
+        .update(persons)
+        .set(personUpdates)
+        .where(eq(persons.id, row.person.id))
+        .returning();
+      if (updated) {
+        updatedPerson = updated;
+      }
+    }
+
+    // Update membership role if provided
+    let updatedMembership = row.membership;
+    if (options.updates.role !== undefined) {
+      const [updated] = await tx
+        .update(teamMemberships)
+        .set({ role: options.updates.role })
+        .where(eq(teamMemberships.id, options.membershipId))
+        .returning();
+      if (updated) {
+        updatedMembership = updated;
+      }
+    }
+
+    return {
+      membershipId: updatedMembership.id,
+      person: updatedPerson,
+      role: updatedMembership.role,
+      status: updatedMembership.status,
+      joinedAt: updatedMembership.joinedAt ?? null,
+      leftAt: updatedMembership.leftAt ?? null,
+    };
+  });
+}
+
+export async function removeTeamMember(
+  options: {
+    teamId: string;
+    membershipId: string;
+  },
+  deps: TeamServiceDeps = {},
+): Promise<void> {
+  const db = deps.db ?? defaultDb;
+
+  // First verify the membership exists and belongs to this team
+  const membership = await db.query.teamMemberships.findFirst({
+    where: and(
+      eq(teamMemberships.id, options.membershipId),
+      eq(teamMemberships.teamId, options.teamId),
+    ),
+  });
+
+  if (!membership) {
+    throw createProblem({
+      type: "https://tournament.app/problems/membership-not-found",
+      title: "Team member not found",
+      status: 404,
+      detail: "The team member you are trying to remove does not exist.",
+    });
+  }
+
+  // Soft delete by setting status to inactive
+  await db
+    .update(teamMemberships)
+    .set({
+      status: "inactive",
+      leftAt: new Date(),
+    })
+    .where(eq(teamMemberships.id, options.membershipId));
 }

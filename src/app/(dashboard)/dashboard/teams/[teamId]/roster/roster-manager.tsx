@@ -6,12 +6,25 @@ import type { components } from "@/lib/api/generated/openapi";
 import {
   addTeamMember,
   fetchTeamRoster,
+  removeTeamMember,
   teamRosterQueryKey,
   updateTeam,
+  updateTeamMember,
 } from "@/lib/api/teams-client";
+import { ConfirmDialog, Dialog } from "@/ui/components/dialog";
 
 type TeamMemberRole = components["schemas"]["AddTeamMemberRequest"]["role"];
+type TeamMember = components["schemas"]["TeamMember"];
+
 type RosterFormState = {
+  firstName: string;
+  lastName: string;
+  preferredName: string;
+  country: string;
+  role: TeamMemberRole;
+};
+
+type EditMemberFormState = {
   firstName: string;
   lastName: string;
   preferredName: string;
@@ -38,6 +51,21 @@ export function RosterManager({ teamId }: RosterManagerProps) {
   const [editedName, setEditedName] = useState("");
   const [nameError, setNameError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Edit member modal state
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [editMemberForm, setEditMemberForm] = useState<EditMemberFormState>({
+    firstName: "",
+    lastName: "",
+    preferredName: "",
+    country: "",
+    role: "player",
+  });
+  const [editMemberError, setEditMemberError] = useState<string | null>(null);
+
+  // Remove member confirmation state
+  const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -88,6 +116,50 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     },
   });
 
+  const updateMemberMutation = useMutation({
+    mutationFn: (membershipId: string) =>
+      updateTeamMember(teamId, membershipId, {
+        first_name: editMemberForm.firstName,
+        last_name: editMemberForm.lastName,
+        preferred_name: editMemberForm.preferredName || null,
+        country: editMemberForm.country || null,
+        role: editMemberForm.role,
+      }),
+    onSuccess: () => {
+      setEditingMember(null);
+      setEditMemberError(null);
+      void queryClient.invalidateQueries({
+        queryKey: teamRosterQueryKey(teamId),
+      });
+    },
+    onError: (err) => {
+      setEditMemberError(
+        err instanceof Error
+          ? err.message
+          : "Kunne ikke oppdatere medlemmet. Prøv igjen.",
+      );
+    },
+  });
+
+  const removeMemberMutation = useMutation({
+    mutationFn: (membershipId: string) =>
+      removeTeamMember(teamId, membershipId),
+    onSuccess: () => {
+      setMemberToRemove(null);
+      setRemoveError(null);
+      void queryClient.invalidateQueries({
+        queryKey: teamRosterQueryKey(teamId),
+      });
+    },
+    onError: (err) => {
+      setRemoveError(
+        err instanceof Error
+          ? err.message
+          : "Kunne ikke fjerne medlemmet. Prøv igjen.",
+      );
+    },
+  });
+
   // Focus input when editing starts
   useEffect(() => {
     if (isEditingName && nameInputRef.current) {
@@ -131,10 +203,61 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     await updateTeamMutation.mutateAsync(trimmedName);
   }
 
+  function handleStartEditMember(member: TeamMember) {
+    setEditingMember(member);
+    setEditMemberForm({
+      firstName: member.person.first_name ?? "",
+      lastName: member.person.last_name ?? "",
+      preferredName: member.person.preferred_name ?? "",
+      country: "",
+      role: (member.role as TeamMemberRole) ?? "player",
+    });
+    setEditMemberError(null);
+  }
+
+  function handleCloseEditMember() {
+    setEditingMember(null);
+    setEditMemberError(null);
+  }
+
+  async function handleSaveMember(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editingMember) return;
+
+    const trimmedFirstName = editMemberForm.firstName.trim();
+    const trimmedLastName = editMemberForm.lastName.trim();
+
+    if (!trimmedFirstName || !trimmedLastName) {
+      setEditMemberError("Fornavn og etternavn er påkrevd.");
+      return;
+    }
+
+    await updateMemberMutation.mutateAsync(editingMember.membership_id);
+  }
+
+  function handleStartRemoveMember(member: TeamMember) {
+    setMemberToRemove(member);
+    setRemoveError(null);
+  }
+
+  function handleCancelRemove() {
+    setMemberToRemove(null);
+    setRemoveError(null);
+  }
+
+  async function handleConfirmRemove() {
+    if (!memberToRemove) return;
+    await removeMemberMutation.mutateAsync(memberToRemove.membership_id);
+  }
+
   const isLoadingRoster = rosterQuery.isLoading;
   const rosterError =
     rosterQuery.error instanceof Error ? rosterQuery.error.message : null;
   const roster = rosterQuery.data;
+
+  // Filter to only show active members
+  const activeMembers =
+    roster?.members.filter((m) => m.status === "active") ?? [];
 
   return (
     <div className="space-y-8">
@@ -212,24 +335,39 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 <tr className="text-xs uppercase tracking-wide text-muted-foreground">
                   <th className="px-2 py-2">Navn</th>
                   <th className="px-2 py-2">Rolle</th>
-                  <th className="px-2 py-2">Status</th>
+                  <th className="px-2 py-2 text-right">Handlinger</th>
                 </tr>
               </thead>
               <tbody>
-                {roster?.members.map((member) => (
+                {activeMembers.map((member) => (
                   <tr key={member.membership_id} className="border-t">
                     <td className="px-2 py-2 text-foreground">
                       {member.person.full_name}
                     </td>
                     <td className="px-2 py-2 text-muted-foreground">
-                      {member.role}
+                      {formatRole(member.role)}
                     </td>
-                    <td className="px-2 py-2 text-muted-foreground">
-                      {member.status}
+                    <td className="px-2 py-2 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditMember(member)}
+                          className="rounded-md border border-border px-2 py-1 text-xs font-medium text-foreground transition hover:bg-muted"
+                        >
+                          Rediger
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStartRemoveMember(member)}
+                          className="rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive transition hover:bg-destructive/10"
+                        >
+                          Fjern
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
-                {!roster?.members.length && (
+                {!activeMembers.length && (
                   <tr>
                     <td
                       className="px-2 py-4 text-center text-sm text-muted-foreground"
@@ -384,6 +522,198 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           </button>
         </form>
       </section>
+
+      {/* Edit Member Modal */}
+      <Dialog
+        open={editingMember !== null}
+        onOpenChange={(open) => {
+          if (!open) handleCloseEditMember();
+        }}
+        title="Rediger medlem"
+      >
+        <form onSubmit={handleSaveMember} className="space-y-4">
+          {editMemberError && (
+            <div
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
+              {editMemberError}
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="edit-first-name"
+            >
+              Fornavn
+            </label>
+            <input
+              id="edit-first-name"
+              type="text"
+              value={editMemberForm.firstName}
+              onChange={(e) =>
+                setEditMemberForm((prev) => ({
+                  ...prev,
+                  firstName: e.target.value,
+                }))
+              }
+              required
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="edit-last-name"
+            >
+              Etternavn
+            </label>
+            <input
+              id="edit-last-name"
+              type="text"
+              value={editMemberForm.lastName}
+              onChange={(e) =>
+                setEditMemberForm((prev) => ({
+                  ...prev,
+                  lastName: e.target.value,
+                }))
+              }
+              required
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="edit-preferred-name"
+            >
+              Kallenavn (valgfritt)
+            </label>
+            <input
+              id="edit-preferred-name"
+              type="text"
+              value={editMemberForm.preferredName}
+              onChange={(e) =>
+                setEditMemberForm((prev) => ({
+                  ...prev,
+                  preferredName: e.target.value,
+                }))
+              }
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="edit-country"
+            >
+              Land (valgfritt)
+            </label>
+            <input
+              id="edit-country"
+              type="text"
+              value={editMemberForm.country}
+              onChange={(e) =>
+                setEditMemberForm((prev) => ({
+                  ...prev,
+                  country: e.target.value,
+                }))
+              }
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              className="text-sm font-medium text-foreground"
+              htmlFor="edit-role"
+            >
+              Rolle
+            </label>
+            <select
+              id="edit-role"
+              value={editMemberForm.role}
+              onChange={(e) =>
+                setEditMemberForm((prev) => ({
+                  ...prev,
+                  role: e.target.value as TeamMemberRole,
+                }))
+              }
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="player">Spiller</option>
+              <option value="coach">Trener</option>
+              <option value="manager">Lagleder</option>
+              <option value="staff">Støtteapparat</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={handleCloseEditMember}
+              disabled={updateMemberMutation.isPending}
+              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              Avbryt
+            </button>
+            <button
+              type="submit"
+              disabled={updateMemberMutation.isPending}
+              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {updateMemberMutation.isPending ? "Lagrer …" : "Lagre"}
+            </button>
+          </div>
+        </form>
+      </Dialog>
+
+      {/* Remove Member Confirmation */}
+      <ConfirmDialog
+        open={memberToRemove !== null}
+        onOpenChange={(open) => {
+          if (!open) handleCancelRemove();
+        }}
+        onConfirm={handleConfirmRemove}
+        title="Fjern medlem"
+        description={
+          memberToRemove
+            ? `Er du sikker på at du vil fjerne ${memberToRemove.person.full_name} fra laget? Medlemmet vil bli deaktivert og kan ikke velges til tropper.`
+            : ""
+        }
+        confirmLabel="Fjern"
+        cancelLabel="Avbryt"
+        isLoading={removeMemberMutation.isPending}
+        variant="danger"
+      />
+
+      {removeError && (
+        <div
+          role="alert"
+          className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {removeError}
+        </div>
+      )}
     </div>
   );
+}
+
+function formatRole(role: string | undefined): string {
+  switch (role) {
+    case "player":
+      return "Spiller";
+    case "coach":
+      return "Trener";
+    case "manager":
+      return "Lagleder";
+    case "staff":
+      return "Støtteapparat";
+    default:
+      return role ?? "Ukjent";
+  }
 }

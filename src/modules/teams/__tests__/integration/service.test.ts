@@ -4,7 +4,9 @@ import {
   addRosterMember,
   createTeam,
   listTeamRoster,
+  removeTeamMember,
   updateTeam,
+  updateTeamMember,
 } from "@/modules/teams/service";
 import { db } from "@/server/db/client";
 import { persons, teamMemberships, teams } from "@/server/db/schema";
@@ -165,6 +167,158 @@ describe("teams service integration", () => {
 
       expect(updated.name).toBe("Trimmed Name");
       expect(updated.slug).toBe("trimmed-name");
+    });
+  });
+
+  describe("updateTeamMember", () => {
+    it("updates person fields for a team member", async () => {
+      const team = await createTeam({ name: "Update Member Team" });
+      const member = await addRosterMember({
+        teamId: team.id,
+        person: {
+          firstName: "Ida",
+          lastName: "Strand",
+          preferredName: null,
+          country: "NO",
+        },
+        role: "player",
+      });
+
+      const updated = await updateTeamMember({
+        teamId: team.id,
+        membershipId: member.membershipId,
+        updates: {
+          firstName: "Idun",
+          lastName: "Strandheim",
+          preferredName: "Idun S",
+          country: "SE",
+        },
+      });
+
+      expect(updated.person.firstName).toBe("Idun");
+      expect(updated.person.lastName).toBe("Strandheim");
+      expect(updated.person.preferredName).toBe("Idun S");
+      expect(updated.person.country).toBe("SE");
+    });
+
+    it("updates membership role for a team member", async () => {
+      const team = await createTeam({ name: "Role Update Team" });
+      const member = await addRosterMember({
+        teamId: team.id,
+        person: { firstName: "Kari", lastName: "Nordmann" },
+        role: "player",
+      });
+
+      const updated = await updateTeamMember({
+        teamId: team.id,
+        membershipId: member.membershipId,
+        updates: { role: "coach" },
+      });
+
+      expect(updated.role).toBe("coach");
+      expect(updated.person.firstName).toBe("Kari");
+    });
+
+    it("updates both person and role simultaneously", async () => {
+      const team = await createTeam({ name: "Combined Update Team" });
+      const member = await addRosterMember({
+        teamId: team.id,
+        person: { firstName: "Per", lastName: "Hansen" },
+        role: "player",
+      });
+
+      const updated = await updateTeamMember({
+        teamId: team.id,
+        membershipId: member.membershipId,
+        updates: {
+          firstName: "Peter",
+          role: "manager",
+        },
+      });
+
+      expect(updated.person.firstName).toBe("Peter");
+      expect(updated.role).toBe("manager");
+    });
+
+    it("throws when membership does not exist", async () => {
+      const team = await createTeam({ name: "Missing Member Team" });
+
+      await expect(
+        updateTeamMember({
+          teamId: team.id,
+          membershipId: "00000000-0000-0000-0000-000000000999",
+          updates: { firstName: "Ghost" },
+        }),
+      ).rejects.toBeInstanceOf(ProblemError);
+    });
+
+    it("throws when membership belongs to different team", async () => {
+      const team1 = await createTeam({ name: "Team One" });
+      const team2 = await createTeam({ name: "Team Two" });
+      const member = await addRosterMember({
+        teamId: team1.id,
+        person: { firstName: "Wrong", lastName: "Team" },
+      });
+
+      await expect(
+        updateTeamMember({
+          teamId: team2.id,
+          membershipId: member.membershipId,
+          updates: { firstName: "Hacker" },
+        }),
+      ).rejects.toBeInstanceOf(ProblemError);
+    });
+  });
+
+  describe("removeTeamMember", () => {
+    it("soft deletes a team member by setting status to inactive", async () => {
+      const team = await createTeam({ name: "Remove Member Team" });
+      const member = await addRosterMember({
+        teamId: team.id,
+        person: { firstName: "Leaving", lastName: "Player" },
+        role: "player",
+      });
+
+      await removeTeamMember({
+        teamId: team.id,
+        membershipId: member.membershipId,
+      });
+
+      const roster = await listTeamRoster(team.id);
+      const removedMember = roster.members.find(
+        (m) => m.membershipId === member.membershipId,
+      );
+
+      expect(removedMember).toBeDefined();
+      expect(removedMember?.status).toBe("inactive");
+      expect(removedMember?.leftAt).toBeInstanceOf(Date);
+    });
+
+    it("throws when membership does not exist", async () => {
+      const team = await createTeam({ name: "Missing Remove Team" });
+
+      await expect(
+        removeTeamMember({
+          teamId: team.id,
+          membershipId: "00000000-0000-0000-0000-000000000999",
+        }),
+      ).rejects.toBeInstanceOf(ProblemError);
+    });
+
+    it("throws when membership belongs to different team", async () => {
+      const team1 = await createTeam({ name: "Remove Team One" });
+      const team2 = await createTeam({ name: "Remove Team Two" });
+      const member = await addRosterMember({
+        teamId: team1.id,
+        person: { firstName: "Cross", lastName: "Team" },
+      });
+
+      await expect(
+        removeTeamMember({
+          teamId: team2.id,
+          membershipId: member.membershipId,
+        }),
+      ).rejects.toBeInstanceOf(ProblemError);
     });
   });
 });
