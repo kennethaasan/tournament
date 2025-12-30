@@ -57,7 +57,7 @@ export function Dialog({ open, onOpenChange, title, children }: DialogProps) {
       onClose={handleClose}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
-      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-card p-0 shadow-lg backdrop:bg-black/50"
+      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-background p-0 shadow-lg backdrop:bg-black/50 dark:bg-[#1a1f35]"
     >
       <div className="p-6">
         <header className="mb-4 flex items-center justify-between">
