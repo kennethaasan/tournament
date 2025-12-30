@@ -626,7 +626,8 @@ type TopScorersContentProps = {
 };
 
 function TopScorersContent({ scorers, entryNames }: TopScorersContentProps) {
-  const rows = useMemo(() => scorers.slice(0, 10), [scorers]);
+  // Show all scorers - no limit
+  const rows = scorers;
 
   if (rows.length === 0) {
     return (
