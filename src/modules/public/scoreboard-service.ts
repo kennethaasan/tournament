@@ -632,7 +632,7 @@ function buildTopScorers(
       }
       return left.name.localeCompare(right.name, "nb");
     })
-    .slice(0, 25)
+    .slice(0, 100)
     .map((scorer) => ({
       ...scorer,
       name: scorer.name || entryMap.get(scorer.entryId)?.name || "Ukjent",
