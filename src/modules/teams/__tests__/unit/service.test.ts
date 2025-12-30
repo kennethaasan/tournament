@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { TeamServiceDeps } from "@/modules/teams/service";
-import { createTeam, listTeamRoster } from "@/modules/teams/service";
+import {
+  createTeam,
+  listTeamRoster,
+  updateTeam,
+} from "@/modules/teams/service";
 
 type TeamRecord = {
   id: string;
@@ -90,5 +94,71 @@ describe("teams service", () => {
     expect(roster.team.name).toBe("Harbor United");
     expect(roster.members[0]?.person.firstName).toBe("Ida");
     expect(roster.members[0]?.status).toBe("active");
+  });
+
+  it("updates a team name and auto-updates slug", async () => {
+    const existingTeam: TeamRecord = {
+      id: "team-1",
+      name: "Old Name",
+      slug: "old-name",
+      contactEmail: null,
+      contactPhone: null,
+    };
+
+    let updatedTeam: TeamRecord | null = null;
+
+    const fakeDb = {
+      query: {
+        teams: {
+          findFirst: () => existingTeam,
+        },
+      },
+      update: () => ({
+        set: (updates: Partial<TeamRecord>) => ({
+          where: () => ({
+            returning: () => {
+              updatedTeam = { ...existingTeam, ...updates };
+              return [updatedTeam];
+            },
+          }),
+        }),
+      }),
+    };
+
+    const result = await updateTeam(
+      "team-1",
+      { name: "New Team Name" },
+      { db: fakeDb as unknown as TeamServiceDeps["db"] },
+    );
+
+    expect(result.name).toBe("New Team Name");
+    expect(result.slug).toBe("new-team-name");
+  });
+
+  it("returns existing team when no updates provided", async () => {
+    const existingTeam: TeamRecord = {
+      id: "team-1",
+      name: "Unchanged",
+      slug: "unchanged",
+      contactEmail: null,
+      contactPhone: null,
+    };
+
+    const fakeDb = {
+      query: {
+        teams: {
+          findFirst: () => existingTeam,
+        },
+      },
+    };
+
+    const result = await updateTeam(
+      "team-1",
+      {},
+      { db: fakeDb as unknown as TeamServiceDeps["db"] },
+    );
+
+    expect(result.name).toBe("Unchanged");
+    expect(result.slug).toBe("unchanged");
   });
 });

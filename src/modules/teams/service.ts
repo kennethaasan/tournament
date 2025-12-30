@@ -23,6 +23,13 @@ export type CreateTeamInput = {
   contactPhone?: string | null;
 };
 
+export type UpdateTeamInput = {
+  name?: string;
+  slug?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+};
+
 export type CreatePersonInput = {
   firstName: string;
   lastName: string;
@@ -224,4 +231,69 @@ export async function deactivateMembership(
         eq(teamMemberships.teamId, options.teamId),
       ),
     );
+}
+
+export async function updateTeam(
+  teamId: string,
+  input: UpdateTeamInput,
+  deps: TeamServiceDeps = {},
+): Promise<Team> {
+  const db = deps.db ?? defaultDb;
+
+  const existingTeam = await db.query.teams.findFirst({
+    where: eq(teams.id, teamId),
+  });
+
+  if (!existingTeam) {
+    throw createProblem({
+      type: "https://tournament.app/problems/team-not-found",
+      title: "Team not found",
+      status: 404,
+      detail: "Verify that you are using the correct team ID.",
+    });
+  }
+
+  const updates: Partial<Team> = {};
+
+  if (input.name !== undefined) {
+    updates.name = input.name.trim();
+  }
+
+  if (input.slug !== undefined) {
+    updates.slug = input.slug
+      ? competitionsInternal.normalizeSlug(input.slug)
+      : competitionsInternal.normalizeSlug(input.name ?? existingTeam.name);
+  } else if (input.name !== undefined) {
+    // Auto-update slug when name changes but slug not explicitly provided
+    updates.slug = competitionsInternal.normalizeSlug(input.name);
+  }
+
+  if (input.contactEmail !== undefined) {
+    updates.contactEmail = input.contactEmail?.trim().toLowerCase() ?? null;
+  }
+
+  if (input.contactPhone !== undefined) {
+    updates.contactPhone = input.contactPhone?.trim() ?? null;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return existingTeam;
+  }
+
+  const [updatedTeam] = await db
+    .update(teams)
+    .set(updates)
+    .where(eq(teams.id, teamId))
+    .returning();
+
+  if (!updatedTeam) {
+    throw createProblem({
+      type: "https://tournament.app/problems/team-update-failed",
+      title: "Team update failed",
+      status: 500,
+      detail: "Please try again.",
+    });
+  }
+
+  return updatedTeam;
 }

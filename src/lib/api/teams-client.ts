@@ -10,6 +10,7 @@ export type TeamMember = components["schemas"]["TeamMember"];
 export type Squad = components["schemas"]["Squad"];
 export type SquadMember = components["schemas"]["SquadMember"];
 export type TeamSummary = components["schemas"]["TeamSummary"];
+export type Team = components["schemas"]["Team"];
 
 export type EntryWithSquad = {
   entry: components["schemas"]["Entry"];
@@ -47,6 +48,30 @@ export async function fetchTeamRoster(
         },
       },
       signal: options.signal,
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({
+    data,
+    error,
+    response,
+  });
+}
+
+export async function updateTeam(
+  teamId: string,
+  payload: components["schemas"]["UpdateTeamRequest"],
+): Promise<Team> {
+  const { data, error, response } = await apiClient.PATCH(
+    "/api/teams/{team_id}",
+    {
+      params: {
+        path: {
+          team_id: teamId,
+        },
+      },
+      body: payload,
       credentials: "include",
     },
   );

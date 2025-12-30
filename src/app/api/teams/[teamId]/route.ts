@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listTeamRoster } from "@/modules/teams/service";
+import { listTeamRoster, updateTeam } from "@/modules/teams/service";
 import { assertTeamAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
 
@@ -38,6 +38,46 @@ export const GET = createApiHandler<RouteParams>(
           joined_at: member.joinedAt?.toISOString() ?? null,
           left_at: member.leftAt?.toISOString() ?? null,
         })),
+      },
+      { status: 200 },
+    );
+  },
+  {
+    requireAuth: true,
+    roles: ["team_manager", "competition_admin", "global_admin"],
+  },
+);
+
+type UpdateTeamBody = {
+  name?: string;
+  slug?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+};
+
+export const PATCH = createApiHandler<RouteParams>(
+  async ({ params, request, auth }) => {
+    const teamId = Array.isArray(params.teamId)
+      ? params.teamId[0]
+      : params.teamId;
+    await assertTeamAccess(teamId, auth);
+
+    const body = (await request.json()) as UpdateTeamBody;
+
+    const team = await updateTeam(teamId, {
+      name: body.name,
+      slug: body.slug,
+      contactEmail: body.contact_email,
+      contactPhone: body.contact_phone,
+    });
+
+    return NextResponse.json(
+      {
+        id: team.id,
+        name: team.name,
+        slug: team.slug,
+        contact_email: team.contactEmail,
+        contact_phone: team.contactPhone,
       },
       { status: 200 },
     );

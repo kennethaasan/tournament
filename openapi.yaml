@@ -510,6 +510,31 @@ paths:
                 $ref: '#/components/schemas/TeamRoster'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+    patch:
+      tags: [teams]
+      summary: Update team details
+      operationId: update_team
+      parameters:
+        - $ref: '#/components/parameters/TeamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTeamRequest'
+      responses:
+        '200':
+          description: Team updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
   /api/teams/{team_id}/members:
     post:
       tags: [teams]
@@ -1409,6 +1434,21 @@ components:
     CreateTeamRequest:
       type: object
       required: [name]
+      properties:
+        name:
+          type: string
+        slug:
+          type: string
+          nullable: true
+        contact_email:
+          type: string
+          format: email
+          nullable: true
+        contact_phone:
+          type: string
+          nullable: true
+    UpdateTeamRequest:
+      type: object
       properties:
         name:
           type: string

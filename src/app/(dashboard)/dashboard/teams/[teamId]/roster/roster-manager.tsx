@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { components } from "@/lib/api/generated/openapi";
 import {
   addTeamMember,
   fetchTeamRoster,
   teamRosterQueryKey,
+  updateTeam,
 } from "@/lib/api/teams-client";
 
 type TeamMemberRole = components["schemas"]["AddTeamMemberRequest"]["role"];
@@ -31,6 +32,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     role: "player",
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Team name edit state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
 
   const queryClient = useQueryClient();
 
@@ -63,6 +70,31 @@ export function RosterManager({ teamId }: RosterManagerProps) {
   });
   const isSubmitting = addMemberMutation.isPending;
 
+  const updateTeamMutation = useMutation({
+    mutationFn: (name: string) => updateTeam(teamId, { name }),
+    onSuccess: () => {
+      setIsEditingName(false);
+      setNameError(null);
+      void queryClient.invalidateQueries({
+        queryKey: teamRosterQueryKey(teamId),
+      });
+    },
+    onError: (err) => {
+      setNameError(
+        err instanceof Error
+          ? err.message
+          : "Kunne ikke oppdatere lagnavnet. Prøv igjen.",
+      );
+    },
+  });
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+    }
+  }, [isEditingName]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError(null);
@@ -75,6 +107,28 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           : "Kunne ikke legge til medlem. Prøv igjen.",
       );
     }
+  }
+
+  function handleStartEditName() {
+    setEditedName(rosterQuery.data?.team.name ?? "");
+    setIsEditingName(true);
+    setNameError(null);
+  }
+
+  function handleCancelEditName() {
+    setIsEditingName(false);
+    setEditedName("");
+    setNameError(null);
+  }
+
+  async function handleSaveName(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmedName = editedName.trim();
+    if (!trimmedName) {
+      setNameError("Lagnavnet kan ikke være tomt.");
+      return;
+    }
+    await updateTeamMutation.mutateAsync(trimmedName);
   }
 
   const isLoadingRoster = rosterQuery.isLoading;
@@ -103,10 +157,54 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         ) : (
           <>
             <div className="mb-6 rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-foreground">
-              <p className="font-medium">{roster?.team.name}</p>
-              <p className="text-xs text-muted-foreground">
-                Team-ID: {roster?.team.id}
-              </p>
+              {isEditingName ? (
+                <form onSubmit={handleSaveName} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={nameInputRef}
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="flex-1 rounded border border-border px-3 py-1.5 text-sm font-medium shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      aria-label="Lagnavn"
+                    />
+                    <button
+                      type="submit"
+                      disabled={updateTeamMutation.isPending}
+                      className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      {updateTeamMutation.isPending ? "Lagrer …" : "Lagre"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelEditName}
+                      disabled={updateTeamMutation.isPending}
+                      className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                      Avbryt
+                    </button>
+                  </div>
+                  {nameError && (
+                    <p className="text-xs text-destructive">{nameError}</p>
+                  )}
+                </form>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{roster?.team.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Team-ID: {roster?.team.id}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleStartEditName}
+                    className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-muted"
+                  >
+                    Endre navn
+                  </button>
+                </div>
+              )}
             </div>
 
             <table className="w-full table-auto text-left text-sm">

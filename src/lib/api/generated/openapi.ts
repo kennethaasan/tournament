@@ -315,7 +315,8 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /** Update team details */
+    patch: operations["update_team"];
     trace?: never;
   };
   "/api/teams/{team_id}/members": {
@@ -793,6 +794,13 @@ export interface components {
     };
     CreateTeamRequest: {
       name: string;
+      slug?: string | null;
+      /** Format: email */
+      contact_email?: string | null;
+      contact_phone?: string | null;
+    };
+    UpdateTeamRequest: {
+      name?: string;
       slug?: string | null;
       /** Format: email */
       contact_email?: string | null;
@@ -1740,6 +1748,35 @@ export interface operations {
         };
       };
       404: components["responses"]["ProblemDetails"];
+    };
+  };
+  update_team: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTeamRequest"];
+      };
+    };
+    responses: {
+      /** @description Team updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Team"];
+        };
+      };
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
     };
   };
   add_team_member: {
