@@ -138,7 +138,7 @@ module "acm" {
 }
 
 resource "cloudflare_dns_record" "acm_validation" {
-  for_each = local.managed_validation_zones_cf
+  for_each = local.managed_validation_zones
 
   zone_id = each.value
   name    = local.acm_validation_records_by_domain[each.key].name
@@ -148,17 +148,6 @@ resource "cloudflare_dns_record" "acm_validation" {
   proxied = false
 }
 
-resource "aws_route53_record" "acm_validation" {
-  for_each = local.managed_validation_zones_r53
-
-  allow_overwrite = true
-  zone_id         = each.value
-  name            = local.acm_validation_records_by_domain[each.key].name
-  type            = local.acm_validation_records_by_domain[each.key].type
-  ttl             = 60
-  records         = [local.acm_validation_records_by_domain[each.key].value]
-}
-
 resource "aws_acm_certificate_validation" "app" {
   provider        = aws.us_east_1
   certificate_arn = module.acm.acm_certificate_arn
@@ -166,7 +155,7 @@ resource "aws_acm_certificate_validation" "app" {
     for dvo in module.acm.acm_certificate_domain_validation_options :
     dvo.resource_record_name
   ]
-  depends_on = [cloudflare_dns_record.acm_validation, aws_route53_record.acm_validation]
+  depends_on = [cloudflare_dns_record.acm_validation]
 }
 
 module "fn" {
