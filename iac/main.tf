@@ -276,10 +276,18 @@ data "aws_iam_policy_document" "ses_events" {
     actions   = ["sns:Publish"]
     resources = [aws_sns_topic.ses_events[0].arn]
 
+    # AWS best practice: use both SourceAccount and SourceArn conditions
+    # https://docs.aws.amazon.com/ses/latest/dg/event-publishing-add-event-destination-sns.html
     condition {
       test     = "StringEquals"
       variable = "AWS:SourceAccount"
       values   = [data.aws_caller_identity.current.account_id]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [local.ses_configuration_set_arn]
     }
   }
 }
