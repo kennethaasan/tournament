@@ -1,3 +1,14 @@
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare Zone ID for aasan.dev"
+  type        = string
+}
+
 variable "environment" {
   description = "Deployment environment identifier"
   type        = string
@@ -17,15 +28,15 @@ variable "aws_region" {
 }
 
 variable "parent_domain" {
-  description = "Base Route53 hosted zone domain name"
+  description = "Base domain name"
   type        = string
-  default     = "aws.aasan.dev"
+  default     = "aasan.dev"
 }
 
 variable "app_domain" {
   description = "Fully qualified domain name for the application"
   type        = string
-  default     = "competitions.aws.aasan.dev"
+  default     = "competitions.aasan.dev"
 }
 
 variable "extra_domains" {
@@ -43,7 +54,7 @@ variable "extra_domains" {
 }
 
 variable "extra_domain_zone_ids" {
-  description = "Route53 zone IDs for ACM validation of extra_domains (map of FQDN -> zone ID)"
+  description = "Zone IDs for ACM validation of extra_domains (map of FQDN -> zone ID). Use Route53 Zone IDs for AWS domains, or Cloudflare Zone IDs for CF domains."
   type        = map(string)
   default     = {}
 
@@ -204,11 +215,6 @@ variable "ses_domain" {
   description = "Domain to verify with SES (defaults to app_domain)"
   type        = string
   default     = null
-
-  validation {
-    condition     = var.ses_domain == null || trimspace(var.ses_domain) == "" || endswith(lower(var.ses_domain), lower(var.parent_domain))
-    error_message = "ses_domain must be within the parent_domain Route53 zone."
-  }
 }
 
 variable "ses_mail_from_domain" {

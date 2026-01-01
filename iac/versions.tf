@@ -19,5 +19,10 @@ terraform {
       source  = "kislerdm/neon"
       version = "~> 0.10"
     }
+
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
   }
 }
