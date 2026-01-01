@@ -44,7 +44,7 @@ SES_SOURCE_EMAIL="no-reply@your-domain.no"
 ```
 
 Production email via Terraform:
-- Terraform provisions the SES domain identity, DKIM records, and MAIL FROM records in Route53 when `ses_enabled = true`.
+- Terraform provisions the SES domain identity, DKIM records, and MAIL FROM records in Cloudflare DNS.
 - The sender defaults to `no-reply@${app_domain}` unless overridden via `better_auth_email_sender` or `ses_source_email`.
 - Ensure the SES account is out of sandbox (or verify recipient addresses) before expecting delivery.
 
