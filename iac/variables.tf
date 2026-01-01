@@ -54,7 +54,7 @@ variable "extra_domains" {
 }
 
 variable "extra_domain_zone_ids" {
-  description = "Zone IDs for ACM validation of extra_domains (map of FQDN -> zone ID). Use Route53 Zone IDs for AWS domains, or Cloudflare Zone IDs for CF domains."
+  description = "Cloudflare Zone IDs for ACM validation of extra_domains (map of FQDN -> zone ID)"
   type        = map(string)
   default     = {}
 
