@@ -43,6 +43,7 @@ function createStanding(
     goalsAgainst: 2,
     goalDifference: 3,
     points: 7,
+    fairPlayScore: null,
     ...overrides,
   };
 }
@@ -72,7 +73,7 @@ describe("ScreenLayout", () => {
   test("renders empty state when no matches", () => {
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -150,7 +151,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[liveMatch]}
@@ -178,7 +179,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[disputedMatch]}
@@ -201,7 +202,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithHighlight]}
@@ -225,7 +226,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithUnknownTeam]}
@@ -250,7 +251,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[scheduledMatch]}
@@ -273,7 +274,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -296,7 +297,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -317,7 +318,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -338,7 +339,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -355,7 +356,7 @@ describe("ScreenLayout", () => {
   test("renders empty standings state", () => {
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -381,7 +382,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -407,7 +408,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -428,7 +429,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -445,7 +446,7 @@ describe("ScreenLayout", () => {
   test("renders empty scorers state", () => {
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -464,7 +465,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -487,7 +488,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithVenue]}
@@ -510,7 +511,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithoutVenue]}
@@ -549,7 +550,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithCode, matchWithoutCode, matchWithNoCodeAtAll]}
@@ -571,7 +572,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -590,7 +591,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -614,7 +615,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithAwayFromMap]}
@@ -640,7 +641,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchWithUnknownAway]}
@@ -663,7 +664,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[matchNoVenue]}
@@ -689,7 +690,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[tableMatch]}
@@ -715,7 +716,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[tableMatch]}
@@ -742,7 +743,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -770,7 +771,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -806,7 +807,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[]}
@@ -835,7 +836,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[tableMatch]}
@@ -866,7 +867,7 @@ describe("ScreenLayout", () => {
 
     render(
       <ScreenLayout
-        overlayText={null}
+        overlayText=""
         hasHighlight={false}
         highlightAnimating={false}
         matches={[tableMatch]}

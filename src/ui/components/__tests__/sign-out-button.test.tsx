@@ -188,7 +188,7 @@ describe("SignOutButton", () => {
   });
 
   test("ignores clicks when already submitting", async () => {
-    let resolveSignOut: () => void;
+    let resolveSignOut: (() => void) | undefined;
     mockSignOut.mockReturnValue(
       new Promise<object>((resolve) => {
         resolveSignOut = () => resolve({});
@@ -212,7 +212,7 @@ describe("SignOutButton", () => {
     expect(mockSignOut).toHaveBeenCalledTimes(1);
 
     // Resolve to clean up
-    resolveSignOut!();
+    resolveSignOut?.();
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalled();

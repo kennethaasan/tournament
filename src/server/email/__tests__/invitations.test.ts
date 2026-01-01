@@ -204,7 +204,7 @@ describe("invitation emails", () => {
     mockShouldSend.mockReturnValue(true);
     const send = vi.fn().mockResolvedValue({});
     mockGetSesClient.mockReturnValue({ send } as never);
-    vi.mocked(resolveConfigurationSet).mockReturnValue(null);
+    vi.mocked(resolveConfigurationSet).mockReturnValue(undefined);
     vi.mocked(resolveSourceEmail).mockReturnValue("no-reply@example.com");
 
     await sendInvitationEmail(baseInput);

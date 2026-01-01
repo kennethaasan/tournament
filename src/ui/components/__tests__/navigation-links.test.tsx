@@ -83,7 +83,7 @@ describe("NavigationGrid", () => {
       // Find the Åpne link within the card for this nav item
       const cardTitle = screen.getByText(link.label);
       const card = cardTitle.closest(".relative");
-      const openLink = card?.querySelector('a[href="' + link.href + '"]');
+      const openLink = card?.querySelector(`a[href="${link.href}"]`);
       expect(openLink).toBeInTheDocument();
     }
   });

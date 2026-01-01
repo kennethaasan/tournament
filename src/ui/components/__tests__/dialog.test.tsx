@@ -79,7 +79,9 @@ describe("Dialog", () => {
 
     const dialog = container.querySelector("dialog");
     expect(dialog).not.toBeNull();
-    fireEvent.keyDown(dialog!, { key: "Escape" });
+    if (dialog) {
+      fireEvent.keyDown(dialog, { key: "Escape" });
+    }
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
@@ -94,7 +96,9 @@ describe("Dialog", () => {
 
     const dialog = container.querySelector("dialog");
     expect(dialog).not.toBeNull();
-    fireEvent.keyDown(dialog!, { key: "Enter" });
+    if (dialog) {
+      fireEvent.keyDown(dialog, { key: "Enter" });
+    }
 
     expect(onOpenChange).not.toHaveBeenCalled();
   });
@@ -110,7 +114,9 @@ describe("Dialog", () => {
     const dialog = container.querySelector("dialog");
     expect(dialog).not.toBeNull();
     // Simulate clicking on the dialog element itself (backdrop)
-    fireEvent.click(dialog!);
+    if (dialog) {
+      fireEvent.click(dialog);
+    }
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
@@ -139,7 +145,9 @@ describe("Dialog", () => {
 
     const dialog = container.querySelector("dialog");
     expect(dialog).not.toBeNull();
-    fireEvent(dialog!, new Event("close"));
+    if (dialog) {
+      fireEvent(dialog, new Event("close"));
+    }
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });

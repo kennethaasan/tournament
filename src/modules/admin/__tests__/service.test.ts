@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  type AdminCompetitionSummary,
+  type AuditLogEntry,
   getCompetitionDetail,
   getGlobalAdminOverview,
   listAuditLogs,
-  type AdminCompetitionSummary,
-  type AuditLogEntry,
 } from "@/modules/admin/service";
 
 describe("getGlobalAdminOverview", () => {

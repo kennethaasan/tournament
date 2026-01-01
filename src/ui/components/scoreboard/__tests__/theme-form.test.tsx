@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   ScoreboardThemeForm,
@@ -42,7 +42,9 @@ describe("ScoreboardThemeForm", () => {
     const primaryHexInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-primary-color-hex",
     );
-    fireEvent.change(primaryHexInput!, { target: { value: "#FF0000" } });
+    if (primaryHexInput) {
+      fireEvent.change(primaryHexInput, { target: { value: "#FF0000" } });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...defaultValue,
@@ -59,7 +61,9 @@ describe("ScoreboardThemeForm", () => {
     const secondaryHexInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-secondary-color-hex",
     );
-    fireEvent.change(secondaryHexInput!, { target: { value: "#000000" } });
+    if (secondaryHexInput) {
+      fireEvent.change(secondaryHexInput, { target: { value: "#000000" } });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...defaultValue,
@@ -76,9 +80,11 @@ describe("ScoreboardThemeForm", () => {
     const urlInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-background-url",
     );
-    fireEvent.change(urlInput!, {
-      target: { value: "https://example.com/image.png" },
-    });
+    if (urlInput) {
+      fireEvent.change(urlInput, {
+        target: { value: "https://example.com/image.png" },
+      });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...defaultValue,
@@ -99,7 +105,9 @@ describe("ScoreboardThemeForm", () => {
     const urlInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-background-url",
     );
-    fireEvent.change(urlInput!, { target: { value: "" } });
+    if (urlInput) {
+      fireEvent.change(urlInput, { target: { value: "" } });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...valueWithUrl,
@@ -120,7 +128,9 @@ describe("ScoreboardThemeForm", () => {
     const urlInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-background-url",
     );
-    fireEvent.change(urlInput!, { target: { value: "   " } });
+    if (urlInput) {
+      fireEvent.change(urlInput, { target: { value: "   " } });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...valueWithUrl,
@@ -187,7 +197,9 @@ describe("ScoreboardThemeForm", () => {
     const primaryHexInput = container.querySelector<HTMLInputElement>(
       "#scoreboard-primary-color-hex",
     );
-    fireEvent.change(primaryHexInput!, { target: { value: "ff0000" } });
+    if (primaryHexInput) {
+      fireEvent.change(primaryHexInput, { target: { value: "ff0000" } });
+    }
 
     expect(onChange).toHaveBeenCalledWith({
       ...defaultValue,
@@ -247,7 +259,9 @@ describe("ScoreboardThemeForm", () => {
     const colorPicker = container.querySelector<HTMLInputElement>(
       "#scoreboard-primary-color",
     );
-    fireEvent.change(colorPicker!, { target: { value: "#00FF00" } });
+    if (colorPicker) {
+      fireEvent.change(colorPicker, { target: { value: "#00FF00" } });
+    }
 
     expect(onChange).toHaveBeenCalled();
   });
@@ -261,7 +275,9 @@ describe("ScoreboardThemeForm", () => {
     const colorPicker = container.querySelector<HTMLInputElement>(
       "#scoreboard-secondary-color",
     );
-    fireEvent.change(colorPicker!, { target: { value: "#0000FF" } });
+    if (colorPicker) {
+      fireEvent.change(colorPicker, { target: { value: "#0000FF" } });
+    }
 
     expect(onChange).toHaveBeenCalled();
   });

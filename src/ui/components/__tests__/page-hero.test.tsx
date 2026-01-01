@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from "@testing-library/react";
+import type { Route } from "next";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { PageHero } from "@/ui/components/page-hero";
@@ -45,14 +46,14 @@ describe("PageHero", () => {
         eyebrow="Welcome"
         title="Main Title"
         description="Description"
-        actionHref="/signup"
+        actionHref={"/auth/signup" as Route}
         actionLabel="Get Started"
       />,
     );
 
     const actionLink = screen.getByText("Get Started");
     expect(actionLink).toBeInTheDocument();
-    expect(actionLink.closest("a")).toHaveAttribute("href", "/signup");
+    expect(actionLink.closest("a")).toHaveAttribute("href", "/auth/signup");
   });
 
   test("does not render action button when actionHref is missing", () => {
@@ -74,7 +75,7 @@ describe("PageHero", () => {
         eyebrow="Welcome"
         title="Main Title"
         description="Description"
-        actionHref="/signup"
+        actionHref={"/auth/signup" as Route}
       />,
     );
 
@@ -88,7 +89,7 @@ describe("PageHero", () => {
         eyebrow="Welcome"
         title="Main Title"
         description="Description"
-        actionHref="/signup"
+        actionHref={"/auth/signup" as Route}
         actionLabel="Get Started"
       />,
     );

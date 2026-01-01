@@ -44,6 +44,7 @@ function createStanding(
     goalsAgainst: 2,
     goalDifference: 3,
     points: 7,
+    fairPlayScore: null,
     ...overrides,
   };
 }
@@ -65,10 +66,31 @@ function createScorer(
 
 function createData(overrides: Partial<ScoreboardData> = {}): ScoreboardData {
   return {
+    edition: {
+      id: "edition-1",
+      competitionId: "comp-1",
+      competitionSlug: "test-cup",
+      label: "Test Cup 2025",
+      slug: "2025",
+      status: "published",
+      format: "round_robin",
+      timezone: "Europe/Oslo",
+      publishedAt: new Date("2025-01-01"),
+      registrationWindow: { opensAt: null, closesAt: null },
+      scoreboardRotationSeconds: 5,
+      scoreboardTheme: {
+        primaryColor: "#0B1F3A",
+        secondaryColor: "#FFFFFF",
+        backgroundImageUrl: null,
+      },
+    },
     matches: [],
     standings: [],
     tables: [],
     topScorers: [],
+    rotation: [],
+    overlayMessage: null,
+    entries: [],
     ...overrides,
   };
 }
@@ -81,7 +103,7 @@ const defaultEntryNames = new Map([
 
 const defaultProps = {
   entryNames: defaultEntryNames,
-  overlayText: null,
+  overlayText: "",
   hasHighlight: false,
   searchQuery: "",
   onSearchChange: vi.fn(),
@@ -90,7 +112,7 @@ const defaultProps = {
   sortOption: "time" as const,
   onSortOptionChange: vi.fn(),
   connectionStatus: "connected" as const,
-  lastUpdated: Date.now(),
+  lastUpdated: new Date(),
   isLoading: false,
 };
 
