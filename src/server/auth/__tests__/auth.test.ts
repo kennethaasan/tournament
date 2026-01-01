@@ -56,4 +56,23 @@ describe("auth config", () => {
       ProblemError,
     );
   });
+
+  it("returns early when empty roles array is required", () => {
+    const context = createTestAuthContext({ roles: [] });
+    const authContext = context as unknown as AuthContext;
+
+    // Should not throw even if user has no roles
+    expect(() => requireRoles(authContext, [])).not.toThrow();
+  });
+
+  it("returns false when context is null", () => {
+    expect(userHasRole(null, "global_admin")).toBe(false);
+  });
+
+  it("returns false when user has no roles", () => {
+    const context = createTestAuthContext({ roles: [] });
+    const authContext = context as unknown as AuthContext;
+
+    expect(userHasRole(authContext, "global_admin")).toBe(false);
+  });
 });

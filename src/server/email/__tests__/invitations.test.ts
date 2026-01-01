@@ -83,4 +83,132 @@ describe("invitation emails", () => {
       ProblemError,
     );
   });
+
+  test("builds subject for global admin without scope", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      role: "global_admin",
+      scopeType: "global",
+      scopeLabel: null,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("builds subject for team_manager with team scope", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      role: "team_manager",
+      scopeType: "team",
+      scopeLabel: "Vikings FC",
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("builds subject for team_manager without scope label", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      role: "team_manager",
+      scopeType: "team",
+      scopeLabel: null,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("builds subject for edition scope type", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      role: "competition_admin",
+      scopeType: "edition" as never,
+      scopeLabel: "2025 Season",
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("builds body without inviter email", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      inviterEmail: null,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("builds body for competition scope without label", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      scopeType: "competition",
+      scopeLabel: undefined,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("uses fallback role label for unknown role", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      role: "unknown_role" as never,
+      scopeType: "global",
+      scopeLabel: null,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("handles unknown scope type without label", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+
+    await sendInvitationEmail({
+      ...baseInput,
+      scopeType: "unknown_scope" as never,
+      scopeLabel: null,
+    });
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
+
+  test("omits configuration set when not configured", async () => {
+    mockShouldSend.mockReturnValue(true);
+    const send = vi.fn().mockResolvedValue({});
+    mockGetSesClient.mockReturnValue({ send } as never);
+    vi.mocked(resolveConfigurationSet).mockReturnValue(null);
+    vi.mocked(resolveSourceEmail).mockReturnValue("no-reply@example.com");
+
+    await sendInvitationEmail(baseInput);
+
+    expect(send).toHaveBeenCalledTimes(1);
+  });
 });

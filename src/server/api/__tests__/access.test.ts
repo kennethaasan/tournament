@@ -4,6 +4,7 @@ import { ProblemError } from "@/lib/errors/problem";
 import {
   assertCompetitionAdminAccess,
   assertEntryAccess,
+  assertSquadAccess,
   assertTeamAccess,
   assertTeamEntryCreateAccess,
 } from "@/server/api/access";
@@ -219,5 +220,177 @@ describe("access control", () => {
     await expect(
       assertTeamEntryCreateAccess(TEAM_ID, EDITION_ID, competitionAdmin),
     ).resolves.toBeUndefined();
+  });
+
+  it("allows team manager to create entries for their team", async () => {
+    await seedEntryContext();
+
+    const teamManager = makeAuth([
+      { role: "team_manager", scopeType: "team", scopeId: TEAM_ID },
+    ]);
+
+    await expect(
+      assertTeamEntryCreateAccess(TEAM_ID, EDITION_ID, teamManager),
+    ).resolves.toBeUndefined();
+  });
+
+  it("denies unauthenticated access", async () => {
+    await seedEntryContext();
+
+    await expect(assertTeamAccess(TEAM_ID, null)).rejects.toMatchObject({
+      problem: { status: 401 },
+    });
+
+    await expect(assertEntryAccess(ENTRY_ID, null)).rejects.toMatchObject({
+      problem: { status: 401 },
+    });
+
+    await expect(
+      assertCompetitionAdminAccess(COMPETITION_ID, null),
+    ).rejects.toMatchObject({ problem: { status: 401 } });
+  });
+
+  it("allows competition admin to access teams with entries in their competitions", async () => {
+    await seedEntryContext();
+
+    const competitionAdmin = makeAuth([
+      {
+        role: "competition_admin",
+        scopeType: "competition",
+        scopeId: COMPETITION_ID,
+      },
+    ]);
+
+    await expect(
+      assertTeamAccess(TEAM_ID, competitionAdmin),
+    ).resolves.toBeUndefined();
+  });
+
+  it("denies competition admin access to teams without entries in their competitions", async () => {
+    await seedEntryContext();
+
+    const [newTeam] = await db
+      .insert(teams)
+      .values({ name: "No Entry Team", slug: "no-entry-team" })
+      .returning();
+    if (!newTeam) {
+      throw new Error("Expected new team to be created.");
+    }
+
+    const competitionAdmin = makeAuth([
+      {
+        role: "competition_admin",
+        scopeType: "competition",
+        scopeId: COMPETITION_ID,
+      },
+    ]);
+
+    await expect(
+      assertTeamAccess(newTeam.id, competitionAdmin),
+    ).rejects.toMatchObject({ problem: { status: 403 } });
+  });
+
+  it("allows competition admin to access entries in their competitions", async () => {
+    await seedEntryContext();
+
+    const competitionAdmin = makeAuth([
+      {
+        role: "competition_admin",
+        scopeType: "competition",
+        scopeId: COMPETITION_ID,
+      },
+    ]);
+
+    const context = await assertEntryAccess(ENTRY_ID, competitionAdmin);
+    expect(context).toMatchObject({
+      teamId: TEAM_ID,
+      competitionId: COMPETITION_ID,
+    });
+  });
+
+  it("validates squad access", async () => {
+    await seedEntryContext();
+
+    await expect(
+      assertSquadAccess(undefined, makeAuth([])),
+    ).rejects.toMatchObject({ problem: { status: 400 } });
+
+    await expect(assertSquadAccess(SQUAD_ID, null)).rejects.toMatchObject({
+      problem: { status: 401 },
+    });
+
+    await expect(
+      assertSquadAccess("00000000-0000-0000-0000-000000000799", makeAuth([])),
+    ).rejects.toMatchObject({ problem: { status: 404 } });
+
+    const globalAdmin = makeAuth([
+      { role: "global_admin", scopeType: "global", scopeId: null },
+    ]);
+
+    const context = await assertSquadAccess(SQUAD_ID, globalAdmin);
+    expect(context).toMatchObject({
+      teamId: TEAM_ID,
+      competitionId: COMPETITION_ID,
+    });
+  });
+
+  it("allows team manager to access their squads", async () => {
+    await seedEntryContext();
+
+    const teamManager = makeAuth([
+      { role: "team_manager", scopeType: "team", scopeId: TEAM_ID },
+    ]);
+
+    const context = await assertSquadAccess(SQUAD_ID, teamManager);
+    expect(context).toMatchObject({
+      teamId: TEAM_ID,
+      competitionId: COMPETITION_ID,
+    });
+  });
+
+  it("denies user access to squads they don't manage", async () => {
+    await seedEntryContext();
+
+    const otherTeamManager = makeAuth([
+      { role: "team_manager", scopeType: "team", scopeId: "other-team-id" },
+    ]);
+
+    await expect(
+      assertSquadAccess(SQUAD_ID, otherTeamManager),
+    ).rejects.toMatchObject({ problem: { status: 403 } });
+  });
+
+  it("allows competition admin to access squads in their competitions", async () => {
+    await seedEntryContext();
+
+    const competitionAdmin = makeAuth([
+      {
+        role: "competition_admin",
+        scopeType: "competition",
+        scopeId: COMPETITION_ID,
+      },
+    ]);
+
+    const context = await assertSquadAccess(SQUAD_ID, competitionAdmin);
+    expect(context).toMatchObject({
+      teamId: TEAM_ID,
+      competitionId: COMPETITION_ID,
+    });
+  });
+
+  it("denies competition admin access to entries in other competitions", async () => {
+    await seedEntryContext();
+
+    const otherCompetitionAdmin = makeAuth([
+      {
+        role: "competition_admin",
+        scopeType: "competition",
+        scopeId: "other-competition-id",
+      },
+    ]);
+
+    await expect(
+      assertEntryAccess(ENTRY_ID, otherCompetitionAdmin),
+    ).rejects.toMatchObject({ problem: { status: 403 } });
   });
 });

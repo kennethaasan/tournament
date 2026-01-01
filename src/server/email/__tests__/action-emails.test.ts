@@ -1,4 +1,4 @@
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { db } from "@/server/db/client";
 import {
@@ -260,5 +260,306 @@ describe("action email helpers", () => {
     });
 
     expect(inviteResult?.attempted).toBeGreaterThan(0);
+  });
+
+  test("returns null when schedule has no changes", async () => {
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const result = await sendMatchScheduleChangedEmails({
+      previousMatch: match,
+      updatedMatch: match,
+    });
+
+    expect(result).toBeNull();
+  });
+
+  test("handles entry status rejected without reason", async () => {
+    const statusUpdate = await sendEntryStatusEmails({
+      teamId: TEAM_HOME_ID,
+      editionId: EDITION_ID,
+      status: "rejected",
+      reason: null,
+    });
+
+    expect(statusUpdate?.attempted).toBeGreaterThan(0);
+  });
+
+  test("returns null for non-existent team", async () => {
+    const result = await sendEntrySubmittedEmails({
+      teamId: "00000000-0000-0000-0000-000000000999",
+      editionId: EDITION_ID,
+    });
+
+    expect(result).toBeNull();
+  });
+
+  test("returns null for non-existent edition", async () => {
+    const result = await sendEntrySubmittedEmails({
+      teamId: TEAM_HOME_ID,
+      editionId: "00000000-0000-0000-0000-000000000999",
+    });
+
+    expect(result).toBeNull();
+  });
+
+  test("returns null for non-existent match in dispute", async () => {
+    const result = await sendMatchDisputeSubmittedEmails({
+      matchId: "00000000-0000-0000-0000-000000000999",
+      entryId: ENTRY_HOME_ID,
+      reason: "Some reason",
+    });
+
+    expect(result).toBeNull();
+  });
+
+  test("returns null for non-existent inviter", async () => {
+    const result = await sendInvitationAcceptedEmail({
+      invitationId: "inv-1",
+      inviterId: "00000000-0000-0000-0000-000000000999",
+      inviteeEmail: "new@example.com",
+      role: "global_admin",
+      scopeType: "global",
+      scopeId: null,
+    });
+
+    expect(result).toBeNull();
+  });
+
+  test("handles invitation accepted with global scope", async () => {
+    const result = await sendInvitationAcceptedEmail({
+      invitationId: "inv-2",
+      inviterId: ADMIN_USER_ID,
+      inviteeEmail: "new@example.com",
+      role: "global_admin",
+      scopeType: "global",
+      scopeId: null,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles invitation accepted with team scope", async () => {
+    const result = await sendInvitationAcceptedEmail({
+      invitationId: "inv-3",
+      inviterId: ADMIN_USER_ID,
+      inviteeEmail: "new@example.com",
+      role: "team_manager",
+      scopeType: "team",
+      scopeId: TEAM_HOME_ID,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles invitation accepted with edition scope", async () => {
+    const result = await sendInvitationAcceptedEmail({
+      invitationId: "inv-4",
+      inviterId: ADMIN_USER_ID,
+      inviteeEmail: "new@example.com",
+      role: "competition_admin",
+      scopeType: "edition",
+      scopeId: EDITION_ID,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles invitation with unknown scope type", async () => {
+    const result = await sendInvitationAcceptedEmail({
+      invitationId: "inv-5",
+      inviterId: ADMIN_USER_ID,
+      inviteeEmail: "new@example.com",
+      role: "competition_admin",
+      scopeType: "unknown" as never,
+      scopeId: "some-id",
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match schedule change with only kickoff change", async () => {
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const previousMatch = {
+      ...match,
+      kickoffAt: new Date(Date.now() - 60_000),
+    };
+
+    const result = await sendMatchScheduleChangedEmails({
+      previousMatch,
+      updatedMatch: match,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match schedule change with only venue change", async () => {
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const previousMatch = {
+      ...match,
+      venueId: "00000000-0000-0000-0000-000000000999",
+    };
+
+    const result = await sendMatchScheduleChangedEmails({
+      previousMatch,
+      updatedMatch: match,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match without kickoffAt", async () => {
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const matchWithoutKickoff = { ...match, kickoffAt: null };
+    const previousMatch = {
+      ...match,
+      kickoffAt: new Date(Date.now() - 60_000),
+    };
+
+    const result = await sendMatchScheduleChangedEmails({
+      previousMatch,
+      updatedMatch: matchWithoutKickoff,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match without venue", async () => {
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const matchWithoutVenue = { ...match, venueId: null };
+    const previousMatch = {
+      ...match,
+      venueId: VENUE_ID,
+    };
+
+    const result = await sendMatchScheduleChangedEmails({
+      previousMatch,
+      updatedMatch: matchWithoutVenue,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles dispute submitted with away entry", async () => {
+    const result = await sendMatchDisputeSubmittedEmails({
+      matchId: MATCH_ID,
+      entryId: ENTRY_AWAY_ID,
+      reason: "Incorrect score",
+    });
+
+    expect(result?.teams.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles dispute with entry not in match", async () => {
+    const result = await sendMatchDisputeSubmittedEmails({
+      matchId: MATCH_ID,
+      entryId: "00000000-0000-0000-0000-000000000999",
+      reason: "Some reason",
+    });
+
+    expect(result?.teams.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match finalized without extra time or penalties", async () => {
+    await db
+      .update(matches)
+      .set({
+        homeExtraTime: null,
+        awayExtraTime: null,
+        homePenalties: null,
+        awayPenalties: null,
+      })
+      .where(eq(matches.id, MATCH_ID));
+
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const result = await sendMatchFinalizedEmails({
+      updatedMatch: match,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match finalized with only extra time", async () => {
+    await db
+      .update(matches)
+      .set({
+        homeExtraTime: 2,
+        awayExtraTime: 1,
+        homePenalties: null,
+        awayPenalties: null,
+      })
+      .where(eq(matches.id, MATCH_ID));
+
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const result = await sendMatchFinalizedEmails({
+      updatedMatch: match,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
+  });
+
+  test("handles match finalized with only penalties", async () => {
+    await db
+      .update(matches)
+      .set({
+        homeExtraTime: null,
+        awayExtraTime: null,
+        homePenalties: 5,
+        awayPenalties: 4,
+      })
+      .where(eq(matches.id, MATCH_ID));
+
+    const match = await db.query.matches.findFirst({
+      where: (table, { eq }) => eq(table.id, MATCH_ID),
+    });
+    if (!match) {
+      throw new Error("Expected match to be seeded.");
+    }
+
+    const result = await sendMatchFinalizedEmails({
+      updatedMatch: match,
+    });
+
+    expect(result?.attempted).toBeGreaterThan(0);
   });
 });
