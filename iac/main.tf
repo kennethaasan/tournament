@@ -26,13 +26,13 @@ locals {
   database_url      = strcontains(local.database_url_base, "sslmode=") ? local.database_url_base : (strcontains(local.database_url_base, "?") ? "${local.database_url_base}&sslmode=require" : "${local.database_url_base}?sslmode=require")
 }
 
-###########################
-# AWS Infrastructure
+# Cloudflare Infrastructure
 ###########################
 
-data "aws_route53_zone" "zone" {
-  name         = var.parent_domain
-  private_zone = false
+data "cloudflare_zone" "this" {
+  filter = {
+    name = var.parent_domain
+  }
 }
 
 data "aws_caller_identity" "current" {}
@@ -45,39 +45,40 @@ resource "aws_ses_domain_identity" "app" {
   domain = local.ses_domain
 }
 
-resource "aws_route53_record" "ses_verification" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+resource "cloudflare_dns_record" "ses_verification" {
+  zone_id = var.cloudflare_zone_id
   name    = "_amazonses.${local.ses_domain}"
   type    = "TXT"
-  ttl     = 600
-  records = [aws_ses_domain_identity.app.verification_token]
+  content = aws_ses_domain_identity.app.verification_token
+  ttl     = 3600
 }
 
 resource "aws_ses_domain_identity_verification" "app" {
   domain     = aws_ses_domain_identity.app.domain
-  depends_on = [aws_route53_record.ses_verification]
+  depends_on = [cloudflare_dns_record.ses_verification]
 }
 
 resource "aws_ses_domain_dkim" "app" {
   domain = aws_ses_domain_identity.app.domain
 }
 
-resource "aws_route53_record" "ses_dkim" {
+resource "cloudflare_dns_record" "ses_dkim" {
   count = 3
 
-  zone_id = data.aws_route53_zone.zone.zone_id
+  zone_id = var.cloudflare_zone_id
   name    = "${aws_ses_domain_dkim.app.dkim_tokens[count.index]}._domainkey.${local.ses_domain}"
   type    = "CNAME"
-  ttl     = 600
-  records = ["${aws_ses_domain_dkim.app.dkim_tokens[count.index]}.dkim.amazonses.com"]
+  content = "${aws_ses_domain_dkim.app.dkim_tokens[count.index]}.dkim.amazonses.com"
+  ttl     = 3600
+  proxied = false
 }
 
-resource "aws_route53_record" "ses_dmarc" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+resource "cloudflare_dns_record" "ses_dmarc" {
+  zone_id = var.cloudflare_zone_id
   name    = "_dmarc.${local.ses_domain}"
   type    = "TXT"
-  ttl     = 600
-  records = [local.dmarc_value]
+  content = local.dmarc_value
+  ttl     = 3600
 }
 
 resource "aws_ses_domain_mail_from" "app" {
@@ -86,20 +87,21 @@ resource "aws_ses_domain_mail_from" "app" {
   behavior_on_mx_failure = "UseDefaultValue"
 }
 
-resource "aws_route53_record" "ses_mail_from_mx" {
-  zone_id = data.aws_route53_zone.zone.zone_id
-  name    = local.ses_mail_from_domain
-  type    = "MX"
-  ttl     = 600
-  records = ["10 feedback-smtp.${local.ses_region}.amazonses.com"]
+resource "cloudflare_dns_record" "ses_mail_from_mx" {
+  zone_id  = var.cloudflare_zone_id
+  name     = local.ses_mail_from_domain
+  type     = "MX"
+  priority = 10
+  content  = "feedback-smtp.${local.ses_region}.amazonses.com"
+  ttl      = 3600
 }
 
-resource "aws_route53_record" "ses_mail_from_txt" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+resource "cloudflare_dns_record" "ses_mail_from_txt" {
+  zone_id = var.cloudflare_zone_id
   name    = local.ses_mail_from_domain
   type    = "TXT"
-  ttl     = 600
-  records = ["v=spf1 include:amazonses.com -all"]
+  content = "v=spf1 include:amazonses.com -all"
+  ttl     = 3600
 }
 
 resource "aws_ses_configuration_set" "app" {
@@ -132,12 +134,22 @@ module "acm" {
   validation_method         = "DNS"
   create_route53_records    = false
   validate_certificate      = false
-  zone_id                   = data.aws_route53_zone.zone.zone_id
   tags                      = local.default_tags
 }
 
+resource "cloudflare_dns_record" "acm_validation" {
+  for_each = local.managed_validation_zones_cf
+
+  zone_id = each.value
+  name    = local.acm_validation_records_by_domain[each.key].name
+  type    = local.acm_validation_records_by_domain[each.key].type
+  content = local.acm_validation_records_by_domain[each.key].value
+  ttl     = 60
+  proxied = false
+}
+
 resource "aws_route53_record" "acm_validation" {
-  for_each = local.managed_validation_zones
+  for_each = local.managed_validation_zones_r53
 
   allow_overwrite = true
   zone_id         = each.value
@@ -154,7 +166,7 @@ resource "aws_acm_certificate_validation" "app" {
     for dvo in module.acm.acm_certificate_domain_validation_options :
     dvo.resource_record_name
   ]
-  depends_on = [aws_route53_record.acm_validation]
+  depends_on = [cloudflare_dns_record.acm_validation, aws_route53_record.acm_validation]
 }
 
 module "fn" {
@@ -407,29 +419,15 @@ resource "aws_lambda_permission" "allow_cloudfront" {
   function_url_auth_type = "AWS_IAM"
 }
 
-resource "aws_route53_record" "app_a" {
-  zone_id = data.aws_route53_zone.zone.zone_id
+resource "cloudflare_dns_record" "app_a" {
+  zone_id = var.cloudflare_zone_id
   name    = var.app_domain
-  type    = "A"
-
-  alias {
-    name                   = module.cdn.cloudfront_distribution_domain_name
-    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
-    evaluate_target_health = false
-  }
+  type    = "CNAME"
+  content = module.cdn.cloudfront_distribution_domain_name
+  ttl     = 3600
+  proxied = false # CloudFront is already a CDN; proxying it through Cloudflare is generally not recommended unless you need WAF at the edge.
 }
 
-resource "aws_route53_record" "app_aaaa" {
-  zone_id = data.aws_route53_zone.zone.zone_id
-  name    = var.app_domain
-  type    = "AAAA"
-
-  alias {
-    name                   = module.cdn.cloudfront_distribution_domain_name
-    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
-    evaluate_target_health = false
-  }
-}
 
 ###########################
 # CloudWatch Alarms (Free Tier: up to 10 alarms)

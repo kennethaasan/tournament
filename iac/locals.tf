@@ -27,10 +27,24 @@ locals {
     if trimspace(domain) != "" && trimspace(zone_id) != ""
   }
   app_domain_normalized = lower(var.app_domain)
-  managed_validation_zones = merge(
-    { (local.app_domain_normalized) = data.aws_route53_zone.zone.zone_id },
-    local.extra_domain_zone_ids,
+
+  # Cloudflare Managed Zones for Validation
+  managed_validation_zones_cf = merge(
+    { (local.app_domain_normalized) = var.cloudflare_zone_id },
+    {
+      for domain, zone_id in local.extra_domain_zone_ids :
+      domain => zone_id
+      if !startswith(zone_id, "Z") # Crude check: R53 Zone IDs start with Z
+    }
   )
+
+  # Route53 Managed Zones for Validation (kept for legacy/extra domains still on R53)
+  managed_validation_zones_r53 = {
+    for domain, zone_id in local.extra_domain_zone_ids :
+    domain => zone_id
+    if startswith(zone_id, "Z")
+  }
+
   acm_validation_records_by_domain = {
     for dvo in module.acm.acm_certificate_domain_validation_options :
     lower(dvo.domain_name) => {
