@@ -2,15 +2,14 @@ openapi: 3.1.0
 info:
   title: Tournament Administration API (Phase One)
   version: 0.1.0
-  description: >-
-    REST contract for the modern football tournament administration application. Covers admin,
-    team manager, and public scoreboard surfaces required for phase one delivery.
+  description: REST contract for the modern football tournament administration application. Covers admin, team manager, and public scoreboard surfaces required for phase one delivery.
   contact:
     name: Kenneth Aasan
     email: kenneth@aasan.dev
 servers:
   - url: https://api.tournament.local
     description: Local development
+    x-internal: false
 tags:
   - name: auth
     description: Authentication and invitations
@@ -31,7 +30,8 @@ tags:
 paths:
   /api/auth/invitations:
     post:
-      tags: [auth]
+      tags:
+        - auth
       summary: Invite a new organizer or team manager
       description: Invite a new organizer or team manager
       operationId: create_invitation
@@ -48,11 +48,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invitation'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
           $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/auth/invitations/accept:
     post:
-      tags: [auth]
+      tags:
+        - auth
       summary: Accept an invitation
       description: Accept an invitation
       operationId: accept_invitation
@@ -69,6 +85,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcceptInvitationResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
           $ref: '#/components/responses/ProblemDetails'
         '401':
@@ -79,9 +104,14 @@ paths:
           $ref: '#/components/responses/ProblemDetails'
         '410':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/competitions:
     get:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: List accessible competitions
       description: List accessible competitions
       operationId: list_competitions
@@ -92,8 +122,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Create a new competition and initial edition
       description: Create a new competition and initial edition
       operationId: create_competition
@@ -110,11 +158,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionWithEdition'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '422':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}:
     get:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Fetch competition with editions and roles
       description: Fetch competition with editions and roles
       operationId: get_competition
@@ -127,13 +191,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionDetail'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}/editions:
     post:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Create a new edition inside a competition
       description: Create a new edition inside a competition
       operationId: create_edition
@@ -152,11 +234,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Edition'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}:
     get:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Fetch edition scoreboard configuration
       description: Fetch edition scoreboard configuration
       operationId: get_edition_scoreboard
@@ -169,10 +269,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Update edition settings
       description: Update edition settings
       operationId: update_edition
@@ -191,11 +309,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/entries:
     get:
-      tags: [entries]
+      tags:
+        - entries
       summary: List entries for an edition
       description: List entries for an edition
       operationId: list_edition_entries
@@ -208,11 +344,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryReviewListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/stages:
     get:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: List stages for an edition
       description: List stages for an edition
       operationId: list_stages
@@ -230,10 +384,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Stage'
+                    maxItems: 200
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Create a stage (group or knockout)
       description: Create a stage (group or knockout)
       operationId: create_stage
@@ -252,11 +425,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stage'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
           $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/matches/bulk:
     post:
-      tags: [scheduling]
+      tags:
+        - scheduling
       summary: Generate matches for selected stage
       description: Generate matches for selected stage
       operationId: generate_matches
@@ -275,11 +464,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenerationJob'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '422':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/scoreboard/highlights:
     post:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Trigger a scoreboard highlight overlay
       description: Trigger a scoreboard highlight overlay
       operationId: trigger_scoreboard_highlight
@@ -298,14 +503,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
           $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
-      tags: [competitions]
+      tags:
+        - competitions
       summary: Clear the active scoreboard highlight
       description: Clear the active scoreboard highlight
       operationId: clear_scoreboard_highlight
@@ -318,13 +539,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/matches:
     get:
-      tags: [scheduling]
+      tags:
+        - scheduling
       summary: List matches with filters
       description: List matches with filters
       operationId: list_matches
@@ -344,9 +583,28 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Match'
+                    maxItems: 200
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/venues:
     get:
-      tags: [venues]
+      tags:
+        - venues
       summary: List venues for an edition
       description: List venues for an edition
       operationId: list_edition_venues
@@ -359,9 +617,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VenueListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/matches/{match_id}:
     get:
-      tags: [scheduling]
+      tags:
+        - scheduling
       summary: Fetch a match with events
       description: Fetch a match with events
       operationId: get_match
@@ -374,10 +650,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Match'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [scheduling]
+      tags:
+        - scheduling
       summary: Update match details or result
       description: Update match details or result
       operationId: update_match
@@ -396,11 +690,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Match'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/matches/{match_id}/disputes:
     post:
-      tags: [scheduling]
+      tags:
+        - scheduling
       summary: Submit a dispute for a finalized match
       description: Submit a dispute for a finalized match
       operationId: submit_dispute
@@ -419,11 +731,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Dispute'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/teams:
     get:
-      tags: [teams]
+      tags:
+        - teams
       summary: List accessible teams
       description: List accessible teams
       operationId: list_teams
@@ -434,8 +764,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [teams]
+      tags:
+        - teams
       summary: Create or import a reusable team
       description: Create or import a reusable team
       operationId: create_team
@@ -452,11 +800,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Team'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}/venues:
     get:
-      tags: [venues]
+      tags:
+        - venues
       summary: List venues for a competition
       description: List venues for a competition
       operationId: list_competition_venues
@@ -469,8 +835,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VenueListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [venues]
+      tags:
+        - venues
       summary: Create a venue
       description: Create a venue
       operationId: create_venue
@@ -489,11 +873,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Venue'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/venues/{venue_id}:
     patch:
-      tags: [venues]
+      tags:
+        - venues
       summary: Update a venue
       description: Update a venue
       operationId: update_venue
@@ -512,10 +914,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Venue'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
-      tags: [venues]
+      tags:
+        - venues
       summary: Delete a venue
       description: Delete a venue
       operationId: delete_venue
@@ -524,9 +944,27 @@ paths:
       responses:
         '204':
           description: Venue deleted
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}:
     get:
-      tags: [teams]
+      tags:
+        - teams
       summary: Fetch a team's roster
       description: Fetch a team's roster
       operationId: get_team_roster
@@ -539,10 +977,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamRoster'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [teams]
+      tags:
+        - teams
       summary: Update team details
       description: Update team details
       operationId: update_team
@@ -561,15 +1017,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Team'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/members:
     post:
-      tags: [teams]
+      tags:
+        - teams
       summary: Add a member to a team roster
       description: Add a member to a team roster
       operationId: add_team_member
@@ -588,11 +1062,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamMember'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/members/{membership_id}:
     patch:
-      tags: [teams]
+      tags:
+        - teams
       summary: Update a team member
       description: Update a team member
       operationId: update_team_member
@@ -612,14 +1104,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamMember'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
           $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     delete:
-      tags: [teams]
+      tags:
+        - teams
       summary: Remove a member from a team roster
       description: Remove a member from a team roster
       operationId: remove_team_member
@@ -629,13 +1137,31 @@ paths:
       responses:
         '204':
           description: Member removed
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/entries:
     post:
-      tags: [teams]
+      tags:
+        - teams
       summary: Register a team into an edition (self-service onboarding)
       description: Register a team into an edition (self-service onboarding)
       operationId: register_entry
@@ -654,11 +1180,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Entry'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
           $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/entries/{entry_id}:
     patch:
-      tags: [teams]
+      tags:
+        - teams
       summary: Update entry status
       description: Update entry status
       operationId: update_entry_status
@@ -677,15 +1219,31 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Entry'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
         '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
           $ref: '#/components/responses/ProblemDetails'
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/entries/{entry_id}/squads:
     put:
-      tags: [teams]
+      tags:
+        - teams
       summary: Ensure squad exists and optionally lock it
       description: Ensure squad exists and optionally lock it
       operationId: upsert_squad
@@ -704,9 +1262,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Squad'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/squads/{squad_id}/members:
     get:
-      tags: [teams]
+      tags:
+        - teams
       summary: List squad members
       description: List squad members
       operationId: list_squad_members
@@ -719,8 +1295,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SquadMemberListResponse'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
-      tags: [teams]
+      tags:
+        - teams
       summary: Add or update a squad member
       description: Add or update a squad member
       operationId: add_squad_member
@@ -739,9 +1333,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SquadMember'
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/notifications:
     get:
-      tags: [notifications]
+      tags:
+        - notifications
       summary: List notifications for the authenticated user
       description: List notifications for the authenticated user
       operationId: list_notifications
@@ -755,6 +1367,16 @@ paths:
               description: Cache validator for notification feed
               schema:
                 type: string
+                maxLength: 2048
+                pattern: ^.{0,2048}$
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
@@ -764,11 +1386,23 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Notification'
+                    maxItems: 200
                   next_cursor:
                     type: string
                     nullable: true
+                    maxLength: 2048
+                    pattern: ^.{0,2048}$
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     patch:
-      tags: [notifications]
+      tags:
+        - notifications
       summary: Bulk mark notifications as read
       description: Bulk mark notifications as read
       operationId: mark_notifications
@@ -781,9 +1415,27 @@ paths:
       responses:
         '204':
           description: Notifications updated
+          headers:
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard:
     get:
-      tags: [public]
+      tags:
+        - public
       summary: Fetch public scoreboard payload for big-screen display
       description: Fetch public scoreboard payload for big-screen display
       operationId: get_scoreboard
@@ -798,15 +1450,34 @@ paths:
               description: Cache validator for scoreboard polling
               schema:
                 type: string
+                maxLength: 2048
+                pattern: ^.{0,2048}$
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScoreboardPayload'
+        '400':
+          $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /api/public/events:
     get:
-      tags: [public]
+      tags:
+        - public
       summary: Poll-based event feed for real-time updates
       description: Poll-based event feed for real-time updates
       operationId: get_event_feed
@@ -820,12 +1491,28 @@ paths:
               description: Cache validator for event feed
               schema:
                 type: string
+                maxLength: 2048
+                pattern: ^.{0,2048}$
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/Access-Control-Allow-Origin'
+            RateLimit-Limit:
+              $ref: '#/components/headers/RateLimit-Limit'
+            RateLimit-Remaining:
+              $ref: '#/components/headers/RateLimit-Remaining'
+            RateLimit-Reset:
+              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventFeed'
         '400':
           $ref: '#/components/responses/ProblemDetails'
+        '401':
+          $ref: '#/components/responses/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 components:
   parameters:
     CompetitionId:
@@ -835,6 +1522,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     EditionId:
       name: edition_id
       in: path
@@ -842,12 +1530,14 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     StageIdOptional:
       name: stage_id
       in: query
       schema:
         type: string
         format: uuid
+        maxLength: 36
       description: Filter matches for a specific stage
     MatchStatus:
       name: status
@@ -861,6 +1551,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     VenueId:
       name: venue_id
       in: path
@@ -868,6 +1559,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     TeamId:
       name: team_id
       in: path
@@ -875,6 +1567,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     MembershipId:
       name: membership_id
       in: path
@@ -882,6 +1575,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     EntryId:
       name: entry_id
       in: path
@@ -889,6 +1583,7 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     SquadId:
       name: squad_id
       in: path
@@ -896,11 +1591,14 @@ components:
       schema:
         type: string
         format: uuid
+        maxLength: 36
     NotificationCursor:
       name: cursor
       in: query
       schema:
         type: string
+        maxLength: 2048
+        pattern: ^.{0,2048}$
       description: Continue notification pagination
     EditionSlug:
       name: edition_slug
@@ -909,17 +1607,23 @@ components:
       schema:
         type: string
         description: Edition slug (e.g. 2025)
+        maxLength: 2048
+        pattern: ^.{0,2048}$
     CompetitionSlug:
       name: competition_slug
       in: path
       required: true
       schema:
         type: string
+        maxLength: 2048
+        pattern: ^.{0,2048}$
     EventCursor:
       name: cursor
       in: query
       schema:
         type: string
+        maxLength: 2048
+        pattern: ^.{0,2048}$
       description: Cursor token for incremental events
   responses:
     ProblemDetails:
@@ -928,78 +1632,166 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+        RateLimit-Limit:
+          $ref: '#/components/headers/RateLimit-Limit'
+        RateLimit-Remaining:
+          $ref: '#/components/headers/RateLimit-Remaining'
+        RateLimit-Reset:
+          $ref: '#/components/headers/RateLimit-Reset'
+    TooManyRequests:
+      description: The client has sent too many requests in a given amount of time.
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+        RateLimit-Limit:
+          $ref: '#/components/headers/RateLimit-Limit'
+        RateLimit-Remaining:
+          $ref: '#/components/headers/RateLimit-Remaining'
+        RateLimit-Reset:
+          $ref: '#/components/headers/RateLimit-Reset'
+        Retry-After:
+          $ref: '#/components/headers/Retry-After'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    InternalServerError:
+      description: The server encountered an unexpected error.
+      headers:
+        Access-Control-Allow-Origin:
+          $ref: '#/components/headers/Access-Control-Allow-Origin'
+        RateLimit-Limit:
+          $ref: '#/components/headers/RateLimit-Limit'
+        RateLimit-Remaining:
+          $ref: '#/components/headers/RateLimit-Remaining'
+        RateLimit-Reset:
+          $ref: '#/components/headers/RateLimit-Reset'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
   schemas:
     ProblemDetails:
       type: object
-      required: [type, title, status]
+      required:
+        - type
+        - title
+        - status
       properties:
         type:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         title:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         status:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         detail:
           type: string
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         instance:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         errors:
           type: object
           additionalProperties:
             type: array
             items:
               type: string
+              maxLength: 2048
+              pattern: ^.{0,2048}$
+            maxItems: 200
     Invitation:
       type: object
-      required: [id, email, role, scope, expires_at]
+      required:
+        - id
+        - email
+        - role
+        - scope
+        - expires_at
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         email:
           type: string
           format: email
+          maxLength: 254
         role:
           type: string
-          enum: [global_admin, competition_admin, team_manager]
+          enum:
+            - global_admin
+            - competition_admin
+            - team_manager
         scope:
           type: object
-          required: [type]
+          required:
+            - type
           properties:
             type:
               type: string
-              enum: [global, competition, edition, team]
+              enum:
+                - global
+                - competition
+                - edition
+                - team
             id:
               type: string
               format: uuid
               nullable: true
+              maxLength: 36
         expires_at:
           type: string
           format: date-time
+          maxLength: 30
         token:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         accept_url:
           type: string
           format: uri
           nullable: true
+          maxLength: 2048
     RoleAssignment:
       type: object
-      required: [role, scope]
+      required:
+        - role
+        - scope
       properties:
         role:
           type: string
-          enum: [global_admin, competition_admin, team_manager]
+          enum:
+            - global_admin
+            - competition_admin
+            - team_manager
         scope:
           $ref: '#/components/schemas/InvitationScope'
     AcceptInvitationRequest:
       type: object
-      required: [token]
+      required:
+        - token
       properties:
         token:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     AcceptInvitationResponse:
       type: object
-      required: [invitation, role]
+      required:
+        - invitation
+        - role
       properties:
         invitation:
           $ref: '#/components/schemas/Invitation'
@@ -1007,36 +1799,53 @@ components:
           $ref: '#/components/schemas/RoleAssignment'
     CreateInvitationRequest:
       type: object
-      required: [email, role, scope]
+      required:
+        - email
+        - role
+        - scope
       properties:
         email:
           type: string
           format: email
+          maxLength: 254
         role:
           type: string
-          enum: [global_admin, competition_admin, team_manager]
+          enum:
+            - global_admin
+            - competition_admin
+            - team_manager
         scope:
           $ref: '#/components/schemas/InvitationScope'
         message:
           type: string
           maxLength: 500
+          pattern: ^.{0,500}$
         expires_at:
           type: string
           format: date-time
+          maxLength: 30
     InvitationScope:
       type: object
-      required: [type]
+      required:
+        - type
       properties:
         type:
           type: string
-          enum: [global, competition, edition, team]
+          enum:
+            - global
+            - competition
+            - edition
+            - team
         id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
     CompetitionWithEdition:
       type: object
-      required: [competition, edition]
+      required:
+        - competition
+        - edition
       properties:
         competition:
           $ref: '#/components/schemas/Competition'
@@ -1051,95 +1860,155 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Edition'
+              maxItems: 200
             administrators:
               type: array
               items:
                 $ref: '#/components/schemas/UserSummary'
+              maxItems: 200
     Competition:
       type: object
-      required: [id, name, slug, created_at]
+      required:
+        - id
+        - name
+        - slug
+        - created_at
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         primary_venue_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
         created_at:
           type: string
           format: date-time
+          maxLength: 30
     CreateCompetitionRequest:
       type: object
-      required: [name, slug, default_edition]
+      required:
+        - name
+        - slug
+        - default_edition
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         default_edition:
           $ref: '#/components/schemas/CreateEditionRequest'
     Edition:
       type: object
-      required: [id, competition_id, label, slug, status, registration_window]
+      required:
+        - id
+        - competition_id
+        - label
+        - slug
+        - status
+        - registration_window
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         competition_id:
           type: string
           format: uuid
+          maxLength: 36
         competition_slug:
           type: string
           description: Competition slug for contextual scoreboard links
+          maxLength: 120
+          pattern: ^.{0,120}$
         label:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         status:
           type: string
-          enum: [draft, published, archived]
+          enum:
+            - draft
+            - published
+            - archived
         format:
           type: string
-          enum: [round_robin, knockout, hybrid]
+          enum:
+            - round_robin
+            - knockout
+            - hybrid
         registration_window:
           $ref: '#/components/schemas/RegistrationWindow'
         scoreboard_rotation_seconds:
           type: integer
           minimum: 2
           default: 5
+          format: int32
+          maximum: 2147483647
         scoreboard_modules:
           type: array
           items:
             type: string
-            enum: [live_matches, upcoming, standings, top_scorers]
+            enum:
+              - live_matches
+              - upcoming
+              - standings
+              - top_scorers
+          maxItems: 200
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
         entries_locked_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         published_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
     CreateEditionRequest:
       type: object
-      required: [label, slug, format, registration_window]
+      required:
+        - label
+        - slug
+        - format
+        - registration_window
       properties:
         label:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         format:
           type: string
-          enum: [round_robin, knockout, hybrid]
+          enum:
+            - round_robin
+            - knockout
+            - hybrid
         registration_window:
           $ref: '#/components/schemas/RegistrationWindow'
         scoreboard_theme:
@@ -1149,17 +2018,29 @@ components:
       properties:
         label:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         status:
           type: string
-          enum: [draft, published, archived]
+          enum:
+            - draft
+            - published
+            - archived
         scoreboard_rotation_seconds:
           type: integer
           minimum: 2
+          format: int32
+          maximum: 2147483647
         scoreboard_modules:
           type: array
           items:
             type: string
-            enum: [live_matches, upcoming, standings, top_scorers]
+            enum:
+              - live_matches
+              - upcoming
+              - standings
+              - top_scorers
+          maxItems: 200
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
         entries_locked:
@@ -1169,29 +2050,42 @@ components:
       properties:
         primary_color:
           type: string
-          pattern: '^#([A-Fa-f0-9]{6})$'
+          pattern: ^#([A-Fa-f0-9]{6})$
+          maxLength: 2048
         secondary_color:
           type: string
-          pattern: '^#([A-Fa-f0-9]{6})$'
+          pattern: ^#([A-Fa-f0-9]{6})$
+          maxLength: 2048
         background_image_url:
           type: string
           format: uri
           nullable: true
+          maxLength: 2048
     EditionScoreboardHighlight:
       type: object
-      required: [message, expires_at, remaining_seconds]
+      required:
+        - message
+        - expires_at
+        - remaining_seconds
       properties:
         message:
           type: string
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         expires_at:
           type: string
           format: date-time
+          maxLength: 30
         remaining_seconds:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
     EditionScoreboardView:
       type: object
-      required: [edition, highlight]
+      required:
+        - edition
+        - highlight
       properties:
         edition:
           $ref: '#/components/schemas/Edition'
@@ -1200,255 +2094,399 @@ components:
           nullable: true
     TriggerScoreboardHighlightRequest:
       type: object
-      required: [message, duration_seconds]
+      required:
+        - message
+        - duration_seconds
       properties:
         message:
           type: string
           maxLength: 160
+          pattern: ^.{0,160}$
         duration_seconds:
           type: integer
           minimum: 5
           maximum: 600
+          format: int32
     RegistrationWindow:
       type: object
-      required: [opens_at, closes_at]
+      required:
+        - opens_at
+        - closes_at
       properties:
         opens_at:
           type: string
           format: date-time
+          maxLength: 30
         closes_at:
           type: string
           format: date-time
+          maxLength: 30
     Stage:
       type: object
-      required: [id, edition_id, name, stage_type]
+      required:
+        - id
+        - edition_id
+        - name
+        - stage_type
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         edition_id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         stage_type:
           type: string
-          enum: [group, bracket]
+          enum:
+            - group
+            - bracket
         order:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         groups:
           type: array
           items:
             $ref: '#/components/schemas/Group'
+          maxItems: 200
         published_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
     CreateStageRequest:
       type: object
-      required: [name, stage_type]
+      required:
+        - name
+        - stage_type
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         stage_type:
           type: string
-          enum: [group, bracket]
+          enum:
+            - group
+            - bracket
         groups:
           type: array
           description: Required for group stages
           items:
             $ref: '#/components/schemas/CreateGroupRequest'
+          maxItems: 200
     Group:
       type: object
-      required: [id, code, name]
+      required:
+        - id
+        - code
+        - name
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         code:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         standings:
           type: array
           items:
             $ref: '#/components/schemas/Standing'
+          maxItems: 200
     CreateGroupRequest:
       type: object
-      required: [code, name]
+      required:
+        - code
+        - name
       properties:
         code:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
     GenerateMatchesRequest:
       type: object
-      required: [stage_id, algorithm]
+      required:
+        - stage_id
+        - algorithm
       properties:
         stage_id:
           type: string
           format: uuid
+          maxLength: 36
         algorithm:
           type: string
-          enum: [round_robin_circle, knockout_seeded]
+          enum:
+            - round_robin_circle
+            - knockout_seeded
         options:
           type: object
           additionalProperties: true
     GenerationJob:
       type: object
-      required: [job_id, status]
+      required:
+        - job_id
+        - status
       properties:
         job_id:
           type: string
+          maxLength: 36
+          pattern: ^.{0,36}$
         status:
           type: string
-          enum: [queued, running, completed, failed]
+          enum:
+            - queued
+            - running
+            - completed
+            - failed
     Match:
       type: object
-      required: [id, edition_id, status, kickoff_at, home_entry_id, away_entry_id]
+      required:
+        - id
+        - edition_id
+        - status
+        - kickoff_at
+        - home_entry_id
+        - away_entry_id
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         edition_id:
           type: string
           format: uuid
+          maxLength: 36
         stage_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         group_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         group_code:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         code:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         round_label:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         status:
           $ref: '#/components/schemas/MatchStatus'
         kickoff_at:
           type: string
           format: date-time
+          maxLength: 30
         venue_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         venue_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         home_entry_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         home_entry_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         away_entry_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         away_entry_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         home_score:
           $ref: '#/components/schemas/ScoreBreakdown'
         away_score:
           $ref: '#/components/schemas/ScoreBreakdown'
         outcome:
           type: string
-          enum: [home_win, away_win, draw, forfeit_home, forfeit_away, cancelled, postponed]
+          enum:
+            - home_win
+            - away_win
+            - draw
+            - forfeit_home
+            - forfeit_away
+            - cancelled
+            - postponed
         events:
           type: array
           items:
             $ref: '#/components/schemas/MatchEvent'
+          maxItems: 200
     MatchStatus:
       type: string
-      enum: [scheduled, in_progress, finalized, disputed]
+      enum:
+        - scheduled
+        - in_progress
+        - finalized
+        - disputed
     ScoreBreakdown:
       type: object
       properties:
         regulation:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
         extra_time:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
         penalties:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
     MatchEvent:
       type: object
-      required: [id, match_id, team_side, event_type, minute]
+      required:
+        - id
+        - match_id
+        - team_side
+        - event_type
+        - minute
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         match_id:
           type: string
           format: uuid
+          maxLength: 36
         team_side:
           type: string
-          enum: [home, away]
+          enum:
+            - home
+            - away
         squad_member_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         event_type:
           type: string
-          enum: [goal, own_goal, penalty_goal, assist, yellow_card, red_card]
+          enum:
+            - goal
+            - own_goal
+            - penalty_goal
+            - assist
+            - yellow_card
+            - red_card
         minute:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
         stoppage_time:
           type: integer
           minimum: 0
           nullable: true
+          format: int32
+          maximum: 2147483647
     MatchEventInput:
       type: object
-      required: [team_side, event_type, minute]
+      required:
+        - team_side
+        - event_type
+        - minute
       properties:
         team_side:
           type: string
-          enum: [home, away]
+          enum:
+            - home
+            - away
         squad_member_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         event_type:
           type: string
-          enum: [goal, own_goal, penalty_goal, assist, yellow_card, red_card]
+          enum:
+            - goal
+            - own_goal
+            - penalty_goal
+            - assist
+            - yellow_card
+            - red_card
         minute:
           type: integer
           minimum: 0
+          format: int32
+          maximum: 2147483647
         stoppage_time:
           type: integer
           minimum: 0
           nullable: true
+          format: int32
+          maximum: 2147483647
     UpdateMatchRequest:
       type: object
       properties:
         code:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         home_entry_id:
           type: string
           format: uuid
+          maxLength: 36
         away_entry_id:
           type: string
           format: uuid
+          maxLength: 36
         kickoff_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         venue_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         status:
           $ref: '#/components/schemas/MatchStatus'
         score:
@@ -1462,155 +2500,240 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MatchEventInput'
+          maxItems: 200
         admin_notes:
           type: string
           maxLength: 2000
+          pattern: ^.{0,2000}$
     CreateDisputeRequest:
       type: object
-      required: [reason]
+      required:
+        - reason
       properties:
         reason:
           type: string
           maxLength: 2000
+          pattern: ^.{0,2000}$
     Dispute:
       type: object
-      required: [id, match_id, submitted_by, status]
+      required:
+        - id
+        - match_id
+        - submitted_by
+        - status
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         match_id:
           type: string
           format: uuid
+          maxLength: 36
         submitted_by:
           $ref: '#/components/schemas/UserSummary'
         status:
           type: string
-          enum: [open, resolved, rejected]
+          enum:
+            - open
+            - resolved
+            - rejected
         created_at:
           type: string
           format: date-time
+          maxLength: 30
         resolution_notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
     UserSummary:
       type: object
-      required: [id, name]
+      required:
+        - id
+        - name
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         email:
           type: string
           format: email
+          maxLength: 254
     Team:
       type: object
-      required: [id, name, slug]
+      required:
+        - id
+        - name
+        - slug
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         contact_email:
           type: string
           format: email
           nullable: true
+          maxLength: 254
         contact_phone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     CreateTeamRequest:
       type: object
-      required: [name]
+      required:
+        - name
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
           nullable: true
+          maxLength: 120
+          pattern: ^.{0,120}$
         contact_email:
           type: string
           format: email
           nullable: true
+          maxLength: 254
         contact_phone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     UpdateTeamRequest:
       type: object
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
           nullable: true
+          maxLength: 120
+          pattern: ^.{0,120}$
         contact_email:
           type: string
           format: email
           nullable: true
+          maxLength: 254
         contact_phone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     AddTeamMemberRequest:
       type: object
-      required: [first_name, last_name]
+      required:
+        - first_name
+        - last_name
       properties:
         first_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         last_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         preferred_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         country:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         role:
           type: string
-          enum: [player, coach, manager, staff]
+          enum:
+            - player
+            - coach
+            - manager
+            - staff
     UpdateTeamMemberRequest:
       type: object
       properties:
         first_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         last_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         preferred_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         country:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         role:
           type: string
-          enum: [player, coach, manager, staff]
+          enum:
+            - player
+            - coach
+            - manager
+            - staff
     TeamMember:
       type: object
-      required: [membership_id, person]
+      required:
+        - membership_id
+        - person
       properties:
         membership_id:
           type: string
           format: uuid
+          maxLength: 36
         person:
           $ref: '#/components/schemas/Person'
         role:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         status:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         joined_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         left_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
     TeamRoster:
       type: object
-      required: [team, members]
+      required:
+        - team
+        - members
       properties:
         team:
           $ref: '#/components/schemas/Team'
@@ -1618,47 +2741,70 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TeamMember'
+          maxItems: 200
     CompetitionSummary:
       type: object
-      required: [id, name, slug]
+      required:
+        - id
+        - name
+        - slug
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
     CompetitionListResponse:
       type: object
-      required: [competitions]
+      required:
+        - competitions
       properties:
         competitions:
           type: array
           items:
             $ref: '#/components/schemas/CompetitionSummary'
+          maxItems: 200
     TeamSummary:
       type: object
-      required: [id, name, slug]
+      required:
+        - id
+        - name
+        - slug
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
     TeamListResponse:
       type: object
-      required: [teams]
+      required:
+        - teams
       properties:
         teams:
           type: array
           items:
             $ref: '#/components/schemas/TeamSummary'
+          maxItems: 200
     EntryReview:
       type: object
-      required: [entry, team]
+      required:
+        - entry
+        - team
       properties:
         entry:
           $ref: '#/components/schemas/Entry'
@@ -1666,86 +2812,120 @@ components:
           $ref: '#/components/schemas/TeamSummary'
     EntryReviewListResponse:
       type: object
-      required: [entries]
+      required:
+        - entries
       properties:
         entries:
           type: array
           items:
             $ref: '#/components/schemas/EntryReview'
+          maxItems: 200
     Entry:
       type: object
-      required: [id, team_id, edition_id, status]
+      required:
+        - id
+        - team_id
+        - edition_id
+        - status
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         team_id:
           type: string
           format: uuid
+          maxLength: 36
         edition_id:
           type: string
           format: uuid
+          maxLength: 36
         status:
           type: string
-          enum: [pending, approved, rejected, withdrawn]
+          enum:
+            - pending
+            - approved
+            - rejected
+            - withdrawn
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         submitted_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         approved_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         rejected_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         decision_reason:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     UpdateEntryStatusRequest:
       type: object
-      required: [status]
+      required:
+        - status
       properties:
         status:
           type: string
-          enum: [approved, rejected]
+          enum:
+            - approved
+            - rejected
         reason:
           type: string
           maxLength: 2000
+          pattern: ^.{0,2000}$
     RegisterEntryRequest:
       type: object
-      required: [edition_id]
+      required:
+        - edition_id
       properties:
         edition_id:
           type: string
           format: uuid
+          maxLength: 36
         notes:
           type: string
           maxLength: 2000
           nullable: true
+          pattern: ^.{0,2000}$
     Squad:
       type: object
-      required: [id, entry_id, locked_at]
+      required:
+        - id
+        - entry_id
+        - locked_at
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         entry_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         locked_at:
           type: string
           format: date-time
           nullable: true
+          maxLength: 30
         members:
           type: array
           items:
             $ref: '#/components/schemas/SquadMember'
+          maxItems: 200
     UpdateSquadRequest:
       type: object
       properties:
@@ -1753,97 +2933,155 @@ components:
           type: boolean
     SquadMember:
       type: object
-      required: [id, squad_id, person_id]
+      required:
+        - id
+        - squad_id
+        - person_id
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         squad_id:
           type: string
           format: uuid
+          maxLength: 36
         membership_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         person_id:
           type: string
           format: uuid
+          maxLength: 36
         jersey_number:
           type: integer
           nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         position:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         availability:
           type: string
-          enum: [available, doubtful, injured, suspended]
+          enum:
+            - available
+            - doubtful
+            - injured
+            - suspended
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
     SquadMemberListResponse:
       type: object
-      required: [members]
+      required:
+        - members
       properties:
         members:
           type: array
           items:
             $ref: '#/components/schemas/SquadMember'
+          maxItems: 200
     AddSquadMemberRequest:
       type: object
-      required: [membership_id]
+      required:
+        - membership_id
       properties:
         membership_id:
           type: string
           format: uuid
+          maxLength: 36
         jersey_number:
           type: integer
           nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         position:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         availability:
           type: string
-          enum: [available, doubtful, injured, suspended]
+          enum:
+            - available
+            - doubtful
+            - injured
+            - suspended
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
     Person:
       type: object
-      required: [id, full_name]
+      required:
+        - id
+        - full_name
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         full_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         first_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         last_name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         preferred_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         date_of_birth:
           type: string
           format: date
           nullable: true
+          maxLength: 10
         role:
           type: string
-          enum: [player, coach, staff]
+          enum:
+            - player
+            - coach
+            - staff
     Notification:
       type: object
-      required: [id, type, created_at, read]
+      required:
+        - id
+        - type
+        - created_at
+        - read
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         type:
           type: string
           enum:
-            [entry_approved, schedule_changed, match_finalized, dispute_resolved, announcement]
+            - entry_approved
+            - schedule_changed
+            - match_finalized
+            - dispute_resolved
+            - announcement
         created_at:
           type: string
           format: date-time
+          maxLength: 30
         read:
           type: boolean
         payload:
@@ -1851,7 +3089,8 @@ components:
           additionalProperties: true
     MarkNotificationsRequest:
       type: object
-      required: [notification_ids]
+      required:
+        - notification_ids
       properties:
         notification_ids:
           type: array
@@ -1859,9 +3098,16 @@ components:
           items:
             type: string
             format: uuid
+            maxLength: 36
+          maxItems: 200
     ScoreboardPayload:
       type: object
-      required: [edition, matches, standings, top_scorers, rotation]
+      required:
+        - edition
+        - matches
+        - standings
+        - top_scorers
+        - rotation
       properties:
         edition:
           $ref: '#/components/schemas/Edition'
@@ -1869,44 +3115,64 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScoreboardMatch'
+          maxItems: 200
         standings:
           type: array
           items:
             $ref: '#/components/schemas/Standing'
+          maxItems: 200
         tables:
           type: array
           items:
             $ref: '#/components/schemas/GroupTable'
+          maxItems: 200
         top_scorers:
           type: array
           items:
             $ref: '#/components/schemas/TopScorer'
+          maxItems: 200
         rotation:
           type: array
           description: Configured rotation sections for big-screen display
           items:
             type: string
-            enum: [live_matches, upcoming, standings, top_scorers]
+            enum:
+              - live_matches
+              - upcoming
+              - standings
+              - top_scorers
+          maxItems: 200
     ScoreboardMatch:
       type: object
-      required: [id, status, kickoff_at, home, away]
+      required:
+        - id
+        - status
+        - kickoff_at
+        - home
+        - away
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         status:
           $ref: '#/components/schemas/MatchStatus'
         kickoff_at:
           type: string
           format: date-time
+          maxLength: 30
         code:
           type: string
           nullable: true
           description: Match code (e.g. A-01)
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         group_code:
           type: string
           nullable: true
           description: Group code for group-stage matches
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         home:
           $ref: '#/components/schemas/ScoreboardSide'
         away:
@@ -1915,186 +3181,373 @@ components:
           type: string
           nullable: true
           description: Optional admin-triggered overlay message
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         venue_name:
           type: string
           nullable: true
           description: Venue or playing surface name
+          maxLength: 200
+          pattern: ^.{0,200}$
     ScoreboardSide:
       type: object
-      required: [entry_id, name, score]
+      required:
+        - entry_id
+        - name
+        - score
       properties:
         entry_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         score:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     Standing:
       type: object
-      required: [entry_id, played, won, drawn, lost, goals_for, goals_against, points]
+      required:
+        - entry_id
+        - played
+        - won
+        - drawn
+        - lost
+        - goals_for
+        - goals_against
+        - points
       properties:
         entry_id:
           type: string
           format: uuid
+          maxLength: 36
         position:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         played:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         won:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         drawn:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         lost:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         goals_for:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         goals_against:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         goal_difference:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         points:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         fair_play_score:
           type: integer
           nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     GroupTable:
       type: object
-      required: [group_id, group_code, standings]
+      required:
+        - group_id
+        - group_code
+        - standings
       properties:
         group_id:
           type: string
           format: uuid
+          maxLength: 36
         group_code:
           type: string
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         group_name:
           type: string
           nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         standings:
           type: array
           items:
             $ref: '#/components/schemas/Standing'
+          maxItems: 200
     Venue:
       type: object
-      required: [id, competition_id, name, slug]
+      required:
+        - id
+        - competition_id
+        - name
+        - slug
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         competition_id:
           type: string
           format: uuid
+          maxLength: 36
         edition_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         address:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         timezone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         created_at:
           type: string
           format: date-time
+          maxLength: 30
     VenueListResponse:
       type: object
-      required: [venues]
+      required:
+        - venues
       properties:
         venues:
           type: array
           items:
             $ref: '#/components/schemas/Venue'
+          maxItems: 200
     CreateVenueRequest:
       type: object
-      required: [name, slug]
+      required:
+        - name
+        - slug
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         edition_id:
           type: string
           format: uuid
           nullable: true
+          maxLength: 36
         address:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         timezone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     UpdateVenueRequest:
       type: object
       properties:
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         slug:
           type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         address:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         notes:
           type: string
           nullable: true
+          maxLength: 2000
+          pattern: ^.{0,2000}$
         timezone:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     TopScorer:
       type: object
-      required: [person_id, entry_id, goals]
+      required:
+        - person_id
+        - entry_id
+        - goals
       properties:
         person_id:
           type: string
           format: uuid
+          maxLength: 36
         entry_id:
           type: string
           format: uuid
+          maxLength: 36
         name:
           type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
         goals:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         assists:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         yellow_cards:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         red_cards:
           type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     EventFeed:
       type: object
-      required: [items, next_cursor]
+      required:
+        - items
+        - next_cursor
       properties:
         items:
           type: array
           items:
             $ref: '#/components/schemas/EventEnvelope'
+          maxItems: 200
         next_cursor:
           type: string
           nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     EventEnvelope:
       type: object
-      required: [id, type, occurred_at, payload]
+      required:
+        - id
+        - type
+        - occurred_at
+        - payload
       properties:
         id:
           type: string
           format: uuid
+          maxLength: 36
         type:
           type: string
           enum:
-            [match_updated, match_finalized, schedule_changed, entry_status_changed, notification]
+            - match_updated
+            - match_finalized
+            - schedule_changed
+            - entry_status_changed
+            - notification
         occurred_at:
           type: string
           format: date-time
+          maxLength: 30
         payload:
           type: object
           additionalProperties: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer access token for authenticated API requests. JWT handling follows RFC8725 best practices.
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: tournament.session
+      description: Signed session cookie for browser-based access.
+  headers:
+    Access-Control-Allow-Origin:
+      description: Allowed origin for cross-origin requests.
+      schema:
+        type: string
+        maxLength: 2048
+        pattern: ^\S+$
+    RateLimit-Limit:
+      description: The maximum number of requests permitted in the current window.
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 10000
+    RateLimit-Remaining:
+      description: The number of remaining requests in the current window.
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 10000
+    RateLimit-Reset:
+      description: Seconds remaining until the rate limit window resets.
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        maximum: 86400
+    Retry-After:
+      description: Seconds to wait before making a new request.
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        maximum: 86400
+security:
+  - bearerAuth: []
+  - sessionCookie: []

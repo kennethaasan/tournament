@@ -13,7 +13,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Invite a new organizer or team manager */
+    /**
+     * Invite a new organizer or team manager
+     * @description Invite a new organizer or team manager
+     */
     post: operations["create_invitation"];
     delete?: never;
     options?: never;
@@ -30,7 +33,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Accept an invitation */
+    /**
+     * Accept an invitation
+     * @description Accept an invitation
+     */
     post: operations["accept_invitation"];
     delete?: never;
     options?: never;
@@ -45,10 +51,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List accessible competitions */
+    /**
+     * List accessible competitions
+     * @description List accessible competitions
+     */
     get: operations["list_competitions"];
     put?: never;
-    /** Create a new competition and initial edition */
+    /**
+     * Create a new competition and initial edition
+     * @description Create a new competition and initial edition
+     */
     post: operations["create_competition"];
     delete?: never;
     options?: never;
@@ -63,7 +75,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Fetch competition with editions and roles */
+    /**
+     * Fetch competition with editions and roles
+     * @description Fetch competition with editions and roles
+     */
     get: operations["get_competition"];
     put?: never;
     post?: never;
@@ -82,7 +97,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create a new edition inside a competition */
+    /**
+     * Create a new edition inside a competition
+     * @description Create a new edition inside a competition
+     */
     post: operations["create_edition"];
     delete?: never;
     options?: never;
@@ -97,14 +115,20 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Fetch edition scoreboard configuration */
+    /**
+     * Fetch edition scoreboard configuration
+     * @description Fetch edition scoreboard configuration
+     */
     get: operations["get_edition_scoreboard"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Update edition settings */
+    /**
+     * Update edition settings
+     * @description Update edition settings
+     */
     patch: operations["update_edition"];
     trace?: never;
   };
@@ -115,7 +139,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List entries for an edition */
+    /**
+     * List entries for an edition
+     * @description List entries for an edition
+     */
     get: operations["list_edition_entries"];
     put?: never;
     post?: never;
@@ -132,10 +159,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List stages for an edition */
+    /**
+     * List stages for an edition
+     * @description List stages for an edition
+     */
     get: operations["list_stages"];
     put?: never;
-    /** Create a stage (group or knockout) */
+    /**
+     * Create a stage (group or knockout)
+     * @description Create a stage (group or knockout)
+     */
     post: operations["create_stage"];
     delete?: never;
     options?: never;
@@ -152,7 +185,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Generate matches for selected stage */
+    /**
+     * Generate matches for selected stage
+     * @description Generate matches for selected stage
+     */
     post: operations["generate_matches"];
     delete?: never;
     options?: never;
@@ -169,9 +205,15 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Trigger a scoreboard highlight overlay */
+    /**
+     * Trigger a scoreboard highlight overlay
+     * @description Trigger a scoreboard highlight overlay
+     */
     post: operations["trigger_scoreboard_highlight"];
-    /** Clear the active scoreboard highlight */
+    /**
+     * Clear the active scoreboard highlight
+     * @description Clear the active scoreboard highlight
+     */
     delete: operations["clear_scoreboard_highlight"];
     options?: never;
     head?: never;
@@ -185,7 +227,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List matches with filters */
+    /**
+     * List matches with filters
+     * @description List matches with filters
+     */
     get: operations["list_matches"];
     put?: never;
     post?: never;
@@ -202,7 +247,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List venues for an edition */
+    /**
+     * List venues for an edition
+     * @description List venues for an edition
+     */
     get: operations["list_edition_venues"];
     put?: never;
     post?: never;
@@ -219,14 +267,20 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Fetch a match with events */
+    /**
+     * Fetch a match with events
+     * @description Fetch a match with events
+     */
     get: operations["get_match"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Update match details or result */
+    /**
+     * Update match details or result
+     * @description Update match details or result
+     */
     patch: operations["update_match"];
     trace?: never;
   };
@@ -239,7 +293,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Submit a dispute for a finalized match */
+    /**
+     * Submit a dispute for a finalized match
+     * @description Submit a dispute for a finalized match
+     */
     post: operations["submit_dispute"];
     delete?: never;
     options?: never;
@@ -254,10 +311,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List accessible teams */
+    /**
+     * List accessible teams
+     * @description List accessible teams
+     */
     get: operations["list_teams"];
     put?: never;
-    /** Create or import a reusable team */
+    /**
+     * Create or import a reusable team
+     * @description Create or import a reusable team
+     */
     post: operations["create_team"];
     delete?: never;
     options?: never;
@@ -272,10 +335,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List venues for a competition */
+    /**
+     * List venues for a competition
+     * @description List venues for a competition
+     */
     get: operations["list_competition_venues"];
     put?: never;
-    /** Create a venue */
+    /**
+     * Create a venue
+     * @description Create a venue
+     */
     post: operations["create_venue"];
     delete?: never;
     options?: never;
@@ -293,11 +362,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete a venue */
+    /**
+     * Delete a venue
+     * @description Delete a venue
+     */
     delete: operations["delete_venue"];
     options?: never;
     head?: never;
-    /** Update a venue */
+    /**
+     * Update a venue
+     * @description Update a venue
+     */
     patch: operations["update_venue"];
     trace?: never;
   };
@@ -308,14 +383,20 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Fetch a team's roster */
+    /**
+     * Fetch a team's roster
+     * @description Fetch a team's roster
+     */
     get: operations["get_team_roster"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Update team details */
+    /**
+     * Update team details
+     * @description Update team details
+     */
     patch: operations["update_team"];
     trace?: never;
   };
@@ -328,7 +409,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Add a member to a team roster */
+    /**
+     * Add a member to a team roster
+     * @description Add a member to a team roster
+     */
     post: operations["add_team_member"];
     delete?: never;
     options?: never;
@@ -346,11 +430,17 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Remove a member from a team roster */
+    /**
+     * Remove a member from a team roster
+     * @description Remove a member from a team roster
+     */
     delete: operations["remove_team_member"];
     options?: never;
     head?: never;
-    /** Update a team member */
+    /**
+     * Update a team member
+     * @description Update a team member
+     */
     patch: operations["update_team_member"];
     trace?: never;
   };
@@ -363,7 +453,10 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Register a team into an edition (self-service onboarding) */
+    /**
+     * Register a team into an edition (self-service onboarding)
+     * @description Register a team into an edition (self-service onboarding)
+     */
     post: operations["register_entry"];
     delete?: never;
     options?: never;
@@ -384,7 +477,10 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Update entry status */
+    /**
+     * Update entry status
+     * @description Update entry status
+     */
     patch: operations["update_entry_status"];
     trace?: never;
   };
@@ -396,7 +492,10 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Ensure squad exists and optionally lock it */
+    /**
+     * Ensure squad exists and optionally lock it
+     * @description Ensure squad exists and optionally lock it
+     */
     put: operations["upsert_squad"];
     post?: never;
     delete?: never;
@@ -412,10 +511,16 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List squad members */
+    /**
+     * List squad members
+     * @description List squad members
+     */
     get: operations["list_squad_members"];
     put?: never;
-    /** Add or update a squad member */
+    /**
+     * Add or update a squad member
+     * @description Add or update a squad member
+     */
     post: operations["add_squad_member"];
     delete?: never;
     options?: never;
@@ -430,14 +535,20 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** List notifications for the authenticated user */
+    /**
+     * List notifications for the authenticated user
+     * @description List notifications for the authenticated user
+     */
     get: operations["list_notifications"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Bulk mark notifications as read */
+    /**
+     * Bulk mark notifications as read
+     * @description Bulk mark notifications as read
+     */
     patch: operations["mark_notifications"];
     trace?: never;
   };
@@ -448,7 +559,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Fetch public scoreboard payload for big-screen display */
+    /**
+     * Fetch public scoreboard payload for big-screen display
+     * @description Fetch public scoreboard payload for big-screen display
+     */
     get: operations["get_scoreboard"];
     put?: never;
     post?: never;
@@ -465,7 +579,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Poll-based event feed for real-time updates */
+    /**
+     * Poll-based event feed for real-time updates
+     * @description Poll-based event feed for real-time updates
+     */
     get: operations["get_event_feed"];
     put?: never;
     post?: never;
@@ -482,6 +599,7 @@ export interface components {
     ProblemDetails: {
       type: string;
       title: string;
+      /** Format: int32 */
       status: number;
       detail?: string;
       instance?: string;
@@ -574,7 +692,10 @@ export interface components {
       /** @enum {string} */
       format?: "round_robin" | "knockout" | "hybrid";
       registration_window: components["schemas"]["RegistrationWindow"];
-      /** @default 5 */
+      /**
+       * Format: int32
+       * @default 5
+       */
       scoreboard_rotation_seconds: number;
       scoreboard_modules?: (
         | "live_matches"
@@ -600,6 +721,7 @@ export interface components {
       label?: string;
       /** @enum {string} */
       status?: "draft" | "published" | "archived";
+      /** Format: int32 */
       scoreboard_rotation_seconds?: number;
       scoreboard_modules?: (
         | "live_matches"
@@ -620,6 +742,7 @@ export interface components {
       message: string;
       /** Format: date-time */
       expires_at: string;
+      /** Format: int32 */
       remaining_seconds: number;
     };
     EditionScoreboardView: {
@@ -628,6 +751,7 @@ export interface components {
     };
     TriggerScoreboardHighlightRequest: {
       message: string;
+      /** Format: int32 */
       duration_seconds: number;
     };
     RegistrationWindow: {
@@ -644,6 +768,7 @@ export interface components {
       name: string;
       /** @enum {string} */
       stage_type: "group" | "bracket";
+      /** Format: int32 */
       order?: number;
       groups?: components["schemas"]["Group"][];
       /** Format: date-time */
@@ -721,8 +846,11 @@ export interface components {
     /** @enum {string} */
     MatchStatus: "scheduled" | "in_progress" | "finalized" | "disputed";
     ScoreBreakdown: {
+      /** Format: int32 */
       regulation?: number;
+      /** Format: int32 */
       extra_time?: number;
+      /** Format: int32 */
       penalties?: number;
     };
     MatchEvent: {
@@ -742,7 +870,9 @@ export interface components {
         | "assist"
         | "yellow_card"
         | "red_card";
+      /** Format: int32 */
       minute: number;
+      /** Format: int32 */
       stoppage_time?: number | null;
     };
     MatchEventInput: {
@@ -758,7 +888,9 @@ export interface components {
         | "assist"
         | "yellow_card"
         | "red_card";
+      /** Format: int32 */
       minute: number;
+      /** Format: int32 */
       stoppage_time?: number | null;
     };
     UpdateMatchRequest: {
@@ -929,6 +1061,7 @@ export interface components {
       membership_id?: string | null;
       /** Format: uuid */
       person_id: string;
+      /** Format: int32 */
       jersey_number?: number | null;
       position?: string | null;
       /** @enum {string} */
@@ -941,6 +1074,7 @@ export interface components {
     AddSquadMemberRequest: {
       /** Format: uuid */
       membership_id: string;
+      /** Format: int32 */
       jersey_number?: number | null;
       position?: string | null;
       /** @enum {string} */
@@ -1009,20 +1143,31 @@ export interface components {
       /** Format: uuid */
       entry_id: string | null;
       name: string;
+      /** Format: int32 */
       score: number;
     };
     Standing: {
       /** Format: uuid */
       entry_id: string;
+      /** Format: int32 */
       position?: number;
+      /** Format: int32 */
       played: number;
+      /** Format: int32 */
       won: number;
+      /** Format: int32 */
       drawn: number;
+      /** Format: int32 */
       lost: number;
+      /** Format: int32 */
       goals_for: number;
+      /** Format: int32 */
       goals_against: number;
+      /** Format: int32 */
       goal_difference?: number;
+      /** Format: int32 */
       points: number;
+      /** Format: int32 */
       fair_play_score?: number | null;
     };
     GroupTable: {
@@ -1072,9 +1217,13 @@ export interface components {
       /** Format: uuid */
       entry_id: string;
       name?: string;
+      /** Format: int32 */
       goals: number;
+      /** Format: int32 */
       assists?: number;
+      /** Format: int32 */
       yellow_cards?: number;
+      /** Format: int32 */
       red_cards?: number;
     };
     EventFeed: {
@@ -1102,6 +1251,37 @@ export interface components {
     /** @description Problem Details error payload */
     ProblemDetails: {
       headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components["schemas"]["ProblemDetails"];
+      };
+    };
+    /** @description The client has sent too many requests in a given amount of time. */
+    TooManyRequests: {
+      headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+        "Retry-After": components["headers"]["Retry-After"];
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components["schemas"]["ProblemDetails"];
+      };
+    };
+    /** @description The server encountered an unexpected error. */
+    InternalServerError: {
+      headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
         [name: string]: unknown;
       };
       content: {
@@ -1129,7 +1309,18 @@ export interface components {
     EventCursor: string;
   };
   requestBodies: never;
-  headers: never;
+  headers: {
+    /** @description Allowed origin for cross-origin requests. */
+    "Access-Control-Allow-Origin": string;
+    /** @description The maximum number of requests permitted in the current window. */
+    "RateLimit-Limit": number;
+    /** @description The number of remaining requests in the current window. */
+    "RateLimit-Remaining": number;
+    /** @description Seconds remaining until the rate limit window resets. */
+    "RateLimit-Reset": number;
+    /** @description Seconds to wait before making a new request. */
+    "Retry-After": number;
+  };
   pathItems: never;
 }
 export type $defs = Record<string, never>;
@@ -1150,6 +1341,10 @@ export interface operations {
       /** @description Invitation created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1157,6 +1352,9 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   accept_invitation: {
@@ -1175,6 +1373,10 @@ export interface operations {
       /** @description Invitation accepted */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1186,6 +1388,8 @@ export interface operations {
       404: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
       410: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_competitions: {
@@ -1200,12 +1404,20 @@ export interface operations {
       /** @description Competition list */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["CompetitionListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   create_competition: {
@@ -1224,13 +1436,20 @@ export interface operations {
       /** @description Competition and draft edition created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["CompetitionWithEdition"];
         };
       };
+      401: components["responses"]["ProblemDetails"];
       422: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_competition: {
@@ -1247,14 +1466,22 @@ export interface operations {
       /** @description Competition detail */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["CompetitionDetail"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   create_edition: {
@@ -1275,13 +1502,21 @@ export interface operations {
       /** @description Edition created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Edition"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_edition_scoreboard: {
@@ -1298,13 +1533,21 @@ export interface operations {
       /** @description Edition scoreboard configuration */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_edition: {
@@ -1325,13 +1568,21 @@ export interface operations {
       /** @description Edition updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_edition_entries: {
@@ -1348,13 +1599,21 @@ export interface operations {
       /** @description Edition entries */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["EntryReviewListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_stages: {
@@ -1371,6 +1630,10 @@ export interface operations {
       /** @description Edition stages */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1379,7 +1642,11 @@ export interface operations {
           };
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   create_stage: {
@@ -1400,6 +1667,10 @@ export interface operations {
       /** @description Stage created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1407,6 +1678,9 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   generate_matches: {
@@ -1427,13 +1701,20 @@ export interface operations {
       /** @description Match generation accepted */
       202: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["GenerationJob"];
         };
       };
+      401: components["responses"]["ProblemDetails"];
       422: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   trigger_scoreboard_highlight: {
@@ -1454,6 +1735,10 @@ export interface operations {
       /** @description Highlight activated */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1461,8 +1746,11 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   clear_scoreboard_highlight: {
@@ -1479,14 +1767,22 @@ export interface operations {
       /** @description Highlight cleared */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["EditionScoreboardView"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_matches: {
@@ -1507,6 +1803,10 @@ export interface operations {
       /** @description Matches for edition */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1515,6 +1815,10 @@ export interface operations {
           };
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_edition_venues: {
@@ -1531,12 +1835,20 @@ export interface operations {
       /** @description Venues available for the edition */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["VenueListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_match: {
@@ -1553,13 +1865,21 @@ export interface operations {
       /** @description Match details */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Match"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_match: {
@@ -1580,13 +1900,21 @@ export interface operations {
       /** @description Match updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Match"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   submit_dispute: {
@@ -1607,13 +1935,21 @@ export interface operations {
       /** @description Dispute recorded */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Dispute"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_teams: {
@@ -1628,12 +1964,20 @@ export interface operations {
       /** @description Team list */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["TeamListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   create_team: {
@@ -1652,13 +1996,21 @@ export interface operations {
       /** @description Team created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Team"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_competition_venues: {
@@ -1675,12 +2027,20 @@ export interface operations {
       /** @description Competition venues */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["VenueListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   create_venue: {
@@ -1701,13 +2061,21 @@ export interface operations {
       /** @description Venue created */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Venue"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   delete_venue: {
@@ -1724,10 +2092,18 @@ export interface operations {
       /** @description Venue deleted */
       204: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content?: never;
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_venue: {
@@ -1748,13 +2124,21 @@ export interface operations {
       /** @description Venue updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Venue"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_team_roster: {
@@ -1771,13 +2155,21 @@ export interface operations {
       /** @description Team roster */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["TeamRoster"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_team: {
@@ -1798,15 +2190,23 @@ export interface operations {
       /** @description Team updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Team"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
       409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   add_team_member: {
@@ -1827,13 +2227,21 @@ export interface operations {
       /** @description Member added */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["TeamMember"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   remove_team_member: {
@@ -1851,12 +2259,20 @@ export interface operations {
       /** @description Member removed */
       204: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content?: never;
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_team_member: {
@@ -1878,6 +2294,10 @@ export interface operations {
       /** @description Member updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1885,8 +2305,11 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   register_entry: {
@@ -1907,6 +2330,10 @@ export interface operations {
       /** @description Entry created awaiting approval */
       201: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1914,6 +2341,9 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   update_entry_status: {
@@ -1934,6 +2364,10 @@ export interface operations {
       /** @description Entry updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -1941,8 +2375,11 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       403: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   upsert_squad: {
@@ -1963,12 +2400,20 @@ export interface operations {
       /** @description Squad state updated */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["Squad"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_squad_members: {
@@ -1985,12 +2430,20 @@ export interface operations {
       /** @description Squad members */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["SquadMemberListResponse"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   add_squad_member: {
@@ -2011,12 +2464,20 @@ export interface operations {
       /** @description Member saved */
       200: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["SquadMember"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   list_notifications: {
@@ -2036,6 +2497,10 @@ export interface operations {
         headers: {
           /** @description Cache validator for notification feed */
           ETag?: string;
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -2045,6 +2510,10 @@ export interface operations {
           };
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   mark_notifications: {
@@ -2063,10 +2532,18 @@ export interface operations {
       /** @description Notifications updated */
       204: {
         headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content?: never;
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_scoreboard: {
@@ -2086,13 +2563,21 @@ export interface operations {
         headers: {
           /** @description Cache validator for scoreboard polling */
           ETag?: string;
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["ScoreboardPayload"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
   get_event_feed: {
@@ -2112,6 +2597,10 @@ export interface operations {
         headers: {
           /** @description Cache validator for event feed */
           ETag?: string;
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
           [name: string]: unknown;
         };
         content: {
@@ -2119,6 +2608,9 @@ export interface operations {
         };
       };
       400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
   };
 }

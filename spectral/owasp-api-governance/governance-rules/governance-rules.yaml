@@ -1,0 +1,16 @@
+rules:
+  info-contact-required:
+    description: "Info object must include a contact field."
+    severity: error
+    given: "$.info"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          required:
+            - contact
+          properties:
+            contact:
+              type: object
+              minProperties: 1
