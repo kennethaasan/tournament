@@ -38,4 +38,76 @@ describe("rate limiting", () => {
     expect(response?.status).toBe(429);
     expect(response?.headers.get("Retry-After")).toBeTruthy();
   });
+
+  test("extracts first IP from comma-separated x-forwarded-for header", () => {
+    const limiter = createRateLimiter({ maxRequests: 2, windowMs: 1_000 });
+    const request = new NextRequest("http://localhost/api/test", {
+      headers: {
+        "x-forwarded-for": "192.168.1.1, 10.0.0.1, 172.16.0.1",
+      },
+    });
+
+    const first = limiter.check(request);
+    expect(first.allowed).toBe(true);
+
+    // Same first IP should be rate limited together
+    const second = limiter.check(request);
+    expect(second.allowed).toBe(true);
+    expect(second.remaining).toBe(0);
+  });
+
+  test("falls back to cf-connecting-ip when other headers missing", () => {
+    const limiter = createRateLimiter({ maxRequests: 1, windowMs: 1_000 });
+    const request = new NextRequest("http://localhost/api/test", {
+      headers: {
+        "cf-connecting-ip": "104.16.0.1",
+      },
+    });
+
+    const first = limiter.check(request);
+    expect(first.allowed).toBe(true);
+
+    const second = limiter.check(request);
+    expect(second.allowed).toBe(false);
+  });
+
+  test("uses unknown key when no IP headers present", () => {
+    const limiter = createRateLimiter({ maxRequests: 1, windowMs: 1_000 });
+    const request = new NextRequest("http://localhost/api/test");
+
+    const first = limiter.check(request);
+    expect(first.allowed).toBe(true);
+
+    const second = limiter.check(request);
+    expect(second.allowed).toBe(false);
+  });
+
+  test("reset clears rate limit for a client", () => {
+    const limiter = createRateLimiter({ maxRequests: 1, windowMs: 10_000 });
+    const request = new NextRequest("http://localhost/api/test", {
+      headers: {
+        "x-real-ip": "192.168.1.100",
+      },
+    });
+
+    limiter.check(request);
+    expect(limiter.check(request).allowed).toBe(false);
+
+    limiter.reset(request);
+
+    expect(limiter.check(request).allowed).toBe(true);
+  });
+
+  test("handles empty x-forwarded-for first segment", () => {
+    const limiter = createRateLimiter({ maxRequests: 2, windowMs: 1_000 });
+    const request = new NextRequest("http://localhost/api/test", {
+      headers: {
+        "x-forwarded-for": ", 10.0.0.1",
+        "x-real-ip": "192.168.1.50",
+      },
+    });
+
+    const first = limiter.check(request);
+    expect(first.allowed).toBe(true);
+  });
 });

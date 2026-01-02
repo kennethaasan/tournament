@@ -81,4 +81,14 @@ describe("ses helpers", () => {
     expect(resolveSourceEmail()).toBe("no-reply@example.com");
     expect(resolveConfigurationSet()).toBeUndefined();
   });
+
+  it("creates SES client with credentials when access key and secret are provided", async () => {
+    env.SES_ACCESS_KEY_ID = "test-access-key";
+    env.SES_SECRET_ACCESS_KEY = "test-secret-key";
+
+    const { getSesClient } = await loadSesModule();
+
+    const client = getSesClient();
+    expect(client).toBeDefined();
+  });
 });

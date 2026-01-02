@@ -61,6 +61,113 @@ beforeEach(() => {
 });
 
 describe("useScoreboardPoll", () => {
+  it("stops polling when window is not visible", () => {
+    const initialData = buildScoreboardData({ scoreboardRotationSeconds: 10 });
+
+    // Simulate hidden visibility
+    Object.defineProperty(document, "visibilityState", {
+      value: "hidden",
+      writable: true,
+      configurable: true,
+    });
+
+    renderHook(() =>
+      useScoreboardPoll({
+        competitionSlug: "trondheim-cup",
+        editionSlug: "2025",
+        initialData,
+      }),
+    );
+
+    // Trigger visibility change event
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    if (!lastQueryOptions) {
+      throw new Error("Expected query options to be captured.");
+    }
+
+    const interval = lastQueryOptions.refetchInterval({
+      state: { data: initialData },
+    });
+    // Polling should stop when not visible
+    expect(interval).toBe(false);
+
+    // Reset visibility state
+    Object.defineProperty(document, "visibilityState", {
+      value: "visible",
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it("uses fallback rotation from initialData when query data is undefined", () => {
+    const initialData = buildScoreboardData({ scoreboardRotationSeconds: 5 });
+
+    renderHook(() =>
+      useScoreboardPoll({
+        competitionSlug: "trondheim-cup",
+        editionSlug: "2025",
+        initialData,
+      }),
+    );
+
+    if (!lastQueryOptions) {
+      throw new Error("Expected query options to be captured.");
+    }
+
+    // Pass undefined data to test fallback
+    const interval = lastQueryOptions.refetchInterval({
+      state: { data: undefined },
+    });
+    // Should use initialData's rotation seconds as fallback
+    expect(interval).toBe(5000);
+  });
+
+  it("enforces minimum 2000ms polling interval", () => {
+    const initialData = buildScoreboardData({ scoreboardRotationSeconds: 1 });
+
+    renderHook(() =>
+      useScoreboardPoll({
+        competitionSlug: "trondheim-cup",
+        editionSlug: "2025",
+        initialData,
+      }),
+    );
+
+    if (!lastQueryOptions) {
+      throw new Error("Expected query options to be captured.");
+    }
+
+    const interval = lastQueryOptions.refetchInterval({
+      state: { data: initialData },
+    });
+    // Min interval is 2000ms even if rotation is 1 second
+    expect(interval).toBe(2000);
+  });
+
+  it("uses default max polling age when not provided", () => {
+    const initialData = buildScoreboardData({ scoreboardRotationSeconds: 10 });
+
+    renderHook(() =>
+      useScoreboardPoll({
+        competitionSlug: "trondheim-cup",
+        editionSlug: "2025",
+        initialData,
+        // No maxPollingAgeMs - should use default
+      }),
+    );
+
+    if (!lastQueryOptions) {
+      throw new Error("Expected query options to be captured.");
+    }
+
+    // With default max age (18 hours), should still poll
+    const interval = lastQueryOptions.refetchInterval({
+      state: { data: initialData },
+    });
+    expect(interval).toBe(10000);
+  });
+
   it("configures polling based on rotation seconds", () => {
     const initialData = buildScoreboardData({ scoreboardRotationSeconds: 3 });
 
