@@ -1,5 +1,3 @@
-/speckit.specify
-
 Build a new football tournament administration application based on the existing Laravel application in the `laravel` folder. I've already set up a new Next.js project here that you should start from.
 
 Follow instructions in the `/instructions/`, `AGENTS.md`, and `README.md` folders and files. I recently did the same modernization for another app, which you can find [here](https://github.com/kennethaasan/mattis). Use that repository as a reference on how to solve similar problems. Also use that repository to create requirements for this new application.
@@ -75,8 +73,6 @@ New requirements:
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-/speckit.plan
-
 Focus on good architecture and code structure. Make sure to separate concerns properly, and use best practices. Make sure we follow DRY principles. Use the https://github.com/kennethaasan/mattis repo as a reference. You are allowed to write tests after implmentation if that is easier.
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -85,4 +81,3 @@ Fix the broken tests (npm test). Ensure the tests are set up the same way as htt
 
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
-

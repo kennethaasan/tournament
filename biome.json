@@ -14,7 +14,6 @@
       "!dist",
       "!build",
       "!**/drizzle",
-      "!**/.specify",
       "!**/laravel",
       "!**/.codex",
       "!**/.vscode",
