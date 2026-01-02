@@ -3,8 +3,6 @@
 **Branch**: `001-build-football-admin-app` | **Date**: 2025-11-06 | **Spec**: [/specs/001-build-football-admin-app/spec.md](/specs/001-build-football-admin-app/spec.md)
 **Input**: Feature specification from `/specs/001-build-football-admin-app/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
-
 ## Summary
 
 Build a Next.js 16 (App Router) platform that replaces the legacy Laravel administration tool with modular domain slices (competitions, editions, teams, matches, notifications) modeled after the `mattis` reference architecture. Leverage server components for public surfaces, secure dashboards behind better-auth RBAC, and encapsulate scheduling, statistics, and polling workflows in dedicated service layers to keep UI flows thin and reusable.
@@ -36,12 +34,12 @@ Build a Next.js 16 (App Router) platform that replaces the legacy Laravel admini
 
 ```text
 specs/001-build-football-admin-app/
-├── plan.md              # This file (/speckit.plan output)
+├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output (OpenAPI slices)
-└── tasks.md             # Phase 2 output (/speckit.tasks)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
