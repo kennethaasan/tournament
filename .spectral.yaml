@@ -1,5 +1,7 @@
 extends:
   - spectral:oas
+  - "@stoplight/spectral-owasp-ruleset"
+  - ./spectral/owasp-api-governance/.spectral.yaml
 
 rules:
   operation-operationId: error

@@ -1,0 +1,6 @@
+extends:
+  - spectral:oas
+  - ./governance-rules/governance-rules.yaml
+
+formats:
+  - oas3
