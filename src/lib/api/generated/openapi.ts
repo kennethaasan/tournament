@@ -1446,6 +1446,7 @@ export interface operations {
           "application/json": components["schemas"]["CompetitionWithEdition"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
       422: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
@@ -1711,6 +1712,7 @@ export interface operations {
           "application/json": components["schemas"]["GenerationJob"];
         };
       };
+      400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
       422: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
@@ -2495,12 +2497,12 @@ export interface operations {
       /** @description Notifications feed */
       200: {
         headers: {
-          /** @description Cache validator for notification feed */
-          ETag?: string;
           "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
           "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
           "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
           "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for notification feed */
+          ETag?: string;
           [name: string]: unknown;
         };
         content: {
@@ -2561,12 +2563,12 @@ export interface operations {
       /** @description Scoreboard payload */
       200: {
         headers: {
-          /** @description Cache validator for scoreboard polling */
-          ETag?: string;
           "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
           "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
           "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
           "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for scoreboard polling */
+          ETag?: string;
           [name: string]: unknown;
         };
         content: {
@@ -2595,12 +2597,12 @@ export interface operations {
       /** @description Incremental event payload */
       200: {
         headers: {
-          /** @description Cache validator for event feed */
-          ETag?: string;
           "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
           "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
           "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
           "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for event feed */
+          ETag?: string;
           [name: string]: unknown;
         };
         content: {
