@@ -27,6 +27,26 @@ tags:
     description: Notification center APIs
   - name: public
     description: Public scoreboard and event feeds
+x-templates:
+  standardResponseHeaders: &standardResponseHeaders
+    Access-Control-Allow-Origin:
+      $ref: '#/components/headers/Access-Control-Allow-Origin'
+    RateLimit-Limit:
+      $ref: '#/components/headers/RateLimit-Limit'
+    RateLimit-Remaining:
+      $ref: '#/components/headers/RateLimit-Remaining'
+    RateLimit-Reset:
+      $ref: '#/components/headers/RateLimit-Reset'
+  standardErrorResponses: &standardErrorResponses
+    '400':
+      $ref: '#/components/responses/ProblemDetails'
+    '401':
+      $ref: '#/components/responses/ProblemDetails'
+    '429':
+      $ref: '#/components/responses/TooManyRequests'
+    '500':
+      $ref: '#/components/responses/InternalServerError'
+
 paths:
   /api/auth/invitations:
     post:
@@ -42,29 +62,14 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateInvitationRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Invitation created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Invitation'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/auth/invitations/accept:
     post:
       tags:
@@ -79,35 +84,20 @@ paths:
             schema:
               $ref: '#/components/schemas/AcceptInvitationRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Invitation accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AcceptInvitationResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
         '410':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/competitions:
     get:
       tags:
@@ -116,29 +106,14 @@ paths:
       description: List accessible competitions
       operationId: list_competitions
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Competition list
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
     post:
       tags:
         - competitions
@@ -152,29 +127,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateCompetitionRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Competition and draft edition created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionWithEdition'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '422':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}:
     get:
       tags:
@@ -185,33 +147,18 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Competition detail
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CompetitionDetail'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}/editions:
     post:
       tags:
@@ -228,31 +175,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateEditionRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Edition created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Edition'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '409':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}:
     get:
       tags:
@@ -263,31 +195,16 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EditionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Edition scoreboard configuration
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     patch:
       tags:
         - competitions
@@ -303,31 +220,16 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateEditionRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Edition updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/entries:
     get:
       tags:
@@ -338,31 +240,16 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EditionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Edition entries
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EntryReviewListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/stages:
     get:
       tags:
@@ -373,6 +260,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EditionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Edition stages
           content:
@@ -385,25 +273,9 @@ paths:
                     items:
                       $ref: '#/components/schemas/Stage'
                     maxItems: 200
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     post:
       tags:
         - competitions
@@ -419,29 +291,14 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateStageRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Stage created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stage'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/editions/{edition_id}/matches/bulk:
     post:
       tags:
@@ -458,29 +315,16 @@ paths:
             schema:
               $ref: '#/components/schemas/GenerateMatchesRequest'
       responses:
+        <<: *standardErrorResponses
         '202':
           description: Match generation accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenerationJob'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '422':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/scoreboard/highlights:
     post:
       tags:
@@ -497,33 +341,18 @@ paths:
             schema:
               $ref: '#/components/schemas/TriggerScoreboardHighlightRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Highlight activated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - competitions
@@ -533,33 +362,18 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EditionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Highlight cleared
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EditionScoreboardView'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/editions/{edition_id}/matches:
     get:
       tags:
@@ -572,6 +386,7 @@ paths:
         - $ref: '#/components/parameters/StageIdOptional'
         - $ref: '#/components/parameters/MatchStatus'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Matches for edition
           content:
@@ -584,23 +399,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Match'
                     maxItems: 200
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/editions/{edition_id}/venues:
     get:
       tags:
@@ -611,29 +410,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EditionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Venues available for the edition
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/VenueListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/matches/{match_id}:
     get:
       tags:
@@ -644,31 +428,16 @@ paths:
       parameters:
         - $ref: '#/components/parameters/MatchId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Match details
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Match'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     patch:
       tags:
         - scheduling
@@ -684,31 +453,16 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateMatchRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Match updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Match'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '409':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/matches/{match_id}/disputes:
     post:
       tags:
@@ -725,31 +479,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateDisputeRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Dispute recorded
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Dispute'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/teams:
     get:
       tags:
@@ -758,29 +497,14 @@ paths:
       description: List accessible teams
       operationId: list_teams
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Team list
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
     post:
       tags:
         - teams
@@ -794,31 +518,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateTeamRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Team created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Team'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '409':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/competitions/{competition_id}/venues:
     get:
       tags:
@@ -829,29 +538,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Competition venues
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/VenueListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
     post:
       tags:
         - venues
@@ -867,31 +561,16 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateVenueRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Venue created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Venue'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '409':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/venues/{venue_id}:
     patch:
       tags:
@@ -908,31 +587,16 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateVenueRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Venue updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Venue'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - venues
@@ -942,25 +606,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/VenueId'
       responses:
+        <<: *standardErrorResponses
         '204':
           description: Venue deleted
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/teams/{team_id}:
     get:
       tags:
@@ -971,31 +620,16 @@ paths:
       parameters:
         - $ref: '#/components/parameters/TeamId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Team roster
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamRoster'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     patch:
       tags:
         - teams
@@ -1011,35 +645,20 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateTeamRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Team updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Team'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
         '409':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/members:
     post:
       tags:
@@ -1056,31 +675,16 @@ paths:
             schema:
               $ref: '#/components/schemas/AddTeamMemberRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Member added
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamMember'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/members/{membership_id}:
     patch:
       tags:
@@ -1098,33 +702,18 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateTeamMemberRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Member updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TeamMember'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
         - teams
@@ -1135,29 +724,14 @@ paths:
         - $ref: '#/components/parameters/TeamId'
         - $ref: '#/components/parameters/MembershipId'
       responses:
+        <<: *standardErrorResponses
         '204':
           description: Member removed
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/teams/{team_id}/entries:
     post:
       tags:
@@ -1174,29 +748,14 @@ paths:
             schema:
               $ref: '#/components/schemas/RegisterEntryRequest'
       responses:
+        <<: *standardErrorResponses
         '201':
           description: Entry created awaiting approval
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Entry'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/entries/{entry_id}:
     patch:
       tags:
@@ -1213,33 +772,18 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateEntryStatusRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Entry updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Entry'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
+          headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/entries/{entry_id}/squads:
     put:
       tags:
@@ -1256,29 +800,14 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateSquadRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Squad state updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Squad'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/squads/{squad_id}/members:
     get:
       tags:
@@ -1289,29 +818,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/SquadId'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Squad members
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SquadMemberListResponse'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
     post:
       tags:
         - teams
@@ -1327,29 +841,14 @@ paths:
             schema:
               $ref: '#/components/schemas/AddSquadMemberRequest'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Member saved
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SquadMember'
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/notifications:
     get:
       tags:
@@ -1360,23 +859,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/NotificationCursor'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Notifications feed
           headers:
+            <<: *standardResponseHeaders
             ETag:
               description: Cache validator for notification feed
               schema:
                 type: string
                 maxLength: 2048
                 pattern: ^.{0,2048}$
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
@@ -1392,14 +885,6 @@ paths:
                     nullable: true
                     maxLength: 2048
                     pattern: ^.{0,2048}$
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
     patch:
       tags:
         - notifications
@@ -1413,25 +898,10 @@ paths:
             schema:
               $ref: '#/components/schemas/MarkNotificationsRequest'
       responses:
+        <<: *standardErrorResponses
         '204':
           description: Notifications updated
-          headers:
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
+          headers: *standardResponseHeaders
   /api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard:
     get:
       tags:
@@ -1443,37 +913,23 @@ paths:
         - $ref: '#/components/parameters/CompetitionSlug'
         - $ref: '#/components/parameters/EditionSlug'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Scoreboard payload
           headers:
+            <<: *standardResponseHeaders
             ETag:
               description: Cache validator for scoreboard polling
               schema:
                 type: string
                 maxLength: 2048
                 pattern: ^.{0,2048}$
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ScoreboardPayload'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
   /api/public/events:
     get:
       tags:
@@ -1484,35 +940,21 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EventCursor'
       responses:
+        <<: *standardErrorResponses
         '200':
           description: Incremental event payload
           headers:
+            <<: *standardResponseHeaders
             ETag:
               description: Cache validator for event feed
               schema:
                 type: string
                 maxLength: 2048
                 pattern: ^.{0,2048}$
-            Access-Control-Allow-Origin:
-              $ref: '#/components/headers/Access-Control-Allow-Origin'
-            RateLimit-Limit:
-              $ref: '#/components/headers/RateLimit-Limit'
-            RateLimit-Remaining:
-              $ref: '#/components/headers/RateLimit-Remaining'
-            RateLimit-Reset:
-              $ref: '#/components/headers/RateLimit-Reset'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventFeed'
-        '400':
-          $ref: '#/components/responses/ProblemDetails'
-        '401':
-          $ref: '#/components/responses/ProblemDetails'
-        '429':
-          $ref: '#/components/responses/TooManyRequests'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
 components:
   parameters:
     CompetitionId:
@@ -1632,26 +1074,11 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
-      headers:
-        Access-Control-Allow-Origin:
-          $ref: '#/components/headers/Access-Control-Allow-Origin'
-        RateLimit-Limit:
-          $ref: '#/components/headers/RateLimit-Limit'
-        RateLimit-Remaining:
-          $ref: '#/components/headers/RateLimit-Remaining'
-        RateLimit-Reset:
-          $ref: '#/components/headers/RateLimit-Reset'
+      headers: *standardResponseHeaders
     TooManyRequests:
       description: The client has sent too many requests in a given amount of time.
       headers:
-        Access-Control-Allow-Origin:
-          $ref: '#/components/headers/Access-Control-Allow-Origin'
-        RateLimit-Limit:
-          $ref: '#/components/headers/RateLimit-Limit'
-        RateLimit-Remaining:
-          $ref: '#/components/headers/RateLimit-Remaining'
-        RateLimit-Reset:
-          $ref: '#/components/headers/RateLimit-Reset'
+        <<: *standardResponseHeaders
         Retry-After:
           $ref: '#/components/headers/Retry-After'
       content:
@@ -1660,15 +1087,7 @@ components:
             $ref: '#/components/schemas/ProblemDetails'
     InternalServerError:
       description: The server encountered an unexpected error.
-      headers:
-        Access-Control-Allow-Origin:
-          $ref: '#/components/headers/Access-Control-Allow-Origin'
-        RateLimit-Limit:
-          $ref: '#/components/headers/RateLimit-Limit'
-        RateLimit-Remaining:
-          $ref: '#/components/headers/RateLimit-Remaining'
-        RateLimit-Reset:
-          $ref: '#/components/headers/RateLimit-Reset'
+      headers: *standardResponseHeaders
       content:
         application/problem+json:
           schema:
