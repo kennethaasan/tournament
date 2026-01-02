@@ -5,6 +5,9 @@ info:
   description: >-
     REST contract for the modern football tournament administration application. Covers admin,
     team manager, and public scoreboard surfaces required for phase one delivery.
+  contact:
+    name: Tournament API Support
+    email: support@tournament.local
 servers:
   - url: https://api.tournament.local
     description: Local development
@@ -13,6 +16,8 @@ tags:
     description: Authentication and invitations
   - name: competitions
     description: Competition and edition management
+  - name: entries
+    description: Entry reviews and registrations
   - name: scheduling
     description: Scheduling and results workflows
   - name: teams
@@ -28,6 +33,7 @@ paths:
     post:
       tags: [auth]
       summary: Invite a new organizer or team manager
+      description: Invite a new organizer or team manager
       operationId: create_invitation
       requestBody:
         required: true
@@ -48,6 +54,7 @@ paths:
     post:
       tags: [auth]
       summary: Accept an invitation
+      description: Accept an invitation
       operationId: accept_invitation
       requestBody:
         required: true
@@ -76,6 +83,7 @@ paths:
     get:
       tags: [competitions]
       summary: List accessible competitions
+      description: List accessible competitions
       operationId: list_competitions
       responses:
         '200':
@@ -87,6 +95,7 @@ paths:
     post:
       tags: [competitions]
       summary: Create a new competition and initial edition
+      description: Create a new competition and initial edition
       operationId: create_competition
       requestBody:
         required: true
@@ -107,6 +116,7 @@ paths:
     get:
       tags: [competitions]
       summary: Fetch competition with editions and roles
+      description: Fetch competition with editions and roles
       operationId: get_competition
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
@@ -125,6 +135,7 @@ paths:
     post:
       tags: [competitions]
       summary: Create a new edition inside a competition
+      description: Create a new edition inside a competition
       operationId: create_edition
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
@@ -147,6 +158,7 @@ paths:
     get:
       tags: [competitions]
       summary: Fetch edition scoreboard configuration
+      description: Fetch edition scoreboard configuration
       operationId: get_edition_scoreboard
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -162,6 +174,7 @@ paths:
     patch:
       tags: [competitions]
       summary: Update edition settings
+      description: Update edition settings
       operationId: update_edition
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -184,6 +197,7 @@ paths:
     get:
       tags: [entries]
       summary: List entries for an edition
+      description: List entries for an edition
       operationId: list_edition_entries
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -200,6 +214,7 @@ paths:
     get:
       tags: [competitions]
       summary: List stages for an edition
+      description: List stages for an edition
       operationId: list_stages
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -220,6 +235,7 @@ paths:
     post:
       tags: [competitions]
       summary: Create a stage (group or knockout)
+      description: Create a stage (group or knockout)
       operationId: create_stage
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -242,6 +258,7 @@ paths:
     post:
       tags: [scheduling]
       summary: Generate matches for selected stage
+      description: Generate matches for selected stage
       operationId: generate_matches
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -264,6 +281,7 @@ paths:
     post:
       tags: [competitions]
       summary: Trigger a scoreboard highlight overlay
+      description: Trigger a scoreboard highlight overlay
       operationId: trigger_scoreboard_highlight
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -289,6 +307,7 @@ paths:
     delete:
       tags: [competitions]
       summary: Clear the active scoreboard highlight
+      description: Clear the active scoreboard highlight
       operationId: clear_scoreboard_highlight
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -307,6 +326,7 @@ paths:
     get:
       tags: [scheduling]
       summary: List matches with filters
+      description: List matches with filters
       operationId: list_matches
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -328,6 +348,7 @@ paths:
     get:
       tags: [venues]
       summary: List venues for an edition
+      description: List venues for an edition
       operationId: list_edition_venues
       parameters:
         - $ref: '#/components/parameters/EditionId'
@@ -342,6 +363,7 @@ paths:
     get:
       tags: [scheduling]
       summary: Fetch a match with events
+      description: Fetch a match with events
       operationId: get_match
       parameters:
         - $ref: '#/components/parameters/MatchId'
@@ -357,6 +379,7 @@ paths:
     patch:
       tags: [scheduling]
       summary: Update match details or result
+      description: Update match details or result
       operationId: update_match
       parameters:
         - $ref: '#/components/parameters/MatchId'
@@ -379,6 +402,7 @@ paths:
     post:
       tags: [scheduling]
       summary: Submit a dispute for a finalized match
+      description: Submit a dispute for a finalized match
       operationId: submit_dispute
       parameters:
         - $ref: '#/components/parameters/MatchId'
@@ -401,6 +425,7 @@ paths:
     get:
       tags: [teams]
       summary: List accessible teams
+      description: List accessible teams
       operationId: list_teams
       responses:
         '200':
@@ -412,6 +437,7 @@ paths:
     post:
       tags: [teams]
       summary: Create or import a reusable team
+      description: Create or import a reusable team
       operationId: create_team
       requestBody:
         required: true
@@ -432,6 +458,7 @@ paths:
     get:
       tags: [venues]
       summary: List venues for a competition
+      description: List venues for a competition
       operationId: list_competition_venues
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
@@ -445,6 +472,7 @@ paths:
     post:
       tags: [venues]
       summary: Create a venue
+      description: Create a venue
       operationId: create_venue
       parameters:
         - $ref: '#/components/parameters/CompetitionId'
@@ -467,6 +495,7 @@ paths:
     patch:
       tags: [venues]
       summary: Update a venue
+      description: Update a venue
       operationId: update_venue
       parameters:
         - $ref: '#/components/parameters/VenueId'
@@ -488,6 +517,7 @@ paths:
     delete:
       tags: [venues]
       summary: Delete a venue
+      description: Delete a venue
       operationId: delete_venue
       parameters:
         - $ref: '#/components/parameters/VenueId'
@@ -498,6 +528,7 @@ paths:
     get:
       tags: [teams]
       summary: Fetch a team's roster
+      description: Fetch a team's roster
       operationId: get_team_roster
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -513,6 +544,7 @@ paths:
     patch:
       tags: [teams]
       summary: Update team details
+      description: Update team details
       operationId: update_team
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -539,6 +571,7 @@ paths:
     post:
       tags: [teams]
       summary: Add a member to a team roster
+      description: Add a member to a team roster
       operationId: add_team_member
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -561,6 +594,7 @@ paths:
     patch:
       tags: [teams]
       summary: Update a team member
+      description: Update a team member
       operationId: update_team_member
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -587,6 +621,7 @@ paths:
     delete:
       tags: [teams]
       summary: Remove a member from a team roster
+      description: Remove a member from a team roster
       operationId: remove_team_member
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -602,6 +637,7 @@ paths:
     post:
       tags: [teams]
       summary: Register a team into an edition (self-service onboarding)
+      description: Register a team into an edition (self-service onboarding)
       operationId: register_entry
       parameters:
         - $ref: '#/components/parameters/TeamId'
@@ -624,6 +660,7 @@ paths:
     patch:
       tags: [teams]
       summary: Update entry status
+      description: Update entry status
       operationId: update_entry_status
       parameters:
         - $ref: '#/components/parameters/EntryId'
@@ -650,6 +687,7 @@ paths:
     put:
       tags: [teams]
       summary: Ensure squad exists and optionally lock it
+      description: Ensure squad exists and optionally lock it
       operationId: upsert_squad
       parameters:
         - $ref: '#/components/parameters/EntryId'
@@ -670,6 +708,7 @@ paths:
     get:
       tags: [teams]
       summary: List squad members
+      description: List squad members
       operationId: list_squad_members
       parameters:
         - $ref: '#/components/parameters/SquadId'
@@ -683,6 +722,7 @@ paths:
     post:
       tags: [teams]
       summary: Add or update a squad member
+      description: Add or update a squad member
       operationId: add_squad_member
       parameters:
         - $ref: '#/components/parameters/SquadId'
@@ -703,6 +743,7 @@ paths:
     get:
       tags: [notifications]
       summary: List notifications for the authenticated user
+      description: List notifications for the authenticated user
       operationId: list_notifications
       parameters:
         - $ref: '#/components/parameters/NotificationCursor'
@@ -729,6 +770,7 @@ paths:
     patch:
       tags: [notifications]
       summary: Bulk mark notifications as read
+      description: Bulk mark notifications as read
       operationId: mark_notifications
       requestBody:
         required: true
@@ -743,6 +785,7 @@ paths:
     get:
       tags: [public]
       summary: Fetch public scoreboard payload for big-screen display
+      description: Fetch public scoreboard payload for big-screen display
       operationId: get_scoreboard
       parameters:
         - $ref: '#/components/parameters/CompetitionSlug'
@@ -765,6 +808,7 @@ paths:
     get:
       tags: [public]
       summary: Poll-based event feed for real-time updates
+      description: Poll-based event feed for real-time updates
       operationId: get_event_feed
       parameters:
         - $ref: '#/components/parameters/EventCursor'
