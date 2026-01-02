@@ -6,8 +6,8 @@ info:
     REST contract for the modern football tournament administration application. Covers admin,
     team manager, and public scoreboard surfaces required for phase one delivery.
   contact:
-    name: Tournament API Support
-    email: support@tournament.local
+    name: Kenneth Aasan
+    email: kenneth@aasan.dev
 servers:
   - url: https://api.tournament.local
     description: Local development
