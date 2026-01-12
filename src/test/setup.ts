@@ -16,14 +16,11 @@ vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
 
 // Mock the database client
 vi.mock("@/server/db/client", async () => {
-  const { createRequire } =
-    await vi.importActual<typeof import("node:module")>("node:module");
-  const require = createRequire(import.meta.url);
-  const { pushSchema } =
-    require("drizzle-kit/api") as typeof import("drizzle-kit/api");
+  const { pushSchema } = await import("drizzle-kit/api");
 
   const client = new PGlite();
-  const db = drizzle(client, { schema, casing: "snake_case" });
+  const schemaDb = drizzle(client, { schema, casing: "snake_case" });
+  const db = drizzle(client, { casing: "snake_case" });
 
   // Initialize required extensions and functions
   // PGlite might not have citext extension, so we mock it as text domain.
@@ -45,15 +42,17 @@ vi.mock("@/server/db/client", async () => {
   `);
 
   // Apply schema
-  // biome-ignore lint/suspicious/noExplicitAny: drizzle's helper expects a loosely typed client
-  const { apply } = await pushSchema(schema, db as any);
+  const { apply } = await pushSchema(schema, db);
   await apply();
 
+  const withTransaction = async <T>(
+    cb: (tx: typeof schemaDb) => T | Promise<T>,
+  ): Promise<T> => cb(schemaDb);
+
   return {
-    db,
+    db: schemaDb,
     sqlClient: {},
-    // biome-ignore lint/suspicious/noExplicitAny: test mocking
-    withTransaction: async (cb: any) => cb(db),
+    withTransaction,
     shutdown: async () => undefined,
   };
 });
