@@ -4,6 +4,7 @@ import {
   fetchCompetitions,
 } from "@/lib/api/competitions-client";
 import {
+  deleteEntry,
   editionEntriesQueryKey,
   fetchEditionEntries,
   updateEntryStatus,
@@ -39,6 +40,7 @@ import {
   squadMembersQueryKey,
 } from "@/lib/api/squads-client";
 import {
+  deleteStage,
   editionStagesQueryKey,
   fetchEditionStages,
 } from "@/lib/api/stages-client";
@@ -236,6 +238,29 @@ describe("entries client", () => {
       },
     );
   });
+
+  it("deletes entries without a response body", async () => {
+    const response = new Response(null, { status: 204 });
+    apiMocks.apiClient.DELETE.mockResolvedValueOnce({
+      error: undefined,
+      response,
+    });
+
+    await deleteEntry("entry-1");
+
+    expect(apiMocks.apiClient.DELETE).toHaveBeenCalledWith(
+      "/api/entries/{entry_id}",
+      {
+        params: {
+          path: {
+            entry_id: "entry-1",
+          },
+        },
+        credentials: "include",
+      },
+    );
+    expect(apiMocks.unwrapResponse).not.toHaveBeenCalled();
+  });
 });
 
 describe("matches client", () => {
@@ -348,6 +373,30 @@ describe("stages client", () => {
         credentials: "include",
       },
     );
+  });
+
+  it("deletes a stage without response payload", async () => {
+    const response = new Response(null, { status: 204 });
+    apiMocks.apiClient.DELETE.mockResolvedValueOnce({
+      error: undefined,
+      response,
+    });
+
+    await deleteStage("edition-1", "stage-1");
+
+    expect(apiMocks.apiClient.DELETE).toHaveBeenCalledWith(
+      "/api/editions/{edition_id}/stages/{stage_id}",
+      {
+        params: {
+          path: {
+            edition_id: "edition-1",
+            stage_id: "stage-1",
+          },
+        },
+        credentials: "include",
+      },
+    );
+    expect(apiMocks.unwrapResponse).not.toHaveBeenCalled();
   });
 });
 

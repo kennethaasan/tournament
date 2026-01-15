@@ -40,7 +40,7 @@ export async function deleteStage(
   editionId: string,
   stageId: string,
 ): Promise<void> {
-  const { data, error, response } = await apiClient.DELETE(
+  const { error, response } = await apiClient.DELETE(
     "/api/editions/{edition_id}/stages/{stage_id}",
     {
       params: {
@@ -53,5 +53,7 @@ export async function deleteStage(
     },
   );
 
-  return unwrapResponse({ data, error, response });
+  if (error) {
+    unwrapResponse({ data: undefined, error, response });
+  }
 }

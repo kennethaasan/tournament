@@ -31,6 +31,7 @@ import {
 } from "@/ui/components/form";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
+import { EditionHeader } from "../edition-dashboard";
 
 type EditionTeamsDashboardProps = {
   editionId: string;
@@ -68,21 +69,18 @@ export function EditionTeamsDashboard({
 
   return (
     <div className="space-y-8">
-      <header className="flex items-start justify-between">
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-            Utgave · Lag og tropp
-          </p>
-          <h1 className="text-3xl font-bold text-foreground">Lagoversikt</h1>
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            Her finner du lagene som er påmeldt denne utgaven. Bruk «Stall» for
-            å legge til eller oppdatere spillere.
-          </p>
-        </div>
+      <EditionHeader
+        editionId={editionId}
+        eyebrow="Utgave · Lag og tropp"
+        title="Lagoversikt"
+        description="Her finner du lagene som er påmeldt denne utgaven. Bruk «Stall» for å legge til eller oppdatere spillere."
+      />
+
+      <div className="flex justify-end">
         <Button onClick={() => setShowAddTeam(!showAddTeam)}>
           {showAddTeam ? "Avbryt" : "Registrer lag"}
         </Button>
-      </header>
+      </div>
 
       {showAddTeam && (
         <div className="animate-in fade-in slide-in-from-top-4 duration-300">
