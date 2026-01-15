@@ -24,6 +24,11 @@ export const auth = betterAuth({
     schema,
     usePlural: true,
   }),
+  user: {
+    fields: {
+      name: "fullName",
+    },
+  },
   advanced: {
     database: {
       generateId: () => uuidv7(),
