@@ -130,7 +130,9 @@ test.describe("Public scoreboard", () => {
   test("renders live, upcoming and standings panels", async ({ page }) => {
     await page.goto("/competitions/trondheim-cup/2025/scoreboard");
 
-    await expect(page.getByRole("heading", { name: /2025/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Trondheim Cup/i }),
+    ).toBeVisible();
 
     await expect(page.getByRole("heading", { name: "Live nå" })).toBeVisible();
     await expect(

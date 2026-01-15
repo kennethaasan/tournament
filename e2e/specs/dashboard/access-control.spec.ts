@@ -66,7 +66,9 @@ test.describe("Dashboard Access Control", () => {
     await expect(page).toHaveURL("/competitions/trondheim-cup/2025/scoreboard");
 
     // Should see scoreboard content
-    await expect(page.getByRole("heading", { name: /2025/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /Trondheim Cup/i }),
+    ).toBeVisible();
   });
 
   test("allows unauthenticated access to login page", async ({ page }) => {
