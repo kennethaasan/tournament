@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiClient, unwrapResponse } from "@/lib/api/client";
 
@@ -32,7 +33,6 @@ import {
 } from "@/ui/components/card";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
-import { PageHero } from "@/ui/components/page-hero";
 
 type EditionDashboardProps = {
   editionId: string;
@@ -90,6 +90,73 @@ const TIMEZONES = [
   "UTC",
 ];
 
+const EDITION_NAV_ITEMS = [
+  { label: "Oversikt", path: "", exact: true },
+  { label: "Kampoppsett", path: "/schedule" },
+  { label: "Lag og tropp", path: "/teams" },
+  { label: "Resultater", path: "/results" },
+  { label: "Scoreboard-innstillinger", path: "/scoreboard" },
+];
+
+export function EditionNav({ editionId }: { editionId: string }) {
+  const pathname = usePathname();
+  const basePath = `/dashboard/editions/${editionId}`;
+
+  return (
+    <nav aria-label="Utgave-navigasjon" className="flex flex-wrap gap-3">
+      {EDITION_NAV_ITEMS.map((item) => {
+        const href = `${basePath}${item.path}` as Route;
+        const isActive = item.exact
+          ? pathname === href
+          : pathname?.startsWith(href);
+
+        return (
+          <Button
+            key={item.label}
+            asChild
+            size="sm"
+            variant={isActive ? "default" : "outline"}
+            className="rounded-full"
+          >
+            <Link href={href} aria-current={isActive ? "page" : undefined}>
+              {item.label}
+            </Link>
+          </Button>
+        );
+      })}
+    </nav>
+  );
+}
+
+type EditionHeaderProps = {
+  editionId: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+};
+
+export function EditionHeader({
+  editionId,
+  eyebrow,
+  title,
+  description,
+}: EditionHeaderProps) {
+  return (
+    <div className="space-y-4">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+          {eyebrow}
+        </p>
+        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
+          {title}
+        </h1>
+        <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
+      </header>
+      <EditionNav editionId={editionId} />
+    </div>
+  );
+}
+
 function editionQueryKey(editionId: string) {
   return ["edition", editionId] as const;
 }
@@ -120,7 +187,8 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
   if (isLoading) {
     return (
       <div className="space-y-8">
-        <PageHero
+        <EditionHeader
+          editionId={editionId}
           eyebrow="Utgave · Administrasjon"
           title="Laster..."
           description="Henter utgavedetaljer..."
@@ -132,7 +200,8 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
   if (error || !data) {
     return (
       <div className="space-y-8">
-        <PageHero
+        <EditionHeader
+          editionId={editionId}
           eyebrow="Utgave · Administrasjon"
           title="Feil"
           description="Kunne ikke laste utgaven."
@@ -148,34 +217,12 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
 
   return (
     <div className="space-y-8">
-      <PageHero
+      <EditionHeader
+        editionId={editionId}
         eyebrow="Utgave · Administrasjon"
         title={edition.label}
         description="Administrer innstillinger, format og registrering for denne utgaven."
       />
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild size="sm" variant="outline" className="rounded-full">
-          <Link href={`/dashboard/editions/${editionId}/schedule`}>
-            Kampoppsett
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="outline" className="rounded-full">
-          <Link href={`/dashboard/editions/${editionId}/teams`}>
-            Lag og tropp
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="outline" className="rounded-full">
-          <Link href={`/dashboard/editions/${editionId}/results` as Route}>
-            Resultater
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="outline" className="rounded-full">
-          <Link href={`/dashboard/editions/${editionId}/scoreboard`}>
-            Scoreboard
-          </Link>
-        </Button>
-      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <EditionSettingsCard

@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   deleteEntry,
@@ -41,6 +41,7 @@ import {
   FormMessage,
 } from "@/ui/components/form";
 import { Input } from "@/ui/components/input";
+import { EditionHeader } from "../edition-dashboard";
 import { CreateStageForm } from "./create-stage-form";
 import { GenerateMatchesForm } from "./generate-matches-form";
 
@@ -63,20 +64,71 @@ type ScheduleDashboardProps = {
   editionId: string;
 };
 
-const createMatchSchema = z.object({
-  stageId: z.string().min(1, "Velg et stadium for kampen."),
-  groupId: z.string().optional(),
-  kickoffAt: z
-    .string()
-    .min(1, "Sett avspark-tidspunkt for kampen.")
-    .refine(
-      (val) => !Number.isNaN(new Date(val).getTime()),
-      "Avspark må være en gyldig dato og tid.",
-    ),
-  venueId: z.string().optional(),
+type KickoffScheduleInput = {
+  startAt: string;
+  matchDurationMinutes: number;
+  breakMinutes: number;
+  concurrentMatches: number;
+  matchCount: number;
+};
+
+const MINUTES_IN_MS = 60_000;
+
+export function buildKickoffSchedule({
+  startAt,
+  matchDurationMinutes,
+  breakMinutes,
+  concurrentMatches,
+  matchCount,
+}: KickoffScheduleInput): Date[] {
+  const startDate = new Date(startAt);
+  if (Number.isNaN(startDate.getTime()) || matchCount <= 0) {
+    return [];
+  }
+
+  const normalizedMatchMinutes = Math.max(matchDurationMinutes, 1);
+  const normalizedBreakMinutes = Math.max(breakMinutes, 0);
+  const slotMinutes = normalizedMatchMinutes + normalizedBreakMinutes;
+  const matchesPerSlot = Math.max(concurrentMatches, 1);
+
+  return Array.from({ length: matchCount }, (_, index) => {
+    const slotIndex = Math.floor(index / matchesPerSlot);
+    const offsetMinutes = slotIndex * slotMinutes;
+    return new Date(startDate.getTime() + offsetMinutes * MINUTES_IN_MS);
+  });
+}
+
+function toLocalDatetimeString(date: Date | null): string {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+const manualMatchItemSchema = z.object({
   homeEntryId: z.string().optional(),
   awayEntryId: z.string().optional(),
   code: z.string().max(50, "Kampkode kan maks være 50 tegn.").optional(),
+});
+
+const createMatchSchema = z.object({
+  stageId: z.string().min(1, "Velg et stadium for kampen."),
+  groupId: z.string().optional(),
+  venueId: z.string().optional(),
+  startAt: z
+    .string()
+    .min(1, "Sett starttidspunkt for første kamp.")
+    .refine(
+      (val) => !Number.isNaN(new Date(val).getTime()),
+      "Starttidspunkt må være en gyldig dato og tid.",
+    ),
+  matchDuration: z.coerce.number().min(1, "Kamptid må være minst ett minutt."),
+  breakMinutes: z.coerce.number().min(0, "Pausen må være null eller mer."),
+  concurrentMatches: z.coerce.number().min(1, "Velg minst én samtidig kamp."),
+  matches: z.array(manualMatchItemSchema).min(1, "Legg til minst én kamp."),
 });
 
 type CreateMatchFormValues = z.infer<typeof createMatchSchema>;
@@ -102,39 +154,89 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   );
 
   const form = useForm<CreateMatchFormValues>({
-    resolver: zodResolver(createMatchSchema),
+    // biome-ignore lint/suspicious/noExplicitAny: align resolver types with RHF
+    resolver: zodResolver(createMatchSchema) as any,
     defaultValues: {
       stageId: "",
       groupId: "",
-      kickoffAt: "",
       venueId: "",
-      homeEntryId: "",
-      awayEntryId: "",
-      code: "",
+      startAt: "",
+      matchDuration: 60,
+      breakMinutes: 15,
+      concurrentMatches: 1,
+      matches: [{ homeEntryId: "", awayEntryId: "", code: "" }],
     },
   });
 
-  const createMatchMutation = useMutation({
-    mutationFn: (input: CreateMatchInput) => createMatch(editionId, input),
-    onSuccess: () => {
+  const {
+    fields: matchFields,
+    append: appendMatch,
+    remove: removeMatch,
+  } = useFieldArray({
+    control: form.control,
+    name: "matches",
+  });
+
+  const createMatchesMutation = useMutation({
+    mutationFn: async (values: CreateMatchFormValues) => {
+      const kickoffSchedule = buildKickoffSchedule({
+        startAt: values.startAt,
+        matchDurationMinutes: values.matchDuration,
+        breakMinutes: values.breakMinutes,
+        concurrentMatches: values.concurrentMatches,
+        matchCount: values.matches.length,
+      });
+
+      if (kickoffSchedule.length !== values.matches.length) {
+        throw new Error("Kunne ikke beregne avspark for kampene.");
+      }
+
+      const createdMatches = [] as Awaited<ReturnType<typeof createMatch>>[];
+      for (const [index, match] of values.matches.entries()) {
+        const kickoffAt = kickoffSchedule[index];
+        if (!kickoffAt) {
+          throw new Error("Kunne ikke beregne avspark for kampene.");
+        }
+
+        const payload: CreateMatchInput = {
+          stageId: values.stageId,
+          kickoffAt: kickoffAt.toISOString(),
+          homeEntryId: match.homeEntryId || null,
+          awayEntryId: match.awayEntryId || null,
+          venueId: values.venueId || null,
+          groupId: values.groupId || null,
+          code: match.code?.trim() || null,
+        };
+        createdMatches.push(await createMatch(editionId, payload));
+      }
+
+      return createdMatches;
+    },
+    onSuccess: (_, values) => {
       queryClient.invalidateQueries({
         queryKey: editionMatchesQueryKey(editionId),
       });
-      setManualMatchSuccess("Kampen ble opprettet.");
+      const matchCount = values.matches.length;
+      setManualMatchSuccess(
+        matchCount === 1
+          ? "Kampen ble opprettet."
+          : `${matchCount} kamper ble opprettet.`,
+      );
       setManualMatchError(null);
       form.reset({
-        stageId: form.getValues("stageId"), // Keep stage selected
-        groupId: "",
-        kickoffAt: "",
-        venueId: "",
-        homeEntryId: "",
-        awayEntryId: "",
-        code: "",
+        stageId: values.stageId,
+        groupId: values.groupId ?? "",
+        venueId: values.venueId ?? "",
+        startAt: values.startAt,
+        matchDuration: values.matchDuration,
+        breakMinutes: values.breakMinutes,
+        concurrentMatches: values.concurrentMatches,
+        matches: [{ homeEntryId: "", awayEntryId: "", code: "" }],
       });
     },
     onError: (error) => {
       setManualMatchError(
-        error instanceof Error ? error.message : "Kunne ikke opprette kampen.",
+        error instanceof Error ? error.message : "Kunne ikke opprette kampene.",
       );
       setManualMatchSuccess(null);
     },
@@ -284,8 +386,20 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     : null;
   const isLockingEntries = lockMutation.isPending;
 
-  // Manual match: set default stage when stages load
+  // Manual match defaults
   const stageId = form.watch("stageId");
+  const groupId = form.watch("groupId");
+  const venueId = form.watch("venueId");
+  const startAt = form.watch("startAt");
+  const matchDuration = form.watch("matchDuration");
+  const breakMinutes = form.watch("breakMinutes");
+  const concurrentMatches = form.watch("concurrentMatches");
+  const groupTouched = form.formState.touchedFields.groupId;
+  const venueTouched = form.formState.touchedFields.venueId;
+  const matchDurationValue = Number(matchDuration) || 0;
+  const breakMinutesValue = Number(breakMinutes) || 0;
+  const concurrentMatchesValue = Number(concurrentMatches) || 0;
+
   useEffect(() => {
     if (!stageId && stages.length > 0) {
       form.setValue("stageId", stages[0]?.id ?? "");
@@ -297,27 +411,68 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     [stages, stageId],
   );
 
+  useEffect(() => {
+    if (manualMatchStage?.stageType !== "group") {
+      if (groupId) {
+        form.setValue("groupId", "");
+      }
+      return;
+    }
+
+    if (!groupId && !groupTouched && manualMatchStage.groups.length === 1) {
+      form.setValue("groupId", manualMatchStage.groups[0]?.id ?? "");
+    }
+  }, [groupId, groupTouched, manualMatchStage, form]);
+
+  useEffect(() => {
+    if (!venueId && !venueTouched && availableVenues.length === 1) {
+      form.setValue("venueId", availableVenues[0]?.id ?? "");
+    }
+  }, [availableVenues, venueId, venueTouched, form]);
+
+  const kickoffSchedule = useMemo(
+    () =>
+      buildKickoffSchedule({
+        startAt,
+        matchDurationMinutes: matchDurationValue,
+        breakMinutes: breakMinutesValue,
+        concurrentMatches: concurrentMatchesValue,
+        matchCount: matchFields.length,
+      }),
+    [
+      startAt,
+      matchDurationValue,
+      breakMinutesValue,
+      concurrentMatchesValue,
+      matchFields.length,
+    ],
+  );
+
+  const kickoffLabels = useMemo(
+    () => kickoffSchedule.map((date) => toLocalDatetimeString(date)),
+    [kickoffSchedule],
+  );
+
   const approvedEntries = useMemo(
     () => entries.filter((e) => e.entry.status === "approved"),
     [entries],
   );
 
+  const matchesError =
+    (
+      form.formState.errors.matches as
+        | { root?: { message?: string }; message?: string }
+        | undefined
+    )?.root?.message ??
+    (form.formState.errors.matches as { message?: string } | undefined)
+      ?.message;
+
   async function onManualMatchSubmit(data: CreateMatchFormValues) {
     setManualMatchError(null);
     setManualMatchSuccess(null);
 
-    const kickoffDate = new Date(data.kickoffAt);
-
     try {
-      await createMatchMutation.mutateAsync({
-        stageId: data.stageId,
-        kickoffAt: kickoffDate.toISOString(),
-        homeEntryId: data.homeEntryId || null,
-        awayEntryId: data.awayEntryId || null,
-        venueId: data.venueId || null,
-        groupId: data.groupId || null,
-        code: data.code || null,
-      });
+      await createMatchesMutation.mutateAsync(data);
     } catch {
       // Error handled by mutation
     }
@@ -430,19 +585,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Utgave · Kampoppsett
-        </p>
-        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
-          Planlegg stadier og kampoppsett
-        </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer
-          kampoppsett for turneringen. Når du er fornøyd, kan du publisere
-          kampene og varsle lagene.
-        </p>
-      </header>
+      <EditionHeader
+        editionId={editionId}
+        eyebrow="Utgave · Kampoppsett"
+        title="Planlegg stadier og kampoppsett"
+        description="Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer kampoppsett for turneringen. Når du er fornøyd, kan du publisere kampene og varsle lagene."
+      />
 
       <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header className="space-y-1">
@@ -829,13 +977,13 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       </section>
 
       <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <header>
+        <header className="space-y-2">
           <h2 className="text-xl font-semibold text-foreground">
-            Opprett enkelt-kamp manuelt
+            Opprett kamper manuelt
           </h2>
           <p className="text-sm text-muted-foreground">
-            Legg til én kamp direkte uten å bruke den automatiske
-            kampgeneratoren. Nyttig for playoff-kamper eller tilleggskamper.
+            Sett felles detaljer én gang og legg inn flere kamper med automatisk
+            avspark.
           </p>
         </header>
 
@@ -860,169 +1008,281 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onManualMatchSubmit)}
-            className="space-y-6"
+            className="space-y-8"
           >
-            <div className="grid gap-6 md:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="stageId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stadium</FormLabel>
-                    <select
-                      {...field}
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Velg stadium</option>
-                      {stages.map((stage) => (
-                        <option key={stage.id} value={stage.id}>
-                          {stage.name} ·{" "}
-                          {stage.stageType === "group"
-                            ? "Gruppespill"
-                            : "Sluttspill"}
-                        </option>
-                      ))}
-                    </select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="stageId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stadium</FormLabel>
+                      <select
+                        {...field}
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        <option value="">Velg stadium</option>
+                        {stages.map((stage) => (
+                          <option key={stage.id} value={stage.id}>
+                            {stage.name} ·{" "}
+                            {stage.stageType === "group"
+                              ? "Gruppespill"
+                              : "Sluttspill"}
+                          </option>
+                        ))}
+                      </select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              {manualMatchStage?.stageType === "group" &&
-                manualMatchStage.groups.length > 0 && (
-                  <FormField
-                    control={form.control}
-                    name="groupId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Gruppe (valgfritt)</FormLabel>
-                        <select
+                {manualMatchStage?.stageType === "group" &&
+                  manualMatchStage.groups.length > 0 && (
+                    <FormField
+                      control={form.control}
+                      name="groupId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gruppe (valgfritt)</FormLabel>
+                          <select
+                            {...field}
+                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          >
+                            <option value="">Ingen gruppe</option>
+                            {manualMatchStage.groups.map((group) => (
+                              <option key={group.id} value={group.id}>
+                                Gruppe {group.code}
+                                {group.name ? ` – ${group.name}` : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                <FormField
+                  control={form.control}
+                  name="venueId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Arena (valgfritt)</FormLabel>
+                      <select
+                        {...field}
+                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        <option value="">Velg arena</option>
+                        {availableVenues.map((venue) => (
+                          <option key={venue.id} value={venue.id}>
+                            {venue.name}
+                          </option>
+                        ))}
+                      </select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="startAt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Første avspark</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          placeholder="Velg starttidspunkt"
                           {...field}
-                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                        >
-                          <option value="">Ingen gruppe</option>
-                          {manualMatchStage.groups.map((group) => (
-                            <option key={group.id} value={group.id}>
-                              Gruppe {group.code}
-                              {group.name ? ` – ${group.name}` : ""}
-                            </option>
-                          ))}
-                        </select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="kickoffAt"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Avspark</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        placeholder="Velg tidspunkt"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="matchDuration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kamptid (minutter)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="venueId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Arena (valgfritt)</FormLabel>
-                    <select
-                      {...field}
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                <FormField
+                  control={form.control}
+                  name="breakMinutes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pause mellom kamper (minutter)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="concurrentMatches"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Samtidige kamper</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={1} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Avspark for hver kamp fylles automatisk basert på starttid,
+                kamptid, pause og antall samtidige kamper.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Kamper
+                </h3>
+                <button
+                  type="button"
+                  onClick={() =>
+                    appendMatch({ homeEntryId: "", awayEntryId: "", code: "" })
+                  }
+                  className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10"
+                >
+                  Legg til kamp
+                </button>
+              </div>
+
+              {matchFields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="space-y-4 rounded-xl border border-border/70 bg-card/60 p-4 shadow-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-foreground">
+                      Kamp {index + 1}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => removeMatch(index)}
+                      disabled={matchFields.length <= 1}
+                      className="rounded-md border border-destructive/30 px-3 py-1.5 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 disabled:opacity-60"
                     >
-                      <option value="">Velg arena</option>
-                      {availableVenues.map((venue) => (
-                        <option key={venue.id} value={venue.id}>
-                          {venue.name}
-                        </option>
-                      ))}
-                    </select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      Fjern
+                    </button>
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="homeEntryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hjemmelag (valgfritt)</FormLabel>
-                    <select
-                      {...field}
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Ikke satt</option>
-                      {approvedEntries.map((item) => (
-                        <option key={item.entry.id} value={item.entry.id}>
-                          {item.team.name}
-                        </option>
-                      ))}
-                    </select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name={`matches.${index}.homeEntryId`}
+                      render={({ field: matchField }) => (
+                        <FormItem>
+                          <FormLabel>Hjemmelag (valgfritt)</FormLabel>
+                          <select
+                            {...matchField}
+                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          >
+                            <option value="">Ikke satt</option>
+                            {approvedEntries.map((item) => (
+                              <option key={item.entry.id} value={item.entry.id}>
+                                {item.team.name}
+                              </option>
+                            ))}
+                          </select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <FormField
-                control={form.control}
-                name="awayEntryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bortelag (valgfritt)</FormLabel>
-                    <select
-                      {...field}
-                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    >
-                      <option value="">Ikke satt</option>
-                      {approvedEntries.map((item) => (
-                        <option key={item.entry.id} value={item.entry.id}>
-                          {item.team.name}
-                        </option>
-                      ))}
-                    </select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <FormField
+                      control={form.control}
+                      name={`matches.${index}.awayEntryId`}
+                      render={({ field: matchField }) => (
+                        <FormItem>
+                          <FormLabel>Bortelag (valgfritt)</FormLabel>
+                          <select
+                            {...matchField}
+                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          >
+                            <option value="">Ikke satt</option>
+                            {approvedEntries.map((item) => (
+                              <option key={item.entry.id} value={item.entry.id}>
+                                {item.team.name}
+                              </option>
+                            ))}
+                          </select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kampkode (valgfritt)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="f.eks. A-01 eller Semifinale 1"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    <FormItem>
+                      <FormLabel>Avspark (auto)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="datetime-local"
+                          readOnly
+                          value={kickoffLabels[index] ?? ""}
+                          placeholder="Velg starttidspunkt"
+                        />
+                      </FormControl>
+                    </FormItem>
+
+                    <FormField
+                      control={form.control}
+                      name={`matches.${index}.code`}
+                      render={({ field: matchField }) => (
+                        <FormItem>
+                          <FormLabel>Kampkode (valgfritt)</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="f.eks. A-01 eller Semifinale 1"
+                              {...matchField}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {matchesError && (
+                <p className="text-sm text-destructive">{matchesError}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-end">
               <button
                 type="submit"
-                disabled={createMatchMutation.isPending || stages.length === 0}
+                disabled={
+                  createMatchesMutation.isPending ||
+                  stages.length === 0 ||
+                  matchFields.length === 0
+                }
                 className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {createMatchMutation.isPending ? "Oppretter …" : "Opprett kamp"}
+                {createMatchesMutation.isPending
+                  ? "Oppretter …"
+                  : `Opprett ${matchFields.length} ${
+                      matchFields.length === 1 ? "kamp" : "kamper"
+                    }`}
               </button>
             </div>
           </form>

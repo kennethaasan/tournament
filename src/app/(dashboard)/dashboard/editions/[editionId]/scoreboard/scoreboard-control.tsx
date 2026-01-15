@@ -14,6 +14,7 @@ import {
   ScoreboardThemeForm,
   type ScoreboardThemeFormValue,
 } from "@/ui/components/scoreboard/theme-form";
+import { EditionHeader } from "../edition-dashboard";
 
 type ScoreboardControlProps = {
   editionId: string;
@@ -264,18 +265,12 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
 
   return (
     <div className="space-y-10">
-      <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Utgave · Storskjerm
-        </p>
-        <h1 className="text-3xl font-bold text-foreground md:text-4xl">
-          Kontroller scoreboard for {editionLabel || "utgaven"}
-        </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Tilpass farger, rotasjon og highlight-overlegg før du viser
-          scoreboardet på arenaen. Endringer trer i kraft umiddelbart.
-        </p>
-      </header>
+      <EditionHeader
+        editionId={editionId}
+        eyebrow="Utgave · Storskjerm"
+        title={`Kontroller scoreboard for ${editionLabel || "utgaven"}`}
+        description="Tilpass farger, rotasjon og highlight-overlegg før du viser scoreboardet på arenaen. Endringer trer i kraft umiddelbart."
+      />
 
       {isLoading ? (
         <div className="rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground shadow-sm">

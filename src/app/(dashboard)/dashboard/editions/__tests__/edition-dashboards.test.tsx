@@ -21,6 +21,10 @@ vi.mock("@tanstack/react-query", () => ({
   })),
 }));
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard/editions/edition-1",
+}));
+
 describe("edition dashboards", () => {
   test("renders schedule dashboard shell", () => {
     render(<ScheduleDashboard editionId="edition-1" />);

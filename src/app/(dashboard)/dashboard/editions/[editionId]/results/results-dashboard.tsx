@@ -32,6 +32,7 @@ import {
   fetchEditionVenues,
   type Venue,
 } from "@/lib/api/venues-client";
+import { EditionHeader } from "../edition-dashboard";
 
 type MatchStatus = components["schemas"]["MatchStatus"];
 type Match = components["schemas"]["Match"];
@@ -401,18 +402,12 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          Utgave · Kampresultater
-        </p>
-        <h1 className="text-3xl font-bold text-foreground">
-          Kampadministrasjon
-        </h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Oppdater status, poeng og kampdetaljer. Endringer oppdaterer
-          scoreboardet fortløpende.
-        </p>
-      </header>
+      <EditionHeader
+        editionId={editionId}
+        eyebrow="Utgave · Kampresultater"
+        title="Kampadministrasjon"
+        description="Oppdater status, poeng og kampdetaljer. Endringer oppdaterer scoreboardet fortløpende."
+      />
 
       {actionError ? (
         <div
