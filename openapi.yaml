@@ -400,6 +400,33 @@ paths:
                       $ref: '#/components/schemas/Match'
                     maxItems: 200
           headers: *standardResponseHeaders
+    post:
+      tags:
+        - scheduling
+      summary: Create a single match manually
+      description: Create a single match manually without using the bulk generation wizard
+      operationId: create_match
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMatchRequest'
+      responses:
+        <<: *standardErrorResponses
+        '201':
+          description: Match created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+          headers: *standardResponseHeaders
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+        '422':
+          $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/venues:
     get:
       tags:
@@ -1639,6 +1666,45 @@ components:
           type: string
           maxLength: 200
           pattern: ^.{0,200}$
+    CreateMatchRequest:
+      type: object
+      required:
+        - stage_id
+        - kickoff_at
+      properties:
+        stage_id:
+          type: string
+          format: uuid
+          maxLength: 36
+        kickoff_at:
+          type: string
+          format: date-time
+          maxLength: 30
+        home_entry_id:
+          type: string
+          format: uuid
+          nullable: true
+          maxLength: 36
+        away_entry_id:
+          type: string
+          format: uuid
+          nullable: true
+          maxLength: 36
+        venue_id:
+          type: string
+          format: uuid
+          nullable: true
+          maxLength: 36
+        group_id:
+          type: string
+          format: uuid
+          nullable: true
+          maxLength: 36
+        code:
+          type: string
+          nullable: true
+          maxLength: 50
+          pattern: ^.{0,50}$
     GenerateMatchesRequest:
       type: object
       required:

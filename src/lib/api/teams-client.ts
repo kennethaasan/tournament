@@ -22,6 +22,27 @@ export const teamRosterQueryKey = (teamId: string) =>
 
 export const teamListQueryKey = () => ["teams"] as const;
 
+export type CreateTeamInput = {
+  name: string;
+  slug?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+};
+
+export async function createTeam(input: CreateTeamInput): Promise<Team> {
+  const { data, error, response } = await apiClient.POST("/api/teams", {
+    body: {
+      name: input.name,
+      slug: input.slug,
+      contact_email: input.contactEmail,
+      contact_phone: input.contactPhone,
+    },
+    credentials: "include",
+  });
+
+  return unwrapResponse({ data, error, response });
+}
+
 export async function fetchTeams(
   options: FetchRosterOptions = {},
 ): Promise<TeamSummary[]> {
