@@ -1,7 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { apiClient } from "@/lib/api/client";
 import {
   type EntryReview,
@@ -28,6 +31,15 @@ import {
   editionVenuesQueryKey,
   fetchEditionVenues,
 } from "@/lib/api/venues-client";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/ui/components/form";
+import { Input } from "@/ui/components/input";
 
 type StageGroup = {
   id: string;
@@ -65,6 +77,24 @@ type SeedRow = {
 type ScheduleDashboardProps = {
   editionId: string;
 };
+
+const createMatchSchema = z.object({
+  stageId: z.string().min(1, "Velg et stadium for kampen."),
+  groupId: z.string().optional(),
+  kickoffAt: z
+    .string()
+    .min(1, "Sett avspark-tidspunkt for kampen.")
+    .refine(
+      (val) => !Number.isNaN(new Date(val).getTime()),
+      "Avspark må være en gyldig dato og tid.",
+    ),
+  venueId: z.string().optional(),
+  homeEntryId: z.string().optional(),
+  awayEntryId: z.string().optional(),
+  code: z.string().max(50, "Kampkode kan maks være 50 tegn.").optional(),
+});
+
+type CreateMatchFormValues = z.infer<typeof createMatchSchema>;
 
 export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const queryClient = useQueryClient();
@@ -113,19 +143,23 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const [reviewingEntryId, setReviewingEntryId] = useState<string | null>(null);
 
   // Manual match creation state
-  const [manualMatchStageId, setManualMatchStageId] = useState<string>("");
-  const [manualMatchGroupId, setManualMatchGroupId] = useState<string>("");
-  const [manualMatchKickoff, setManualMatchKickoff] = useState<string>("");
-  const [manualMatchVenueId, setManualMatchVenueId] = useState<string>("");
-  const [manualMatchHomeEntryId, setManualMatchHomeEntryId] =
-    useState<string>("");
-  const [manualMatchAwayEntryId, setManualMatchAwayEntryId] =
-    useState<string>("");
-  const [manualMatchCode, setManualMatchCode] = useState<string>("");
   const [manualMatchError, setManualMatchError] = useState<string | null>(null);
   const [manualMatchSuccess, setManualMatchSuccess] = useState<string | null>(
     null,
   );
+
+  const form = useForm<CreateMatchFormValues>({
+    resolver: zodResolver(createMatchSchema),
+    defaultValues: {
+      stageId: "",
+      groupId: "",
+      kickoffAt: "",
+      venueId: "",
+      homeEntryId: "",
+      awayEntryId: "",
+      code: "",
+    },
+  });
 
   const createMatchMutation = useMutation({
     mutationFn: (input: CreateMatchInput) => createMatch(editionId, input),
@@ -135,11 +169,15 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       });
       setManualMatchSuccess("Kampen ble opprettet.");
       setManualMatchError(null);
-      // Reset form
-      setManualMatchKickoff("");
-      setManualMatchHomeEntryId("");
-      setManualMatchAwayEntryId("");
-      setManualMatchCode("");
+      form.reset({
+        stageId: form.getValues("stageId"), // Keep stage selected
+        groupId: "",
+        kickoffAt: "",
+        venueId: "",
+        homeEntryId: "",
+        awayEntryId: "",
+        code: "",
+      });
     },
     onError: (error) => {
       setManualMatchError(
@@ -283,15 +321,16 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   }, [selectedStage]);
 
   // Manual match: set default stage when stages load
+  const stageId = form.watch("stageId");
   useEffect(() => {
-    if (!manualMatchStageId && stages.length > 0) {
-      setManualMatchStageId(stages[0]?.id ?? "");
+    if (!stageId && stages.length > 0) {
+      form.setValue("stageId", stages[0]?.id ?? "");
     }
-  }, [stages, manualMatchStageId]);
+  }, [stages, stageId, form]);
 
   const manualMatchStage = useMemo(
-    () => stages.find((stage) => stage.id === manualMatchStageId) ?? null,
-    [stages, manualMatchStageId],
+    () => stages.find((stage) => stage.id === stageId) ?? null,
+    [stages, stageId],
   );
 
   const approvedEntries = useMemo(
@@ -299,38 +338,21 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     [entries],
   );
 
-  async function handleManualMatchSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ) {
-    event.preventDefault();
+  async function onManualMatchSubmit(data: CreateMatchFormValues) {
     setManualMatchError(null);
     setManualMatchSuccess(null);
 
-    if (!manualMatchStageId) {
-      setManualMatchError("Velg et stadium for kampen.");
-      return;
-    }
-
-    if (!manualMatchKickoff) {
-      setManualMatchError("Sett avspark-tidspunkt for kampen.");
-      return;
-    }
-
-    const kickoffDate = new Date(manualMatchKickoff);
-    if (Number.isNaN(kickoffDate.getTime())) {
-      setManualMatchError("Avspark må være en gyldig dato og tid.");
-      return;
-    }
+    const kickoffDate = new Date(data.kickoffAt);
 
     try {
       await createMatchMutation.mutateAsync({
-        stageId: manualMatchStageId,
+        stageId: data.stageId,
         kickoffAt: kickoffDate.toISOString(),
-        homeEntryId: manualMatchHomeEntryId || null,
-        awayEntryId: manualMatchAwayEntryId || null,
-        venueId: manualMatchVenueId || null,
-        groupId: manualMatchGroupId || null,
-        code: manualMatchCode || null,
+        homeEntryId: data.homeEntryId || null,
+        awayEntryId: data.awayEntryId || null,
+        venueId: data.venueId || null,
+        groupId: data.groupId || null,
+        code: data.code || null,
       });
     } catch {
       // Error handled by mutation
@@ -1448,7 +1470,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     Seeding
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Oppgi lag i seed-rekkefølge. Tomme felt tolkes som bye.
+                    Legg inn lag-ID eller placeholder for seeding.
                   </p>
                 </div>
                 <button
@@ -1462,80 +1484,65 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
 
               <div className="space-y-3">
                 {seedRows.map((row) => (
-                  <div
-                    key={row.key}
-                    className="grid gap-3 rounded border border-border p-4 md:grid-cols-[120px,1fr,auto]"
-                  >
-                    <div className="space-y-2">
-                      <label
-                        htmlFor={`seed-number-${row.key}`}
-                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                      >
-                        Seed
-                      </label>
+                  <div key={row.key} className="flex gap-3">
+                    <div className="w-20">
                       <input
-                        id={`seed-number-${row.key}`}
                         type="number"
-                        min={1}
                         value={row.seed}
                         onChange={(event) =>
                           updateSeedRow(row.key, "seed", event.target.value)
                         }
+                        placeholder="Seed #"
                         className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
-
-                    <div className="space-y-2">
-                      <label
-                        htmlFor={`seed-entry-${row.key}`}
-                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                      >
-                        Lag-ID (valgfritt)
-                      </label>
+                    <div className="flex-1">
                       <input
-                        id={`seed-entry-${row.key}`}
                         type="text"
                         value={row.entryId}
                         onChange={(event) =>
                           updateSeedRow(row.key, "entryId", event.target.value)
                         }
-                        placeholder="entry-id"
+                        placeholder="Lag-ID"
                         className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
-
-                    <div className="flex items-end justify-end">
-                      <button
-                        type="button"
-                        onClick={() => removeSeedRow(row.key)}
-                        className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
-                        disabled={seedRows.length <= 2}
-                      >
-                        Fjern
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeSeedRow(row.key)}
+                      className="inline-flex items-center justify-center rounded-md border border-destructive/30 px-3 py-2 text-xs font-medium text-destructive transition hover:border-destructive/60 hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={seedRows.length <= 2}
+                    >
+                      Fjern
+                    </button>
                   </div>
                 ))}
               </div>
 
-              <label className="flex items-center gap-2 text-sm text-foreground">
+              <div className="flex items-center gap-2">
                 <input
+                  id="third-place"
                   type="checkbox"
                   checked={includeThirdPlace}
                   onChange={(event) =>
                     setIncludeThirdPlace(event.target.checked)
                   }
-                  className="h-4 w-4 rounded border border-border text-primary focus:ring-primary/40"
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
                 />
-                Opprett bronsefinale automatisk
-              </label>
+                <label
+                  htmlFor="third-place"
+                  className="text-sm text-foreground"
+                >
+                  Inkluder bronsefinale
+                </label>
+              </div>
             </div>
           )}
 
-          <div className="flex items-center justify-end">
+          <div>
             <button
               type="submit"
-              disabled={isGenerating || stages.length === 0}
+              disabled={isGenerating}
               className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isGenerating ? "Genererer …" : "Generer kamper"}
@@ -1573,182 +1580,183 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           </div>
         )}
 
-        <form onSubmit={handleManualMatchSubmit} className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-stage"
-                className="text-sm font-medium text-foreground"
-              >
-                Stadium
-              </label>
-              <select
-                id="manual-match-stage"
-                value={manualMatchStageId}
-                onChange={(event) => {
-                  setManualMatchStageId(event.target.value);
-                  setManualMatchGroupId("");
-                }}
-                required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="">Velg stadium</option>
-                {stages.map((stage) => (
-                  <option key={stage.id} value={stage.id}>
-                    {stage.name} ·{" "}
-                    {stage.stageType === "group" ? "Gruppespill" : "Sluttspill"}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onManualMatchSubmit)}
+            className="space-y-6"
+          >
+            <div className="grid gap-6 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="stageId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stadium</FormLabel>
+                    <select
+                      {...field}
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Velg stadium</option>
+                      {stages.map((stage) => (
+                        <option key={stage.id} value={stage.id}>
+                          {stage.name} ·{" "}
+                          {stage.stageType === "group"
+                            ? "Gruppespill"
+                            : "Sluttspill"}
+                        </option>
+                      ))}
+                    </select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {manualMatchStage?.stageType === "group" &&
-              manualMatchStage.groups.length > 0 && (
-                <div className="space-y-2">
-                  <label
-                    htmlFor="manual-match-group"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Gruppe (valgfritt)
-                  </label>
-                  <select
-                    id="manual-match-group"
-                    value={manualMatchGroupId}
-                    onChange={(event) =>
-                      setManualMatchGroupId(event.target.value)
-                    }
-                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    <option value="">Ingen gruppe</option>
-                    {manualMatchStage.groups.map((group) => (
-                      <option key={group.id} value={group.id}>
-                        Gruppe {group.code}
-                        {group.name ? ` – ${group.name}` : ""}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+              {manualMatchStage?.stageType === "group" &&
+                manualMatchStage.groups.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="groupId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gruppe (valgfritt)</FormLabel>
+                        <select
+                          {...field}
+                          className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        >
+                          <option value="">Ingen gruppe</option>
+                          {manualMatchStage.groups.map((group) => (
+                            <option key={group.id} value={group.id}>
+                              Gruppe {group.code}
+                              {group.name ? ` – ${group.name}` : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-kickoff"
-                className="text-sm font-medium text-foreground"
-              >
-                Avspark
-              </label>
-              <input
-                id="manual-match-kickoff"
-                type="datetime-local"
-                value={manualMatchKickoff}
-                onChange={(event) => setManualMatchKickoff(event.target.value)}
-                required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              <FormField
+                control={form.control}
+                name="kickoffAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Avspark</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="datetime-local"
+                        placeholder="Velg tidspunkt"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="venueId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Arena (valgfritt)</FormLabel>
+                    <select
+                      {...field}
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Velg arena</option>
+                      {availableVenues.map((venue) => (
+                        <option key={venue.id} value={venue.id}>
+                          {venue.name}
+                        </option>
+                      ))}
+                    </select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="homeEntryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hjemmelag (valgfritt)</FormLabel>
+                    <select
+                      {...field}
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Ikke satt</option>
+                      {approvedEntries.map((item) => (
+                        <option key={item.entry.id} value={item.entry.id}>
+                          {item.team.name}
+                        </option>
+                      ))}
+                    </select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="awayEntryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bortelag (valgfritt)</FormLabel>
+                    <select
+                      {...field}
+                      className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="">Ikke satt</option>
+                      {approvedEntries.map((item) => (
+                        <option key={item.entry.id} value={item.entry.id}>
+                          {item.team.name}
+                        </option>
+                      ))}
+                    </select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kampkode (valgfritt)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="f.eks. A-01 eller Semifinale 1"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-venue"
-                className="text-sm font-medium text-foreground"
+            <div className="flex items-center justify-end">
+              <button
+                type="submit"
+                disabled={createMatchMutation.isPending || stages.length === 0}
+                className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Arena (valgfritt)
-              </label>
-              <select
-                id="manual-match-venue"
-                value={manualMatchVenueId}
-                onChange={(event) => setManualMatchVenueId(event.target.value)}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="">Velg arena</option>
-                {availableVenues.map((venue) => (
-                  <option key={venue.id} value={venue.id}>
-                    {venue.name}
-                  </option>
-                ))}
-              </select>
+                {createMatchMutation.isPending ? "Oppretter …" : "Opprett kamp"}
+              </button>
             </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-home"
-                className="text-sm font-medium text-foreground"
-              >
-                Hjemmelag (valgfritt)
-              </label>
-              <select
-                id="manual-match-home"
-                value={manualMatchHomeEntryId}
-                onChange={(event) =>
-                  setManualMatchHomeEntryId(event.target.value)
-                }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="">Ikke satt</option>
-                {approvedEntries.map((item) => (
-                  <option key={item.entry.id} value={item.entry.id}>
-                    {item.team.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-away"
-                className="text-sm font-medium text-foreground"
-              >
-                Bortelag (valgfritt)
-              </label>
-              <select
-                id="manual-match-away"
-                value={manualMatchAwayEntryId}
-                onChange={(event) =>
-                  setManualMatchAwayEntryId(event.target.value)
-                }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="">Ikke satt</option>
-                {approvedEntries.map((item) => (
-                  <option key={item.entry.id} value={item.entry.id}>
-                    {item.team.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="manual-match-code"
-                className="text-sm font-medium text-foreground"
-              >
-                Kampkode (valgfritt)
-              </label>
-              <input
-                id="manual-match-code"
-                type="text"
-                value={manualMatchCode}
-                onChange={(event) => setManualMatchCode(event.target.value)}
-                placeholder="f.eks. A-01 eller Semifinale 1"
-                maxLength={50}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end">
-            <button
-              type="submit"
-              disabled={createMatchMutation.isPending || stages.length === 0}
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {createMatchMutation.isPending ? "Oppretter …" : "Opprett kamp"}
-            </button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </section>
     </div>
   );
+}
+
+function createKey() {
+  return Math.random().toString(36).substring(2, 9);
 }
 
 function createStageFormGroup(code: string): StageFormGroup {
@@ -1759,17 +1767,6 @@ function createStageFormGroup(code: string): StageFormGroup {
   };
 }
 
-function nextGroupCode(position: number): string {
-  const ascii = 65 + position;
-  if (ascii > 90) {
-    return `G${position + 1}`;
-  }
-  return String.fromCharCode(ascii);
-}
-
-function createKey(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return Math.random().toString(36).slice(2);
+function nextGroupCode(count: number) {
+  return String.fromCharCode(65 + count);
 }

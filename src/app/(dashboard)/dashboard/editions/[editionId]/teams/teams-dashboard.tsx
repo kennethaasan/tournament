@@ -1,14 +1,18 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   type EntryReview,
   editionEntriesQueryKey,
   fetchEditionEntries,
 } from "@/lib/api/entries-client";
 import {
+  type CreateTeamInput,
   createTeam,
   fetchTeams,
   registerTeamEntry,
@@ -17,6 +21,14 @@ import {
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/components/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/ui/components/form";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
 
@@ -25,6 +37,19 @@ type EditionTeamsDashboardProps = {
 };
 
 type EntryStatus = EntryReview["entry"]["status"];
+
+const createTeamSchema = z.object({
+  name: z.string().min(1, "Lagnavn er påkrevd."),
+  slug: z.string().optional(),
+  contactEmail: z
+    .string()
+    .email("Ugyldig e-postadresse.")
+    .optional()
+    .or(z.literal("")),
+  contactPhone: z.string().optional(),
+});
+
+type CreateTeamFormValues = z.infer<typeof createTeamSchema>;
 
 export function EditionTeamsDashboard({
   editionId,
@@ -327,21 +352,25 @@ function CreateTeamForm({
   onSuccess: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [formData, setFormData] = useState({
-    name: "",
-    slug: "",
-    contactEmail: "",
-    contactPhone: "",
+
+  const form = useForm<CreateTeamFormValues>({
+    resolver: zodResolver(createTeamSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      contactEmail: "",
+      contactPhone: "",
+    },
   });
 
   const createMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: CreateTeamInput) => {
       // 1. Create team
       const newTeam = await createTeam({
-        name: formData.name,
-        slug: formData.slug || null,
-        contactEmail: formData.contactEmail || null,
-        contactPhone: formData.contactPhone || null,
+        name: data.name,
+        slug: data.slug || null,
+        contactEmail: data.contactEmail || null,
+        contactPhone: data.contactPhone || null,
       });
 
       // 2. Register to edition
@@ -354,69 +383,85 @@ function CreateTeamForm({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate();
+  const onSubmit = (data: CreateTeamFormValues) => {
+    createMutation.mutate(data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="name">Lagnavn *</Label>
-          <Input
-            id="name"
-            required
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lagnavn *</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="slug">Slug (valgfritt)</Label>
-          <Input
-            id="slug"
-            value={formData.slug}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            placeholder="f.eks. lag-navn-g14"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Kontakt e-post (valgfritt)</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.contactEmail}
-            onChange={(e) =>
-              setFormData({ ...formData, contactEmail: e.target.value })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone">Kontakt tlf (valgfritt)</Label>
-          <Input
-            id="phone"
-            type="tel"
-            value={formData.contactPhone}
-            onChange={(e) =>
-              setFormData({ ...formData, contactPhone: e.target.value })
-            }
-          />
-        </div>
-      </div>
 
-      {createMutation.error && (
-        <div className="text-sm text-destructive">
-          {createMutation.error instanceof Error
-            ? createMutation.error.message
-            : "Kunne ikke opprette lag"}
-        </div>
-      )}
+          <FormField
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Slug (valgfritt)</FormLabel>
+                <FormControl>
+                  <Input placeholder="f.eks. lag-navn-g14" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={createMutation.isPending}>
-          {createMutation.isPending ? "Oppretter..." : "Opprett og legg til"}
-        </Button>
-      </div>
-    </form>
+          <FormField
+            control={form.control}
+            name="contactEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kontakt e-post (valgfritt)</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="contactPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Kontakt tlf (valgfritt)</FormLabel>
+                <FormControl>
+                  <Input type="tel" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {createMutation.error && (
+          <div className="text-sm text-destructive">
+            {createMutation.error instanceof Error
+              ? createMutation.error.message
+              : "Kunne ikke opprette lag"}
+          </div>
+        )}
+
+        <div className="flex justify-end">
+          <Button type="submit" disabled={createMutation.isPending}>
+            {createMutation.isPending ? "Oppretter..." : "Opprett og legg til"}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
