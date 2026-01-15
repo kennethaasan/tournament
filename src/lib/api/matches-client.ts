@@ -86,3 +86,41 @@ export async function updateMatch(
 
   return unwrapResponse({ data, error, response });
 }
+
+export type CreateMatchInput = {
+  stageId: string;
+  kickoffAt: string;
+  homeEntryId?: string | null;
+  awayEntryId?: string | null;
+  venueId?: string | null;
+  groupId?: string | null;
+  code?: string | null;
+};
+
+export async function createMatch(
+  editionId: string,
+  input: CreateMatchInput,
+): Promise<Match> {
+  const { data, error, response } = await apiClient.POST(
+    "/api/editions/{edition_id}/matches",
+    {
+      params: {
+        path: {
+          edition_id: editionId,
+        },
+      },
+      body: {
+        stage_id: input.stageId,
+        kickoff_at: input.kickoffAt,
+        home_entry_id: input.homeEntryId,
+        away_entry_id: input.awayEntryId,
+        venue_id: input.venueId,
+        group_id: input.groupId,
+        code: input.code,
+      },
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
+}

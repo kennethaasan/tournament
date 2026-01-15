@@ -233,7 +233,11 @@ export interface paths {
      */
     get: operations["list_matches"];
     put?: never;
-    post?: never;
+    /**
+     * Create a single match manually
+     * @description Create a single match manually without using the bulk generation wizard
+     */
+    post: operations["create_match"];
     delete?: never;
     options?: never;
     head?: never;
@@ -791,6 +795,21 @@ export interface components {
     CreateGroupRequest: {
       code: string;
       name: string;
+    };
+    CreateMatchRequest: {
+      /** Format: uuid */
+      stage_id: string;
+      /** Format: date-time */
+      kickoff_at: string;
+      /** Format: uuid */
+      home_entry_id?: string | null;
+      /** Format: uuid */
+      away_entry_id?: string | null;
+      /** Format: uuid */
+      venue_id?: string | null;
+      /** Format: uuid */
+      group_id?: string | null;
+      code?: string | null;
     };
     GenerateMatchesRequest: {
       /** Format: uuid */
@@ -1825,6 +1844,42 @@ export interface operations {
       };
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  create_match: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Match created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Match"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      422: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };

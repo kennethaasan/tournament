@@ -10,6 +10,11 @@ import {
   updateEntryStatus,
 } from "@/lib/api/entries-client";
 import {
+  type CreateMatchInput,
+  createMatch,
+  editionMatchesQueryKey,
+} from "@/lib/api/matches-client";
+import {
   editionScoreboardQueryKey,
   fetchEditionScoreboard,
   updateEditionScoreboard,
@@ -106,6 +111,43 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     Record<string, string>
   >({});
   const [reviewingEntryId, setReviewingEntryId] = useState<string | null>(null);
+
+  // Manual match creation state
+  const [manualMatchStageId, setManualMatchStageId] = useState<string>("");
+  const [manualMatchGroupId, setManualMatchGroupId] = useState<string>("");
+  const [manualMatchKickoff, setManualMatchKickoff] = useState<string>("");
+  const [manualMatchVenueId, setManualMatchVenueId] = useState<string>("");
+  const [manualMatchHomeEntryId, setManualMatchHomeEntryId] =
+    useState<string>("");
+  const [manualMatchAwayEntryId, setManualMatchAwayEntryId] =
+    useState<string>("");
+  const [manualMatchCode, setManualMatchCode] = useState<string>("");
+  const [manualMatchError, setManualMatchError] = useState<string | null>(null);
+  const [manualMatchSuccess, setManualMatchSuccess] = useState<string | null>(
+    null,
+  );
+
+  const createMatchMutation = useMutation({
+    mutationFn: (input: CreateMatchInput) => createMatch(editionId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: editionMatchesQueryKey(editionId),
+      });
+      setManualMatchSuccess("Kampen ble opprettet.");
+      setManualMatchError(null);
+      // Reset form
+      setManualMatchKickoff("");
+      setManualMatchHomeEntryId("");
+      setManualMatchAwayEntryId("");
+      setManualMatchCode("");
+    },
+    onError: (error) => {
+      setManualMatchError(
+        error instanceof Error ? error.message : "Kunne ikke opprette kampen.",
+      );
+      setManualMatchSuccess(null);
+    },
+  });
 
   const scoreboardQuery = useQuery({
     queryKey: editionScoreboardQueryKey(editionId),
@@ -239,6 +281,61 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setGroupEntryInputs({});
     }
   }, [selectedStage]);
+
+  // Manual match: set default stage when stages load
+  useEffect(() => {
+    if (!manualMatchStageId && stages.length > 0) {
+      setManualMatchStageId(stages[0]?.id ?? "");
+    }
+  }, [stages, manualMatchStageId]);
+
+  const manualMatchStage = useMemo(
+    () => stages.find((stage) => stage.id === manualMatchStageId) ?? null,
+    [stages, manualMatchStageId],
+  );
+
+  const approvedEntries = useMemo(
+    () => entries.filter((e) => e.entry.status === "approved"),
+    [entries],
+  );
+
+  async function handleManualMatchSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+    setManualMatchError(null);
+    setManualMatchSuccess(null);
+
+    if (!manualMatchStageId) {
+      setManualMatchError("Velg et stadium for kampen.");
+      return;
+    }
+
+    if (!manualMatchKickoff) {
+      setManualMatchError("Sett avspark-tidspunkt for kampen.");
+      return;
+    }
+
+    const kickoffDate = new Date(manualMatchKickoff);
+    if (Number.isNaN(kickoffDate.getTime())) {
+      setManualMatchError("Avspark må være en gyldig dato og tid.");
+      return;
+    }
+
+    try {
+      await createMatchMutation.mutateAsync({
+        stageId: manualMatchStageId,
+        kickoffAt: kickoffDate.toISOString(),
+        homeEntryId: manualMatchHomeEntryId || null,
+        awayEntryId: manualMatchAwayEntryId || null,
+        venueId: manualMatchVenueId || null,
+        groupId: manualMatchGroupId || null,
+        code: manualMatchCode || null,
+      });
+    } catch {
+      // Error handled by mutation
+    }
+  }
 
   async function handleEntryLockChange(lock: boolean) {
     setEntryLockError(null);
@@ -1442,6 +1539,210 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
               className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isGenerating ? "Genererer …" : "Generer kamper"}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <header>
+          <h2 className="text-xl font-semibold text-foreground">
+            Opprett enkelt-kamp manuelt
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Legg til én kamp direkte uten å bruke den automatiske
+            kampgeneratoren. Nyttig for playoff-kamper eller tilleggskamper.
+          </p>
+        </header>
+
+        {manualMatchSuccess && (
+          <output
+            aria-live="polite"
+            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
+          >
+            {manualMatchSuccess}
+          </output>
+        )}
+
+        {manualMatchError && (
+          <div
+            role="alert"
+            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {manualMatchError}
+          </div>
+        )}
+
+        <form onSubmit={handleManualMatchSubmit} className="space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-stage"
+                className="text-sm font-medium text-foreground"
+              >
+                Stadium
+              </label>
+              <select
+                id="manual-match-stage"
+                value={manualMatchStageId}
+                onChange={(event) => {
+                  setManualMatchStageId(event.target.value);
+                  setManualMatchGroupId("");
+                }}
+                required
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Velg stadium</option>
+                {stages.map((stage) => (
+                  <option key={stage.id} value={stage.id}>
+                    {stage.name} ·{" "}
+                    {stage.stageType === "group" ? "Gruppespill" : "Sluttspill"}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {manualMatchStage?.stageType === "group" &&
+              manualMatchStage.groups.length > 0 && (
+                <div className="space-y-2">
+                  <label
+                    htmlFor="manual-match-group"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Gruppe (valgfritt)
+                  </label>
+                  <select
+                    id="manual-match-group"
+                    value={manualMatchGroupId}
+                    onChange={(event) =>
+                      setManualMatchGroupId(event.target.value)
+                    }
+                    className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Ingen gruppe</option>
+                    {manualMatchStage.groups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        Gruppe {group.code}
+                        {group.name ? ` – ${group.name}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-kickoff"
+                className="text-sm font-medium text-foreground"
+              >
+                Avspark
+              </label>
+              <input
+                id="manual-match-kickoff"
+                type="datetime-local"
+                value={manualMatchKickoff}
+                onChange={(event) => setManualMatchKickoff(event.target.value)}
+                required
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-venue"
+                className="text-sm font-medium text-foreground"
+              >
+                Arena (valgfritt)
+              </label>
+              <select
+                id="manual-match-venue"
+                value={manualMatchVenueId}
+                onChange={(event) => setManualMatchVenueId(event.target.value)}
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Velg arena</option>
+                {availableVenues.map((venue) => (
+                  <option key={venue.id} value={venue.id}>
+                    {venue.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-home"
+                className="text-sm font-medium text-foreground"
+              >
+                Hjemmelag (valgfritt)
+              </label>
+              <select
+                id="manual-match-home"
+                value={manualMatchHomeEntryId}
+                onChange={(event) =>
+                  setManualMatchHomeEntryId(event.target.value)
+                }
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Ikke satt</option>
+                {approvedEntries.map((item) => (
+                  <option key={item.entry.id} value={item.entry.id}>
+                    {item.team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-away"
+                className="text-sm font-medium text-foreground"
+              >
+                Bortelag (valgfritt)
+              </label>
+              <select
+                id="manual-match-away"
+                value={manualMatchAwayEntryId}
+                onChange={(event) =>
+                  setManualMatchAwayEntryId(event.target.value)
+                }
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="">Ikke satt</option>
+                {approvedEntries.map((item) => (
+                  <option key={item.entry.id} value={item.entry.id}>
+                    {item.team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="manual-match-code"
+                className="text-sm font-medium text-foreground"
+              >
+                Kampkode (valgfritt)
+              </label>
+              <input
+                id="manual-match-code"
+                type="text"
+                value={manualMatchCode}
+                onChange={(event) => setManualMatchCode(event.target.value)}
+                placeholder="f.eks. A-01 eller Semifinale 1"
+                maxLength={50}
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end">
+            <button
+              type="submit"
+              disabled={createMatchMutation.isPending || stages.length === 0}
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {createMatchMutation.isPending ? "Oppretter …" : "Opprett kamp"}
             </button>
           </div>
         </form>
