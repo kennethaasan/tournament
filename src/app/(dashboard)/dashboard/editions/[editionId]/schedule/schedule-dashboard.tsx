@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
+  deleteEntry,
   type EntryReview,
   editionEntriesQueryKey,
   fetchEditionEntries,
@@ -22,6 +23,7 @@ import {
   updateEditionScoreboard,
 } from "@/lib/api/scoreboard-client";
 import {
+  deleteStage,
   editionStagesQueryKey,
   fetchEditionStages,
   type Stage,
@@ -196,11 +198,43 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setEntryReviewMessage("Påmeldingen er oppdatert.");
       setEntryReviewError(null);
     },
+  });
+
+  const deleteEntryMutation = useMutation({
+    mutationFn: (entryId: string) => deleteEntry(entryId),
+    onSuccess: (_, entryId) => {
+      queryClient.setQueryData(
+        editionEntriesQueryKey(editionId),
+        (current: EntryReview[] | undefined) =>
+          current?.filter((item) => item.entry.id !== entryId),
+      );
+      setEntryReviewMessage("Påmeldingen er slettet.");
+      setEntryReviewError(null);
+    },
     onError: (error) => {
       setEntryReviewError(
         error instanceof Error
           ? error.message
-          : "Kunne ikke oppdatere påmeldingen.",
+          : "Kunne ikke slette påmeldingen.",
+      );
+    },
+  });
+
+  const deleteStageMutation = useMutation({
+    mutationFn: (stageId: string) => deleteStage(editionId, stageId),
+    onSuccess: (_, stageId) => {
+      queryClient.setQueryData(
+        editionStagesQueryKey(editionId),
+        (current: StageListItem[] | undefined) =>
+          current?.filter((item) => item.id !== stageId),
+      );
+      queryClient.invalidateQueries({
+        queryKey: editionStagesQueryKey(editionId),
+      });
+    },
+    onError: (error) => {
+      setManualMatchError(
+        error instanceof Error ? error.message : "Kunne ikke slette stadiet.",
       );
     },
   });
@@ -324,6 +358,43 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       );
     } finally {
       setReviewingEntryId(null);
+    }
+  }
+
+  async function handleEntryDelete(entryId: string) {
+    if (!confirm("Er du sikker på at du vil slette denne påmeldingen?")) {
+      return;
+    }
+
+    setEntryReviewError(null);
+    setEntryReviewMessage(null);
+
+    try {
+      await deleteEntryMutation.mutateAsync(entryId);
+    } catch (error) {
+      setEntryReviewError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke slette påmeldingen.",
+      );
+    }
+  }
+
+  async function handleStageDelete(stageId: string) {
+    if (
+      !confirm(
+        "Er du sikker på at du vil slette dette stadiet? Alle tilhørende grupper vil også bli slettet. Du kan ikke slette et stadie som har kamper.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await deleteStageMutation.mutateAsync(stageId);
+    } catch (error) {
+      setManualMatchError(
+        error instanceof Error ? error.message : "Kunne ikke slette stadiet.",
+      );
     }
   }
 
@@ -562,6 +633,19 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     >
                       Avvis
                     </button>
+                    {(entry.status === "rejected" ||
+                      entry.status === "withdrawn") && (
+                      <button
+                        type="button"
+                        onClick={() => handleEntryDelete(entry.id)}
+                        disabled={deleteEntryMutation.isPending}
+                        className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {deleteEntryMutation.isPending
+                          ? "Sletter ..."
+                          : "Slett permanent"}
+                      </button>
+                    )}
                   </div>
                 </article>
               );
@@ -633,9 +717,36 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       {stage.name}
                     </h3>
                   </div>
-                  <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
-                    Rekkefølge #{stage.order}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleStageDelete(stage.id)}
+                      disabled={deleteStageMutation.isPending}
+                      className="rounded p-1 text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive"
+                      title="Slett stadium"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <title>Slett stadium</title>
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                      </svg>
+                    </button>
+                    <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                      Rekkefølge #{stage.order}
+                    </span>
+                  </div>
                 </div>
 
                 {stage.stageType === "group" ? (

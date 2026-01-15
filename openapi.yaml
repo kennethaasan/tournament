@@ -299,6 +299,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Stage'
           headers: *standardResponseHeaders
+  /api/editions/{edition_id}/stages/{stage_id}:
+    delete:
+      tags:
+        - competitions
+      summary: Delete a stage
+      description: Delete a stage and all its associated groups. Only stages without matches can be deleted.
+      operationId: delete_stage
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+        - $ref: '#/components/parameters/StageId'
+      responses:
+        <<: *standardErrorResponses
+        '204':
+          description: Stage deleted
+          headers: *standardResponseHeaders
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+        '409':
+          $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/matches/bulk:
     post:
       tags:
@@ -811,6 +832,23 @@ paths:
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags:
+        - entries
+      summary: Delete a rejected or withdrawn entry
+      description: Delete a rejected or withdrawn entry. Only entries with status 'rejected' or 'withdrawn' can be deleted.
+      operationId: delete_entry
+      parameters:
+        - $ref: '#/components/parameters/EntryId'
+      responses:
+        <<: *standardErrorResponses
+        '204':
+          description: Entry deleted
+          headers: *standardResponseHeaders
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/entries/{entry_id}/squads:
     put:
       tags:
@@ -1008,6 +1046,14 @@ components:
         format: uuid
         maxLength: 36
       description: Filter matches for a specific stage
+    StageId:
+      name: stage_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        maxLength: 36
     MatchStatus:
       name: status
       in: query

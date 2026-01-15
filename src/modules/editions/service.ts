@@ -10,6 +10,7 @@ import {
   editionSettings,
   editions,
   groups,
+  matches,
   scoreboardHighlights,
   stages,
 } from "@/server/db/schema";
@@ -214,6 +215,52 @@ export async function listStages(editionId: string): Promise<StageSummary[]> {
     publishedAt: stage.publishedAt,
     groups: groupsByStage.get(stage.id) ?? [],
   }));
+}
+
+export async function deleteStage(
+  editionId: string,
+  stageId: string,
+): Promise<void> {
+  return withTransaction(async (tx) => {
+    const stage = await tx.query.stages.findFirst({
+      where: and(eq(stages.id, stageId), eq(stages.editionId, editionId)),
+    });
+
+    if (!stage) {
+      throw createProblem({
+        type: "https://tournament.app/problems/stages/not-found",
+        title: "Stadiet finnes ikke",
+        status: 404,
+        detail: "Stadiet ble ikke funnet.",
+      });
+    }
+
+    // Check if stage has any matches
+    const matchCount = await tx
+      .select({ id: matches.id })
+      .from(matches)
+      .where(eq(matches.stageId, stageId))
+      .limit(1);
+
+    if (matchCount.length > 0) {
+      throw createProblem({
+        type: "https://tournament.app/problems/stages/has-matches",
+        title: "Stadiet har kamper",
+        status: 409,
+        detail:
+          "Kan ikke slette et stadie som har kamper. Slett kampene først.",
+      });
+    }
+
+    // Delete brackets if knockout
+    await tx.delete(brackets).where(eq(brackets.stageId, stageId));
+
+    // Delete groups
+    await tx.delete(groups).where(eq(groups.stageId, stageId));
+
+    // Delete the stage
+    await tx.delete(stages).where(eq(stages.id, stageId));
+  });
 }
 
 export type EditionScoreboardTheme = {

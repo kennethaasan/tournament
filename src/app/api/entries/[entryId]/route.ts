@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createProblem } from "@/lib/errors/problem";
-import { reviewEntry } from "@/modules/entries/service";
+import { deleteEntry, reviewEntry } from "@/modules/entries/service";
 import { assertEditionAdminAccess } from "@/server/api/edition-access";
 import { createApiHandler } from "@/server/api/handler";
 import { db } from "@/server/db/client";
@@ -120,6 +120,45 @@ async function notifyTeamManagers(
     })),
   );
 }
+
+export const DELETE = createApiHandler<RouteParams>(
+  async ({ params, auth }) => {
+    if (!auth) {
+      throw createProblem({
+        type: "https://httpstatuses.com/401",
+        title: "Autentisering kreves",
+        status: 401,
+        detail: "Du må være innlogget for å slette påmeldingen.",
+      });
+    }
+
+    const entryId = Array.isArray(params.entryId)
+      ? params.entryId[0]
+      : params.entryId;
+
+    const entry = await db.query.entries.findFirst({
+      where: eq(entries.id, entryId),
+    });
+
+    if (!entry) {
+      throw createProblem({
+        type: "https://httpstatuses.com/404",
+        title: "Påmeldingen finnes ikke",
+        status: 404,
+        detail: "Påmeldingen ble ikke funnet.",
+      });
+    }
+
+    await assertEditionAdminAccess(entry.editionId, auth);
+    await deleteEntry(entryId);
+
+    return new NextResponse(null, { status: 204 });
+  },
+  {
+    requireAuth: true,
+    roles: ["competition_admin", "global_admin"],
+  },
+);
 
 function serializeEntry(entry: typeof entries.$inferSelect) {
   const metadata = (entry.metadata ?? {}) as Record<string, unknown>;

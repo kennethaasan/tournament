@@ -176,6 +176,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/editions/{edition_id}/stages/{stage_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a stage
+     * @description Delete a stage and all its associated groups. Only stages without matches can be deleted.
+     */
+    delete: operations["delete_stage"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/editions/{edition_id}/matches/bulk": {
     parameters: {
       query?: never;
@@ -478,7 +498,11 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    delete?: never;
+    /**
+     * Delete a rejected or withdrawn entry
+     * @description Delete a rejected or withdrawn entry. Only entries with status 'rejected' or 'withdrawn' can be deleted.
+     */
+    delete: operations["delete_entry"];
     options?: never;
     head?: never;
     /**
@@ -1332,6 +1356,7 @@ export interface components {
     EditionId: string;
     /** @description Filter matches for a specific stage */
     StageIdOptional: string;
+    StageId: string;
     MatchStatus: components["schemas"]["MatchStatus"];
     MatchId: string;
     VenueId: string;
@@ -1718,6 +1743,38 @@ export interface operations {
       };
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  delete_stage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+        stage_id: components["parameters"]["StageId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Stage deleted */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };
@@ -2418,6 +2475,36 @@ export interface operations {
       };
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  delete_entry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        entry_id: components["parameters"]["EntryId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Entry deleted */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };
