@@ -198,6 +198,13 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setEntryReviewMessage("Påmeldingen er oppdatert.");
       setEntryReviewError(null);
     },
+    onError: (error) => {
+      setEntryReviewError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere påmeldingen.",
+      );
+    },
   });
 
   const deleteEntryMutation = useMutation({

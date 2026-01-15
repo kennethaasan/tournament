@@ -3,8 +3,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiClient, unwrapResponse } from "@/lib/api/client";
+
+/**
+ * Formats an ISO date string to a local datetime-local input value.
+ * datetime-local inputs expect YYYY-MM-DDTHH:mm in local time.
+ */
+function toLocalDatetimeString(isoString: string | null): string {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
@@ -202,6 +218,16 @@ function EditionSettingsCard({
   const [timezone, setTimezone] = useState(edition.timezone);
   const [status, setStatus] = useState(edition.status);
 
+  // Sync state when edition prop changes (e.g., after refetch)
+  useEffect(() => {
+    if (!isEditing) {
+      setLabel(edition.label);
+      setFormat(edition.format);
+      setTimezone(edition.timezone);
+      setStatus(edition.status);
+    }
+  }, [edition, isEditing]);
+
   const mutation = useMutation({
     mutationFn: async () => {
       const { data, error, response } = await apiClient.PATCH(
@@ -395,21 +421,23 @@ function RegistrationSettingsCard({
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [opensAt, setOpensAt] = useState(
-    edition.registration_window.opens_at
-      ? new Date(edition.registration_window.opens_at)
-          .toISOString()
-          .slice(0, 16)
-      : "",
+    toLocalDatetimeString(edition.registration_window.opens_at),
   );
   const [closesAt, setClosesAt] = useState(
-    edition.registration_window.closes_at
-      ? new Date(edition.registration_window.closes_at)
-          .toISOString()
-          .slice(0, 16)
-      : "",
+    toLocalDatetimeString(edition.registration_window.closes_at),
   );
   const [contactEmail, setContactEmail] = useState(edition.contact_email ?? "");
   const [contactPhone, setContactPhone] = useState(edition.contact_phone ?? "");
+
+  // Sync state when edition prop changes (e.g., after refetch)
+  useEffect(() => {
+    if (!isEditing) {
+      setOpensAt(toLocalDatetimeString(edition.registration_window.opens_at));
+      setClosesAt(toLocalDatetimeString(edition.registration_window.closes_at));
+      setContactEmail(edition.contact_email ?? "");
+      setContactPhone(edition.contact_phone ?? "");
+    }
+  }, [edition, isEditing]);
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -439,20 +467,8 @@ function RegistrationSettingsCard({
   });
 
   const handleCancel = () => {
-    setOpensAt(
-      edition.registration_window.opens_at
-        ? new Date(edition.registration_window.opens_at)
-            .toISOString()
-            .slice(0, 16)
-        : "",
-    );
-    setClosesAt(
-      edition.registration_window.closes_at
-        ? new Date(edition.registration_window.closes_at)
-            .toISOString()
-            .slice(0, 16)
-        : "",
-    );
+    setOpensAt(toLocalDatetimeString(edition.registration_window.opens_at));
+    setClosesAt(toLocalDatetimeString(edition.registration_window.closes_at));
     setContactEmail(edition.contact_email ?? "");
     setContactPhone(edition.contact_phone ?? "");
     setIsEditing(false);
