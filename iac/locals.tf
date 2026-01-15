@@ -34,12 +34,15 @@ locals {
     local.extra_domain_zone_ids
   )
 
+  # Strip trailing dots from ACM validation records to avoid drift.
+  # AWS ACM returns FQDNs with trailing dots, but Cloudflare normalizes them
+  # without trailing dots, causing Terraform to detect false drift on every apply.
   acm_validation_records_by_domain = {
     for dvo in module.acm.acm_certificate_domain_validation_options :
     lower(dvo.domain_name) => {
-      name  = dvo.resource_record_name
+      name  = trimsuffix(dvo.resource_record_name, ".")
       type  = dvo.resource_record_type
-      value = dvo.resource_record_value
+      value = trimsuffix(dvo.resource_record_value, ".")
     }
   }
 
