@@ -689,6 +689,8 @@ export interface components {
       competition_id: string;
       /** @description Competition slug for contextual scoreboard links */
       competition_slug?: string;
+      /** @description Competition display name */
+      competition_name?: string;
       label: string;
       slug: string;
       /** @enum {string} */

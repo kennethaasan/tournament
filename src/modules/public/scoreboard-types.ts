@@ -13,6 +13,7 @@ export type ScoreboardEdition = {
   id: string;
   competitionId: string;
   competitionSlug: string;
+  competitionName: string;
   label: string;
   slug: string;
   status: components["schemas"]["Edition"]["status"];
@@ -141,6 +142,7 @@ export function toApiScoreboardPayload(
       id: data.edition.id,
       competition_id: data.edition.competitionId,
       competition_slug: data.edition.competitionSlug,
+      competition_name: data.edition.competitionName,
       label: data.edition.label,
       slug: data.edition.slug,
       status: data.edition.status,
@@ -237,6 +239,7 @@ export function fromApiScoreboardPayload(
       id: payload.edition.id,
       competitionId: payload.edition.competition_id,
       competitionSlug: payload.edition.competition_slug ?? "",
+      competitionName: payload.edition.competition_name ?? "",
       label: payload.edition.label,
       slug: payload.edition.slug,
       status: payload.edition.status,

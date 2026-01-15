@@ -79,6 +79,7 @@ type EditionRow = {
   timezone: string;
   competitionId: string;
   competitionSlug: string;
+  competitionName: string;
   registrationOpensAt: Date | null;
   registrationClosesAt: Date | null;
   rotationSeconds: number;
@@ -230,6 +231,7 @@ async function findEditionFromDatabase(
       timezone: editions.timezone,
       competitionId: editions.competitionId,
       competitionSlug: competitions.slug,
+      competitionName: competitions.name,
       registrationOpensAt: editions.registrationOpensAt,
       registrationClosesAt: editions.registrationClosesAt,
       rotationSeconds: editionSettings.scoreboardRotationSeconds,
@@ -270,6 +272,7 @@ async function findEditionFromDatabase(
     timezone: row.timezone,
     competitionId: row.competitionId,
     competitionSlug: row.competitionSlug,
+    competitionName: row.competitionName,
     registrationOpensAt: row.registrationOpensAt,
     registrationClosesAt: row.registrationClosesAt,
     rotationSeconds,
@@ -646,6 +649,7 @@ function mapEditionRowToDto(row: EditionRow): ScoreboardEdition {
     id: row.id,
     competitionId: row.competitionId,
     competitionSlug: row.competitionSlug,
+    competitionName: row.competitionName,
     label: row.label,
     slug: row.slug,
     status: row.status as ScoreboardEdition["status"],

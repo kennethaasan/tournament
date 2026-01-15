@@ -30,6 +30,7 @@ const scoreboardStub: ScoreboardData = {
     id: "ed-1",
     competitionId: "comp-1",
     competitionSlug: "comp-1",
+    competitionName: "Elite Cup",
     label: "Elite Cup",
     slug: "elite-cup",
     status: "published",

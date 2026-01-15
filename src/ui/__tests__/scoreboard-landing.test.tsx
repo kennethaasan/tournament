@@ -291,6 +291,7 @@ function buildScoreboardData(
       id: "edition-1",
       competitionId: "competition-1",
       competitionSlug: "trondheim-cup",
+      competitionName: "Trondheim Cup",
       label: "Trondheim Cup 2025",
       slug: "2025",
       status: "published",

@@ -195,8 +195,9 @@ export function ScoreboardScreen({
                   Offentlig visning
                 </p>
                 <h1 className="text-xl font-semibold leading-tight">
-                  {data.edition.label}
+                  {data.edition.competitionName}
                 </h1>
+                <p className="text-sm text-white/80">{data.edition.label}</p>
               </div>
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/80">
                 {headerMeta ? (
@@ -217,12 +218,11 @@ export function ScoreboardScreen({
               <p className="text-sm uppercase tracking-[0.2em] text-white/70">
                 Offentlig visning
               </p>
-              <h1 className="text-3xl font-semibold">{data.edition.label}</h1>
+              <h1 className="text-3xl font-semibold">
+                {data.edition.competitionName}
+              </h1>
               <p className="text-lg font-medium text-white/80">
-                {data.edition.slug}
-                {data.edition.competitionSlug
-                  ? ` · ${data.edition.competitionSlug}`
-                  : ""}
+                {data.edition.label}
               </p>
               {headerMeta ? (
                 <p className="text-sm text-white/80">{headerMeta}</p>

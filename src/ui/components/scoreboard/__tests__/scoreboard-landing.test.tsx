@@ -70,6 +70,7 @@ function createData(overrides: Partial<ScoreboardData> = {}): ScoreboardData {
       id: "edition-1",
       competitionId: "comp-1",
       competitionSlug: "test-cup",
+      competitionName: "Test Cup",
       label: "Test Cup 2025",
       slug: "2025",
       status: "published",

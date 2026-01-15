@@ -1383,6 +1383,11 @@ components:
           description: Competition slug for contextual scoreboard links
           maxLength: 120
           pattern: ^.{0,120}$
+        competition_name:
+          type: string
+          description: Competition display name
+          maxLength: 2048
+          pattern: ^.{0,2048}$
         label:
           type: string
           maxLength: 2048

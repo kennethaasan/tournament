@@ -22,6 +22,7 @@ const baseEdition: EditionRow = {
   timezone: "UTC",
   competitionId: "comp-1",
   competitionSlug: "elite",
+  competitionName: "Elite Competition",
   registrationOpensAt: null,
   registrationClosesAt: null,
   rotationSeconds: 5,
