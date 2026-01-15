@@ -4,2576 +4,2621 @@
  */
 
 export interface paths {
-    "/api/auth/invitations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Invite a new organizer or team manager
-         * @description Invite a new organizer or team manager
-         */
-        post: operations["create_invitation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  "/api/auth/invitations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/invitations/accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Accept an invitation
-         * @description Accept an invitation
-         */
-        post: operations["accept_invitation"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Invite a new organizer or team manager
+     * @description Invite a new organizer or team manager
+     */
+    post: operations["create_invitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/auth/invitations/accept": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/competitions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List accessible competitions
-         * @description List accessible competitions
-         */
-        get: operations["list_competitions"];
-        put?: never;
-        /**
-         * Create a new competition and initial edition
-         * @description Create a new competition and initial edition
-         */
-        post: operations["create_competition"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Accept an invitation
+     * @description Accept an invitation
+     */
+    post: operations["accept_invitation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/competitions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/competitions/{competition_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch competition with editions and roles
-         * @description Fetch competition with editions and roles
-         */
-        get: operations["get_competition"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List accessible competitions
+     * @description List accessible competitions
+     */
+    get: operations["list_competitions"];
+    put?: never;
+    /**
+     * Create a new competition and initial edition
+     * @description Create a new competition and initial edition
+     */
+    post: operations["create_competition"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/competitions/{competition_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/competitions/{competition_id}/editions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Create a new edition inside a competition
-         * @description Create a new edition inside a competition
-         */
-        post: operations["create_edition"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Fetch competition with editions and roles
+     * @description Fetch competition with editions and roles
+     */
+    get: operations["get_competition"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/competitions/{competition_id}/editions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch edition scoreboard configuration
-         * @description Fetch edition scoreboard configuration
-         */
-        get: operations["get_edition_scoreboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update edition settings
-         * @description Update edition settings
-         */
-        patch: operations["update_edition"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Create a new edition inside a competition
+     * @description Create a new edition inside a competition
+     */
+    post: operations["create_edition"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List entries for an edition
-         * @description List entries for an edition
-         */
-        get: operations["list_edition_entries"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Fetch edition scoreboard configuration
+     * @description Fetch edition scoreboard configuration
+     */
+    get: operations["get_edition_scoreboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update edition settings
+     * @description Update edition settings
+     */
+    patch: operations["update_edition"];
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/stages": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List stages for an edition
-         * @description List stages for an edition
-         */
-        get: operations["list_stages"];
-        put?: never;
-        /**
-         * Create a stage (group or knockout)
-         * @description Create a stage (group or knockout)
-         */
-        post: operations["create_stage"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List entries for an edition
+     * @description List entries for an edition
+     */
+    get: operations["list_edition_entries"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/stages": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/matches/bulk": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Generate matches for selected stage
-         * @description Generate matches for selected stage
-         */
-        post: operations["generate_matches"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List stages for an edition
+     * @description List stages for an edition
+     */
+    get: operations["list_stages"];
+    put?: never;
+    /**
+     * Create a stage (group or knockout)
+     * @description Create a stage (group or knockout)
+     */
+    post: operations["create_stage"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/matches/bulk": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/scoreboard/highlights": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Trigger a scoreboard highlight overlay
-         * @description Trigger a scoreboard highlight overlay
-         */
-        post: operations["trigger_scoreboard_highlight"];
-        /**
-         * Clear the active scoreboard highlight
-         * @description Clear the active scoreboard highlight
-         */
-        delete: operations["clear_scoreboard_highlight"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Generate matches for selected stage
+     * @description Generate matches for selected stage
+     */
+    post: operations["generate_matches"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/scoreboard/highlights": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/matches": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List matches with filters
-         * @description List matches with filters
-         */
-        get: operations["list_matches"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Trigger a scoreboard highlight overlay
+     * @description Trigger a scoreboard highlight overlay
+     */
+    post: operations["trigger_scoreboard_highlight"];
+    /**
+     * Clear the active scoreboard highlight
+     * @description Clear the active scoreboard highlight
+     */
+    delete: operations["clear_scoreboard_highlight"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/matches": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/editions/{edition_id}/venues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List venues for an edition
-         * @description List venues for an edition
-         */
-        get: operations["list_edition_venues"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List matches with filters
+     * @description List matches with filters
+     */
+    get: operations["list_matches"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/editions/{edition_id}/venues": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/matches/{match_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch a match with events
-         * @description Fetch a match with events
-         */
-        get: operations["get_match"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update match details or result
-         * @description Update match details or result
-         */
-        patch: operations["update_match"];
-        trace?: never;
+    /**
+     * List venues for an edition
+     * @description List venues for an edition
+     */
+    get: operations["list_edition_venues"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/matches/{match_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/matches/{match_id}/disputes": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Submit a dispute for a finalized match
-         * @description Submit a dispute for a finalized match
-         */
-        post: operations["submit_dispute"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Fetch a match with events
+     * @description Fetch a match with events
+     */
+    get: operations["get_match"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update match details or result
+     * @description Update match details or result
+     */
+    patch: operations["update_match"];
+    trace?: never;
+  };
+  "/api/matches/{match_id}/disputes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/teams": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List accessible teams
-         * @description List accessible teams
-         */
-        get: operations["list_teams"];
-        put?: never;
-        /**
-         * Create or import a reusable team
-         * @description Create or import a reusable team
-         */
-        post: operations["create_team"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Submit a dispute for a finalized match
+     * @description Submit a dispute for a finalized match
+     */
+    post: operations["submit_dispute"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/teams": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/competitions/{competition_id}/venues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List venues for a competition
-         * @description List venues for a competition
-         */
-        get: operations["list_competition_venues"];
-        put?: never;
-        /**
-         * Create a venue
-         * @description Create a venue
-         */
-        post: operations["create_venue"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List accessible teams
+     * @description List accessible teams
+     */
+    get: operations["list_teams"];
+    put?: never;
+    /**
+     * Create or import a reusable team
+     * @description Create or import a reusable team
+     */
+    post: operations["create_team"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/competitions/{competition_id}/venues": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/venues/{venue_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete a venue
-         * @description Delete a venue
-         */
-        delete: operations["delete_venue"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a venue
-         * @description Update a venue
-         */
-        patch: operations["update_venue"];
-        trace?: never;
+    /**
+     * List venues for a competition
+     * @description List venues for a competition
+     */
+    get: operations["list_competition_venues"];
+    put?: never;
+    /**
+     * Create a venue
+     * @description Create a venue
+     */
+    post: operations["create_venue"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/venues/{venue_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/teams/{team_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch a team's roster
-         * @description Fetch a team's roster
-         */
-        get: operations["get_team_roster"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update team details
-         * @description Update team details
-         */
-        patch: operations["update_team"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a venue
+     * @description Delete a venue
+     */
+    delete: operations["delete_venue"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a venue
+     * @description Update a venue
+     */
+    patch: operations["update_venue"];
+    trace?: never;
+  };
+  "/api/teams/{team_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/teams/{team_id}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Add a member to a team roster
-         * @description Add a member to a team roster
-         */
-        post: operations["add_team_member"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Fetch a team's roster
+     * @description Fetch a team's roster
+     */
+    get: operations["get_team_roster"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update team details
+     * @description Update team details
+     */
+    patch: operations["update_team"];
+    trace?: never;
+  };
+  "/api/teams/{team_id}/members": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/teams/{team_id}/members/{membership_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Remove a member from a team roster
-         * @description Remove a member from a team roster
-         */
-        delete: operations["remove_team_member"];
-        options?: never;
-        head?: never;
-        /**
-         * Update a team member
-         * @description Update a team member
-         */
-        patch: operations["update_team_member"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Add a member to a team roster
+     * @description Add a member to a team roster
+     */
+    post: operations["add_team_member"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/teams/{team_id}/members/{membership_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/teams/{team_id}/entries": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Register a team into an edition (self-service onboarding)
-         * @description Register a team into an edition (self-service onboarding)
-         */
-        post: operations["register_entry"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove a member from a team roster
+     * @description Remove a member from a team roster
+     */
+    delete: operations["remove_team_member"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a team member
+     * @description Update a team member
+     */
+    patch: operations["update_team_member"];
+    trace?: never;
+  };
+  "/api/teams/{team_id}/entries": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/entries/{entry_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Update entry status
-         * @description Update entry status
-         */
-        patch: operations["update_entry_status"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    /**
+     * Register a team into an edition (self-service onboarding)
+     * @description Register a team into an edition (self-service onboarding)
+     */
+    post: operations["register_entry"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/entries/{entry_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/entries/{entry_id}/squads": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Ensure squad exists and optionally lock it
-         * @description Ensure squad exists and optionally lock it
-         */
-        put: operations["upsert_squad"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Update entry status
+     * @description Update entry status
+     */
+    patch: operations["update_entry_status"];
+    trace?: never;
+  };
+  "/api/entries/{entry_id}/squads": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/squads/{squad_id}/members": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List squad members
-         * @description List squad members
-         */
-        get: operations["list_squad_members"];
-        put?: never;
-        /**
-         * Add or update a squad member
-         * @description Add or update a squad member
-         */
-        post: operations["add_squad_member"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    /**
+     * Ensure squad exists and optionally lock it
+     * @description Ensure squad exists and optionally lock it
+     */
+    put: operations["upsert_squad"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/squads/{squad_id}/members": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List notifications for the authenticated user
-         * @description List notifications for the authenticated user
-         */
-        get: operations["list_notifications"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Bulk mark notifications as read
-         * @description Bulk mark notifications as read
-         */
-        patch: operations["mark_notifications"];
-        trace?: never;
+    /**
+     * List squad members
+     * @description List squad members
+     */
+    get: operations["list_squad_members"];
+    put?: never;
+    /**
+     * Add or update a squad member
+     * @description Add or update a squad member
+     */
+    post: operations["add_squad_member"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Fetch public scoreboard payload for big-screen display
-         * @description Fetch public scoreboard payload for big-screen display
-         */
-        get: operations["get_scoreboard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * List notifications for the authenticated user
+     * @description List notifications for the authenticated user
+     */
+    get: operations["list_notifications"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Bulk mark notifications as read
+     * @description Bulk mark notifications as read
+     */
+    patch: operations["mark_notifications"];
+    trace?: never;
+  };
+  "/api/public/competitions/{competition_slug}/editions/{edition_slug}/scoreboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/public/events": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Poll-based event feed for real-time updates
-         * @description Poll-based event feed for real-time updates
-         */
-        get: operations["get_event_feed"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * Fetch public scoreboard payload for big-screen display
+     * @description Fetch public scoreboard payload for big-screen display
+     */
+    get: operations["get_scoreboard"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/public/events": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /**
+     * Poll-based event feed for real-time updates
+     * @description Poll-based event feed for real-time updates
+     */
+    get: operations["get_event_feed"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        ProblemDetails: {
-            type: string;
-            title: string;
-            /** Format: int32 */
-            status: number;
-            detail?: string;
-            instance?: string;
-            errors?: {
-                [key: string]: string[];
-            };
-        };
-        Invitation: {
-            /** Format: uuid */
-            id: string;
-            /** Format: email */
-            email: string;
-            /** @enum {string} */
-            role: "global_admin" | "competition_admin" | "team_manager";
-            scope: {
-                /** @enum {string} */
-                type: "global" | "competition" | "edition" | "team";
-                /** Format: uuid */
-                id?: string | null;
-            };
-            /** Format: date-time */
-            expires_at: string;
-            token?: string;
-            /** Format: uri */
-            accept_url?: string | null;
-        };
-        RoleAssignment: {
-            /** @enum {string} */
-            role: "global_admin" | "competition_admin" | "team_manager";
-            scope: components["schemas"]["InvitationScope"];
-        };
-        AcceptInvitationRequest: {
-            token: string;
-        };
-        AcceptInvitationResponse: {
-            invitation: components["schemas"]["Invitation"];
-            role: components["schemas"]["RoleAssignment"];
-        };
-        CreateInvitationRequest: {
-            /** Format: email */
-            email: string;
-            /** @enum {string} */
-            role: "global_admin" | "competition_admin" | "team_manager";
-            scope: components["schemas"]["InvitationScope"];
-            message?: string;
-            /** Format: date-time */
-            expires_at?: string;
-        };
-        InvitationScope: {
-            /** @enum {string} */
-            type: "global" | "competition" | "edition" | "team";
-            /** Format: uuid */
-            id?: string | null;
-        };
-        CompetitionWithEdition: {
-            competition: components["schemas"]["Competition"];
-            edition: components["schemas"]["Edition"];
-        };
-        CompetitionDetail: components["schemas"]["Competition"] & {
-            editions?: components["schemas"]["Edition"][];
-            administrators?: components["schemas"]["UserSummary"][];
-        };
-        Competition: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            slug: string;
-            /** Format: uuid */
-            primary_venue_id?: string | null;
-            scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
-            /** Format: date-time */
-            created_at: string;
-        };
-        CreateCompetitionRequest: {
-            name: string;
-            slug: string;
-            default_edition: components["schemas"]["CreateEditionRequest"];
-        };
-        Edition: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            competition_id: string;
-            /** @description Competition slug for contextual scoreboard links */
-            competition_slug?: string;
-            label: string;
-            slug: string;
-            /** @enum {string} */
-            status: "draft" | "published" | "archived";
-            /** @enum {string} */
-            format?: "round_robin" | "knockout" | "hybrid";
-            registration_window: components["schemas"]["RegistrationWindow"];
-            /**
-             * Format: int32
-             * @default 5
-             */
-            scoreboard_rotation_seconds: number;
-            scoreboard_modules?: ("live_matches" | "upcoming" | "standings" | "top_scorers")[];
-            scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
-            /** Format: date-time */
-            entries_locked_at?: string | null;
-            /** Format: date-time */
-            published_at?: string | null;
-        };
-        CreateEditionRequest: {
-            label: string;
-            slug: string;
-            /** @enum {string} */
-            format: "round_robin" | "knockout" | "hybrid";
-            registration_window: components["schemas"]["RegistrationWindow"];
-            scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
-        };
-        UpdateEditionRequest: {
-            label?: string;
-            /** @enum {string} */
-            status?: "draft" | "published" | "archived";
-            /** Format: int32 */
-            scoreboard_rotation_seconds?: number;
-            scoreboard_modules?: ("live_matches" | "upcoming" | "standings" | "top_scorers")[];
-            scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
-            entries_locked?: boolean;
-        };
-        ScoreboardTheme: {
-            primary_color?: string;
-            secondary_color?: string;
-            /** Format: uri */
-            background_image_url?: string | null;
-        };
-        EditionScoreboardHighlight: {
-            message: string;
-            /** Format: date-time */
-            expires_at: string;
-            /** Format: int32 */
-            remaining_seconds: number;
-        };
-        EditionScoreboardView: {
-            edition: components["schemas"]["Edition"];
-            highlight: components["schemas"]["EditionScoreboardHighlight"];
-        };
-        TriggerScoreboardHighlightRequest: {
-            message: string;
-            /** Format: int32 */
-            duration_seconds: number;
-        };
-        RegistrationWindow: {
-            /** Format: date-time */
-            opens_at: string;
-            /** Format: date-time */
-            closes_at: string;
-        };
-        Stage: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            edition_id: string;
-            name: string;
-            /** @enum {string} */
-            stage_type: "group" | "bracket";
-            /** Format: int32 */
-            order?: number;
-            groups?: components["schemas"]["Group"][];
-            /** Format: date-time */
-            published_at?: string | null;
-        };
-        CreateStageRequest: {
-            name: string;
-            /** @enum {string} */
-            stage_type: "group" | "bracket";
-            /** @description Required for group stages */
-            groups?: components["schemas"]["CreateGroupRequest"][];
-        };
-        Group: {
-            /** Format: uuid */
-            id: string;
-            code: string;
-            name: string;
-            standings?: components["schemas"]["Standing"][];
-        };
-        CreateGroupRequest: {
-            code: string;
-            name: string;
-        };
-        GenerateMatchesRequest: {
-            /** Format: uuid */
-            stage_id: string;
-            /** @enum {string} */
-            algorithm: "round_robin_circle" | "knockout_seeded";
-            options?: {
-                [key: string]: unknown;
-            };
-        };
-        GenerationJob: {
-            job_id: string;
-            /** @enum {string} */
-            status: "queued" | "running" | "completed" | "failed";
-        };
-        Match: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            edition_id: string;
-            /** Format: uuid */
-            stage_id?: string | null;
-            /** Format: uuid */
-            group_id?: string | null;
-            group_code?: string | null;
-            code?: string | null;
-            round_label?: string;
-            status: components["schemas"]["MatchStatus"];
-            /** Format: date-time */
-            kickoff_at: string;
-            /** Format: uuid */
-            venue_id?: string | null;
-            venue_name?: string | null;
-            /** Format: uuid */
-            home_entry_id: string | null;
-            home_entry_name?: string | null;
-            /** Format: uuid */
-            away_entry_id: string | null;
-            away_entry_name?: string | null;
-            home_score?: components["schemas"]["ScoreBreakdown"];
-            away_score?: components["schemas"]["ScoreBreakdown"];
-            /** @enum {string} */
-            outcome?: "home_win" | "away_win" | "draw" | "forfeit_home" | "forfeit_away" | "cancelled" | "postponed";
-            events?: components["schemas"]["MatchEvent"][];
-        };
+  schemas: {
+    ProblemDetails: {
+      type: string;
+      title: string;
+      /** Format: int32 */
+      status: number;
+      detail?: string;
+      instance?: string;
+      errors?: {
+        [key: string]: string[];
+      };
+    };
+    Invitation: {
+      /** Format: uuid */
+      id: string;
+      /** Format: email */
+      email: string;
+      /** @enum {string} */
+      role: "global_admin" | "competition_admin" | "team_manager";
+      scope: {
         /** @enum {string} */
-        MatchStatus: "scheduled" | "in_progress" | "extra_time" | "penalty_shootout" | "finalized" | "disputed";
-        ScoreBreakdown: {
-            /** Format: int32 */
-            regulation?: number;
-            /** Format: int32 */
-            extra_time?: number;
-            /** Format: int32 */
-            penalties?: number;
-        };
-        MatchEvent: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            match_id: string;
-            /** @enum {string} */
-            team_side: "home" | "away";
-            /** Format: uuid */
-            squad_member_id?: string | null;
-            /** @enum {string} */
-            event_type: "goal" | "own_goal" | "penalty_goal" | "assist" | "yellow_card" | "red_card";
-            /** Format: int32 */
-            minute: number;
-            /** Format: int32 */
-            stoppage_time?: number | null;
-        };
-        MatchEventInput: {
-            /** @enum {string} */
-            team_side: "home" | "away";
-            /** Format: uuid */
-            squad_member_id?: string | null;
-            /** @enum {string} */
-            event_type: "goal" | "own_goal" | "penalty_goal" | "assist" | "yellow_card" | "red_card";
-            /** Format: int32 */
-            minute: number;
-            /** Format: int32 */
-            stoppage_time?: number | null;
-        };
-        UpdateMatchRequest: {
-            code?: string | null;
-            /** Format: uuid */
-            home_entry_id?: string;
-            /** Format: uuid */
-            away_entry_id?: string;
-            /** Format: date-time */
-            kickoff_at?: string | null;
-            /** Format: uuid */
-            venue_id?: string | null;
-            status?: components["schemas"]["MatchStatus"];
-            score?: {
-                home?: components["schemas"]["ScoreBreakdown"];
-                away?: components["schemas"]["ScoreBreakdown"];
-            };
-            events?: components["schemas"]["MatchEventInput"][];
-            admin_notes?: string;
-        };
-        CreateDisputeRequest: {
-            reason: string;
-        };
-        Dispute: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            match_id: string;
-            submitted_by: components["schemas"]["UserSummary"];
-            /** @enum {string} */
-            status: "open" | "resolved" | "rejected";
-            /** Format: date-time */
-            created_at?: string;
-            resolution_notes?: string | null;
-        };
-        UserSummary: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            /** Format: email */
-            email?: string;
-        };
-        Team: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            slug: string;
-            /** Format: email */
-            contact_email?: string | null;
-            contact_phone?: string | null;
-        };
-        CreateTeamRequest: {
-            name: string;
-            slug?: string | null;
-            /** Format: email */
-            contact_email?: string | null;
-            contact_phone?: string | null;
-        };
-        UpdateTeamRequest: {
-            name?: string;
-            slug?: string | null;
-            /** Format: email */
-            contact_email?: string | null;
-            contact_phone?: string | null;
-        };
-        AddTeamMemberRequest: {
-            first_name: string;
-            last_name: string;
-            preferred_name?: string | null;
-            country?: string | null;
-            /** @enum {string} */
-            role?: "player" | "coach" | "manager" | "staff";
-        };
-        UpdateTeamMemberRequest: {
-            first_name?: string;
-            last_name?: string;
-            preferred_name?: string | null;
-            country?: string | null;
-            /** @enum {string} */
-            role?: "player" | "coach" | "manager" | "staff";
-        };
-        TeamMember: {
-            /** Format: uuid */
-            membership_id: string;
-            person: components["schemas"]["Person"];
-            role?: string;
-            status?: string;
-            /** Format: date-time */
-            joined_at?: string | null;
-            /** Format: date-time */
-            left_at?: string | null;
-        };
-        TeamRoster: {
-            team: components["schemas"]["Team"];
-            members: components["schemas"]["TeamMember"][];
-        };
-        CompetitionSummary: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            slug: string;
-        };
-        CompetitionListResponse: {
-            competitions: components["schemas"]["CompetitionSummary"][];
-        };
-        TeamSummary: {
-            /** Format: uuid */
-            id: string;
-            name: string;
-            slug: string;
-        };
-        TeamListResponse: {
-            teams: components["schemas"]["TeamSummary"][];
-        };
-        EntryReview: {
-            entry: components["schemas"]["Entry"];
-            team: components["schemas"]["TeamSummary"];
-        };
-        EntryReviewListResponse: {
-            entries: components["schemas"]["EntryReview"][];
-        };
-        Entry: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            team_id: string;
-            /** Format: uuid */
-            edition_id: string;
-            /** @enum {string} */
-            status: "pending" | "approved" | "rejected" | "withdrawn";
-            notes?: string | null;
-            /** Format: date-time */
-            submitted_at?: string | null;
-            /** Format: date-time */
-            approved_at?: string | null;
-            /** Format: date-time */
-            rejected_at?: string | null;
-            decision_reason?: string | null;
-        };
-        UpdateEntryStatusRequest: {
-            /** @enum {string} */
-            status: "approved" | "rejected";
-            reason?: string;
-        };
-        RegisterEntryRequest: {
-            /** Format: uuid */
-            edition_id: string;
-            notes?: string | null;
-        };
-        Squad: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            entry_id: string | null;
-            /** Format: date-time */
-            locked_at: string | null;
-            members?: components["schemas"]["SquadMember"][];
-        };
-        UpdateSquadRequest: {
-            lock?: boolean;
-        };
-        SquadMember: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            squad_id: string;
-            /** Format: uuid */
-            membership_id?: string | null;
-            /** Format: uuid */
-            person_id: string;
-            /** Format: int32 */
-            jersey_number?: number | null;
-            position?: string | null;
-            /** @enum {string} */
-            availability?: "available" | "doubtful" | "injured" | "suspended";
-            notes?: string | null;
-        };
-        SquadMemberListResponse: {
-            members: components["schemas"]["SquadMember"][];
-        };
-        AddSquadMemberRequest: {
-            /** Format: uuid */
-            membership_id: string;
-            /** Format: int32 */
-            jersey_number?: number | null;
-            position?: string | null;
-            /** @enum {string} */
-            availability?: "available" | "doubtful" | "injured" | "suspended";
-            notes?: string | null;
-        };
-        Person: {
-            /** Format: uuid */
-            id: string;
-            full_name: string;
-            first_name?: string;
-            last_name?: string;
-            preferred_name?: string | null;
-            /** Format: date */
-            date_of_birth?: string | null;
-            /** @enum {string} */
-            role?: "player" | "coach" | "staff";
-        };
-        Notification: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "entry_approved" | "schedule_changed" | "match_finalized" | "dispute_resolved" | "announcement";
-            /** Format: date-time */
-            created_at: string;
-            read: boolean;
-            payload?: {
-                [key: string]: unknown;
-            };
-        };
-        MarkNotificationsRequest: {
-            notification_ids: string[];
-        };
-        ScoreboardPayload: {
-            edition: components["schemas"]["Edition"];
-            matches: components["schemas"]["ScoreboardMatch"][];
-            standings: components["schemas"]["Standing"][];
-            tables?: components["schemas"]["GroupTable"][];
-            top_scorers: components["schemas"]["TopScorer"][];
-            /** @description Configured rotation sections for big-screen display */
-            rotation: ("live_matches" | "upcoming" | "standings" | "top_scorers")[];
-        };
-        ScoreboardMatch: {
-            /** Format: uuid */
-            id: string;
-            status: components["schemas"]["MatchStatus"];
-            /** Format: date-time */
-            kickoff_at: string;
-            /** @description Match code (e.g. A-01) */
-            code?: string | null;
-            /** @description Group code for group-stage matches */
-            group_code?: string | null;
-            home: components["schemas"]["ScoreboardSide"];
-            away: components["schemas"]["ScoreboardSide"];
-            /** @description Optional admin-triggered overlay message */
-            highlight?: string | null;
-            /** @description Venue or playing surface name */
-            venue_name?: string | null;
-        };
-        ScoreboardSide: {
-            /** Format: uuid */
-            entry_id: string | null;
-            name: string;
-            /** Format: int32 */
-            score: number;
-        };
-        Standing: {
-            /** Format: uuid */
-            entry_id: string;
-            /** Format: int32 */
-            position?: number;
-            /** Format: int32 */
-            played: number;
-            /** Format: int32 */
-            won: number;
-            /** Format: int32 */
-            drawn: number;
-            /** Format: int32 */
-            lost: number;
-            /** Format: int32 */
-            goals_for: number;
-            /** Format: int32 */
-            goals_against: number;
-            /** Format: int32 */
-            goal_difference?: number;
-            /** Format: int32 */
-            points: number;
-            /** Format: int32 */
-            fair_play_score?: number | null;
-        };
-        GroupTable: {
-            /** Format: uuid */
-            group_id: string;
-            group_code: string;
-            group_name?: string | null;
-            standings: components["schemas"]["Standing"][];
-        };
-        Venue: {
-            /** Format: uuid */
-            id: string;
-            /** Format: uuid */
-            competition_id: string;
-            /** Format: uuid */
-            edition_id?: string | null;
-            name: string;
-            slug: string;
-            address?: string | null;
-            notes?: string | null;
-            timezone?: string | null;
-            /** Format: date-time */
-            created_at?: string;
-        };
-        VenueListResponse: {
-            venues: components["schemas"]["Venue"][];
-        };
-        CreateVenueRequest: {
-            name: string;
-            slug: string;
-            /** Format: uuid */
-            edition_id?: string | null;
-            address?: string | null;
-            notes?: string | null;
-            timezone?: string | null;
-        };
-        UpdateVenueRequest: {
-            name?: string;
-            slug?: string;
-            address?: string | null;
-            notes?: string | null;
-            timezone?: string | null;
-        };
-        TopScorer: {
-            /** Format: uuid */
-            person_id: string;
-            /** Format: uuid */
-            entry_id: string;
-            name?: string;
-            /** Format: int32 */
-            goals: number;
-            /** Format: int32 */
-            assists?: number;
-            /** Format: int32 */
-            yellow_cards?: number;
-            /** Format: int32 */
-            red_cards?: number;
-        };
-        EventFeed: {
-            items: components["schemas"]["EventEnvelope"][];
-            next_cursor: string | null;
-        };
-        EventEnvelope: {
-            /** Format: uuid */
-            id: string;
-            /** @enum {string} */
-            type: "match_updated" | "match_finalized" | "schedule_changed" | "entry_status_changed" | "notification";
-            /** Format: date-time */
-            occurred_at: string;
-            payload: {
-                [key: string]: unknown;
-            };
-        };
+        type: "global" | "competition" | "edition" | "team";
+        /** Format: uuid */
+        id?: string | null;
+      };
+      /** Format: date-time */
+      expires_at: string;
+      token?: string;
+      /** Format: uri */
+      accept_url?: string | null;
     };
-    responses: {
-        /** @description Problem Details error payload */
-        ProblemDetails: {
-            headers: {
-                "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["ProblemDetails"];
-            };
-        };
-        /** @description The client has sent too many requests in a given amount of time. */
-        TooManyRequests: {
-            headers: {
-                "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                "Retry-After": components["headers"]["Retry-After"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["ProblemDetails"];
-            };
-        };
-        /** @description The server encountered an unexpected error. */
-        InternalServerError: {
-            headers: {
-                "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                [name: string]: unknown;
-            };
-            content: {
-                "application/problem+json": components["schemas"]["ProblemDetails"];
-            };
-        };
+    RoleAssignment: {
+      /** @enum {string} */
+      role: "global_admin" | "competition_admin" | "team_manager";
+      scope: components["schemas"]["InvitationScope"];
     };
-    parameters: {
-        CompetitionId: string;
-        EditionId: string;
-        /** @description Filter matches for a specific stage */
-        StageIdOptional: string;
-        MatchStatus: components["schemas"]["MatchStatus"];
-        MatchId: string;
-        VenueId: string;
-        TeamId: string;
-        MembershipId: string;
-        EntryId: string;
-        SquadId: string;
-        /** @description Continue notification pagination */
-        NotificationCursor: string;
-        EditionSlug: string;
-        CompetitionSlug: string;
-        /** @description Cursor token for incremental events */
-        EventCursor: string;
+    AcceptInvitationRequest: {
+      token: string;
     };
-    requestBodies: never;
-    headers: {
-        /** @description Allowed origin for cross-origin requests. */
-        "Access-Control-Allow-Origin": string;
-        /** @description The maximum number of requests permitted in the current window. */
-        "RateLimit-Limit": number;
-        /** @description The number of remaining requests in the current window. */
-        "RateLimit-Remaining": number;
-        /** @description Seconds remaining until the rate limit window resets. */
-        "RateLimit-Reset": number;
-        /** @description Seconds to wait before making a new request. */
-        "Retry-After": number;
+    AcceptInvitationResponse: {
+      invitation: components["schemas"]["Invitation"];
+      role: components["schemas"]["RoleAssignment"];
     };
-    pathItems: never;
+    CreateInvitationRequest: {
+      /** Format: email */
+      email: string;
+      /** @enum {string} */
+      role: "global_admin" | "competition_admin" | "team_manager";
+      scope: components["schemas"]["InvitationScope"];
+      message?: string;
+      /** Format: date-time */
+      expires_at?: string;
+    };
+    InvitationScope: {
+      /** @enum {string} */
+      type: "global" | "competition" | "edition" | "team";
+      /** Format: uuid */
+      id?: string | null;
+    };
+    CompetitionWithEdition: {
+      competition: components["schemas"]["Competition"];
+      edition: components["schemas"]["Edition"];
+    };
+    CompetitionDetail: components["schemas"]["Competition"] & {
+      editions?: components["schemas"]["Edition"][];
+      administrators?: components["schemas"]["UserSummary"][];
+    };
+    Competition: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+      /** Format: uuid */
+      primary_venue_id?: string | null;
+      scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+      /** Format: date-time */
+      created_at: string;
+    };
+    CreateCompetitionRequest: {
+      name: string;
+      slug: string;
+      default_edition: components["schemas"]["CreateEditionRequest"];
+    };
+    Edition: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      competition_id: string;
+      /** @description Competition slug for contextual scoreboard links */
+      competition_slug?: string;
+      label: string;
+      slug: string;
+      /** @enum {string} */
+      status: "draft" | "published" | "archived";
+      /** @enum {string} */
+      format?: "round_robin" | "knockout" | "hybrid";
+      registration_window: components["schemas"]["RegistrationWindow"];
+      /**
+       * Format: int32
+       * @default 5
+       */
+      scoreboard_rotation_seconds: number;
+      scoreboard_modules?: (
+        | "live_matches"
+        | "upcoming"
+        | "standings"
+        | "top_scorers"
+      )[];
+      scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+      /** Format: date-time */
+      entries_locked_at?: string | null;
+      /** Format: date-time */
+      published_at?: string | null;
+    };
+    CreateEditionRequest: {
+      label: string;
+      slug: string;
+      /** @enum {string} */
+      format: "round_robin" | "knockout" | "hybrid";
+      registration_window: components["schemas"]["RegistrationWindow"];
+      scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+    };
+    UpdateEditionRequest: {
+      label?: string;
+      /** @enum {string} */
+      status?: "draft" | "published" | "archived";
+      /** Format: int32 */
+      scoreboard_rotation_seconds?: number;
+      scoreboard_modules?: (
+        | "live_matches"
+        | "upcoming"
+        | "standings"
+        | "top_scorers"
+      )[];
+      scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
+      entries_locked?: boolean;
+    };
+    ScoreboardTheme: {
+      primary_color?: string;
+      secondary_color?: string;
+      /** Format: uri */
+      background_image_url?: string | null;
+    };
+    EditionScoreboardHighlight: {
+      message: string;
+      /** Format: date-time */
+      expires_at: string;
+      /** Format: int32 */
+      remaining_seconds: number;
+    };
+    EditionScoreboardView: {
+      edition: components["schemas"]["Edition"];
+      highlight: components["schemas"]["EditionScoreboardHighlight"];
+    };
+    TriggerScoreboardHighlightRequest: {
+      message: string;
+      /** Format: int32 */
+      duration_seconds: number;
+    };
+    RegistrationWindow: {
+      /** Format: date-time */
+      opens_at: string;
+      /** Format: date-time */
+      closes_at: string;
+    };
+    Stage: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      edition_id: string;
+      name: string;
+      /** @enum {string} */
+      stage_type: "group" | "bracket";
+      /** Format: int32 */
+      order?: number;
+      groups?: components["schemas"]["Group"][];
+      /** Format: date-time */
+      published_at?: string | null;
+    };
+    CreateStageRequest: {
+      name: string;
+      /** @enum {string} */
+      stage_type: "group" | "bracket";
+      /** @description Required for group stages */
+      groups?: components["schemas"]["CreateGroupRequest"][];
+    };
+    Group: {
+      /** Format: uuid */
+      id: string;
+      code: string;
+      name: string;
+      standings?: components["schemas"]["Standing"][];
+    };
+    CreateGroupRequest: {
+      code: string;
+      name: string;
+    };
+    GenerateMatchesRequest: {
+      /** Format: uuid */
+      stage_id: string;
+      /** @enum {string} */
+      algorithm: "round_robin_circle" | "knockout_seeded";
+      options?: {
+        [key: string]: unknown;
+      };
+    };
+    GenerationJob: {
+      job_id: string;
+      /** @enum {string} */
+      status: "queued" | "running" | "completed" | "failed";
+    };
+    Match: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      edition_id: string;
+      /** Format: uuid */
+      stage_id?: string | null;
+      /** Format: uuid */
+      group_id?: string | null;
+      group_code?: string | null;
+      code?: string | null;
+      round_label?: string;
+      status: components["schemas"]["MatchStatus"];
+      /** Format: date-time */
+      kickoff_at: string;
+      /** Format: uuid */
+      venue_id?: string | null;
+      venue_name?: string | null;
+      /** Format: uuid */
+      home_entry_id: string | null;
+      home_entry_name?: string | null;
+      /** Format: uuid */
+      away_entry_id: string | null;
+      away_entry_name?: string | null;
+      home_score?: components["schemas"]["ScoreBreakdown"];
+      away_score?: components["schemas"]["ScoreBreakdown"];
+      /** @enum {string} */
+      outcome?:
+        | "home_win"
+        | "away_win"
+        | "draw"
+        | "forfeit_home"
+        | "forfeit_away"
+        | "cancelled"
+        | "postponed";
+      events?: components["schemas"]["MatchEvent"][];
+    };
+    /** @enum {string} */
+    MatchStatus:
+      | "scheduled"
+      | "in_progress"
+      | "extra_time"
+      | "penalty_shootout"
+      | "finalized"
+      | "disputed";
+    ScoreBreakdown: {
+      /** Format: int32 */
+      regulation?: number;
+      /** Format: int32 */
+      extra_time?: number;
+      /** Format: int32 */
+      penalties?: number;
+    };
+    MatchEvent: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      match_id: string;
+      /** @enum {string} */
+      team_side: "home" | "away";
+      /** Format: uuid */
+      squad_member_id?: string | null;
+      /** @enum {string} */
+      event_type:
+        | "goal"
+        | "own_goal"
+        | "penalty_goal"
+        | "assist"
+        | "yellow_card"
+        | "red_card";
+      /** Format: int32 */
+      minute: number;
+      /** Format: int32 */
+      stoppage_time?: number | null;
+    };
+    MatchEventInput: {
+      /** @enum {string} */
+      team_side: "home" | "away";
+      /** Format: uuid */
+      squad_member_id?: string | null;
+      /** @enum {string} */
+      event_type:
+        | "goal"
+        | "own_goal"
+        | "penalty_goal"
+        | "assist"
+        | "yellow_card"
+        | "red_card";
+      /** Format: int32 */
+      minute: number;
+      /** Format: int32 */
+      stoppage_time?: number | null;
+    };
+    UpdateMatchRequest: {
+      code?: string | null;
+      /** Format: uuid */
+      home_entry_id?: string;
+      /** Format: uuid */
+      away_entry_id?: string;
+      /** Format: date-time */
+      kickoff_at?: string | null;
+      /** Format: uuid */
+      venue_id?: string | null;
+      status?: components["schemas"]["MatchStatus"];
+      score?: {
+        home?: components["schemas"]["ScoreBreakdown"];
+        away?: components["schemas"]["ScoreBreakdown"];
+      };
+      events?: components["schemas"]["MatchEventInput"][];
+      admin_notes?: string;
+    };
+    CreateDisputeRequest: {
+      reason: string;
+    };
+    Dispute: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      match_id: string;
+      submitted_by: components["schemas"]["UserSummary"];
+      /** @enum {string} */
+      status: "open" | "resolved" | "rejected";
+      /** Format: date-time */
+      created_at?: string;
+      resolution_notes?: string | null;
+    };
+    UserSummary: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      /** Format: email */
+      email?: string;
+    };
+    Team: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+      /** Format: email */
+      contact_email?: string | null;
+      contact_phone?: string | null;
+    };
+    CreateTeamRequest: {
+      name: string;
+      slug?: string | null;
+      /** Format: email */
+      contact_email?: string | null;
+      contact_phone?: string | null;
+    };
+    UpdateTeamRequest: {
+      name?: string;
+      slug?: string | null;
+      /** Format: email */
+      contact_email?: string | null;
+      contact_phone?: string | null;
+    };
+    AddTeamMemberRequest: {
+      first_name: string;
+      last_name: string;
+      preferred_name?: string | null;
+      country?: string | null;
+      /** @enum {string} */
+      role?: "player" | "coach" | "manager" | "staff";
+    };
+    UpdateTeamMemberRequest: {
+      first_name?: string;
+      last_name?: string;
+      preferred_name?: string | null;
+      country?: string | null;
+      /** @enum {string} */
+      role?: "player" | "coach" | "manager" | "staff";
+    };
+    TeamMember: {
+      /** Format: uuid */
+      membership_id: string;
+      person: components["schemas"]["Person"];
+      role?: string;
+      status?: string;
+      /** Format: date-time */
+      joined_at?: string | null;
+      /** Format: date-time */
+      left_at?: string | null;
+    };
+    TeamRoster: {
+      team: components["schemas"]["Team"];
+      members: components["schemas"]["TeamMember"][];
+    };
+    CompetitionSummary: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+    };
+    CompetitionListResponse: {
+      competitions: components["schemas"]["CompetitionSummary"][];
+    };
+    TeamSummary: {
+      /** Format: uuid */
+      id: string;
+      name: string;
+      slug: string;
+    };
+    TeamListResponse: {
+      teams: components["schemas"]["TeamSummary"][];
+    };
+    EntryReview: {
+      entry: components["schemas"]["Entry"];
+      team: components["schemas"]["TeamSummary"];
+    };
+    EntryReviewListResponse: {
+      entries: components["schemas"]["EntryReview"][];
+    };
+    Entry: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      team_id: string;
+      /** Format: uuid */
+      edition_id: string;
+      /** @enum {string} */
+      status: "pending" | "approved" | "rejected" | "withdrawn";
+      notes?: string | null;
+      /** Format: date-time */
+      submitted_at?: string | null;
+      /** Format: date-time */
+      approved_at?: string | null;
+      /** Format: date-time */
+      rejected_at?: string | null;
+      decision_reason?: string | null;
+    };
+    UpdateEntryStatusRequest: {
+      /** @enum {string} */
+      status: "approved" | "rejected";
+      reason?: string;
+    };
+    RegisterEntryRequest: {
+      /** Format: uuid */
+      edition_id: string;
+      notes?: string | null;
+    };
+    Squad: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      entry_id: string | null;
+      /** Format: date-time */
+      locked_at: string | null;
+      members?: components["schemas"]["SquadMember"][];
+    };
+    UpdateSquadRequest: {
+      lock?: boolean;
+    };
+    SquadMember: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      squad_id: string;
+      /** Format: uuid */
+      membership_id?: string | null;
+      /** Format: uuid */
+      person_id: string;
+      /** Format: int32 */
+      jersey_number?: number | null;
+      position?: string | null;
+      /** @enum {string} */
+      availability?: "available" | "doubtful" | "injured" | "suspended";
+      notes?: string | null;
+    };
+    SquadMemberListResponse: {
+      members: components["schemas"]["SquadMember"][];
+    };
+    AddSquadMemberRequest: {
+      /** Format: uuid */
+      membership_id: string;
+      /** Format: int32 */
+      jersey_number?: number | null;
+      position?: string | null;
+      /** @enum {string} */
+      availability?: "available" | "doubtful" | "injured" | "suspended";
+      notes?: string | null;
+    };
+    Person: {
+      /** Format: uuid */
+      id: string;
+      full_name: string;
+      first_name?: string;
+      last_name?: string;
+      preferred_name?: string | null;
+      /** Format: date */
+      date_of_birth?: string | null;
+      /** @enum {string} */
+      role?: "player" | "coach" | "staff";
+    };
+    Notification: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      type:
+        | "entry_approved"
+        | "schedule_changed"
+        | "match_finalized"
+        | "dispute_resolved"
+        | "announcement";
+      /** Format: date-time */
+      created_at: string;
+      read: boolean;
+      payload?: {
+        [key: string]: unknown;
+      };
+    };
+    MarkNotificationsRequest: {
+      notification_ids: string[];
+    };
+    ScoreboardPayload: {
+      edition: components["schemas"]["Edition"];
+      matches: components["schemas"]["ScoreboardMatch"][];
+      standings: components["schemas"]["Standing"][];
+      tables?: components["schemas"]["GroupTable"][];
+      top_scorers: components["schemas"]["TopScorer"][];
+      /** @description Configured rotation sections for big-screen display */
+      rotation: ("live_matches" | "upcoming" | "standings" | "top_scorers")[];
+    };
+    ScoreboardMatch: {
+      /** Format: uuid */
+      id: string;
+      status: components["schemas"]["MatchStatus"];
+      /** Format: date-time */
+      kickoff_at: string;
+      /** @description Match code (e.g. A-01) */
+      code?: string | null;
+      /** @description Group code for group-stage matches */
+      group_code?: string | null;
+      home: components["schemas"]["ScoreboardSide"];
+      away: components["schemas"]["ScoreboardSide"];
+      /** @description Optional admin-triggered overlay message */
+      highlight?: string | null;
+      /** @description Venue or playing surface name */
+      venue_name?: string | null;
+    };
+    ScoreboardSide: {
+      /** Format: uuid */
+      entry_id: string | null;
+      name: string;
+      /** Format: int32 */
+      score: number;
+    };
+    Standing: {
+      /** Format: uuid */
+      entry_id: string;
+      /** Format: int32 */
+      position?: number;
+      /** Format: int32 */
+      played: number;
+      /** Format: int32 */
+      won: number;
+      /** Format: int32 */
+      drawn: number;
+      /** Format: int32 */
+      lost: number;
+      /** Format: int32 */
+      goals_for: number;
+      /** Format: int32 */
+      goals_against: number;
+      /** Format: int32 */
+      goal_difference?: number;
+      /** Format: int32 */
+      points: number;
+      /** Format: int32 */
+      fair_play_score?: number | null;
+    };
+    GroupTable: {
+      /** Format: uuid */
+      group_id: string;
+      group_code: string;
+      group_name?: string | null;
+      standings: components["schemas"]["Standing"][];
+    };
+    Venue: {
+      /** Format: uuid */
+      id: string;
+      /** Format: uuid */
+      competition_id: string;
+      /** Format: uuid */
+      edition_id?: string | null;
+      name: string;
+      slug: string;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
+      /** Format: date-time */
+      created_at?: string;
+    };
+    VenueListResponse: {
+      venues: components["schemas"]["Venue"][];
+    };
+    CreateVenueRequest: {
+      name: string;
+      slug: string;
+      /** Format: uuid */
+      edition_id?: string | null;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
+    };
+    UpdateVenueRequest: {
+      name?: string;
+      slug?: string;
+      address?: string | null;
+      notes?: string | null;
+      timezone?: string | null;
+    };
+    TopScorer: {
+      /** Format: uuid */
+      person_id: string;
+      /** Format: uuid */
+      entry_id: string;
+      name?: string;
+      /** Format: int32 */
+      goals: number;
+      /** Format: int32 */
+      assists?: number;
+      /** Format: int32 */
+      yellow_cards?: number;
+      /** Format: int32 */
+      red_cards?: number;
+    };
+    EventFeed: {
+      items: components["schemas"]["EventEnvelope"][];
+      next_cursor: string | null;
+    };
+    EventEnvelope: {
+      /** Format: uuid */
+      id: string;
+      /** @enum {string} */
+      type:
+        | "match_updated"
+        | "match_finalized"
+        | "schedule_changed"
+        | "entry_status_changed"
+        | "notification";
+      /** Format: date-time */
+      occurred_at: string;
+      payload: {
+        [key: string]: unknown;
+      };
+    };
+  };
+  responses: {
+    /** @description Problem Details error payload */
+    ProblemDetails: {
+      headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components["schemas"]["ProblemDetails"];
+      };
+    };
+    /** @description The client has sent too many requests in a given amount of time. */
+    TooManyRequests: {
+      headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+        "Retry-After": components["headers"]["Retry-After"];
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components["schemas"]["ProblemDetails"];
+      };
+    };
+    /** @description The server encountered an unexpected error. */
+    InternalServerError: {
+      headers: {
+        "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+        "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+        "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+        "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+        [name: string]: unknown;
+      };
+      content: {
+        "application/problem+json": components["schemas"]["ProblemDetails"];
+      };
+    };
+  };
+  parameters: {
+    CompetitionId: string;
+    EditionId: string;
+    /** @description Filter matches for a specific stage */
+    StageIdOptional: string;
+    MatchStatus: components["schemas"]["MatchStatus"];
+    MatchId: string;
+    VenueId: string;
+    TeamId: string;
+    MembershipId: string;
+    EntryId: string;
+    SquadId: string;
+    /** @description Continue notification pagination */
+    NotificationCursor: string;
+    EditionSlug: string;
+    CompetitionSlug: string;
+    /** @description Cursor token for incremental events */
+    EventCursor: string;
+  };
+  requestBodies: never;
+  headers: {
+    /** @description Allowed origin for cross-origin requests. */
+    "Access-Control-Allow-Origin": string;
+    /** @description The maximum number of requests permitted in the current window. */
+    "RateLimit-Limit": number;
+    /** @description The number of remaining requests in the current window. */
+    "RateLimit-Remaining": number;
+    /** @description Seconds remaining until the rate limit window resets. */
+    "RateLimit-Reset": number;
+    /** @description Seconds to wait before making a new request. */
+    "Retry-After": number;
+  };
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    create_invitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateInvitationRequest"];
-            };
-        };
-        responses: {
-            /** @description Invitation created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Invitation"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  create_invitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    accept_invitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AcceptInvitationRequest"];
-            };
-        };
-        responses: {
-            /** @description Invitation accepted */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcceptInvitationResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            410: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateInvitationRequest"];
+      };
     };
-    list_competitions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Invitation created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Competition list */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompetitionListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
+        content: {
+          "application/json": components["schemas"]["Invitation"];
         };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    create_competition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCompetitionRequest"];
-            };
-        };
-        responses: {
-            /** @description Competition and draft edition created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompetitionWithEdition"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            422: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  accept_invitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    get_competition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                competition_id: components["parameters"]["CompetitionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Competition detail */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CompetitionDetail"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AcceptInvitationRequest"];
+      };
     };
-    create_edition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                competition_id: components["parameters"]["CompetitionId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Invitation accepted */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateEditionRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["AcceptInvitationResponse"];
         };
-        responses: {
-            /** @description Edition created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Edition"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      410: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    get_edition_scoreboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Edition scoreboard configuration */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EditionScoreboardView"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  list_competitions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    update_edition: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Competition list */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEditionRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["CompetitionListResponse"];
         };
-        responses: {
-            /** @description Edition updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EditionScoreboardView"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    list_edition_entries: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Edition entries */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntryReviewListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  create_competition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    list_stages: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Edition stages */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        stages?: components["schemas"]["Stage"][];
-                    };
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCompetitionRequest"];
+      };
     };
-    create_stage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Competition and draft edition created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateStageRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["CompetitionWithEdition"];
         };
-        responses: {
-            /** @description Stage created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Stage"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      422: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    generate_matches: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GenerateMatchesRequest"];
-            };
-        };
-        responses: {
-            /** @description Match generation accepted */
-            202: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GenerationJob"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            422: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  get_competition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
     };
-    trigger_scoreboard_highlight: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Competition detail */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["TriggerScoreboardHighlightRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["CompetitionDetail"];
         };
-        responses: {
-            /** @description Highlight activated */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EditionScoreboardView"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    clear_scoreboard_highlight: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Highlight cleared */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EditionScoreboardView"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  create_edition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
     };
-    list_matches: {
-        parameters: {
-            query?: {
-                /** @description Filter matches for a specific stage */
-                stage_id?: components["parameters"]["StageIdOptional"];
-                status?: components["parameters"]["MatchStatus"];
-            };
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Matches for edition */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        matches?: components["schemas"]["Match"][];
-                    };
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateEditionRequest"];
+      };
     };
-    list_edition_venues: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                edition_id: components["parameters"]["EditionId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Edition created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Venues available for the edition */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VenueListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
+        content: {
+          "application/json": components["schemas"]["Edition"];
         };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    get_match: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                match_id: components["parameters"]["MatchId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Match details */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Match"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  get_edition_scoreboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    update_match: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                match_id: components["parameters"]["MatchId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Edition scoreboard configuration */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMatchRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["EditionScoreboardView"];
         };
-        responses: {
-            /** @description Match updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Match"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    submit_dispute: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                match_id: components["parameters"]["MatchId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDisputeRequest"];
-            };
-        };
-        responses: {
-            /** @description Dispute recorded */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Dispute"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  update_edition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    list_teams: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Team list */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEditionRequest"];
+      };
     };
-    create_team: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
+    responses: {
+      /** @description Edition updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateTeamRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["EditionScoreboardView"];
         };
-        responses: {
-            /** @description Team created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Team"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    list_competition_venues: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                competition_id: components["parameters"]["CompetitionId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Competition venues */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["VenueListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  list_edition_entries: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    create_venue: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                competition_id: components["parameters"]["CompetitionId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Edition entries */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateVenueRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["EntryReviewListResponse"];
         };
-        responses: {
-            /** @description Venue created */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Venue"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    delete_venue: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                venue_id: components["parameters"]["VenueId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Venue deleted */
-            204: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  list_stages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    update_venue: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                venue_id: components["parameters"]["VenueId"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Edition stages */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateVenueRequest"];
-            };
+        content: {
+          "application/json": {
+            stages?: components["schemas"]["Stage"][];
+          };
         };
-        responses: {
-            /** @description Venue updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Venue"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    get_team_roster: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Team roster */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamRoster"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  create_stage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    update_team: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTeamRequest"];
-            };
-        };
-        responses: {
-            /** @description Team updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Team"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            409: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateStageRequest"];
+      };
     };
-    add_team_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Stage created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddTeamMemberRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["Stage"];
         };
-        responses: {
-            /** @description Member added */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamMember"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    remove_team_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-                membership_id: components["parameters"]["MembershipId"];
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Member removed */
-            204: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  generate_matches: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    update_team_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-                membership_id: components["parameters"]["MembershipId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateTeamMemberRequest"];
-            };
-        };
-        responses: {
-            /** @description Member updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TeamMember"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["GenerateMatchesRequest"];
+      };
     };
-    register_entry: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                team_id: components["parameters"]["TeamId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Match generation accepted */
+      202: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterEntryRequest"];
-            };
+        content: {
+          "application/json": components["schemas"]["GenerationJob"];
         };
-        responses: {
-            /** @description Entry created awaiting approval */
-            201: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Entry"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      422: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    update_entry_status: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entry_id: components["parameters"]["EntryId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateEntryStatusRequest"];
-            };
-        };
-        responses: {
-            /** @description Entry updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Entry"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            403: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  trigger_scoreboard_highlight: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    upsert_squad: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entry_id: components["parameters"]["EntryId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSquadRequest"];
-            };
-        };
-        responses: {
-            /** @description Squad state updated */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Squad"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["TriggerScoreboardHighlightRequest"];
+      };
     };
-    list_squad_members: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                squad_id: components["parameters"]["SquadId"];
-            };
-            cookie?: never;
+    responses: {
+      /** @description Highlight activated */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Squad members */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SquadMemberListResponse"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
+        content: {
+          "application/json": components["schemas"]["EditionScoreboardView"];
         };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    add_squad_member: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                squad_id: components["parameters"]["SquadId"];
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddSquadMemberRequest"];
-            };
-        };
-        responses: {
-            /** @description Member saved */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SquadMember"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  clear_scoreboard_highlight: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    list_notifications: {
-        parameters: {
-            query?: {
-                /** @description Continue notification pagination */
-                cursor?: components["parameters"]["NotificationCursor"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Highlight cleared */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Notifications feed */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    /** @description Cache validator for notification feed */
-                    ETag?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        items?: components["schemas"]["Notification"][];
-                        next_cursor?: string | null;
-                    };
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
+        content: {
+          "application/json": components["schemas"]["EditionScoreboardView"];
         };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    mark_notifications: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["MarkNotificationsRequest"];
-            };
-        };
-        responses: {
-            /** @description Notifications updated */
-            204: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  list_matches: {
+    parameters: {
+      query?: {
+        /** @description Filter matches for a specific stage */
+        stage_id?: components["parameters"]["StageIdOptional"];
+        status?: components["parameters"]["MatchStatus"];
+      };
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
-    get_scoreboard: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                competition_slug: components["parameters"]["CompetitionSlug"];
-                edition_slug: components["parameters"]["EditionSlug"];
-            };
-            cookie?: never;
+    requestBody?: never;
+    responses: {
+      /** @description Matches for edition */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
         };
-        requestBody?: never;
-        responses: {
-            /** @description Scoreboard payload */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    /** @description Cache validator for scoreboard polling */
-                    ETag?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ScoreboardPayload"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            404: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
+        content: {
+          "application/json": {
+            matches?: components["schemas"]["Match"][];
+          };
         };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
     };
-    get_event_feed: {
-        parameters: {
-            query?: {
-                /** @description Cursor token for incremental events */
-                cursor?: components["parameters"]["EventCursor"];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Incremental event payload */
-            200: {
-                headers: {
-                    "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
-                    "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
-                    "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
-                    "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
-                    /** @description Cache validator for event feed */
-                    ETag?: string;
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EventFeed"];
-                };
-            };
-            400: components["responses"]["ProblemDetails"];
-            401: components["responses"]["ProblemDetails"];
-            429: components["responses"]["TooManyRequests"];
-            500: components["responses"]["InternalServerError"];
-        };
+  };
+  list_edition_venues: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
     };
+    requestBody?: never;
+    responses: {
+      /** @description Venues available for the edition */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VenueListResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  get_match: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        match_id: components["parameters"]["MatchId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Match details */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Match"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_match: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        match_id: components["parameters"]["MatchId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMatchRequest"];
+      };
+    };
+    responses: {
+      /** @description Match updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Match"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  submit_dispute: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        match_id: components["parameters"]["MatchId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDisputeRequest"];
+      };
+    };
+    responses: {
+      /** @description Dispute recorded */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Dispute"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  list_teams: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Team list */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamListResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  create_team: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTeamRequest"];
+      };
+    };
+    responses: {
+      /** @description Team created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Team"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  list_competition_venues: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Competition venues */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VenueListResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  create_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateVenueRequest"];
+      };
+    };
+    responses: {
+      /** @description Venue created */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Venue"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  delete_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        venue_id: components["parameters"]["VenueId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Venue deleted */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_venue: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        venue_id: components["parameters"]["VenueId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateVenueRequest"];
+      };
+    };
+    responses: {
+      /** @description Venue updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Venue"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  get_team_roster: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Team roster */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamRoster"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_team: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTeamRequest"];
+      };
+    };
+    responses: {
+      /** @description Team updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Team"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      409: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  add_team_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddTeamMemberRequest"];
+      };
+    };
+    responses: {
+      /** @description Member added */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamMember"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  remove_team_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+        membership_id: components["parameters"]["MembershipId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Member removed */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_team_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+        membership_id: components["parameters"]["MembershipId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTeamMemberRequest"];
+      };
+    };
+    responses: {
+      /** @description Member updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TeamMember"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  register_entry: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        team_id: components["parameters"]["TeamId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RegisterEntryRequest"];
+      };
+    };
+    responses: {
+      /** @description Entry created awaiting approval */
+      201: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Entry"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_entry_status: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        entry_id: components["parameters"]["EntryId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEntryStatusRequest"];
+      };
+    };
+    responses: {
+      /** @description Entry updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Entry"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  upsert_squad: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        entry_id: components["parameters"]["EntryId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateSquadRequest"];
+      };
+    };
+    responses: {
+      /** @description Squad state updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["Squad"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  list_squad_members: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        squad_id: components["parameters"]["SquadId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Squad members */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SquadMemberListResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  add_squad_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        squad_id: components["parameters"]["SquadId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddSquadMemberRequest"];
+      };
+    };
+    responses: {
+      /** @description Member saved */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SquadMember"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  list_notifications: {
+    parameters: {
+      query?: {
+        /** @description Continue notification pagination */
+        cursor?: components["parameters"]["NotificationCursor"];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notifications feed */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for notification feed */
+          ETag?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            items?: components["schemas"]["Notification"][];
+            next_cursor?: string | null;
+          };
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  mark_notifications: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MarkNotificationsRequest"];
+      };
+    };
+    responses: {
+      /** @description Notifications updated */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  get_scoreboard: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_slug: components["parameters"]["CompetitionSlug"];
+        edition_slug: components["parameters"]["EditionSlug"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Scoreboard payload */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for scoreboard polling */
+          ETag?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ScoreboardPayload"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  get_event_feed: {
+    parameters: {
+      query?: {
+        /** @description Cursor token for incremental events */
+        cursor?: components["parameters"]["EventCursor"];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Incremental event payload */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          /** @description Cache validator for event feed */
+          ETag?: string;
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["EventFeed"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
 }
