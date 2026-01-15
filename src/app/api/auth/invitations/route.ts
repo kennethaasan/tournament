@@ -221,7 +221,10 @@ function serializeInvitation(
 }
 
 function buildAcceptUrl(token: string | null) {
-  const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  const baseUrl = (env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL).replace(
+    /\/$/,
+    "",
+  );
   if (!token) {
     throw createProblem({
       type: "https://tournament.app/problems/invitations/missing-token",

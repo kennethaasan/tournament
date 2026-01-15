@@ -737,7 +737,10 @@ type MatchContext = EditionContext & {
 };
 
 function baseAppUrl(): string | null {
-  const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  const base = (env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL).replace(
+    /\/$/,
+    "",
+  );
   return base.length > 0 ? base : null;
 }
 
