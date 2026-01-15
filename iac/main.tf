@@ -233,10 +233,13 @@ module "fn" {
 
 data "aws_iam_policy_document" "ses_send" {
   statement {
-    sid       = "AllowSesSend"
-    effect    = "Allow"
-    actions   = ["ses:SendEmail", "ses:SendRawEmail"]
-    resources = [aws_ses_domain_identity.app.arn]
+    sid     = "AllowSesSend"
+    effect  = "Allow"
+    actions = ["ses:SendEmail", "ses:SendRawEmail"]
+    resources = compact([
+      aws_ses_domain_identity.app.arn,
+      local.ses_configuration_set_arn
+    ])
   }
 }
 
