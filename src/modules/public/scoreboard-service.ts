@@ -44,6 +44,8 @@ const DEFAULT_THEME = {
 
 const MATCH_STATUS_ORDER: Record<string, number> = {
   in_progress: 0,
+  extra_time: 0,
+  penalty_shootout: 0,
   disputed: 1,
   scheduled: 2,
   finalized: 3,
@@ -707,7 +709,15 @@ function selectRotation(
 ) {
   const sections = new Set(configured.length ? configured : DEFAULT_ROTATION);
 
-  if (!matches.some((match) => match.status === "in_progress")) {
+  if (
+    !matches.some(
+      (match) =>
+        match.status === "in_progress" ||
+        match.status === "extra_time" ||
+        match.status === "penalty_shootout" ||
+        match.status === "disputed",
+    )
+  ) {
     sections.delete("live_matches");
   }
 

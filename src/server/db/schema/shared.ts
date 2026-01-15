@@ -60,6 +60,8 @@ export const availabilityEnum = pgEnum("availability", [
 export const matchStatusEnum = pgEnum("match_status", [
   "scheduled",
   "in_progress",
+  "extra_time",
+  "penalty_shootout",
   "finalized",
   "disputed",
 ]);

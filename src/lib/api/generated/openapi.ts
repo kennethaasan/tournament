@@ -844,7 +844,13 @@ export interface components {
       events?: components["schemas"]["MatchEvent"][];
     };
     /** @enum {string} */
-    MatchStatus: "scheduled" | "in_progress" | "finalized" | "disputed";
+    MatchStatus:
+      | "scheduled"
+      | "in_progress"
+      | "extra_time"
+      | "penalty_shootout"
+      | "finalized"
+      | "disputed";
     ScoreBreakdown: {
       /** Format: int32 */
       regulation?: number;

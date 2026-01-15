@@ -854,4 +854,49 @@ describe("getPublicScoreboard", () => {
     expect(result.standings.every((s) => s.points === 3)).toBe(true);
     expect(result.standings).toHaveLength(3);
   });
+
+  it("includes live_matches section for extra_time and penalty_shootout", async () => {
+    const entries = [
+      { id: "entry-1", name: "Team A" },
+      { id: "entry-2", name: "Team B" },
+    ];
+
+    const matches = [
+      {
+        id: "match-1",
+        status: "extra_time",
+        kickoffAt: new Date("2024-06-01T10:00:00Z"),
+        createdAt: new Date("2024-05-30T11:00:00Z"),
+        homeEntryId: "entry-1",
+        awayEntryId: "entry-2",
+        homeScore: 1,
+        awayScore: 1,
+        venueName: null,
+        code: null,
+        groupId: null,
+        groupCode: null,
+        groupName: null,
+        bracketId: null,
+        metadata: {},
+      },
+    ];
+
+    const result = await getPublicScoreboard(
+      { editionSlug: "eeo-esp", competitionSlug: null },
+      {
+        findEdition: async () => ({
+          ...baseEdition,
+          slug: "eeo-esp",
+          scoreboardModules: ["live_matches"],
+        }),
+        listEntries: async () => entries,
+        listMatches: async () => matches,
+        listScorerEvents: async () => [],
+        findActiveHighlight: async () => null,
+        now: () => new Date("2024-06-01T11:00:00Z"),
+      },
+    );
+
+    expect(result.rotation).toContain("live_matches");
+  });
 });
