@@ -76,7 +76,7 @@ export function GenerateMatchesForm({
   onSuccess,
 }: GenerateMatchesFormProps) {
   const form = useForm<GenerateMatchesFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: Need to bypass type mismatch between Zod resolver and RHF
     resolver: zodResolver(generateMatchesSchema) as any,
     defaultValues: {
       stageId: "",
