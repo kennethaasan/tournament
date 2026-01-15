@@ -28,6 +28,7 @@ import {
   computeMatchStats,
   formatKickoff,
   formatMatchScore,
+  isLiveMatch,
 } from "./scoreboard-utils";
 
 type CollapsibleSectionProps = {
@@ -198,7 +199,7 @@ export function LandingLayout({
     if (statusFilter !== "all") {
       matches = matches.filter((match) => {
         if (statusFilter === "live") {
-          return match.status === "in_progress" || match.status === "disputed";
+          return isLiveMatch(match.status);
         }
         return match.status === statusFilter;
       });
@@ -221,10 +222,7 @@ export function LandingLayout({
   }, [data.matches, entryNames, searchQuery, statusFilter, sortOption]);
 
   const liveMatches = useMemo(
-    () =>
-      data.matches.filter(
-        (m) => m.status === "in_progress" || m.status === "disputed",
-      ),
+    () => data.matches.filter((m) => isLiveMatch(m.status)),
     [data.matches],
   );
 
@@ -402,8 +400,7 @@ function MatchSection({
               : match.away.name;
             const formattedScore = formatMatchScore(match);
             const showScore = formattedScore.length > 0;
-            const isLive =
-              match.status === "in_progress" || match.status === "disputed";
+            const isLive = isLiveMatch(match.status);
 
             return (
               <article
@@ -492,8 +489,7 @@ function ScheduleTable({ matches, entryNames }: ScheduleTableProps) {
         </TableHead>
         <TableBody>
           {matches.map((match) => {
-            const isLive =
-              match.status === "in_progress" || match.status === "disputed";
+            const isLive = isLiveMatch(match.status);
             return (
               <TableRow key={match.id} highlight={isLive} current={isLive}>
                 <TableCell muted className="text-xs">

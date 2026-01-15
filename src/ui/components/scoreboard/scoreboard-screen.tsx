@@ -28,6 +28,7 @@ import {
   compareMatchesDefault,
   formatKickoffTime,
   formatMatchScore,
+  isLiveMatch,
 } from "./scoreboard-utils";
 
 export function ScreenLayout({
@@ -63,17 +64,11 @@ export function ScreenLayout({
 
   // Separate live matches for prominent display
   const liveMatches = useMemo(
-    () =>
-      visibleMatches.filter(
-        (m) => m.status === "in_progress" || m.status === "disputed",
-      ),
+    () => visibleMatches.filter((m) => isLiveMatch(m.status)),
     [visibleMatches],
   );
   const otherMatches = useMemo(
-    () =>
-      visibleMatches.filter(
-        (m) => m.status !== "in_progress" && m.status !== "disputed",
-      ),
+    () => visibleMatches.filter((m) => !isLiveMatch(m.status)),
     [visibleMatches],
   );
 
@@ -244,8 +239,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
               </tr>
             ) : (
               matches.map((match, index) => {
-                const isLive =
-                  match.status === "in_progress" || match.status === "disputed";
+                const isLive = isLiveMatch(match.status);
                 return (
                   <TableRow
                     key={match.id}

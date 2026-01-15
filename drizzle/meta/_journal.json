@@ -15,6 +15,13 @@
       "when": 1767087109370,
       "tag": "0001_tranquil_king_bedlam",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768464654842,
+      "tag": "0002_steep_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }

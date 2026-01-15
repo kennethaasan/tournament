@@ -20,6 +20,28 @@ export function StatusBadge({ status, compact = false }: StatusBadgeProps) {
         </span>
       ),
     },
+    extra_time: {
+      label: "EEO",
+      bgClass: "bg-red-500",
+      textClass: "text-white",
+      icon: (
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+        </span>
+      ),
+    },
+    penalty_shootout: {
+      label: "ESP",
+      bgClass: "bg-red-500",
+      textClass: "text-white",
+      icon: (
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+        </span>
+      ),
+    },
     disputed: {
       label: "Tvist",
       bgClass: "bg-yellow-500",

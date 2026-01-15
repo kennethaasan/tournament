@@ -5,10 +5,23 @@ import type {
   ThemeSource,
 } from "./scoreboard-ui-types";
 
+export function isLiveMatch(status: ScoreboardMatch["status"]): boolean {
+  return (
+    status === "in_progress" ||
+    status === "extra_time" ||
+    status === "penalty_shootout" ||
+    status === "disputed"
+  );
+}
+
 export function statusLabel(status: ScoreboardMatch["status"]): string {
   switch (status) {
     case "in_progress":
       return "Live";
+    case "extra_time":
+      return "EEO";
+    case "penalty_shootout":
+      return "ESP";
     case "disputed":
       return "Tvist";
     case "finalized":
@@ -296,7 +309,7 @@ export function computeMatchStats(matches: ScoreboardMatch[]): {
     if (match.status === "finalized") {
       completedMatches++;
       totalGoals += match.home.score + match.away.score;
-    } else if (match.status === "in_progress" || match.status === "disputed") {
+    } else if (isLiveMatch(match.status)) {
       liveMatches++;
       totalGoals += match.home.score + match.away.score;
     }
