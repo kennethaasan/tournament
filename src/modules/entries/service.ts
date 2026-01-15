@@ -363,3 +363,44 @@ export async function submitMatchDispute(
     reason: input.reason.trim(),
   });
 }
+
+export async function deleteEntry(entryId: string): Promise<void> {
+  return withTransaction(async (tx) => {
+    const entry = await tx.query.entries.findFirst({
+      where: eq(entries.id, entryId),
+    });
+
+    if (!entry) {
+      throw createProblem({
+        type: "https://tournament.app/problems/entry-not-found",
+        title: "Påmeldingen ble ikke funnet",
+        status: 404,
+        detail: "Påmeldingen finnes ikke lenger.",
+      });
+    }
+
+    // Only allow deletion of rejected or withdrawn entries
+    if (entry.status !== "rejected" && entry.status !== "withdrawn") {
+      throw createProblem({
+        type: "https://tournament.app/problems/entry-delete-not-allowed",
+        title: "Kan ikke slette påmeldingen",
+        status: 400,
+        detail:
+          "Kun avviste eller trukket påmeldinger kan slettes. Avvis påmeldingen først.",
+      });
+    }
+
+    // Delete related squads first (cascade should handle squad_members)
+    const squad = await tx.query.squads.findFirst({
+      where: eq(squads.entryId, entryId),
+    });
+
+    if (squad) {
+      await tx.delete(squadMembers).where(eq(squadMembers.squadId, squad.id));
+      await tx.delete(squads).where(eq(squads.id, squad.id));
+    }
+
+    // Delete the entry
+    await tx.delete(entries).where(eq(entries.id, entryId));
+  });
+}

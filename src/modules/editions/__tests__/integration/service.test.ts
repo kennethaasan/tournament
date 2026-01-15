@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 import {
   clearScoreboardHighlight,
   createStage,
+  deleteStage,
   getEditionScoreboardSummary,
   listStages,
   triggerScoreboardHighlight,
@@ -15,6 +16,7 @@ import {
   editionSettings,
   editions,
   groups,
+  matches,
   scoreboardHighlights,
   stages,
 } from "@/server/db/schema";
@@ -128,5 +130,102 @@ describe("editions service", () => {
 
     const summary = await getEditionScoreboardSummary(EDITION_ID);
     expect(summary.highlight).toBeNull();
+  });
+});
+
+describe("deleteStage", () => {
+  test("deletes stage without matches successfully", async () => {
+    const stage = await createStage({
+      editionId: EDITION_ID,
+      name: "Preliminary Round",
+      stageType: "group",
+      groups: [{ code: "A", name: "Group A" }],
+    });
+
+    // Verify the stage and groups were created
+    const groupsBefore = await db.query.groups.findMany({
+      where: eq(groups.stageId, stage.id),
+    });
+    expect(groupsBefore).toHaveLength(1);
+
+    // Delete the stage
+    await deleteStage(EDITION_ID, stage.id);
+
+    // Verify stage is deleted
+    const deletedStage = await db.query.stages.findFirst({
+      where: eq(stages.id, stage.id),
+    });
+    expect(deletedStage).toBeUndefined();
+
+    // Verify groups are also deleted
+    const groupsAfter = await db.query.groups.findMany({
+      where: eq(groups.stageId, stage.id),
+    });
+    expect(groupsAfter).toHaveLength(0);
+  });
+
+  test("deletes knockout stage with bracket successfully", async () => {
+    const knockoutStage = await createStage({
+      editionId: EDITION_ID,
+      name: "Knockout",
+      stageType: "knockout",
+    });
+
+    // Verify bracket was created
+    const bracketBefore = await db.query.brackets.findFirst({
+      where: eq(brackets.stageId, knockoutStage.id),
+    });
+    expect(bracketBefore).toBeDefined();
+
+    // Delete the stage
+    await deleteStage(EDITION_ID, knockoutStage.id);
+
+    // Verify stage is deleted
+    const deletedStage = await db.query.stages.findFirst({
+      where: eq(stages.id, knockoutStage.id),
+    });
+    expect(deletedStage).toBeUndefined();
+
+    // Verify bracket is also deleted
+    const bracketAfter = await db.query.brackets.findFirst({
+      where: eq(brackets.stageId, knockoutStage.id),
+    });
+    expect(bracketAfter).toBeUndefined();
+  });
+
+  test("throws when stage has matches", async () => {
+    const stage = await createStage({
+      editionId: EDITION_ID,
+      name: "Group Stage",
+      stageType: "group",
+      groups: [{ code: "A", name: "Group A" }],
+    });
+
+    // Add a match to the stage
+    await db.insert(matches).values({
+      id: "00000000-0000-0000-0000-000000000999",
+      editionId: EDITION_ID,
+      stageId: stage.id,
+      status: "scheduled",
+    });
+
+    await expect(deleteStage(EDITION_ID, stage.id)).rejects.toMatchObject({
+      problem: expect.objectContaining({
+        type: "https://tournament.app/problems/stages/has-matches",
+      }),
+    });
+
+    // Clean up match for next tests
+    await db.delete(matches).where(eq(matches.stageId, stage.id));
+  });
+
+  test("throws when stage is not found", async () => {
+    const fakeStageId = "00000000-0000-0000-0000-000000000999";
+
+    await expect(deleteStage(EDITION_ID, fakeStageId)).rejects.toMatchObject({
+      problem: expect.objectContaining({
+        type: "https://tournament.app/problems/stages/not-found",
+      }),
+    });
   });
 });

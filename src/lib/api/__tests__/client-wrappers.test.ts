@@ -625,7 +625,6 @@ describe("teams client", () => {
     apiMocks.apiClient.POST.mockResolvedValueOnce(
       makeResult({}),
     ).mockResolvedValueOnce(makeResult({}));
-    apiMocks.apiClient.PUT.mockResolvedValueOnce(makeResult({}));
     apiMocks.unwrapResponse
       .mockReturnValueOnce({
         membership_id: "membership-1",
@@ -636,15 +635,17 @@ describe("teams client", () => {
         role: "player",
       })
       .mockReturnValueOnce({
-        id: "entry-1",
-        team_id: "team-1",
-        edition_id: "edition-1",
-        status: "pending",
-      })
-      .mockReturnValueOnce({
-        id: "squad-1",
-        entry_id: "entry-1",
-        locked_at: null,
+        entry: {
+          id: "entry-1",
+          team_id: "team-1",
+          edition_id: "edition-1",
+          status: "pending",
+        },
+        squad: {
+          id: "squad-1",
+          entry_id: "entry-1",
+          locked_at: null,
+        },
       });
 
     const member = await addTeamMember("team-1", memberPayload);
@@ -696,18 +697,6 @@ describe("teams client", () => {
           },
         },
         body: { edition_id: "edition-1" },
-        credentials: "include",
-      },
-    );
-    expect(apiMocks.apiClient.PUT).toHaveBeenCalledWith(
-      "/api/entries/{entry_id}/squads",
-      {
-        params: {
-          path: {
-            entry_id: "entry-1",
-          },
-        },
-        body: {},
         credentials: "include",
       },
     );

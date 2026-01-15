@@ -50,3 +50,19 @@ export async function updateEntryStatus(
 
   return unwrapResponse({ data, error, response });
 }
+
+export async function deleteEntry(entryId: string): Promise<void> {
+  const { data, error, response } = await apiClient.DELETE(
+    "/api/entries/{entry_id}",
+    {
+      params: {
+        path: {
+          entry_id: entryId,
+        },
+      },
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
+}

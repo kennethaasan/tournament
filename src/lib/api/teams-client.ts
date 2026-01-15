@@ -193,17 +193,16 @@ export async function registerTeamEntry(
     },
   );
 
-  const entry = unwrapResponse({
+  const result = unwrapResponse({
     data,
     error,
     response,
   });
 
-  const squad = await ensureSquad(entry.id);
-
+  // The server already creates the squad and returns it
   return {
-    entry,
-    squad,
+    entry: result.entry,
+    squad: result.squad,
   };
 }
 
@@ -246,27 +245,6 @@ export async function addSquadMember(
         },
       },
       body: payload,
-      credentials: "include",
-    },
-  );
-
-  return unwrapResponse({
-    data,
-    error,
-    response,
-  });
-}
-
-async function ensureSquad(entryId: string): Promise<Squad> {
-  const { data, error, response } = await apiClient.PUT(
-    "/api/entries/{entry_id}/squads",
-    {
-      params: {
-        path: {
-          entry_id: entryId,
-        },
-      },
-      body: {},
       credentials: "include",
     },
   );

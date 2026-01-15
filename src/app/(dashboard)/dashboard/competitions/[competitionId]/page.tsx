@@ -211,30 +211,10 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <Link
-                        href={`/dashboard/editions/${edition.id}/schedule`}
-                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
+                        href={`/dashboard/editions/${edition.id}` as Route}
+                        className="rounded-full border border-primary bg-primary/10 px-4 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"
                       >
-                        Kampoppsett
-                      </Link>
-                      <Link
-                        href={`/dashboard/editions/${edition.id}/teams`}
-                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
-                      >
-                        Lag og tropp
-                      </Link>
-                      <Link
-                        href={
-                          `/dashboard/editions/${edition.id}/results` as Route
-                        }
-                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
-                      >
-                        Resultater
-                      </Link>
-                      <Link
-                        href={`/dashboard/editions/${edition.id}/scoreboard`}
-                        className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
-                      >
-                        Scoreboard
+                        Administrer utgave
                       </Link>
                       <Link
                         href={

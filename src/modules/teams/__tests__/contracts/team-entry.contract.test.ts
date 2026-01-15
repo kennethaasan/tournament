@@ -35,9 +35,9 @@ describe("OpenAPI contract › POST /api/teams/{team_id}/entries", () => {
       .toEqualTypeOf<string | null | undefined>();
   });
 
-  it("returns the Entry payload when creation succeeds", () => {
+  it("returns the EntryWithSquad payload when creation succeeds", () => {
     expectTypeOf<RegisterEntryResponse>().toEqualTypeOf<
-      components["schemas"]["Entry"]
+      components["schemas"]["EntryWithSquad"]
     >();
   });
 

@@ -35,3 +35,23 @@ export async function fetchEditionStages(
 
   return payload.stages ?? [];
 }
+
+export async function deleteStage(
+  editionId: string,
+  stageId: string,
+): Promise<void> {
+  const { data, error, response } = await apiClient.DELETE(
+    "/api/editions/{edition_id}/stages/{stage_id}",
+    {
+      params: {
+        path: {
+          edition_id: editionId,
+          stage_id: stageId,
+        },
+      },
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
+}
