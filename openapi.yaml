@@ -781,7 +781,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Entry'
+                $ref: '#/components/schemas/EntryWithSquad'
           headers: *standardResponseHeaders
   /api/entries/{entry_id}:
     patch:
@@ -1477,6 +1477,26 @@ components:
             - draft
             - published
             - archived
+        format:
+          type: string
+          enum:
+            - round_robin
+            - knockout
+            - hybrid
+        timezone:
+          type: string
+          maxLength: 64
+        registration_window:
+          $ref: '#/components/schemas/RegistrationWindow'
+        contact_email:
+          type: string
+          format: email
+          maxLength: 320
+          nullable: true
+        contact_phone:
+          type: string
+          maxLength: 32
+          nullable: true
         scoreboard_rotation_seconds:
           type: integer
           minimum: 2
@@ -1560,9 +1580,6 @@ components:
           format: int32
     RegistrationWindow:
       type: object
-      required:
-        - opens_at
-        - closes_at
       properties:
         opens_at:
           type: string
@@ -2364,6 +2381,16 @@ components:
           nullable: true
           maxLength: 2048
           pattern: ^.{0,2048}$
+    EntryWithSquad:
+      type: object
+      required:
+        - entry
+        - squad
+      properties:
+        entry:
+          $ref: '#/components/schemas/Entry'
+        squad:
+          $ref: '#/components/schemas/Squad'
     UpdateEntryStatusRequest:
       type: object
       required:

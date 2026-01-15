@@ -727,6 +727,13 @@ export interface components {
       label?: string;
       /** @enum {string} */
       status?: "draft" | "published" | "archived";
+      /** @enum {string} */
+      format?: "round_robin" | "knockout" | "hybrid";
+      timezone?: string;
+      registration_window?: components["schemas"]["RegistrationWindow"];
+      /** Format: email */
+      contact_email?: string | null;
+      contact_phone?: string | null;
       /** Format: int32 */
       scoreboard_rotation_seconds?: number;
       scoreboard_modules?: (
@@ -762,9 +769,9 @@ export interface components {
     };
     RegistrationWindow: {
       /** Format: date-time */
-      opens_at: string;
+      opens_at?: string;
       /** Format: date-time */
-      closes_at: string;
+      closes_at?: string;
     };
     Stage: {
       /** Format: uuid */
@@ -1056,6 +1063,10 @@ export interface components {
       /** Format: date-time */
       rejected_at?: string | null;
       decision_reason?: string | null;
+    };
+    EntryWithSquad: {
+      entry: components["schemas"]["Entry"];
+      squad: components["schemas"]["Squad"];
     };
     UpdateEntryStatusRequest: {
       /** @enum {string} */
@@ -2402,7 +2413,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["Entry"];
+          "application/json": components["schemas"]["EntryWithSquad"];
         };
       };
       400: components["responses"]["ProblemDetails"];

@@ -15,6 +15,8 @@ import {
 } from "@/server/db/schema";
 
 type StageType = "group" | "knockout";
+type EditionFormat = "round_robin" | "knockout" | "hybrid";
+type EditionStatus = "draft" | "published" | "archived";
 
 export type CreateStageInput = {
   editionId: string;
@@ -400,6 +402,181 @@ export async function updateEditionScoreboardSettings(
   });
 
   return getEditionScoreboardSummary(editionId);
+}
+
+export type UpdateEditionInput = {
+  editionId: string;
+  label?: string | null;
+  status?: EditionStatus | null;
+  format?: EditionFormat | null;
+  timezone?: string | null;
+  registrationOpensAt?: Date | null;
+  registrationClosesAt?: Date | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
+};
+
+export type EditionDetail = {
+  id: string;
+  competitionId: string;
+  label: string;
+  slug: string;
+  format: string;
+  timezone: string;
+  status: string;
+  registrationOpensAt: Date | null;
+  registrationClosesAt: Date | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export async function getEditionDetail(
+  editionId: string,
+): Promise<EditionDetail> {
+  const edition = await db.query.editions.findFirst({
+    where: eq(editions.id, editionId),
+  });
+
+  if (!edition) {
+    throw createProblem({
+      type: "https://tournament.app/problems/edition-not-found",
+      title: "Utgave finnes ikke",
+      status: 404,
+      detail: "Fant ikke utgaven.",
+    });
+  }
+
+  return {
+    id: edition.id,
+    competitionId: edition.competitionId,
+    label: edition.label,
+    slug: edition.slug,
+    format: edition.format,
+    timezone: edition.timezone,
+    status: edition.status,
+    registrationOpensAt: edition.registrationOpensAt,
+    registrationClosesAt: edition.registrationClosesAt,
+    contactEmail: edition.contactEmail,
+    contactPhone: edition.contactPhone,
+    createdAt: edition.createdAt,
+    updatedAt: edition.updatedAt,
+  };
+}
+
+export async function updateEdition(
+  input: UpdateEditionInput,
+): Promise<EditionDetail> {
+  return withTransaction(async (tx) => {
+    const edition = await tx.query.editions.findFirst({
+      where: eq(editions.id, input.editionId),
+    });
+
+    if (!edition) {
+      throw createProblem({
+        type: "https://tournament.app/problems/edition-not-found",
+        title: "Utgave finnes ikke",
+        status: 404,
+        detail: "Fant ikke utgaven du prøver å oppdatere.",
+      });
+    }
+
+    const updates: Partial<typeof editions.$inferInsert> = {};
+
+    if (input.label !== undefined && input.label !== null) {
+      const trimmed = input.label.trim();
+      if (!trimmed) {
+        throw createProblem({
+          type: "https://tournament.app/problems/edition/invalid-label",
+          title: "Ugyldig utgavenavn",
+          status: 400,
+          detail: "Utgavenavn kan ikke være tomt.",
+        });
+      }
+      updates.label = trimmed;
+    }
+
+    if (input.status !== undefined && input.status !== null) {
+      if (!["draft", "published", "archived"].includes(input.status)) {
+        throw createProblem({
+          type: "https://tournament.app/problems/edition/invalid-status",
+          title: "Ugyldig status",
+          status: 400,
+          detail: "Status må være draft, published eller archived.",
+        });
+      }
+      updates.status = input.status;
+    }
+
+    if (input.format !== undefined && input.format !== null) {
+      if (!["round_robin", "knockout", "hybrid"].includes(input.format)) {
+        throw createProblem({
+          type: "https://tournament.app/problems/edition/invalid-format",
+          title: "Ugyldig format",
+          status: 400,
+          detail: "Format må være round_robin, knockout eller hybrid.",
+        });
+      }
+      updates.format = input.format;
+    }
+
+    if (input.timezone !== undefined && input.timezone !== null) {
+      updates.timezone = input.timezone;
+    }
+
+    if (input.registrationOpensAt !== undefined) {
+      updates.registrationOpensAt = input.registrationOpensAt;
+    }
+
+    if (input.registrationClosesAt !== undefined) {
+      updates.registrationClosesAt = input.registrationClosesAt;
+    }
+
+    if (input.contactEmail !== undefined) {
+      updates.contactEmail = input.contactEmail;
+    }
+
+    if (input.contactPhone !== undefined) {
+      updates.contactPhone = input.contactPhone;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await tx
+        .update(editions)
+        .set(updates)
+        .where(eq(editions.id, input.editionId));
+    }
+
+    const updated = await tx.query.editions.findFirst({
+      where: eq(editions.id, input.editionId),
+    });
+
+    if (!updated) {
+      throw createProblem({
+        type: "https://tournament.app/problems/edition-not-found",
+        title: "Utgave finnes ikke",
+        status: 404,
+        detail: "Fant ikke utgaven etter oppdatering.",
+      });
+    }
+
+    return {
+      id: updated.id,
+      competitionId: updated.competitionId,
+      label: updated.label,
+      slug: updated.slug,
+      format: updated.format,
+      timezone: updated.timezone,
+      status: updated.status,
+      registrationOpensAt: updated.registrationOpensAt,
+      registrationClosesAt: updated.registrationClosesAt,
+      contactEmail: updated.contactEmail,
+      contactPhone: updated.contactPhone,
+      createdAt: updated.createdAt,
+      updatedAt: updated.updatedAt,
+    };
+  });
 }
 
 export async function triggerScoreboardHighlight(
