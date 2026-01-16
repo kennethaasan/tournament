@@ -44,6 +44,7 @@ export type UpdateTeamMemberInput = {
   preferredName?: string | null;
   country?: string | null;
   role?: TeamMembership["role"];
+  jerseyNumber?: number | null;
 };
 
 export type RosterMember = {
@@ -53,6 +54,7 @@ export type RosterMember = {
   status: TeamMembership["status"];
   joinedAt: Date | null;
   leftAt: Date | null;
+  jerseyNumber: number | null;
 };
 
 export type TeamRoster = {
@@ -103,6 +105,7 @@ export async function addRosterMember(
     teamId: string;
     person: CreatePersonInput;
     role?: TeamMembership["role"];
+    jerseyNumber?: number | null;
   },
   deps: TeamServiceDeps = {},
 ): Promise<RosterMember> {
@@ -151,6 +154,9 @@ export async function addRosterMember(
         teamId: team.id,
         personId: person.id,
         role: options.role ?? "player",
+        meta: buildMembershipMeta(undefined, {
+          jerseyNumber: options.jerseyNumber,
+        }),
       })
       .returning();
 
@@ -174,6 +180,7 @@ export async function addRosterMember(
     status: result.membership.status,
     joinedAt: result.membership.joinedAt ?? null,
     leftAt: result.membership.leftAt ?? null,
+    jerseyNumber: resolveJerseyNumber(result.membership.meta),
   };
 }
 
@@ -214,6 +221,7 @@ export async function listTeamRoster(
       status: membership.status,
       joinedAt: membership.joinedAt ?? null,
       leftAt: membership.leftAt ?? null,
+      jerseyNumber: resolveJerseyNumber(membership.meta),
     })),
   };
 }
@@ -373,10 +381,22 @@ export async function updateTeamMember(
 
     // Update membership role if provided
     let updatedMembership = row.membership;
+    const membershipUpdates: Partial<typeof teamMemberships.$inferInsert> = {};
+
     if (options.updates.role !== undefined) {
+      membershipUpdates.role = options.updates.role;
+    }
+
+    if (options.updates.jerseyNumber !== undefined) {
+      membershipUpdates.meta = buildMembershipMeta(row.membership.meta, {
+        jerseyNumber: options.updates.jerseyNumber,
+      });
+    }
+
+    if (Object.keys(membershipUpdates).length > 0) {
       const [updated] = await tx
         .update(teamMemberships)
-        .set({ role: options.updates.role })
+        .set(membershipUpdates)
         .where(eq(teamMemberships.id, options.membershipId))
         .returning();
       if (updated) {
@@ -391,8 +411,46 @@ export async function updateTeamMember(
       status: updatedMembership.status,
       joinedAt: updatedMembership.joinedAt ?? null,
       leftAt: updatedMembership.leftAt ?? null,
+      jerseyNumber: resolveJerseyNumber(updatedMembership.meta),
     };
   });
+}
+
+function resolveJerseyNumber(meta: unknown): number | null {
+  if (!meta || typeof meta !== "object" || Array.isArray(meta)) {
+    return null;
+  }
+
+  const value = (meta as Record<string, unknown>).jerseyNumber;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return null;
+  }
+
+  return Math.trunc(value);
+}
+
+function buildMembershipMeta(
+  current: unknown,
+  updates: { jerseyNumber?: number | null },
+): Record<string, unknown> {
+  const meta: Record<string, unknown> =
+    current && typeof current === "object" && !Array.isArray(current)
+      ? { ...(current as Record<string, unknown>) }
+      : {};
+
+  if (updates.jerseyNumber !== undefined) {
+    if (updates.jerseyNumber === null) {
+      delete meta.jerseyNumber;
+    } else if (
+      typeof updates.jerseyNumber === "number" &&
+      Number.isFinite(updates.jerseyNumber) &&
+      updates.jerseyNumber >= 0
+    ) {
+      meta.jerseyNumber = Math.trunc(updates.jerseyNumber);
+    }
+  }
+
+  return meta;
 }
 
 export async function removeTeamMember(

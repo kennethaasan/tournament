@@ -13,10 +13,29 @@ type DialogProps = {
   onOpenChange: (open: boolean) => void;
   title: string;
   children: ReactNode;
+  size?: "sm" | "md" | "lg" | "xl";
 };
 
-export function Dialog({ open, onOpenChange, title, children }: DialogProps) {
+export function Dialog({
+  open,
+  onOpenChange,
+  title,
+  children,
+  size = "md",
+}: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const sizeClass = (() => {
+    switch (size) {
+      case "sm":
+        return "max-w-sm";
+      case "lg":
+        return "max-w-2xl";
+      case "xl":
+        return "max-w-4xl";
+      default:
+        return "max-w-md";
+    }
+  })();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -57,7 +76,7 @@ export function Dialog({ open, onOpenChange, title, children }: DialogProps) {
       onClose={handleClose}
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
-      className="fixed inset-0 m-auto max-h-[85vh] w-full max-w-md overflow-auto rounded-xl border border-border bg-background p-0 shadow-lg backdrop:bg-black/50 dark:bg-[#1a1f35]"
+      className={`fixed inset-0 m-auto max-h-[85vh] w-full ${sizeClass} overflow-auto rounded-xl border border-border bg-background p-0 shadow-lg backdrop:bg-black/50 dark:bg-[#1a1f35]`}
     >
       <div className="p-6">
         <header className="mb-4 flex items-center justify-between">

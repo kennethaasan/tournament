@@ -40,14 +40,16 @@ test.describe("Organizer onboarding", () => {
       page.getByRole("heading", { name: /Ny konkurranse/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /Adminoversikt/i }),
+      page.getByRole("heading", { name: /Global admin/i }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /Offentlig scoreboard/i }),
     ).toBeVisible();
 
+    // Find the "Åpne" link within the "Global admin" card
+    const globalAdminCard = page.locator("text=Global admin").locator("..");
     await expect(
-      page.getByRole("link", { name: /Åpne dashboard/i }),
+      globalAdminCard.getByRole("link", { name: /Åpne/i }),
     ).toHaveAttribute("href", "/dashboard/admin/overview");
   });
 });

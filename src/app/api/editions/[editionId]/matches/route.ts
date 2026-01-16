@@ -42,6 +42,8 @@ type CreateMatchRequest = {
   venue_id?: string | null;
   group_id?: string | null;
   code?: string | null;
+  home_label?: string | null;
+  away_label?: string | null;
 };
 
 export const POST = createApiHandler<RouteParams>(
@@ -191,6 +193,16 @@ export const POST = createApiHandler<RouteParams>(
       }
     }
 
+    const metadata: Record<string, unknown> = {};
+    const homeLabel = payload.home_label?.trim() ?? "";
+    const awayLabel = payload.away_label?.trim() ?? "";
+    if (homeLabel.length > 0) {
+      metadata.homeLabel = homeLabel;
+    }
+    if (awayLabel.length > 0) {
+      metadata.awayLabel = awayLabel;
+    }
+
     const [match] = await db
       .insert(matches)
       .values({
@@ -203,6 +215,7 @@ export const POST = createApiHandler<RouteParams>(
         kickoffAt,
         code: payload.code?.trim() ?? null,
         status: "scheduled",
+        metadata,
       })
       .returning();
 

@@ -37,6 +37,7 @@ export const GET = createApiHandler<RouteParams>(
           status: member.status,
           joined_at: member.joinedAt?.toISOString() ?? null,
           left_at: member.leftAt?.toISOString() ?? null,
+          jersey_number: member.jerseyNumber ?? null,
         })),
       },
       { status: 200 },

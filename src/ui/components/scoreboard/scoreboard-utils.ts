@@ -49,8 +49,10 @@ export function formatMatchScore(match: ScoreboardMatch): string {
     match.status === "scheduled" &&
     match.home.score === 0 &&
     match.away.score === 0 &&
-    !hasExtraTime &&
-    !hasPenalties
+    homeExtraTime === 0 &&
+    awayExtraTime === 0 &&
+    homePenalties === 0 &&
+    awayPenalties === 0
   ) {
     return "";
   }

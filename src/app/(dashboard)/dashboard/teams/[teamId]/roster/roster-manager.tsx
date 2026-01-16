@@ -22,6 +22,7 @@ type RosterFormState = {
   preferredName: string;
   country: string;
   role: TeamMemberRole;
+  jerseyNumber: string;
 };
 
 type EditMemberFormState = {
@@ -30,6 +31,7 @@ type EditMemberFormState = {
   preferredName: string;
   country: string;
   role: TeamMemberRole;
+  jerseyNumber: string;
 };
 
 type RosterManagerProps = {
@@ -43,6 +45,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     preferredName: "",
     country: "",
     role: "player",
+    jerseyNumber: "",
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -60,6 +63,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     preferredName: "",
     country: "",
     role: "player",
+    jerseyNumber: "",
   });
   const [editMemberError, setEditMemberError] = useState<string | null>(null);
 
@@ -82,6 +86,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferred_name: form.preferredName || null,
         country: form.country || null,
         role: form.role,
+        jersey_number: parseOptionalNumber(form.jerseyNumber).value,
       }),
     onSuccess: () => {
       setForm({
@@ -90,6 +95,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferredName: "",
         country: "",
         role: "player",
+        jerseyNumber: "",
       });
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
@@ -124,6 +130,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferred_name: editMemberForm.preferredName || null,
         country: editMemberForm.country || null,
         role: editMemberForm.role,
+        jersey_number: parseOptionalNumber(editMemberForm.jerseyNumber).value,
       }),
     onSuccess: () => {
       setEditingMember(null);
@@ -170,6 +177,11 @@ export function RosterManager({ teamId }: RosterManagerProps) {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitError(null);
+    const jerseyResult = parseOptionalNumber(form.jerseyNumber);
+    if (!jerseyResult.isValid) {
+      setSubmitError("Draktnummer må være et ikke-negativt tall.");
+      return;
+    }
     try {
       await addMemberMutation.mutateAsync();
     } catch (err) {
@@ -211,6 +223,10 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       preferredName: member.person.preferred_name ?? "",
       country: "",
       role: (member.role as TeamMemberRole) ?? "player",
+      jerseyNumber:
+        member.jersey_number !== null && member.jersey_number !== undefined
+          ? String(member.jersey_number)
+          : "",
     });
     setEditMemberError(null);
   }
@@ -226,9 +242,14 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
     const trimmedFirstName = editMemberForm.firstName.trim();
     const trimmedLastName = editMemberForm.lastName.trim();
+    const jerseyResult = parseOptionalNumber(editMemberForm.jerseyNumber);
 
     if (!trimmedFirstName || !trimmedLastName) {
       setEditMemberError("Fornavn og etternavn er påkrevd.");
+      return;
+    }
+    if (!jerseyResult.isValid) {
+      setEditMemberError("Draktnummer må være et ikke-negativt tall.");
       return;
     }
 
@@ -342,7 +363,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 {activeMembers.map((member) => (
                   <tr key={member.membership_id} className="border-t">
                     <td className="px-2 py-2 text-foreground">
-                      {member.person.full_name}
+                      {formatMemberName(member)}
                     </td>
                     <td className="px-2 py-2 text-muted-foreground">
                       {formatRole(member.role)}
@@ -488,29 +509,53 @@ export function RosterManager({ teamId }: RosterManagerProps) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="role"
-            >
-              Rolle
-            </label>
-            <select
-              id="role"
-              value={form.role}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  role: event.target.value as TeamMemberRole,
-                }))
-              }
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            >
-              <option value="player">Spiller</option>
-              <option value="coach">Trener</option>
-              <option value="manager">Lagleder</option>
-              <option value="staff">Støtteapparat</option>
-            </select>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-foreground"
+                htmlFor="role"
+              >
+                Rolle
+              </label>
+              <select
+                id="role"
+                value={form.role}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    role: event.target.value as TeamMemberRole,
+                  }))
+                }
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="player">Spiller</option>
+                <option value="coach">Trener</option>
+                <option value="manager">Lagleder</option>
+                <option value="staff">Støtteapparat</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-foreground"
+                htmlFor="jersey-number"
+              >
+                Draktnummer (valgfritt)
+              </label>
+              <input
+                id="jersey-number"
+                type="number"
+                min={0}
+                value={form.jerseyNumber}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    jerseyNumber: event.target.value,
+                  }))
+                }
+                placeholder="#"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
           </div>
 
           <button
@@ -627,29 +672,53 @@ export function RosterManager({ teamId }: RosterManagerProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="edit-role"
-            >
-              Rolle
-            </label>
-            <select
-              id="edit-role"
-              value={editMemberForm.role}
-              onChange={(e) =>
-                setEditMemberForm((prev) => ({
-                  ...prev,
-                  role: e.target.value as TeamMemberRole,
-                }))
-              }
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            >
-              <option value="player">Spiller</option>
-              <option value="coach">Trener</option>
-              <option value="manager">Lagleder</option>
-              <option value="staff">Støtteapparat</option>
-            </select>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-foreground"
+                htmlFor="edit-role"
+              >
+                Rolle
+              </label>
+              <select
+                id="edit-role"
+                value={editMemberForm.role}
+                onChange={(e) =>
+                  setEditMemberForm((prev) => ({
+                    ...prev,
+                    role: e.target.value as TeamMemberRole,
+                  }))
+                }
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
+                <option value="player">Spiller</option>
+                <option value="coach">Trener</option>
+                <option value="manager">Lagleder</option>
+                <option value="staff">Støtteapparat</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label
+                className="text-sm font-medium text-foreground"
+                htmlFor="edit-jersey-number"
+              >
+                Draktnummer (valgfritt)
+              </label>
+              <input
+                id="edit-jersey-number"
+                type="number"
+                min={0}
+                value={editMemberForm.jerseyNumber}
+                onChange={(event) =>
+                  setEditMemberForm((prev) => ({
+                    ...prev,
+                    jerseyNumber: event.target.value,
+                  }))
+                }
+                placeholder="#"
+                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
@@ -682,7 +751,9 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         title="Fjern medlem"
         description={
           memberToRemove
-            ? `Er du sikker på at du vil fjerne ${memberToRemove.person.full_name} fra laget? Medlemmet vil bli deaktivert og kan ikke velges til tropper.`
+            ? `Er du sikker på at du vil fjerne ${formatMemberName(
+                memberToRemove,
+              )} fra laget? Medlemmet vil bli deaktivert og kan ikke velges til tropper.`
             : ""
         }
         confirmLabel="Fjern"
@@ -716,4 +787,28 @@ function formatRole(role: string | undefined): string {
     default:
       return role ?? "Ukjent";
   }
+}
+
+function formatMemberName(member: TeamMember): string {
+  const jerseyNumber = member.jersey_number;
+  const baseName = member.person.full_name;
+  if (jerseyNumber === null || jerseyNumber === undefined) {
+    return baseName;
+  }
+  return `#${jerseyNumber} ${baseName}`;
+}
+
+function parseOptionalNumber(value: string): {
+  value: number | null;
+  isValid: boolean;
+} {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { value: null, isValid: true };
+  }
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return { value: null, isValid: false };
+  }
+  return { value: parsed, isValid: true };
 }

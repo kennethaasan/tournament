@@ -530,6 +530,19 @@ paths:
           headers: *standardResponseHeaders
         '409':
           $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags:
+        - scheduling
+      summary: Delete match
+      description: Delete match and its associated events
+      operationId: delete_match
+      parameters:
+        - $ref: '#/components/parameters/MatchId'
+      responses:
+        <<: *standardErrorResponses
+        '204':
+          description: Match deleted
+          headers: *standardResponseHeaders
   /api/matches/{match_id}/disputes:
     post:
       tags:
@@ -1814,6 +1827,16 @@ components:
           nullable: true
           maxLength: 50
           pattern: ^.{0,50}$
+        home_label:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
+        away_label:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
     GenerateMatchesRequest:
       type: object
       required:
@@ -2075,6 +2098,16 @@ components:
           type: string
           format: uuid
           maxLength: 36
+        home_label:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
+        away_label:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
         kickoff_at:
           type: string
           format: date-time
@@ -2269,6 +2302,12 @@ components:
             - coach
             - manager
             - staff
+        jersey_number:
+          type: integer
+          nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     UpdateTeamMemberRequest:
       type: object
       properties:
@@ -2297,6 +2336,12 @@ components:
             - coach
             - manager
             - staff
+        jersey_number:
+          type: integer
+          nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     TeamMember:
       type: object
       required:
@@ -2327,6 +2372,12 @@ components:
           format: date-time
           nullable: true
           maxLength: 30
+        jersey_number:
+          type: integer
+          nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
     TeamRoster:
       type: object
       required:

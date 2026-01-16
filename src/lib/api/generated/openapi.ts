@@ -302,7 +302,11 @@ export interface paths {
     get: operations["get_match"];
     put?: never;
     post?: never;
-    delete?: never;
+    /**
+     * Delete match
+     * @description Delete match and its associated events
+     */
+    delete: operations["delete_match"];
     options?: never;
     head?: never;
     /**
@@ -853,6 +857,8 @@ export interface components {
       /** Format: uuid */
       group_id?: string | null;
       code?: string | null;
+      home_label?: string | null;
+      away_label?: string | null;
     };
     GenerateMatchesRequest: {
       /** Format: uuid */
@@ -967,6 +973,8 @@ export interface components {
       home_entry_id?: string;
       /** Format: uuid */
       away_entry_id?: string;
+      home_label?: string | null;
+      away_label?: string | null;
       /** Format: date-time */
       kickoff_at?: string | null;
       /** Format: uuid */
@@ -1031,6 +1039,8 @@ export interface components {
       country?: string | null;
       /** @enum {string} */
       role?: "player" | "coach" | "manager" | "staff";
+      /** Format: int32 */
+      jersey_number?: number | null;
     };
     UpdateTeamMemberRequest: {
       first_name?: string;
@@ -1039,6 +1049,8 @@ export interface components {
       country?: string | null;
       /** @enum {string} */
       role?: "player" | "coach" | "manager" | "staff";
+      /** Format: int32 */
+      jersey_number?: number | null;
     };
     TeamMember: {
       /** Format: uuid */
@@ -1050,6 +1062,8 @@ export interface components {
       joined_at?: string | null;
       /** Format: date-time */
       left_at?: string | null;
+      /** Format: int32 */
+      jersey_number?: number | null;
     };
     TeamRoster: {
       team: components["schemas"]["Team"];
@@ -2058,6 +2072,34 @@ export interface operations {
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
       404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  delete_match: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        match_id: components["parameters"]["MatchId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Match deleted */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };

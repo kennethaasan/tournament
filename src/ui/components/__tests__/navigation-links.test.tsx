@@ -1,10 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import {
-  NavigationGrid,
-  navigationLinks,
-} from "@/ui/components/navigation-links";
+import { navigationLinks } from "@/ui/components/navigation-data";
+import { NavigationGrid } from "@/ui/components/navigation-links";
 
 vi.mock("next/link", () => ({
   default: ({

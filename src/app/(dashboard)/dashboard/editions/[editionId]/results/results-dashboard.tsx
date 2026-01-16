@@ -9,6 +9,7 @@ import {
 } from "@/lib/api/entries-client";
 import type { components } from "@/lib/api/generated/openapi";
 import {
+  deleteMatch,
   editionMatchesQueryKey,
   fetchEditionMatches,
   fetchMatch,
@@ -32,6 +33,7 @@ import {
   fetchEditionVenues,
   type Venue,
 } from "@/lib/api/venues-client";
+import { ConfirmDialog, Dialog } from "@/ui/components/dialog";
 import { EditionHeader } from "../edition-dashboard";
 
 type MatchStatus = components["schemas"]["MatchStatus"];
@@ -122,9 +124,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   const [pinnedMatchIds, setPinnedMatchIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const [expandedMatchIds, setExpandedMatchIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<Set<string>>(
     () => new Set(),
   );
@@ -164,6 +164,32 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     onError: (error) => {
       setActionError(
         error instanceof Error ? error.message : "Kunne ikke oppdatere kampen.",
+      );
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (matchId: string) => deleteMatch(matchId),
+    onSuccess: (_data, matchId) => {
+      void queryClient.invalidateQueries({
+        queryKey: editionMatchesQueryKey(editionId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: matchDetailQueryKey(matchId),
+      });
+      setPinnedMatchIds((current) => {
+        if (!current.has(matchId)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.delete(matchId);
+        return next;
+      });
+      setActionError(null);
+    },
+    onError: (error) => {
+      setActionError(
+        error instanceof Error ? error.message : "Kunne ikke slette kampen.",
       );
     },
   });
@@ -290,33 +316,15 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     () => groupMatches(filteredMatchesWithoutPinned),
     [filteredMatchesWithoutPinned],
   );
-
-  useEffect(() => {
-    setExpandedMatchIds((current) => {
-      if (filters.view === "comfortable") {
-        return new Set(filteredMatches.map((match) => match.id));
-      }
-      if (current.size === 0) {
-        return current;
-      }
-      return new Set();
-    });
-  }, [filters.view, filteredMatches]);
-
-  useEffect(() => {
-    setExpandedMatchIds((current) => {
-      if (current.size === 0) {
-        return current;
-      }
-      const next = new Set<string>();
-      for (const match of filteredMatches) {
-        if (current.has(match.id)) {
-          next.add(match.id);
-        }
-      }
-      return next.size === current.size ? current : next;
-    });
-  }, [filteredMatches]);
+  const activeMatch = editingMatchId
+    ? (matches.find((match) => match.id === editingMatchId) ?? null)
+    : null;
+  const activeMatchLabel = activeMatch
+    ? (matchIndexById.get(activeMatch.id)?.matchLabel ??
+      activeMatch.code ??
+      activeMatch.group_code ??
+      "Kamp")
+    : "Kamp";
 
   useEffect(() => {
     setPinnedMatchIds((current) => {
@@ -331,95 +339,58 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     });
   }, [matches]);
 
+  async function handleSaveMatch(
+    matchId: string,
+    payload: components["schemas"]["UpdateMatchRequest"],
+  ) {
+    setActionError(null);
+    try {
+      const updatedMatch = await updateMutation.mutateAsync({
+        matchId,
+        payload,
+      });
+      const updatedIndex = buildMatchIndex(updatedMatch, entryMap, venueMap);
+      setPinnedMatchIds((current) => {
+        const next = new Set(current);
+        next.add(updatedMatch.id);
+        return next;
+      });
+      if (!doesMatchIndexPassFilters(updatedIndex, filters)) {
+        setFilterNotice({
+          matchId: updatedMatch.id,
+          matchLabel: updatedIndex.matchLabel,
+          status: updatedMatch.status,
+        });
+      } else {
+        setFilterNotice(null);
+      }
+      return true;
+    } catch {
+      // handled in mutation callbacks
+      return false;
+    }
+  }
+
+  async function handleDeleteMatch(matchId: string) {
+    setActionError(null);
+    try {
+      await deleteMutation.mutateAsync(matchId);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   const renderMatchBlock = (match: Match) => {
-    const isExpanded = expandedMatchIds.has(match.id);
     const labels = matchIndexById.get(match.id);
     return (
-      <div key={match.id} className="space-y-2">
-        {filters.view === "compact" || !isExpanded ? (
-          <MatchSummaryRow
-            match={match}
-            labels={labels}
-            isExpanded={isExpanded}
-            onToggle={() =>
-              setExpandedMatchIds((current) => {
-                const next = new Set(current);
-                if (next.has(match.id)) {
-                  next.delete(match.id);
-                } else {
-                  next.add(match.id);
-                }
-                return next;
-              })
-            }
-          />
-        ) : null}
-        {isExpanded ? (
-          <div className="space-y-2">
-            {filters.view === "comfortable" ? (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setExpandedMatchIds((current) => {
-                      const next = new Set(current);
-                      next.delete(match.id);
-                      return next;
-                    })
-                  }
-                  className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                >
-                  Skjul detaljer
-                </button>
-              </div>
-            ) : null}
-            <MatchEditorCard
-              match={match}
-              entries={sortedEntries}
-              entryMap={entryMap}
-              venues={venues}
-              isSaving={updateMutation.isPending}
-              onSave={async (payload) => {
-                setActionError(null);
-                try {
-                  const updatedMatch = await updateMutation.mutateAsync({
-                    matchId: match.id,
-                    payload,
-                  });
-                  const updatedIndex = buildMatchIndex(
-                    updatedMatch,
-                    entryMap,
-                    venueMap,
-                  );
-                  setPinnedMatchIds((current) => {
-                    const next = new Set(current);
-                    next.add(updatedMatch.id);
-                    return next;
-                  });
-                  setExpandedMatchIds((current) => {
-                    const next = new Set(current);
-                    next.add(updatedMatch.id);
-                    return next;
-                  });
-                  if (!doesMatchIndexPassFilters(updatedIndex, filters)) {
-                    setFilterNotice({
-                      matchId: updatedMatch.id,
-                      matchLabel: updatedIndex.matchLabel,
-                      status: updatedMatch.status,
-                    });
-                  } else {
-                    setFilterNotice(null);
-                  }
-                  return true;
-                } catch {
-                  // handled in mutation callbacks
-                  return false;
-                }
-              }}
-            />
-          </div>
-        ) : null}
-      </div>
+      <MatchSummaryCard
+        key={match.id}
+        match={match}
+        labels={labels}
+        view={filters.view}
+        onEdit={() => setEditingMatchId(match.id)}
+      />
     );
   };
 
@@ -687,11 +658,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                         next.add(filterNotice.matchId);
                         return next;
                       });
-                      setExpandedMatchIds((current) => {
-                        const next = new Set(current);
-                        next.add(filterNotice.matchId);
-                        return next;
-                      });
                       setFilterNotice(null);
                     }}
                     className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
@@ -727,10 +693,10 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   <header className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">
-                        Aktiv kamp
+                        Fremhevet kamp
                       </h3>
                       <p className="text-xs text-muted-foreground">
-                        Festet mens du registrerer hendelser.
+                        Festet for rask tilgang mens du oppdaterer.
                       </p>
                     </div>
                     <button
@@ -753,54 +719,28 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                 </div>
               ) : (
                 <>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
+                  {groupedMatches.length > 1 ? (
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCollapsedGroupKeys(new Set())}
+                        className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                      >
+                        Åpne alle grupper
+                      </button>
                       <button
                         type="button"
                         onClick={() =>
-                          setExpandedMatchIds(
-                            new Set(
-                              filteredMatchesWithoutPinned.map(
-                                (match) => match.id,
-                              ),
-                            ),
+                          setCollapsedGroupKeys(
+                            new Set(groupedMatches.map((group) => group.key)),
                           )
                         }
-                        className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                      >
-                        Vis alle
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setExpandedMatchIds(new Set())}
                         className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
                       >
-                        Skjul alle
+                        Skjul alle grupper
                       </button>
                     </div>
-                    {groupedMatches.length > 1 ? (
-                      <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setCollapsedGroupKeys(new Set())}
-                          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                        >
-                          Åpne alle grupper
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setCollapsedGroupKeys(
-                              new Set(groupedMatches.map((group) => group.key)),
-                            )
-                          }
-                          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                        >
-                          Skjul alle grupper
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
+                  ) : null}
 
                   {groupedMatches.map((group) => {
                     const isCollapsed = collapsedGroupKeys.has(group.key);
@@ -858,29 +798,55 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
           )}
         </>
       )}
+
+      <Dialog
+        open={Boolean(activeMatch)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingMatchId(null);
+          }
+        }}
+        title={`Rediger ${activeMatchLabel}`}
+        size="xl"
+      >
+        {activeMatch ? (
+          <MatchEditorCard
+            match={activeMatch}
+            entries={sortedEntries}
+            entryMap={entryMap}
+            venues={venues}
+            isSaving={updateMutation.isPending}
+            isDeleting={deleteMutation.isPending}
+            onSave={(payload) => handleSaveMatch(activeMatch.id, payload)}
+            onDelete={() => handleDeleteMatch(activeMatch.id)}
+            onClose={() => setEditingMatchId(null)}
+          />
+        ) : null}
+      </Dialog>
     </div>
   );
 }
 
-type MatchSummaryRowProps = {
+type MatchSummaryCardProps = {
   match: Match;
   labels: MatchIndex | undefined;
-  isExpanded: boolean;
-  onToggle: () => void;
+  view: ResultsView;
+  onEdit: () => void;
 };
 
-function MatchSummaryRow({
+function MatchSummaryCard({
   match,
   labels,
-  isExpanded,
-  onToggle,
-}: MatchSummaryRowProps) {
+  view,
+  onEdit,
+}: MatchSummaryCardProps) {
   const kickoffLabel = match.kickoff_at
     ? new Date(match.kickoff_at).toLocaleString("no-NB")
     : "Tidspunkt ikke satt";
   const summaryScore = formatAdminMatchScore(match);
   const summaryLabel =
     labels?.matchLabel ?? match.code ?? match.group_code ?? "Uten kode";
+  const showMeta = view === "comfortable";
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3">
@@ -892,9 +858,15 @@ function MatchSummaryRow({
           {labels?.homeLabel ?? match.home_entry_name ?? "Ukjent"} –{" "}
           {labels?.awayLabel ?? match.away_entry_name ?? "Ukjent"}
         </p>
-        <p className="text-xs text-muted-foreground">{kickoffLabel}</p>
-        {labels?.venueName ? (
-          <p className="text-xs text-muted-foreground">{labels.venueName}</p>
+        {showMeta ? (
+          <>
+            <p className="text-xs text-muted-foreground">{kickoffLabel}</p>
+            {labels?.venueName ? (
+              <p className="text-xs text-muted-foreground">
+                {labels.venueName}
+              </p>
+            ) : null}
+          </>
         ) : null}
       </div>
       <div className="flex flex-wrap items-center gap-3">
@@ -906,10 +878,10 @@ function MatchSummaryRow({
         </span>
         <button
           type="button"
-          onClick={onToggle}
+          onClick={onEdit}
           className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
         >
-          {isExpanded ? "Skjul" : "Rediger"}
+          Rediger
         </button>
       </div>
     </div>
@@ -922,9 +894,12 @@ type MatchEditorCardProps = {
   entryMap: Map<string, EntryReview>;
   venues: Venue[];
   isSaving: boolean;
+  isDeleting: boolean;
   onSave: (
     payload: components["schemas"]["UpdateMatchRequest"],
   ) => Promise<boolean>;
+  onDelete: () => Promise<boolean>;
+  onClose?: () => void;
 };
 
 function MatchEditorCard({
@@ -933,7 +908,10 @@ function MatchEditorCard({
   entryMap,
   venues,
   isSaving,
+  isDeleting,
   onSave,
+  onDelete,
+  onClose,
 }: MatchEditorCardProps) {
   const [homeScore, setHomeScore] = useState(match.home_score?.regulation ?? 0);
   const [awayScore, setAwayScore] = useState(match.away_score?.regulation ?? 0);
@@ -949,11 +927,20 @@ function MatchEditorCard({
   const [code, setCode] = useState(match.code ?? "");
   const [homeEntryId, setHomeEntryId] = useState(match.home_entry_id ?? "");
   const [awayEntryId, setAwayEntryId] = useState(match.away_entry_id ?? "");
+  const [homePlaceholder, setHomePlaceholder] = useState(
+    match.home_entry_id ? "" : (match.home_entry_name ?? ""),
+  );
+  const [awayPlaceholder, setAwayPlaceholder] = useState(
+    match.away_entry_id ? "" : (match.away_entry_name ?? ""),
+  );
+  const [homePlaceholderTouched, setHomePlaceholderTouched] = useState(false);
+  const [awayPlaceholderTouched, setAwayPlaceholderTouched] = useState(false);
   const [matchError, setMatchError] = useState<string | null>(null);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
   const [optionalScoreError, setOptionalScoreError] = useState<string | null>(
     null,
   );
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventsOpen, setEventsOpen] = useState(false);
   const [eventRows, setEventRows] = useState<MatchEventDraft[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
@@ -974,6 +961,14 @@ function MatchEditorCard({
     setCode(match.code ?? "");
     setHomeEntryId(match.home_entry_id ?? "");
     setAwayEntryId(match.away_entry_id ?? "");
+    setHomePlaceholder(
+      match.home_entry_id ? "" : (match.home_entry_name ?? ""),
+    );
+    setAwayPlaceholder(
+      match.away_entry_id ? "" : (match.away_entry_name ?? ""),
+    );
+    setHomePlaceholderTouched(false);
+    setAwayPlaceholderTouched(false);
     setMatchError(null);
     setStatusNotice(null);
     setOptionalScoreError(null);
@@ -982,6 +977,7 @@ function MatchEditorCard({
     setEventsDirty(false);
     setEventsError(null);
     setPendingEventFocusId(null);
+    setDeleteDialogOpen(false);
   }, [match]);
 
   const homeEntry = homeEntryId ? entryMap.get(homeEntryId) : null;
@@ -1305,12 +1301,22 @@ function MatchEditorCard({
       payload.code = trimmedCode.length > 0 ? trimmedCode : null;
     }
 
-    if (homeEntryId !== match.home_entry_id) {
+    if (homeEntryId !== (match.home_entry_id ?? "")) {
       payload.home_entry_id = homeEntryId;
     }
 
-    if (awayEntryId !== match.away_entry_id) {
+    if (awayEntryId !== (match.away_entry_id ?? "")) {
       payload.away_entry_id = awayEntryId;
+    }
+
+    if (!homeEntryId && homePlaceholderTouched) {
+      const trimmedHomeLabel = homePlaceholder.trim();
+      payload.home_label = trimmedHomeLabel.length > 0 ? trimmedHomeLabel : "";
+    }
+
+    if (!awayEntryId && awayPlaceholderTouched) {
+      const trimmedAwayLabel = awayPlaceholder.trim();
+      payload.away_label = trimmedAwayLabel.length > 0 ? trimmedAwayLabel : "";
     }
 
     return payload;
@@ -1336,13 +1342,20 @@ function MatchEditorCard({
 
   async function handleSaveMatch() {
     setMatchError(null);
-    if (!homeEntryId || !awayEntryId) {
-      setMatchError("Velg hjemme- og bortelag før du lagrer.");
-      return;
-    }
-    if (homeEntryId === awayEntryId) {
-      setMatchError("Hjemmelag og bortelag kan ikke være det samme.");
-      return;
+    const hasHomeEntry = homeEntryId.trim().length > 0;
+    const hasAwayEntry = awayEntryId.trim().length > 0;
+    const teamsChanged =
+      homeEntryId !== (match.home_entry_id ?? "") ||
+      awayEntryId !== (match.away_entry_id ?? "");
+    if (teamsChanged) {
+      if (!hasHomeEntry || !hasAwayEntry) {
+        setMatchError("Velg hjemme- og bortelag før du lagrer.");
+        return;
+      }
+      if (homeEntryId === awayEntryId) {
+        setMatchError("Hjemmelag og bortelag kan ikke være det samme.");
+        return;
+      }
     }
 
     const optionalScores = resolveOptionalScoresForPayload();
@@ -1452,6 +1465,14 @@ function MatchEditorCard({
     }
   }
 
+  async function handleDeleteMatch() {
+    const didDelete = await onDelete();
+    if (didDelete) {
+      setDeleteDialogOpen(false);
+      onClose?.();
+    }
+  }
+
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm">
       <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -1493,7 +1514,14 @@ function MatchEditorCard({
           <select
             id={`${idBase}-home-entry`}
             value={homeEntryId}
-            onChange={(event) => setHomeEntryId(event.target.value)}
+            onChange={(event) => {
+              const nextValue = event.target.value;
+              setHomeEntryId(nextValue);
+              if (nextValue) {
+                setHomePlaceholder("");
+                setHomePlaceholderTouched(false);
+              }
+            }}
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <option value="">Velg lag</option>
@@ -1514,7 +1542,14 @@ function MatchEditorCard({
           <select
             id={`${idBase}-away-entry`}
             value={awayEntryId}
-            onChange={(event) => setAwayEntryId(event.target.value)}
+            onChange={(event) => {
+              const nextValue = event.target.value;
+              setAwayEntryId(nextValue);
+              if (nextValue) {
+                setAwayPlaceholder("");
+                setAwayPlaceholderTouched(false);
+              }
+            }}
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           >
             <option value="">Velg lag</option>
@@ -1539,6 +1574,53 @@ function MatchEditorCard({
             placeholder="Valgfritt"
             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="space-y-2">
+          <label
+            htmlFor={`${idBase}-home-placeholder`}
+            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          >
+            Hjemmelag visningsnavn
+          </label>
+          <input
+            id={`${idBase}-home-placeholder`}
+            value={homePlaceholder}
+            onChange={(event) => {
+              setHomePlaceholder(event.target.value);
+              setHomePlaceholderTouched(true);
+            }}
+            placeholder="Vises når lag ikke er satt"
+            disabled={Boolean(homeEntryId)}
+            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-70"
+          />
+          <p className="text-xs text-muted-foreground">
+            Brukes når hjemmelag ikke er valgt.
+          </p>
+        </div>
+        <div className="space-y-2">
+          <label
+            htmlFor={`${idBase}-away-placeholder`}
+            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+          >
+            Bortelag visningsnavn
+          </label>
+          <input
+            id={`${idBase}-away-placeholder`}
+            value={awayPlaceholder}
+            onChange={(event) => {
+              setAwayPlaceholder(event.target.value);
+              setAwayPlaceholderTouched(true);
+            }}
+            placeholder="Vises når lag ikke er satt"
+            disabled={Boolean(awayEntryId)}
+            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-70"
+          />
+          <p className="text-xs text-muted-foreground">
+            Brukes når bortelag ikke er valgt.
+          </p>
         </div>
       </div>
 
@@ -1795,10 +1877,18 @@ function MatchEditorCard({
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
-          disabled={isSaving}
+          disabled={isSaving || isDeleting}
+          onClick={() => setDeleteDialogOpen(true)}
+          className="rounded-md border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive transition hover:border-destructive/70 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Slett kamp
+        </button>
+        <button
+          type="button"
+          disabled={isSaving || isDeleting}
           onClick={() => {
             void handleSaveMatch();
           }}
@@ -2040,6 +2130,20 @@ function MatchEditorCard({
           </div>
         ) : null}
       </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Slett kamp?"
+        description={`Dette sletter kampen ${homeLabel} – ${awayLabel}. Alle hendelser blir også fjernet.`}
+        confirmLabel="Slett kamp"
+        cancelLabel="Avbryt"
+        onConfirm={() => {
+          void handleDeleteMatch();
+        }}
+        isLoading={isDeleting}
+        variant="danger"
+      />
     </article>
   );
 }
@@ -2067,9 +2171,18 @@ function buildRosterOptions(roster: TeamRoster | null): RosterOption[] {
     .filter((member) => member.membership_id && member.role === "player")
     .map((member) => ({
       membershipId: member.membership_id,
-      label: member.person.full_name,
+      label: formatRosterMemberLabel(member),
     }))
     .sort((left, right) => left.label.localeCompare(right.label, "nb"));
+}
+
+function formatRosterMemberLabel(member: TeamRoster["members"][number]) {
+  const name = member.person.full_name;
+  const jerseyNumber = member.jersey_number;
+  if (jerseyNumber == null) {
+    return name;
+  }
+  return `#${jerseyNumber} ${name}`;
 }
 
 function createEventDraft(

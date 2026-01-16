@@ -221,7 +221,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
               </TableHeaderCell>
               <TableHeaderCell variant="compact">Hjemmelag</TableHeaderCell>
               <TableHeaderCell variant="compact">Bortelag</TableHeaderCell>
-              <TableHeaderCell variant="compact" width="8%" align="center">
+              <TableHeaderCell variant="compact" width="12%" align="center">
                 Res.
               </TableHeaderCell>
             </TableHeadRow>
@@ -283,7 +283,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                       variant="compact"
                       align="center"
                       bold
-                      className="tabular-nums"
+                      className="tabular-nums whitespace-nowrap"
                     >
                       {formatMatchScore(match) || "—"}
                     </TableCell>

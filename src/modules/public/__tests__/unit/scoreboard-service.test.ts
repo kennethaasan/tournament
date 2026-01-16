@@ -116,6 +116,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-2",
         firstName: "Ida",
         lastName: "Strand",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "assist",
@@ -123,6 +125,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-2",
         firstName: "Ida",
         lastName: "Strand",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "yellow_card",
@@ -130,6 +134,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-2",
         firstName: "Ida",
         lastName: "Strand",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
     ];
 
@@ -185,6 +191,7 @@ describe("getPublicScoreboard", () => {
         assists: 1,
         entryId: "entry-2",
         goals: 1,
+        jerseyNumber: null,
         name: "Ida Strand",
         personId: "person-1",
         redCards: 0,
@@ -291,6 +298,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-a",
         firstName: null,
         lastName: null,
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "red_card",
@@ -298,6 +307,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-a",
         firstName: null,
         lastName: null,
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "assist",
@@ -305,6 +316,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-b",
         firstName: "Bea",
         lastName: "Strand",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "substitution",
@@ -312,6 +325,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-b",
         firstName: "Ignore",
         lastName: "Me",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
     ];
 
@@ -667,6 +682,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-1",
         firstName: "Unknown",
         lastName: "Player",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "goal",
@@ -674,6 +691,8 @@ describe("getPublicScoreboard", () => {
         entryId: null,
         firstName: "No",
         lastName: "Entry",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
     ];
 
@@ -705,6 +724,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-1",
         firstName: "Penalty",
         lastName: "King",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
     ];
 
@@ -837,6 +858,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-1",
         firstName: "Zoe",
         lastName: "Scorer",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
       {
         eventType: "goal",
@@ -844,6 +867,8 @@ describe("getPublicScoreboard", () => {
         entryId: "entry-2",
         firstName: "Anna",
         lastName: "Player",
+        jerseyNumber: null,
+        membershipMeta: {},
       },
     ];
 
