@@ -71,10 +71,10 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
                 ) : null}
                 {isGlobalAdmin ? (
                   <details className="group relative">
-                    <summary className="list-none rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15 [&::-webkit-details-marker]:hidden">
+                    <summary className="list-none rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-primary shadow-sm transition hover:bg-primary/10 active:scale-[0.98] [&::-webkit-details-marker]:hidden cursor-pointer">
                       Global admin
                     </summary>
-                    <div className="absolute left-0 mt-2 w-64 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
+                    <div className="absolute left-0 mt-2 w-64 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl backdrop-blur-xl">
                       <div className="space-y-1">
                         <Link
                           href="/dashboard/admin/overview"
