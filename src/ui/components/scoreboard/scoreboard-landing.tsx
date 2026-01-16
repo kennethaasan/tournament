@@ -93,6 +93,31 @@ type FilterBarProps = {
   onSortOptionChange: (option: MatchSortOption) => void;
 };
 
+function normalizeGroupLabel(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/^gruppe\s+/u, "");
+}
+
+function formatGroupTitle(
+  groupCode?: string | null,
+  groupName?: string | null,
+) {
+  const code = groupCode?.trim() ?? "";
+  const name = groupName?.trim() ?? "";
+
+  if (!name) {
+    return `Gruppe ${code}`;
+  }
+
+  if (normalizeGroupLabel(code) === normalizeGroupLabel(name)) {
+    return `Gruppe ${code || name}`;
+  }
+
+  return `Gruppe ${code} · ${name}`;
+}
+
 function FilterBar({
   searchQuery,
   onSearchChange,
@@ -314,11 +339,7 @@ export function LandingLayout({
           {data.tables.map((table) => (
             <CollapsibleSection
               key={table.groupId}
-              title={
-                table.groupName
-                  ? `Gruppe ${table.groupCode} · ${table.groupName}`
-                  : `Gruppe ${table.groupCode}`
-              }
+              title={formatGroupTitle(table.groupCode, table.groupName)}
               count={table.standings.length}
             >
               <StandingsTableContent
