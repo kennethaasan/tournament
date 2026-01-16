@@ -47,7 +47,7 @@ function CollapsibleSection({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
+    <section className="overflow-hidden rounded-xl border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -380,7 +380,7 @@ type StatCardProps = {
 function StatCard({ label, value, highlight = false }: StatCardProps) {
   return (
     <div
-      className={`rounded-2xl border p-4 text-center backdrop-blur ${
+      className={`rounded-xl border p-4 text-center backdrop-blur ${
         highlight
           ? "border-red-500/30 bg-red-500/10"
           : "border-white/20 bg-white/5"
@@ -408,7 +408,7 @@ function MatchSection({
   showCountdown = false,
 }: MatchSectionProps) {
   return (
-    <section className="rounded-2xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
+    <section className="rounded-xl border border-white/20 bg-white/5 p-5 shadow-xl backdrop-blur">
       <h2 className="mb-4 text-lg font-semibold uppercase tracking-wide text-white">
         {title}
       </h2>

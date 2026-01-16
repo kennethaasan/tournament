@@ -15,7 +15,7 @@ export type RoleFlags = {
   isTeamManager: boolean;
 };
 
-export const navigationLinks: NavLink[] = [
+export const navigationLinks = [
   {
     label: "Dashboard",
     href: "/dashboard",
@@ -56,31 +56,34 @@ export const navigationLinks: NavLink[] = [
     href: "/competitions/trondheim-cup/2025/scoreboard",
     description: "Demo av publikumsvisning med live oppdateringer.",
   },
-];
+] satisfies Readonly<
+  [NavLink, NavLink, NavLink, NavLink, NavLink, NavLink, NavLink, NavLink]
+>;
 
 export function buildDashboardSections(flags: RoleFlags): NavSection[] {
   const canInvite =
     flags.isGlobalAdmin || flags.isCompetitionAdmin || flags.isTeamManager;
 
-  // Index reference:
-  // 0: Dashboard
-  // 1: Invitasjoner
-  // 2: Varsler
-  // 3: Mine konkurranser
-  // 4: Global admin
-  // 5: Revisjon
-  // 6: Ny konkurranse
-  // 7: Offentlig scoreboard
+  const [
+    dashboardLink,
+    invitationLink,
+    notificationLink,
+    competitionsLink,
+    globalAdminLink,
+    auditLink,
+    newCompetitionLink,
+    scoreboardLink,
+  ] = navigationLinks;
 
-  const overviewLinks: NavLink[] = [navigationLinks[0]!, navigationLinks[2]!];
+  const overviewLinks: NavLink[] = [dashboardLink, notificationLink];
 
   if (canInvite) {
-    overviewLinks.push(navigationLinks[1]!);
+    overviewLinks.push(invitationLink);
   }
 
   // Add "Mine konkurranser" for competition admins (but not global admins who have a fuller view)
   if (flags.isCompetitionAdmin && !flags.isGlobalAdmin) {
-    overviewLinks.push(navigationLinks[3]!);
+    overviewLinks.push(competitionsLink);
   }
 
   const sections: NavSection[] = [
@@ -93,13 +96,13 @@ export function buildDashboardSections(flags: RoleFlags): NavSection[] {
   if (flags.isGlobalAdmin) {
     sections.push({
       label: "Global administrasjon",
-      links: [navigationLinks[4]!, navigationLinks[5]!, navigationLinks[6]!],
+      links: [globalAdminLink, auditLink, newCompetitionLink],
     });
   }
 
   sections.push({
     label: "Verktøy",
-    links: [navigationLinks[7]!],
+    links: [scoreboardLink],
   });
 
   return sections.filter((section) => section.links.length > 0);

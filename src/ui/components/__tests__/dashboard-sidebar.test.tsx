@@ -4,6 +4,14 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { DashboardSidebar } from "@/ui/components/dashboard-sidebar";
 import { buildDashboardSections } from "@/ui/components/navigation-data";
 
+vi.mock("@tanstack/react-query", () => ({
+  useQuery: vi.fn(() => ({
+    data: undefined,
+    isLoading: false,
+    error: null,
+  })),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -20,6 +28,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  useParams: () => ({}),
   usePathname: () => "/dashboard/admin/overview",
 }));
 
@@ -49,12 +58,12 @@ describe("DashboardSidebar", () => {
     expect(screen.getByText("Global administrasjon")).toBeInTheDocument();
   });
 
-  test("renders Administrasjon info panel", () => {
+  test("renders system status panel", () => {
     render(<DashboardSidebar sections={sections} />);
-    expect(screen.getByText("Administrasjon")).toBeInTheDocument();
+    expect(screen.getByText("System Status")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Hold oversikt over oppgaver, invitasjoner og globale innstillinger.",
+        "Logget inn som administrator. Alle handlinger logges i systemets revisjonsspor.",
       ),
     ).toBeInTheDocument();
   });
@@ -81,7 +90,7 @@ describe("DashboardSidebar", () => {
   test("active link has active styling", () => {
     render(<DashboardSidebar sections={sections} />);
     const adminLink = screen.getByRole("link", { name: /global admin/i });
-    expect(adminLink).toHaveClass("bg-primary/15");
+    expect(adminLink).toHaveClass("bg-primary/10");
   });
 
   test("non-active link has inactive styling", () => {

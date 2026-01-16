@@ -21,6 +21,7 @@ vi.mock("next/link", () => ({
 vi.mock("next/navigation", () => ({
   notFound: vi.fn(),
   redirect: vi.fn(),
+  useParams: () => ({}),
   useRouter: () => ({ push: vi.fn() }),
   useSearchParams: () => new URLSearchParams(),
 }));
@@ -163,7 +164,9 @@ describe("app pages smoke test", () => {
     render(<LoginPage />);
     render(<SignupPage />);
 
-    expect(document.body.textContent).toContain("Moderne administrasjon");
+    expect(document.body.textContent).toContain(
+      "Gjør turneringshverdagen enklere",
+    );
   });
 
   it("renders admin overview and competition detail", async () => {

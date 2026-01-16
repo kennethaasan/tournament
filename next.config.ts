@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
     turbopackFileSystemCacheForDev: true,
     // Cache fetch responses across HMR refreshes in development
     serverComponentsHmrCache: true,
+    // Allow font downloads when system TLS trust store is required
+    turbopackUseSystemTlsCerts: true,
   },
 };
 

@@ -52,7 +52,7 @@ test.describe("Dashboard Access Control", () => {
     await expect(page).toHaveURL("/");
     await expect(
       page.getByRole("heading", {
-        name: /Moderne administrasjon for fotballturneringer/i,
+        name: /Gjør turneringshverdagen enklere/i,
       }),
     ).toBeVisible();
   });

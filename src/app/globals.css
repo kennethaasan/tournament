@@ -91,9 +91,9 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
-  --radius-lg: 1.25rem;
-  --radius-md: calc(1.25rem - 4px);
-  --radius-sm: calc(1.25rem - 8px);
+  --radius-lg: 1rem;
+  --radius-md: calc(1rem - 2px);
+  --radius-sm: calc(1rem - 4px);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -115,6 +115,10 @@ body {
     ),
     radial-gradient(circle at 80% 0%, rgba(76, 225, 182, 0.12), transparent 26%),
     linear-gradient(145deg, rgba(10, 13, 30, 0.9), rgba(5, 6, 15, 0.96));
+}
+
+.grid-overlay {
+  pointer-events: none;
 }
 
 .grid-overlay::before {
@@ -184,7 +188,7 @@ body {
 .glass-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 1.25rem;
+  border-radius: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
