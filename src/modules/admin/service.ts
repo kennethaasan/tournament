@@ -269,6 +269,38 @@ export async function listAuditLogs(
   return entries;
 }
 
+export async function getCompetitionsForUser(
+  userId: string,
+): Promise<AdminCompetitionSummary[]> {
+  // Get competition IDs where this user has competition_admin role
+  const scopedIds = await db
+    .select({ scopeId: userRoles.scopeId })
+    .from(userRoles)
+    .where(
+      and(
+        eq(userRoles.userId, userId),
+        eq(userRoles.role, "competition_admin"),
+        eq(userRoles.scopeType, "competition"),
+      ),
+    );
+
+  const ids = scopedIds
+    .map((row) => row.scopeId)
+    .filter((id): id is string => Boolean(id));
+
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const competitions = await fetchCompetitionsFromDatabase({
+    competitionIds: ids,
+  });
+
+  return [...competitions].sort(
+    (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+  );
+}
+
 async function fetchCompetitionsFromDatabase(
   filter?: CompetitionFilter,
 ): Promise<AdminCompetitionSummary[]> {
