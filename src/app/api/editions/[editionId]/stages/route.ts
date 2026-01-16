@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { createStage, listStages } from "@/modules/editions/service";
+import {
+  createStage,
+  listStages,
+  reorderStages,
+} from "@/modules/editions/service";
 import { assertEditionAdminAccess } from "@/server/api/edition-access";
 import { createApiHandler } from "@/server/api/handler";
 
@@ -14,6 +18,10 @@ type CreateStageBody = {
 
 type RouteParams = {
   editionId: string;
+};
+
+type ReorderStagesBody = {
+  stage_ids: string[];
 };
 
 export const POST = createApiHandler<RouteParams>(
@@ -72,6 +80,44 @@ export const GET = createApiHandler<RouteParams>(
     const edition = await assertEditionAdminAccess(editionId, auth);
 
     const stages = await listStages(edition.id);
+
+    return NextResponse.json(
+      {
+        stages: stages.map((stage) => ({
+          id: stage.id,
+          edition_id: stage.editionId,
+          name: stage.name,
+          stage_type: stage.stageType === "knockout" ? "bracket" : "group",
+          order: stage.orderIndex,
+          published_at: stage.publishedAt
+            ? stage.publishedAt.toISOString()
+            : null,
+          groups: stage.groups.map((group) => ({
+            id: group.id,
+            code: group.code,
+            name: group.name,
+            standings: [],
+          })),
+        })),
+      },
+      { status: 200 },
+    );
+  },
+  {
+    requireAuth: true,
+    roles: ["global_admin", "competition_admin"],
+  },
+);
+
+export const PATCH = createApiHandler<RouteParams>(
+  async ({ request, params, auth }) => {
+    const editionId = Array.isArray(params.editionId)
+      ? params.editionId[0]
+      : params.editionId;
+    const edition = await assertEditionAdminAccess(editionId, auth);
+    const payload = (await request.json()) as ReorderStagesBody;
+
+    const stages = await reorderStages(edition.id, payload.stage_ids ?? []);
 
     return NextResponse.json(
       {

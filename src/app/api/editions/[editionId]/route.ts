@@ -155,6 +155,8 @@ function serializeEditionResponse(
     edition: {
       id: detail.id,
       competition_id: detail.competitionId,
+      competition_name: detail.competitionName,
+      competition_slug: detail.competitionSlug,
       label: detail.label,
       slug: detail.slug,
       format: detail.format,

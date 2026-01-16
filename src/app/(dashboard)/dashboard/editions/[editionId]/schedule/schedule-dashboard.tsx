@@ -18,6 +18,7 @@ import {
   deleteStage,
   editionStagesQueryKey,
   fetchEditionStages,
+  reorderStages,
   type Stage,
 } from "@/lib/api/stages-client";
 import {
@@ -139,6 +140,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const [manualMatchSuccess, setManualMatchSuccess] = useState<string | null>(
     null,
   );
+  const [stageOrderError, setStageOrderError] = useState<string | null>(null);
 
   const form = useForm<CreateMatchFormValues>({
     // biome-ignore lint/suspicious/noExplicitAny: align resolver types with RHF
@@ -267,6 +269,48 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       setManualMatchError(
         error instanceof Error ? error.message : "Kunne ikke slette stadiet.",
       );
+    },
+  });
+
+  const reorderStagesMutation = useMutation({
+    mutationFn: (orderedIds: string[]) => reorderStages(editionId, orderedIds),
+    onMutate: async (orderedIds) => {
+      setStageOrderError(null);
+      await queryClient.cancelQueries({
+        queryKey: editionStagesQueryKey(editionId),
+      });
+      const previous = queryClient.getQueryData<StageListItem[]>(
+        editionStagesQueryKey(editionId),
+      );
+      if (previous) {
+        const next = reorderStageItems(previous, orderedIds);
+        queryClient.setQueryData(editionStagesQueryKey(editionId), next);
+      }
+      return { previous };
+    },
+    onError: (error, _orderedIds, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          editionStagesQueryKey(editionId),
+          context.previous,
+        );
+      }
+      setStageOrderError(
+        error instanceof Error
+          ? error.message
+          : "Kunne ikke oppdatere rekkefølgen.",
+      );
+    },
+    onSuccess: (data) => {
+      const next = data
+        .map(toStageListItem)
+        .sort((left, right) => (left.order ?? 0) - (right.order ?? 0));
+      queryClient.setQueryData(editionStagesQueryKey(editionId), next);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: editionStagesQueryKey(editionId),
+      });
     },
   });
 
@@ -412,10 +456,16 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     [kickoffSchedule],
   );
 
-  const approvedEntries = useMemo(
-    () => entries.filter((e) => e.entry.status === "approved"),
-    [entries],
-  );
+  const approvedEntries = useMemo(() => {
+    return entries
+      .filter((e) => e.entry.status === "approved")
+      .slice()
+      .sort((left, right) =>
+        left.team.name.localeCompare(right.team.name, "no", {
+          sensitivity: "base",
+        }),
+      );
+  }, [entries]);
 
   const matchesError =
     (
@@ -455,6 +505,26 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     }
   }
 
+  function reorderStageItems(
+    items: StageListItem[],
+    orderedIds: string[],
+  ): StageListItem[] {
+    if (items.length !== orderedIds.length) {
+      return items;
+    }
+    const byId = new Map(items.map((item) => [item.id, item]));
+    const ordered = orderedIds
+      .map((id) => byId.get(id))
+      .filter((item): item is StageListItem => Boolean(item));
+    if (ordered.length !== items.length) {
+      return items;
+    }
+    return ordered.map((item, index) => ({
+      ...item,
+      order: index + 1,
+    }));
+  }
+
   function toStageListItem(stage: Stage): StageListItem {
     return {
       id: stage.id,
@@ -468,6 +538,21 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         name: group.name ?? null,
       })),
     };
+  }
+
+  function handleStageMove(stageId: string, direction: "up" | "down") {
+    const orderedIds = stages.map((stage) => stage.id);
+    const index = orderedIds.indexOf(stageId);
+    if (index < 0) {
+      return;
+    }
+    const nextIndex = direction === "up" ? index - 1 : index + 1;
+    if (nextIndex < 0 || nextIndex >= orderedIds.length) {
+      return;
+    }
+    orderedIds.splice(index, 1);
+    orderedIds.splice(nextIndex, 0, stageId);
+    reorderStagesMutation.mutate(orderedIds);
   }
 
   return (
@@ -507,6 +592,15 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           </p>
         </header>
 
+        {stageOrderError && (
+          <div
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/10 p-6 text-sm text-destructive shadow-sm"
+          >
+            {stageOrderError}
+          </div>
+        )}
+
         {isLoadingStages ? (
           <div className="rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground shadow-sm">
             Laster stadier …
@@ -525,7 +619,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2">
-            {stages.map((stage) => (
+            {stages.map((stage, index) => (
               <article
                 key={stage.id}
                 className="space-y-4 rounded-xl border border-border bg-card p-6 shadow-sm"
@@ -542,6 +636,55 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleStageMove(stage.id, "up")}
+                      disabled={reorderStagesMutation.isPending || index === 0}
+                      className="rounded p-1 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+                      title="Flytt stadium opp"
+                      aria-label="Flytt stadium opp"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m18 15-6-6-6 6" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleStageMove(stage.id, "down")}
+                      disabled={
+                        reorderStagesMutation.isPending ||
+                        index === stages.length - 1
+                      }
+                      className="rounded p-1 text-muted-foreground transition hover:bg-muted/60 hover:text-foreground disabled:opacity-50"
+                      title="Flytt stadium ned"
+                      aria-label="Flytt stadium ned"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
                     <button
                       type="button"
                       onClick={() => handleStageDelete(stage.id)}
@@ -824,21 +967,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 <h3 className="text-sm font-semibold text-foreground">
                   Kamper
                 </h3>
-                <button
-                  type="button"
-                  onClick={() =>
-                    appendMatch({
-                      homeEntryId: "",
-                      awayEntryId: "",
-                      groupId: "",
-                      venueId: "",
-                      code: "",
-                    })
-                  }
-                  className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10"
-                >
-                  Legg til kamp
-                </button>
               </div>
 
               {matchFields.map((field, index) => (
@@ -991,7 +1119,22 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
               )}
             </div>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  appendMatch({
+                    homeEntryId: "",
+                    awayEntryId: "",
+                    groupId: "",
+                    venueId: "",
+                    code: "",
+                  })
+                }
+                className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-2 text-sm font-semibold text-primary transition hover:border-primary/50 hover:bg-primary/10"
+              >
+                Legg til kamp
+              </button>
               <button
                 type="submit"
                 disabled={

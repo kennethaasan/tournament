@@ -173,7 +173,11 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /**
+     * Reorder stages for an edition
+     * @description Reorder stages for an edition
+     */
+    patch: operations["reorder_stages"];
     trace?: never;
   };
   "/api/editions/{edition_id}/stages/{stage_id}": {
@@ -811,12 +815,18 @@ export interface components {
       /** Format: date-time */
       published_at?: string | null;
     };
+    StageListResponse: {
+      stages: components["schemas"]["Stage"][];
+    };
     CreateStageRequest: {
       name: string;
       /** @enum {string} */
       stage_type: "group" | "bracket";
       /** @description Required for group stages */
       groups?: components["schemas"]["CreateGroupRequest"][];
+    };
+    ReorderStagesRequest: {
+      stage_ids: string[];
     };
     Group: {
       /** Format: uuid */
@@ -1701,9 +1711,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": {
-            stages?: components["schemas"]["Stage"][];
-          };
+          "application/json": components["schemas"]["StageListResponse"];
         };
       };
       400: components["responses"]["ProblemDetails"];
@@ -1743,6 +1751,41 @@ export interface operations {
       };
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  reorder_stages: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        edition_id: components["parameters"]["EditionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ReorderStagesRequest"];
+      };
+    };
+    responses: {
+      /** @description Edition stages reordered */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["StageListResponse"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };
