@@ -36,14 +36,14 @@ export function PageHero({
         </p>
         {actionHref && actionLabel ? (
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="sm" className="rounded-full">
+            <Button asChild size="sm">
               <Link href={actionHref}>{actionLabel}</Link>
             </Button>
             <Button
               asChild
               variant="ghost"
               size="sm"
-              className="rounded-full border border-border/80"
+              className="border border-border/80"
             >
               <Link href="/competitions/trondheim-cup/2025/scoreboard">
                 Se scoreboard-demo

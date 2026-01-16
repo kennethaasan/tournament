@@ -39,14 +39,14 @@ export default function LandingPage() {
               resultater på storskjerm.
             </p>
             <div className="flex flex-wrap gap-4 pt-2">
-              <Button asChild size="lg" className="rounded-full px-8">
+              <Button asChild size="lg">
                 <Link href="/dashboard">Kom i gang</Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
                 size="lg"
-                className="rounded-full border border-border/80 px-8"
+                className="border border-border/80"
               >
                 <Link href="/hjelp">Les brukerveiledning</Link>
               </Button>
@@ -141,11 +141,7 @@ export default function LandingPage() {
                 snarveier til de viktigste funksjonene for din rolle.
               </p>
             </div>
-            <Button
-              asChild
-              variant="outline"
-              className="w-fit rounded-full px-6"
-            >
+            <Button asChild variant="outline" className="w-fit px-6">
               <Link href="/dashboard">Gå til hoveddashboard →</Link>
             </Button>
           </div>
@@ -162,12 +158,7 @@ export default function LandingPage() {
             fra din første turnering til avansert resultathåndtering.
           </p>
           <div className="mt-8">
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="rounded-full px-10"
-            >
+            <Button asChild size="lg" variant="secondary" className="px-10">
               <Link href="/hjelp">Se brukerveiledning</Link>
             </Button>
           </div>
