@@ -727,15 +727,19 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           key={group.id}
                           className="flex flex-col rounded border border-border px-3 py-2"
                         >
-                          <span className="text-xs font-semibold uppercase text-primary">
-                            Gruppe {group.code}
-                          </span>
                           {group.name ? (
-                            <span>{group.name}</span>
-                          ) : (
-                            <span className="text-xs text-muted-foreground">
-                              Ingen visningsnavn
+                            <span className="text-sm font-semibold text-foreground">
+                              {group.name}
                             </span>
+                          ) : (
+                            <>
+                              <span className="text-xs font-semibold uppercase text-primary">
+                                Gruppe {group.code}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Ingen visningsnavn
+                              </span>
+                            </>
                           )}
                         </li>
                       ))}
