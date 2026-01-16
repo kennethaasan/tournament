@@ -14,6 +14,7 @@ type RequestBody = {
   birth_date?: string | null;
   country?: string | null;
   role?: "player" | "coach" | "manager" | "staff";
+  jersey_number?: number | null;
 };
 
 export const POST = createApiHandler<RouteParams>(
@@ -34,6 +35,7 @@ export const POST = createApiHandler<RouteParams>(
         country: payload.country,
       },
       role: payload.role ?? "player",
+      jerseyNumber: payload.jersey_number ?? null,
     });
 
     return NextResponse.json(
@@ -48,6 +50,7 @@ export const POST = createApiHandler<RouteParams>(
         },
         role: member.role,
         status: member.status,
+        jersey_number: member.jerseyNumber ?? null,
       },
       { status: 201 },
     );

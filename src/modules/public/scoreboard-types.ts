@@ -71,6 +71,7 @@ export type ScoreboardTopScorer = {
   assists: number;
   yellowCards: number;
   redCards: number;
+  jerseyNumber?: number | null;
 };
 
 export type ScoreboardGroupTable = {

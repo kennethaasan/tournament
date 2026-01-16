@@ -11,45 +11,9 @@ import {
   CardDescription,
   CardTitle,
 } from "@/ui/components/card";
+import { type NavLink, navigationLinks } from "@/ui/components/navigation-data";
 
-export type NavLink = {
-  label: string;
-  href: string;
-  description: string;
-};
-
-export const navigationLinks: NavLink[] = [
-  {
-    label: "Adminoversikt",
-    href: "/dashboard/admin/overview",
-    description: "Plattformstatus, invitasjoner og publiserte utgaver.",
-  },
-  {
-    label: "Invitasjoner",
-    href: "/dashboard/invitations",
-    description: "Send invitasjoner til administratorer og lagledere.",
-  },
-  {
-    label: "Revisjon",
-    href: "/dashboard/admin/audit",
-    description: "Gjennomgå hendelser per konkurranse, utgave eller bruker.",
-  },
-  {
-    label: "Ny konkurranse",
-    href: "/dashboard/competitions/new",
-    description: "Start en ny konkurranse og klargjør første utgave.",
-  },
-  {
-    label: "Varsler",
-    href: "/dashboard/notifications",
-    description: "In-app meldinger for frister, resultatendringer og tvister.",
-  },
-  {
-    label: "Offentlig scoreboard",
-    href: "/competitions/trondheim-cup/2025/scoreboard",
-    description: "Publikumsvisning med polling og høydepunkter.",
-  },
-];
+export type { NavLink };
 
 export function NavigationGrid() {
   const pathname = usePathname();
@@ -60,15 +24,35 @@ export function NavigationGrid() {
         <Card
           key={link.href}
           className={`relative overflow-hidden border-border/70 bg-card/70 transition duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl ${
-            pathname.startsWith(link.href) ? "ring-2 ring-primary/60" : ""
+            (
+              link.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname.startsWith(link.href)
+            )
+              ? "ring-2 ring-primary/60"
+              : ""
           }`}
         >
           <CardContent className="p-5">
             <div className="mb-3 flex items-center justify-between">
               <Badge
-                variant={pathname.startsWith(link.href) ? "accent" : "outline"}
+                variant={
+                  (
+                    link.href === "/dashboard"
+                      ? pathname === "/dashboard"
+                      : pathname.startsWith(link.href)
+                  )
+                    ? "accent"
+                    : "outline"
+                }
               >
-                {pathname.startsWith(link.href) ? "Aktiv" : "Snarvei"}
+                {(
+                  link.href === "/dashboard"
+                    ? pathname === "/dashboard"
+                    : pathname.startsWith(link.href)
+                )
+                  ? "Aktiv"
+                  : "Snarvei"}
               </Badge>
               <Button
                 asChild

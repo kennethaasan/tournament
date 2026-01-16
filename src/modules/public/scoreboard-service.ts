@@ -18,6 +18,7 @@ import {
   scoreboardHighlights,
   squadMembers,
   squads,
+  teamMemberships,
   teams,
   venues,
 } from "@/server/db/schema";
@@ -127,6 +128,8 @@ type ScorerEventRow = {
   entryId: string | null;
   firstName: string | null;
   lastName: string | null;
+  jerseyNumber: number | null;
+  membershipMeta: unknown;
 };
 
 type ScoreboardDependencies = {
@@ -335,12 +338,18 @@ async function listScorerEventsFromDatabase(editionId: string) {
       entryId: squads.entryId,
       firstName: persons.firstName,
       lastName: persons.lastName,
+      jerseyNumber: squadMembers.jerseyNumber,
+      membershipMeta: teamMemberships.meta,
     })
     .from(matchEvents)
     .innerJoin(matchesTable, eq(matchesTable.id, matchEvents.matchId))
     .innerJoin(squadMembers, eq(squadMembers.id, matchEvents.relatedMemberId))
     .innerJoin(squads, eq(squads.id, squadMembers.squadId))
     .innerJoin(persons, eq(persons.id, squadMembers.personId))
+    .leftJoin(
+      teamMemberships,
+      eq(teamMemberships.id, squadMembers.membershipId),
+    )
     .where(eq(matchesTable.editionId, editionId));
 }
 
@@ -598,7 +607,10 @@ function buildTopScorers(
   events: ScorerEventRow[],
   entryMap: Map<string, EntryRow>,
 ): ScoreboardTopScorer[] {
-  const scorers = new Map<string, ScoreboardTopScorer>();
+  type InternalTopScorer = ScoreboardTopScorer & {
+    jerseyNumber?: number | null;
+  };
+  const scorers = new Map<string, InternalTopScorer>();
 
   for (const event of events) {
     if (!event.entryId || !event.personId) {
@@ -610,7 +622,13 @@ function buildTopScorers(
     }
 
     const key = `${event.entryId}:${event.personId}`;
-    const name = buildPersonName(event.firstName, event.lastName);
+    const jerseyNumber =
+      event.jerseyNumber ?? resolveJerseyNumber(event.membershipMeta);
+    const name = formatPersonNameWithJersey(
+      event.firstName,
+      event.lastName,
+      jerseyNumber,
+    );
 
     let scorer = scorers.get(key);
 
@@ -623,8 +641,11 @@ function buildTopScorers(
         assists: 0,
         yellowCards: 0,
         redCards: 0,
+        jerseyNumber,
       } satisfies ScoreboardTopScorer;
       scorers.set(key, scorer);
+    } else if (scorer.jerseyNumber == null && jerseyNumber != null) {
+      scorer.jerseyNumber = jerseyNumber;
     }
 
     switch (event.eventType) {
@@ -656,7 +677,11 @@ function buildTopScorers(
     .slice(0, 100)
     .map((scorer) => ({
       ...scorer,
-      name: scorer.name || entryMap.get(scorer.entryId)?.name || "Ukjent",
+      name: formatScorerName(
+        scorer.name,
+        scorer.jerseyNumber,
+        entryMap.get(scorer.entryId)?.name,
+      ),
     }));
 }
 
@@ -718,6 +743,46 @@ function normalizeRotationSeconds(value?: number | null) {
 function buildPersonName(first: string | null, last: string | null) {
   const parts = [first?.trim(), last?.trim()].filter(Boolean);
   return parts.join(" ");
+}
+
+function formatPersonNameWithJersey(
+  first: string | null,
+  last: string | null,
+  jerseyNumber: number | null,
+): string {
+  const name = buildPersonName(first, last);
+  if (!name) {
+    return "";
+  }
+  if (jerseyNumber == null) {
+    return name;
+  }
+  return `#${jerseyNumber} ${name}`;
+}
+
+function formatScorerName(
+  name: string,
+  jerseyNumber: number | null | undefined,
+  fallbackName?: string,
+): string {
+  const base = name || fallbackName || "Ukjent";
+  if (jerseyNumber == null) {
+    return base;
+  }
+  return `#${jerseyNumber} ${base}`;
+}
+
+function resolveJerseyNumber(meta: unknown): number | null {
+  if (!meta || typeof meta !== "object" || Array.isArray(meta)) {
+    return null;
+  }
+
+  const value = (meta as Record<string, unknown>).jerseyNumber;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+    return null;
+  }
+
+  return Math.trunc(value);
 }
 
 function selectRotation(

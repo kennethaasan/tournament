@@ -14,6 +14,7 @@ type UpdateRequestBody = {
   preferred_name?: string | null;
   country?: string | null;
   role?: "player" | "coach" | "manager" | "staff";
+  jersey_number?: number | null;
 };
 
 export const PATCH = createApiHandler<RouteParams>(
@@ -38,6 +39,7 @@ export const PATCH = createApiHandler<RouteParams>(
         preferredName: payload.preferred_name,
         country: payload.country,
         role: payload.role,
+        jerseyNumber: payload.jersey_number,
       },
     });
 
@@ -55,6 +57,7 @@ export const PATCH = createApiHandler<RouteParams>(
         status: member.status,
         joined_at: member.joinedAt?.toISOString() ?? null,
         left_at: member.leftAt?.toISOString() ?? null,
+        jersey_number: member.jerseyNumber ?? null,
       },
       { status: 200 },
     );

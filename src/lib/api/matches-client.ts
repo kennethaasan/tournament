@@ -87,6 +87,24 @@ export async function updateMatch(
   return unwrapResponse({ data, error, response });
 }
 
+export async function deleteMatch(matchId: string): Promise<void> {
+  const { error, response } = await apiClient.DELETE(
+    "/api/matches/{match_id}",
+    {
+      params: {
+        path: {
+          match_id: matchId,
+        },
+      },
+      credentials: "include",
+    },
+  );
+
+  if (error) {
+    unwrapResponse({ data: undefined, error, response });
+  }
+}
+
 export type CreateMatchInput = {
   stageId: string;
   kickoffAt: string;

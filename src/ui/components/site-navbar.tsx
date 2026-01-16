@@ -18,6 +18,9 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
     Boolean(cookieStore.get("__Secure-better-auth.session_token"));
   const session = await getSessionFromHeaders(new Headers(requestHeaders));
   const isGlobalAdmin = userHasRole(session, "global_admin");
+  const isCompetitionAdmin = userHasRole(session, "competition_admin");
+  const isTeamManager = userHasRole(session, "team_manager");
+  const canInvite = isGlobalAdmin || isCompetitionAdmin || isTeamManager;
   const isAuthenticated = Boolean(session) || hasSessionCookie;
   const containerWidth =
     layout === "dashboard" ? "max-w-[1440px]" : "max-w-[1200px]";
@@ -37,21 +40,65 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
           </Link>
           <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold">
             {isAuthenticated ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/dashboard/notifications"
+                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                >
+                  Varsler
+                </Link>
+                {canInvite ? (
+                  <Link
+                    href="/dashboard/invitations"
+                    className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  >
+                    Invitasjoner
+                  </Link>
+                ) : null}
+                {isGlobalAdmin ? (
+                  <details className="group relative">
+                    <summary className="list-none rounded-full border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15 [&::-webkit-details-marker]:hidden">
+                      Global admin
+                    </summary>
+                    <div className="absolute left-0 mt-2 w-64 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
+                      <div className="space-y-1">
+                        <Link
+                          href="/dashboard/admin/overview"
+                          className="block rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
+                        >
+                          Oversikt
+                        </Link>
+                        <Link
+                          href="/dashboard/admin/audit"
+                          className="block rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
+                        >
+                          Revisjon
+                        </Link>
+                        <Link
+                          href="/dashboard/competitions/new"
+                          className="block rounded-xl px-3 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
+                        >
+                          Ny konkurranse
+                        </Link>
+                      </div>
+                    </div>
+                  </details>
+                ) : null}
+              </>
+            ) : (
               <Link
-                href="/dashboard/invitations"
+                href="/competitions/trondheim-cup/2025/scoreboard"
                 className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
               >
-                Dashboard
+                Scoreboard-demo
               </Link>
-            ) : null}
-            {isGlobalAdmin ? (
-              <Link
-                href="/dashboard/admin/overview"
-                className="rounded-full border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15"
-              >
-                Global admin
-              </Link>
-            ) : null}
+            )}
           </nav>
         </div>
         <div className="flex items-center gap-3">

@@ -104,6 +104,7 @@ const EDITION_NAV_ITEMS = [
   { label: "Kampoppsett", path: "/schedule" },
   { label: "Lag og tropp", path: "/teams" },
   { label: "Kamp-administrasjon", path: "/results" },
+  { label: "Hendelser", path: "/events" },
   { label: "Scoreboard-innstillinger", path: "/scoreboard" },
 ];
 

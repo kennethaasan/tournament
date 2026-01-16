@@ -44,6 +44,8 @@ type UpdateMatchBody = {
   code?: string | null;
   home_entry_id?: string | null;
   away_entry_id?: string | null;
+  home_label?: string | null;
+  away_label?: string | null;
   kickoff_at?: string | null;
   venue_id?: string | null;
   status?:
@@ -294,6 +296,88 @@ export const PATCH = createApiHandler<RouteParams>(
   },
 );
 
+export const DELETE = createApiHandler<RouteParams>(
+  async ({ params, auth }) => {
+    if (!auth) {
+      throw createProblem({
+        type: "https://httpstatuses.com/401",
+        title: "Autentisering kreves",
+        status: 401,
+        detail: "Du må være innlogget for å slette kampen.",
+      });
+    }
+
+    const matchId = Array.isArray(params.matchId)
+      ? params.matchId[0]
+      : params.matchId;
+
+    if (!matchId) {
+      throw createProblem({
+        type: "https://httpstatuses.com/400",
+        title: "Ugyldig forespørsel",
+        status: 400,
+        detail: "MatchId mangler i URLen.",
+      });
+    }
+
+    const match = await db.query.matches.findFirst({
+      where: eq(matches.id, matchId),
+    });
+
+    if (!match) {
+      throw createProblem({
+        type: "https://httpstatuses.com/404",
+        title: "Kamp ikke funnet",
+        status: 404,
+        detail: "Kampen finnes ikke.",
+      });
+    }
+
+    const edition = await db.query.editions.findFirst({
+      columns: {
+        id: true,
+        competitionId: true,
+      },
+      where: eq(editions.id, match.editionId),
+    });
+
+    if (!edition) {
+      throw createProblem({
+        type: "https://httpstatuses.com/404",
+        title: "Utgave ikke funnet",
+        status: 404,
+        detail: "Utgaven til kampen finnes ikke lenger.",
+      });
+    }
+
+    const isGlobalAdmin = userHasRole(auth, "global_admin");
+    const hasScopedAdmin = auth.user.roles.some(
+      (assignment) =>
+        assignment.role === "competition_admin" &&
+        assignment.scopeType === "competition" &&
+        assignment.scopeId === edition.competitionId,
+    );
+
+    if (!isGlobalAdmin && !hasScopedAdmin) {
+      throw createProblem({
+        type: "https://httpstatuses.com/403",
+        title: "Ingen tilgang",
+        status: 403,
+        detail:
+          "Du må være global administrator eller konkurranseadministrator for å slette kamper.",
+      });
+    }
+
+    await db.delete(matches).where(eq(matches.id, matchId));
+
+    return new NextResponse(null, { status: 204 });
+  },
+  {
+    requireAuth: true,
+    roles: ["global_admin", "competition_admin"],
+  },
+);
+
 async function buildMatchUpdate(
   match: typeof matches.$inferSelect,
   payload: UpdateMatchBody,
@@ -303,6 +387,19 @@ async function buildMatchUpdate(
   if (payload.code !== undefined) {
     const trimmed = payload.code?.trim() ?? "";
     update.code = trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (payload.home_label !== undefined || payload.away_label !== undefined) {
+    const metadata = toMetadataRecord(match.metadata);
+    if (payload.home_label !== undefined) {
+      const trimmed = payload.home_label?.trim() ?? "";
+      metadata.homeLabel = trimmed.length > 0 ? trimmed : null;
+    }
+    if (payload.away_label !== undefined) {
+      const trimmed = payload.away_label?.trim() ?? "";
+      metadata.awayLabel = trimmed.length > 0 ? trimmed : null;
+    }
+    update.metadata = metadata;
   }
 
   const nextHomeEntryId =
@@ -396,6 +493,24 @@ async function buildMatchUpdate(
     update.awayPenalties = away.penalties;
 
     const nextStatus = payload.status ?? match.status;
+    const homeExtra = home.extraTime ?? 0;
+    const awayExtra = away.extraTime ?? 0;
+    const homePenalties = home.penalties ?? 0;
+    const awayPenalties = away.penalties ?? 0;
+    if (
+      nextStatus === "scheduled" &&
+      home.regulation === 0 &&
+      away.regulation === 0 &&
+      homeExtra === 0 &&
+      awayExtra === 0 &&
+      homePenalties === 0 &&
+      awayPenalties === 0
+    ) {
+      update.homeExtraTime = null;
+      update.awayExtraTime = null;
+      update.homePenalties = null;
+      update.awayPenalties = null;
+    }
     if (nextStatus === "finalized" || nextStatus === "disputed") {
       update.outcome = computeOutcome(home, away);
     } else if (payload.status) {
@@ -458,6 +573,14 @@ function sanitizeOptionalScore(
   }
 
   return Math.trunc(incoming);
+}
+
+function toMetadataRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+
+  return { ...(value as Record<string, unknown>) };
 }
 
 function computeOutcome(

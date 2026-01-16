@@ -4,45 +4,45 @@ import type { Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
-import type { NavLink } from "@/ui/components/navigation-links";
-import { navigationLinks } from "@/ui/components/navigation-links";
-
-const primaryLinks = navigationLinks.slice(0, 5);
-const secondaryLinks = navigationLinks.slice(5);
+import type { NavSection } from "@/ui/components/navigation-data";
 
 type NavSectionProps = {
   label: string;
-  links: NavLink[];
+  links: NavSection["links"];
   pathname: string;
 };
 
-export function DashboardSidebar() {
+type DashboardSidebarProps = {
+  sections: NavSection[];
+};
+
+export function DashboardSidebar({ sections }: DashboardSidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside className="hidden w-72 flex-col gap-6 rounded-3xl border border-border/60 bg-background/80 p-6 shadow-[0_25px_60px_-45px_rgba(0,0,0,0.45)] backdrop-blur lg:sticky lg:top-[5.5rem] lg:flex lg:h-[calc(100vh-7rem)]">
       <div className="flex-1 space-y-6 overflow-y-auto pr-1">
-        <NavSection
-          label="Hurtigtilgang"
-          links={primaryLinks}
-          pathname={pathname}
-        />
-        <NavSection
-          label="Operativt"
-          links={secondaryLinks}
-          pathname={pathname}
-        />
+        {sections.map((section) => (
+          <SidebarSection
+            key={section.label}
+            label={section.label}
+            links={section.links}
+            pathname={pathname}
+          />
+        ))}
       </div>
 
       <div className="rounded-2xl border border-border/70 bg-card/70 p-4 text-xs text-muted-foreground">
         <p className="text-sm font-semibold text-foreground">Administrasjon</p>
-        <p>Hold oversikt over konkurranser, utgaver og lag fra sidemenyen.</p>
+        <p>
+          Hold oversikt over oppgaver, invitasjoner og globale innstillinger.
+        </p>
       </div>
     </aside>
   );
 }
 
-function NavSection({ label, links, pathname }: NavSectionProps) {
+function SidebarSection({ label, links, pathname }: NavSectionProps) {
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
@@ -50,7 +50,10 @@ function NavSection({ label, links, pathname }: NavSectionProps) {
       </p>
       <nav className="space-y-2">
         {links.map((link) => {
-          const isActive = pathname.startsWith(link.href);
+          const isActive =
+            link.href === "/dashboard"
+              ? pathname === "/dashboard"
+              : pathname.startsWith(link.href);
 
           return (
             <Link
