@@ -144,9 +144,11 @@ export default function LandingPage() {
             <Button
               asChild
               variant="outline"
-              className="w-fit rounded-full px-6"
+              className="w-fit cursor-pointer rounded-full px-6"
             >
-              <Link href="/dashboard">Gå til hoveddashboard →</Link>
+              <Link href="/dashboard" prefetch={true}>
+                Gå til hoveddashboard →
+              </Link>
             </Button>
           </div>
           <NavigationGrid />
