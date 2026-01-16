@@ -46,9 +46,10 @@ test.describe("Organizer onboarding", () => {
       page.getByRole("heading", { name: /Offentlig scoreboard/i }),
     ).toBeVisible();
 
-    await expect(page.getByRole("link", { name: /Åpne/i })).toHaveAttribute(
-      "href",
-      "/dashboard/admin/overview",
-    );
+    // Find the "Åpne" link within the "Global admin" card
+    const globalAdminCard = page.locator("text=Global admin").locator("..");
+    await expect(
+      globalAdminCard.getByRole("link", { name: /Åpne/i }),
+    ).toHaveAttribute("href", "/dashboard/admin/overview");
   });
 });
