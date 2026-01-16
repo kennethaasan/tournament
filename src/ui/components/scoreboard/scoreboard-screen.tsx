@@ -67,10 +67,7 @@ export function ScreenLayout({
     () => visibleMatches.filter((m) => isLiveMatch(m.status)),
     [visibleMatches],
   );
-  const otherMatches = useMemo(
-    () => visibleMatches.filter((m) => !isLiveMatch(m.status)),
-    [visibleMatches],
-  );
+  const scheduleMatches = visibleMatches;
 
   return (
     <div className="flex flex-col gap-2 px-4 py-3">
@@ -103,7 +100,10 @@ export function ScreenLayout({
       <div className="flex flex-col gap-2 xl:flex-row">
         {/* Matches Table - scrolls with page */}
         <div className="min-w-0 xl:flex-[8]">
-          <ScreenMatchesTable matches={otherMatches} entryNames={entryNames} />
+          <ScreenMatchesTable
+            matches={scheduleMatches}
+            entryNames={entryNames}
+          />
         </div>
 
         {/* Standings - sticky */}
@@ -172,7 +172,7 @@ function LiveMatchCard({ match, entryNames }: LiveMatchCardProps) {
         </div>
         <div className="rounded bg-black/30 px-3 py-1 text-center">
           <p className="text-xl font-bold tabular-nums">
-            {match.home.score} – {match.away.score}
+            {formatMatchScore(match) || "—"}
           </p>
         </div>
         <div className="text-left">
@@ -310,12 +310,17 @@ function normalizeGroupLabel(value: string): string {
     .replace(/^gruppe\s+/u, "");
 }
 
+function isPlaceholderGroupName(value: string): boolean {
+  return value.trim().toLowerCase() === "ingen visningsnavn";
+}
+
 function formatGroupTitle(
   groupCode?: string | null,
   groupName?: string | null,
 ) {
   const code = groupCode?.trim() ?? "";
-  const name = groupName?.trim() ?? "";
+  const rawName = groupName?.trim() ?? "";
+  const name = isPlaceholderGroupName(rawName) ? "" : rawName;
 
   if (!name) {
     return `Gruppe ${code}`;

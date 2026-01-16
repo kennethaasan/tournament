@@ -38,7 +38,11 @@ type RoundRobinGenerationOptions = {
 };
 
 type KnockoutGenerationOptions = {
-  seeds: Array<{ seed: number; entry_id: string | null }>;
+  seeds: Array<{
+    seed: number;
+    entry_id: string | null;
+    label?: string | null;
+  }>;
   third_place_match?: boolean;
 };
 
@@ -304,11 +308,24 @@ async function handleKnockoutGeneration(
     0,
     ...bracketPlan.matches.map((match) => match.roundNumber),
   );
+  const seedLabels = new Map<number, string>();
+  for (const seed of options.seeds) {
+    if (typeof seed.label !== "string") {
+      continue;
+    }
+    const trimmed = seed.label.trim();
+    if (!trimmed) {
+      continue;
+    }
+    seedLabels.set(seed.seed, trimmed);
+  }
 
   await withTransaction(async (tx) => {
     await tx.delete(matches).where(eq(matches.stageId, stageId));
 
     for (const match of bracketPlan.matches) {
+      const homeLabel = labelForParticipant(match.home, seedLabels);
+      const awayLabel = labelForParticipant(match.away, seedLabels);
       await tx.insert(matches).values({
         editionId,
         stageId,
@@ -322,6 +339,8 @@ async function handleKnockoutGeneration(
           roundNumber: match.roundNumber,
           homeSource: participantSource(match.home),
           awaySource: participantSource(match.away),
+          homeLabel: homeLabel ?? undefined,
+          awayLabel: awayLabel ?? undefined,
         },
       });
     }
@@ -468,6 +487,17 @@ function participantSource(participant: KnockoutParticipant) {
     default:
       return null;
   }
+}
+
+function labelForParticipant(
+  participant: KnockoutParticipant,
+  labels: Map<number, string>,
+): string | null {
+  if (participant.type !== "seed") {
+    return null;
+  }
+
+  return labels.get(participant.seed) ?? null;
 }
 
 function createKnockoutCode(

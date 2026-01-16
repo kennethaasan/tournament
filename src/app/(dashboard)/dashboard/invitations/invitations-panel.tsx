@@ -105,7 +105,12 @@ export function InvitationsPanel() {
   }
 
   const competitionOptions = competitionsQuery.data ?? [];
-  const teamOptions = teamsQuery.data ?? [];
+  const teamOptions = useMemo(() => {
+    const teams = teamsQuery.data ?? [];
+    return [...teams].sort((left, right) =>
+      left.name.localeCompare(right.name, "nb", { sensitivity: "base" }),
+    );
+  }, [teamsQuery.data]);
 
   return (
     <div className="space-y-8">

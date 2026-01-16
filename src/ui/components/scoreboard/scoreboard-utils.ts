@@ -32,15 +32,43 @@ export function statusLabel(status: ScoreboardMatch["status"]): string {
 }
 
 export function formatMatchScore(match: ScoreboardMatch): string {
+  const homeExtraTime = match.home.extraTime ?? 0;
+  const awayExtraTime = match.away.extraTime ?? 0;
+  const homePenalties = match.home.penalties ?? 0;
+  const awayPenalties = match.away.penalties ?? 0;
+  const hasExtraTime =
+    (match.home.extraTime !== null && match.home.extraTime !== undefined) ||
+    (match.away.extraTime !== null && match.away.extraTime !== undefined);
+  const hasPenalties =
+    (match.home.penalties !== null && match.home.penalties !== undefined) ||
+    (match.away.penalties !== null && match.away.penalties !== undefined);
+  const homeTotal = match.home.score + homeExtraTime;
+  const awayTotal = match.away.score + awayExtraTime;
+
   if (
     match.status === "scheduled" &&
     match.home.score === 0 &&
-    match.away.score === 0
+    match.away.score === 0 &&
+    !hasExtraTime &&
+    !hasPenalties
   ) {
     return "";
   }
 
-  return `${match.home.score} – ${match.away.score}`;
+  const markers: string[] = [];
+  if (hasExtraTime) {
+    markers.push("EEO");
+  }
+  if (hasPenalties) {
+    markers.push("ESP");
+  }
+
+  const markerLabel = markers.length > 0 ? ` (${markers.join(", ")})` : "";
+  const penaltyLabel = hasPenalties
+    ? ` ${homePenalties}–${awayPenalties} str.`
+    : "";
+
+  return `${homeTotal} – ${awayTotal}${markerLabel}${penaltyLabel}`;
 }
 
 export function formatDateOnly(date: Date): string {
@@ -308,10 +336,18 @@ export function computeMatchStats(matches: ScoreboardMatch[]): {
   for (const match of matches) {
     if (match.status === "finalized") {
       completedMatches++;
-      totalGoals += match.home.score + match.away.score;
+      totalGoals +=
+        match.home.score +
+        match.away.score +
+        (match.home.extraTime ?? 0) +
+        (match.away.extraTime ?? 0);
     } else if (isLiveMatch(match.status)) {
       liveMatches++;
-      totalGoals += match.home.score + match.away.score;
+      totalGoals +=
+        match.home.score +
+        match.away.score +
+        (match.home.extraTime ?? 0) +
+        (match.away.extraTime ?? 0);
     }
   }
 

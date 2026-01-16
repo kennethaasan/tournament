@@ -100,12 +100,17 @@ function normalizeGroupLabel(value: string): string {
     .replace(/^gruppe\s+/u, "");
 }
 
+function isPlaceholderGroupName(value: string): boolean {
+  return value.trim().toLowerCase() === "ingen visningsnavn";
+}
+
 function formatGroupTitle(
   groupCode?: string | null,
   groupName?: string | null,
 ) {
   const code = groupCode?.trim() ?? "";
-  const name = groupName?.trim() ?? "";
+  const rawName = groupName?.trim() ?? "";
+  const name = isPlaceholderGroupName(rawName) ? "" : rawName;
 
   if (!name) {
     return `Gruppe ${code}`;

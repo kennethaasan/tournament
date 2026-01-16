@@ -80,6 +80,20 @@ type MatchEventDraft = {
   squadMemberId: string | null;
 };
 
+type OptionalScoreInputs = {
+  homeExtraTime: string;
+  awayExtraTime: string;
+  homePenalties: string;
+  awayPenalties: string;
+};
+
+type OptionalScores = {
+  homeExtraTime: number | null;
+  awayExtraTime: number | null;
+  homePenalties: number | null;
+  awayPenalties: number | null;
+};
+
 type ResultsDashboardProps = {
   editionId: string;
 };
@@ -156,6 +170,15 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
 
   const matches = matchesQuery.data ?? EMPTY_MATCHES;
   const entries = entriesQuery.data ?? EMPTY_ENTRIES;
+  const sortedEntries = useMemo(
+    () =>
+      [...entries].sort((left, right) =>
+        left.team.name.localeCompare(right.team.name, "nb", {
+          sensitivity: "base",
+        }),
+      ),
+    [entries],
+  );
   const entryMap = useMemo(
     () => new Map(entries.map((entry) => [entry.entry.id, entry])),
     [entries],
@@ -352,7 +375,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
             ) : null}
             <MatchEditorCard
               match={match}
-              entries={entries}
+              entries={sortedEntries}
               entryMap={entryMap}
               venues={venues}
               isSaving={updateMutation.isPending}
@@ -404,7 +427,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     <div className="space-y-8">
       <EditionHeader
         editionId={editionId}
-        pageTitle="Kampadministrasjon"
+        pageTitle="Kamp-administrasjon"
         pageDescription="Oppdater status, poeng og kampdetaljer. Endringer oppdaterer scoreboardet fortløpende."
       />
 
@@ -855,8 +878,7 @@ function MatchSummaryRow({
   const kickoffLabel = match.kickoff_at
     ? new Date(match.kickoff_at).toLocaleString("no-NB")
     : "Tidspunkt ikke satt";
-  const homeScore = match.home_score?.regulation ?? 0;
-  const awayScore = match.away_score?.regulation ?? 0;
+  const summaryScore = formatAdminMatchScore(match);
   const summaryLabel =
     labels?.matchLabel ?? match.code ?? match.group_code ?? "Uten kode";
 
@@ -880,7 +902,7 @@ function MatchSummaryRow({
           {statusLabel(match.status)}
         </span>
         <span className="text-sm font-semibold text-foreground">
-          {homeScore}–{awayScore}
+          {summaryScore}
         </span>
         <button
           type="button"
@@ -915,7 +937,11 @@ function MatchEditorCard({
 }: MatchEditorCardProps) {
   const [homeScore, setHomeScore] = useState(match.home_score?.regulation ?? 0);
   const [awayScore, setAwayScore] = useState(match.away_score?.regulation ?? 0);
-  const [status, setStatus] = useState<MatchStatus>(match.status);
+  const [status, setStatus] = useState<MatchStatus>(
+    normalizeMatchStatus(match.status),
+  );
+  const [optionalScoreInputs, setOptionalScoreInputs] =
+    useState<OptionalScoreInputs>(() => deriveOptionalScoreInputs(match));
   const [kickoffAt, setKickoffAt] = useState(
     match.kickoff_at ? toLocalInput(match.kickoff_at) : "",
   );
@@ -925,6 +951,9 @@ function MatchEditorCard({
   const [awayEntryId, setAwayEntryId] = useState(match.away_entry_id ?? "");
   const [matchError, setMatchError] = useState<string | null>(null);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
+  const [optionalScoreError, setOptionalScoreError] = useState<string | null>(
+    null,
+  );
   const [eventsOpen, setEventsOpen] = useState(false);
   const [eventRows, setEventRows] = useState<MatchEventDraft[]>([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
@@ -938,7 +967,8 @@ function MatchEditorCard({
   useEffect(() => {
     setHomeScore(match.home_score?.regulation ?? 0);
     setAwayScore(match.away_score?.regulation ?? 0);
-    setStatus(match.status);
+    setStatus(normalizeMatchStatus(match.status));
+    setOptionalScoreInputs(deriveOptionalScoreInputs(match));
     setKickoffAt(match.kickoff_at ? toLocalInput(match.kickoff_at) : "");
     setVenueId(match.venue_id ?? "");
     setCode(match.code ?? "");
@@ -946,21 +976,13 @@ function MatchEditorCard({
     setAwayEntryId(match.away_entry_id ?? "");
     setMatchError(null);
     setStatusNotice(null);
+    setOptionalScoreError(null);
     setEventRows([]);
     setEventsLoaded(false);
     setEventsDirty(false);
     setEventsError(null);
     setPendingEventFocusId(null);
-  }, [
-    match.home_score?.regulation,
-    match.away_score?.regulation,
-    match.status,
-    match.kickoff_at,
-    match.venue_id,
-    match.code,
-    match.home_entry_id,
-    match.away_entry_id,
-  ]);
+  }, [match]);
 
   const homeEntry = homeEntryId ? entryMap.get(homeEntryId) : null;
   const awayEntry = awayEntryId ? entryMap.get(awayEntryId) : null;
@@ -1164,7 +1186,7 @@ function MatchEditorCard({
       setAwayScore(nextScore);
     }
 
-    if (nextHomeScore !== 0 || nextAwayScore !== 0) {
+    if (hasAnyScoreValues(nextHomeScore, nextAwayScore, optionalScoreInputs)) {
       if (status !== "finalized") {
         setStatus("finalized");
       }
@@ -1176,6 +1198,61 @@ function MatchEditorCard({
     }
   }
 
+  function handleOptionalScoreChange(
+    field: keyof OptionalScoreInputs,
+    value: string,
+  ) {
+    setOptionalScoreInputs((prev) => {
+      const next = { ...prev, [field]: value };
+      if (hasAnyScoreValues(homeScore, awayScore, next)) {
+        if (status !== "finalized") {
+          setStatus("finalized");
+        }
+        setStatusNotice(
+          "Resultat registrert. Status settes automatisk til Fullført.",
+        );
+      } else {
+        setStatusNotice(null);
+      }
+
+      const resolved = resolveOptionalScores(next);
+      setOptionalScoreError(resolved.error);
+      return next;
+    });
+  }
+
+  function resolveOptionalScoresForPayload(): {
+    values: OptionalScores;
+    includeExtraTime: boolean;
+    includePenalties: boolean;
+  } | null {
+    const resolved = resolveOptionalScores(optionalScoreInputs);
+    if (resolved.error) {
+      setMatchError(resolved.error);
+      return null;
+    }
+    const hasExtraTimeInput =
+      optionalScoreInputs.homeExtraTime.trim().length > 0 ||
+      optionalScoreInputs.awayExtraTime.trim().length > 0;
+    const hasPenaltiesInput =
+      optionalScoreInputs.homePenalties.trim().length > 0 ||
+      optionalScoreInputs.awayPenalties.trim().length > 0;
+    const includeExtraTime =
+      hasExtraTimeInput ||
+      match.home_score?.extra_time != null ||
+      match.away_score?.extra_time != null;
+    const includePenalties =
+      hasPenaltiesInput ||
+      match.home_score?.penalties != null ||
+      match.away_score?.penalties != null;
+
+    return {
+      values: resolved.values,
+      includeExtraTime,
+      includePenalties,
+    };
+  }
+
   function updateEventRow(id: string, patch: Partial<MatchEventDraft>) {
     setEventRows((prev) =>
       prev.map((row) => (row.id === id ? { ...row, ...patch } : row)),
@@ -1183,14 +1260,33 @@ function MatchEditorCard({
     setEventsDirty(true);
   }
 
-  function buildMatchPayload(): components["schemas"]["UpdateMatchRequest"] {
+  function buildMatchPayload(optionalScores?: {
+    values: OptionalScores;
+    includeExtraTime: boolean;
+    includePenalties: boolean;
+  }): components["schemas"]["UpdateMatchRequest"] {
+    const score: {
+      home: components["schemas"]["ScoreBreakdown"];
+      away: components["schemas"]["ScoreBreakdown"];
+    } = {
+      home: { regulation: homeScore },
+      away: { regulation: awayScore },
+    };
+
     const payload: components["schemas"]["UpdateMatchRequest"] = {
       status,
-      score: {
-        home: { regulation: homeScore },
-        away: { regulation: awayScore },
-      },
+      score,
     };
+
+    if (optionalScores?.includeExtraTime) {
+      score.home.extra_time = optionalScores.values.homeExtraTime ?? null;
+      score.away.extra_time = optionalScores.values.awayExtraTime ?? null;
+    }
+
+    if (optionalScores?.includePenalties) {
+      score.home.penalties = optionalScores.values.homePenalties ?? null;
+      score.away.penalties = optionalScores.values.awayPenalties ?? null;
+    }
 
     if (kickoffAt) {
       payload.kickoff_at = new Date(kickoffAt).toISOString();
@@ -1249,7 +1345,12 @@ function MatchEditorCard({
       return;
     }
 
-    const didSave = await onSave(buildMatchPayload());
+    const optionalScores = resolveOptionalScoresForPayload();
+    if (!optionalScores) {
+      return;
+    }
+
+    const didSave = await onSave(buildMatchPayload(optionalScores));
     if (didSave) {
       setEventsOpen(true);
     }
@@ -1267,6 +1368,11 @@ function MatchEditorCard({
     }
     if (homeEntryId === awayEntryId) {
       setEventsError("Hjemmelag og bortelag kan ikke være det samme.");
+      return;
+    }
+
+    const optionalScores = resolveOptionalScoresForPayload();
+    if (!optionalScores) {
       return;
     }
 
@@ -1329,7 +1435,7 @@ function MatchEditorCard({
         });
       }
 
-      const payload = buildMatchPayload();
+      const payload = buildMatchPayload(optionalScores);
       payload.events = resolvedEvents;
 
       const didSave = await onSave(payload);
@@ -1441,6 +1547,11 @@ function MatchEditorCard({
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Resultat
           </p>
+          <p className="text-xs text-muted-foreground">
+            Ordinær tid + ekstraomganger = sluttresultat. Straffespark vises
+            separat og avgjør vinner når kampen ender uavgjort. Bruk Fullført
+            når resultatet er endelig, og Tvist hvis resultatet bestrides.
+          </p>
           <div className="space-y-2">
             <div className="grid items-center gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3 md:grid-cols-[minmax(0,1fr)_96px]">
               <div>
@@ -1493,6 +1604,127 @@ function MatchEditorCard({
               </div>
             </div>
           </div>
+          <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                Ekstraomganger (EEO)
+              </p>
+              <span className="text-xs text-muted-foreground">Valgfritt</span>
+            </div>
+            <div className="mt-2 grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-home-extra`}
+                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Hjemmelag
+                </label>
+                <input
+                  id={`${idBase}-home-extra`}
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  value={optionalScoreInputs.homeExtraTime}
+                  onChange={(event) =>
+                    handleOptionalScoreChange(
+                      "homeExtraTime",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-away-extra`}
+                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Bortelag
+                </label>
+                <input
+                  id={`${idBase}-away-extra`}
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  value={optionalScoreInputs.awayExtraTime}
+                  onChange={(event) =>
+                    handleOptionalScoreChange(
+                      "awayExtraTime",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Brukes hvis kampen gikk til ekstraomganger. 0–0 betyr at det ikke
+              ble scoret i ekstraomgangene.
+            </p>
+          </div>
+          <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                Straffesparkkonkurranse (ESP)
+              </p>
+              <span className="text-xs text-muted-foreground">Valgfritt</span>
+            </div>
+            <div className="mt-2 grid gap-3 md:grid-cols-2">
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-home-penalties`}
+                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Hjemmelag
+                </label>
+                <input
+                  id={`${idBase}-home-penalties`}
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  value={optionalScoreInputs.homePenalties}
+                  onChange={(event) =>
+                    handleOptionalScoreChange(
+                      "homePenalties",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-away-penalties`}
+                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Bortelag
+                </label>
+                <input
+                  id={`${idBase}-away-penalties`}
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  value={optionalScoreInputs.awayPenalties}
+                  onChange={(event) =>
+                    handleOptionalScoreChange(
+                      "awayPenalties",
+                      event.target.value,
+                    )
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Brukes kun når kampen avgjøres på straffer. Straffer påvirker ikke
+              totalmålet, men vises som ESP på scoreboardet.
+            </p>
+          </div>
+          {optionalScoreError ? (
+            <output aria-live="polite" className="text-xs text-destructive">
+              {optionalScoreError}
+            </output>
+          ) : null}
         </div>
         <div className="space-y-2">
           <label
@@ -1874,11 +2106,110 @@ function parseScore(value: string) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
+function parseOptionalScoreInput(value: string): {
+  value: number | null;
+  isValid: boolean;
+} {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return { value: null, isValid: true };
+  }
+  const parsed = Number.parseInt(trimmed, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    return { value: null, isValid: false };
+  }
+  return { value: parsed, isValid: true };
+}
+
+function hasAnyScoreValues(
+  homeScore: number,
+  awayScore: number,
+  optionalInputs: OptionalScoreInputs,
+): boolean {
+  if (homeScore !== 0 || awayScore !== 0) {
+    return true;
+  }
+  return (
+    optionalInputs.homeExtraTime.trim().length > 0 ||
+    optionalInputs.awayExtraTime.trim().length > 0 ||
+    optionalInputs.homePenalties.trim().length > 0 ||
+    optionalInputs.awayPenalties.trim().length > 0
+  );
+}
+
 function toLocalInput(value: string) {
   const date = new Date(value);
   const offsetMinutes = date.getTimezoneOffset();
   const local = new Date(date.getTime() - offsetMinutes * 60 * 1000);
   return local.toISOString().slice(0, 16);
+}
+
+function normalizeMatchStatus(status: MatchStatus): MatchStatus {
+  if (status === "extra_time" || status === "penalty_shootout") {
+    return "in_progress";
+  }
+  return status;
+}
+
+function deriveOptionalScoreInputs(match: Match): OptionalScoreInputs {
+  const homeExtraTime = match.home_score?.extra_time;
+  const awayExtraTime = match.away_score?.extra_time;
+  const homePenalties = match.home_score?.penalties;
+  const awayPenalties = match.away_score?.penalties;
+  const hasExtraTime = homeExtraTime != null || awayExtraTime != null;
+  const hasPenalties = homePenalties != null || awayPenalties != null;
+
+  return {
+    homeExtraTime:
+      hasExtraTime && homeExtraTime != null ? String(homeExtraTime) : "",
+    awayExtraTime:
+      hasExtraTime && awayExtraTime != null ? String(awayExtraTime) : "",
+    homePenalties:
+      hasPenalties && homePenalties != null ? String(homePenalties) : "",
+    awayPenalties:
+      hasPenalties && awayPenalties != null ? String(awayPenalties) : "",
+  };
+}
+
+function resolveOptionalScores(inputs: OptionalScoreInputs): {
+  values: OptionalScores;
+  error: string | null;
+} {
+  const homeExtra = parseOptionalScoreInput(inputs.homeExtraTime);
+  const awayExtra = parseOptionalScoreInput(inputs.awayExtraTime);
+  const homePenalties = parseOptionalScoreInput(inputs.homePenalties);
+  const awayPenalties = parseOptionalScoreInput(inputs.awayPenalties);
+
+  if (
+    !homeExtra.isValid ||
+    !awayExtra.isValid ||
+    !homePenalties.isValid ||
+    !awayPenalties.isValid
+  ) {
+    return {
+      values: {
+        homeExtraTime: null,
+        awayExtraTime: null,
+        homePenalties: null,
+        awayPenalties: null,
+      },
+      error: "Oppgi gyldige tall for ekstraomganger og straffespark.",
+    };
+  }
+
+  const hasExtraTime = homeExtra.value !== null || awayExtra.value !== null;
+  const hasPenalties =
+    homePenalties.value !== null || awayPenalties.value !== null;
+
+  return {
+    values: {
+      homeExtraTime: hasExtraTime ? (homeExtra.value ?? 0) : null,
+      awayExtraTime: hasExtraTime ? (awayExtra.value ?? 0) : null,
+      homePenalties: hasPenalties ? (homePenalties.value ?? 0) : null,
+      awayPenalties: hasPenalties ? (awayPenalties.value ?? 0) : null,
+    },
+    error: null,
+  };
 }
 
 function statusLabel(status: MatchStatus) {
@@ -1887,6 +2218,9 @@ function statusLabel(status: MatchStatus) {
       return "Planlagt";
     case "in_progress":
       return "Pågår";
+    case "extra_time":
+    case "penalty_shootout":
+      return "Pågår";
     case "finalized":
       return "Fullført";
     case "disputed":
@@ -1894,6 +2228,37 @@ function statusLabel(status: MatchStatus) {
     default:
       return status;
   }
+}
+
+function formatAdminMatchScore(match: Match): string {
+  const homeRegulation = match.home_score?.regulation ?? 0;
+  const awayRegulation = match.away_score?.regulation ?? 0;
+  const homeExtraTime = match.home_score?.extra_time ?? 0;
+  const awayExtraTime = match.away_score?.extra_time ?? 0;
+  const homePenalties = match.home_score?.penalties ?? 0;
+  const awayPenalties = match.away_score?.penalties ?? 0;
+  const hasExtraTime =
+    match.home_score?.extra_time != null ||
+    match.away_score?.extra_time != null;
+  const hasPenalties =
+    match.home_score?.penalties != null || match.away_score?.penalties != null;
+  const homeTotal = homeRegulation + homeExtraTime;
+  const awayTotal = awayRegulation + awayExtraTime;
+
+  const markers: string[] = [];
+  if (hasExtraTime) {
+    markers.push("EEO");
+  }
+  if (hasPenalties) {
+    markers.push("ESP");
+  }
+
+  const markerLabel = markers.length > 0 ? ` (${markers.join(", ")})` : "";
+  const penaltyLabel = hasPenalties
+    ? ` ${homePenalties}–${awayPenalties} str.`
+    : "";
+
+  return `${homeTotal}–${awayTotal}${markerLabel}${penaltyLabel}`;
 }
 
 function buildMatchIndex(
@@ -1940,8 +2305,18 @@ function buildMatchIndex(
 }
 
 function doesMatchIndexPassFilters(index: MatchIndex, filters: ResultsFilters) {
-  if (filters.status !== "all" && index.status !== filters.status) {
-    return false;
+  if (filters.status !== "all") {
+    if (filters.status === "in_progress") {
+      if (
+        index.status !== "in_progress" &&
+        index.status !== "extra_time" &&
+        index.status !== "penalty_shootout"
+      ) {
+        return false;
+      }
+    } else if (index.status !== filters.status) {
+      return false;
+    }
   }
   if (filters.roundLabel !== "all" && index.roundLabel !== filters.roundLabel) {
     return false;

@@ -9,8 +9,8 @@ type PageProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Resultater",
-  description: "Registrer resultater og kampstatus for utgaven.",
+  title: "Kamp-administrasjon",
+  description: "Administrer kampstatus, poeng og resultater for utgaven.",
 };
 
 export default async function EditionResultsPage({ params }: PageProps) {

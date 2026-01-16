@@ -917,9 +917,9 @@ export interface components {
       /** Format: int32 */
       regulation?: number;
       /** Format: int32 */
-      extra_time?: number;
+      extra_time?: number | null;
       /** Format: int32 */
-      penalties?: number;
+      penalties?: number | null;
     };
     MatchEvent: {
       /** Format: uuid */
@@ -1217,6 +1217,10 @@ export interface components {
       name: string;
       /** Format: int32 */
       score: number;
+      /** Format: int32 */
+      extra_time?: number | null;
+      /** Format: int32 */
+      penalties?: number | null;
     };
     Standing: {
       /** Format: uuid */

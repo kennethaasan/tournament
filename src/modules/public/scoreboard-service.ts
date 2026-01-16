@@ -108,6 +108,10 @@ type MatchRow = {
   awayEntryId: string | null;
   homeScore: number;
   awayScore: number;
+  homeExtraTime: number | null;
+  awayExtraTime: number | null;
+  homePenalties: number | null;
+  awayPenalties: number | null;
   venueName: string | null;
   code: string | null;
   groupId: string | null;
@@ -304,6 +308,10 @@ async function listMatchesFromDatabase(editionId: string) {
       awayEntryId: matchesTable.awayEntryId,
       homeScore: matchesTable.homeScore,
       awayScore: matchesTable.awayScore,
+      homeExtraTime: matchesTable.homeExtraTime,
+      awayExtraTime: matchesTable.awayExtraTime,
+      homePenalties: matchesTable.homePenalties,
+      awayPenalties: matchesTable.awayPenalties,
       venueName: venues.name,
       code: matchesTable.code,
       groupId: matchesTable.groupId,
@@ -380,10 +388,14 @@ function buildMatches(
       home: {
         ...home,
         score: row.homeScore ?? 0,
+        extraTime: row.homeExtraTime ?? null,
+        penalties: row.homePenalties ?? null,
       },
       away: {
         ...away,
         score: row.awayScore ?? 0,
+        extraTime: row.awayExtraTime ?? null,
+        penalties: row.awayPenalties ?? null,
       },
       highlight,
       venueName: row.venueName ?? null,
@@ -436,7 +448,11 @@ function buildMatchSide(
   const placeholder = derivePlaceholderName(source, bracketRounds);
 
   if (!placeholder) {
-    return null;
+    return {
+      entryId: null,
+      name: "TBD",
+      score,
+    };
   }
 
   return {

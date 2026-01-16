@@ -54,6 +54,7 @@ const generateMatchesSchema = z.object({
       z.object({
         seed: z.number(),
         entryId: z.string().optional(),
+        label: z.string().max(120, "Navnet kan være maks 120 tegn.").optional(),
       }),
     )
     .default([]),
@@ -89,6 +90,7 @@ export function GenerateMatchesForm({
       seeds: Array.from({ length: 4 }).map((_, i) => ({
         seed: i + 1,
         entryId: "",
+        label: "",
       })),
     },
   });
@@ -185,9 +187,11 @@ export function GenerateMatchesForm({
           data.seeds?.map((s) => ({
             seed: s.seed,
             entry_id: s.entryId?.trim() || null,
+            label: s.label?.trim() || null,
           })) || [];
-        const filled = seeds.filter((s) => s.entry_id);
-        if (filled.length < 2) throw new Error("Minst 2 lag må seedes.");
+        const filled = seeds.filter((s) => s.entry_id || s.label);
+        if (filled.length < 2)
+          throw new Error("Minst 2 seed må ha lag eller visningsnavn.");
 
         const response = await apiClient.POST(
           "/api/editions/{edition_id}/matches/bulk",
@@ -406,6 +410,7 @@ export function GenerateMatchesForm({
                     appendSeed({
                       seed: seedFields.length + 1,
                       entryId: "",
+                      label: "",
                     })
                   }
                   className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10"
@@ -415,7 +420,7 @@ export function GenerateMatchesForm({
               </div>
 
               {seedFields.map((field, index) => (
-                <div key={field.id} className="flex gap-3">
+                <div key={field.id} className="flex flex-wrap gap-3">
                   <FormField
                     control={form.control}
                     name={`seeds.${index}.seed`}
@@ -431,9 +436,23 @@ export function GenerateMatchesForm({
                     control={form.control}
                     name={`seeds.${index}.entryId`}
                     render={({ field }) => (
-                      <FormItem className="flex-1">
+                      <FormItem className="min-w-[200px] flex-1">
                         <FormControl>
                           <Input {...field} placeholder="Lag-ID" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name={`seeds.${index}.label`}
+                    render={({ field }) => (
+                      <FormItem className="min-w-[200px] flex-1">
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Visningsnavn (valgfritt)"
+                          />
                         </FormControl>
                       </FormItem>
                     )}

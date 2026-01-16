@@ -103,7 +103,7 @@ const EDITION_NAV_ITEMS = [
   { label: "Oversikt", path: "", exact: true },
   { label: "Kampoppsett", path: "/schedule" },
   { label: "Lag og tropp", path: "/teams" },
-  { label: "Resultater", path: "/results" },
+  { label: "Kamp-administrasjon", path: "/results" },
   { label: "Scoreboard-innstillinger", path: "/scoreboard" },
 ];
 
@@ -150,13 +150,13 @@ export function EditionHeader({
   pageDescription,
   edition,
 }: EditionHeaderProps) {
-  const shouldFetchEdition = !edition;
+  const shouldFetchEdition = !edition?.competition_name;
   const editionQuery = useQuery({
     queryKey: editionQueryKey(editionId),
     queryFn: ({ signal }) => fetchEdition(editionId, signal),
     enabled: shouldFetchEdition,
   });
-  const resolvedEdition = edition ?? editionQuery.data?.edition;
+  const resolvedEdition = editionQuery.data?.edition ?? edition;
   const competitionName =
     resolvedEdition?.competition_name ??
     (editionQuery.isLoading && shouldFetchEdition
