@@ -3,7 +3,6 @@ import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -18,173 +17,171 @@ export default function LandingPage() {
 
       <main className="page-padding">
         <div className="grid-overlay absolute inset-0" aria-hidden />
-        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/10 via-transparent to-transparent p-10 shadow-2xl">
+
+        {/* Hero Section */}
+        <section className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-primary/10 via-transparent to-transparent p-8 shadow-2xl sm:p-12">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_35%),radial-gradient(circle_at_90%_0%,rgba(95,224,193,0.14),transparent_30%)]" />
           <div className="relative flex flex-col gap-6 text-left">
             <div className="flex flex-wrap items-center gap-3">
               <Badge variant="accent" className="uppercase tracking-[0.28em]">
-                Futuristisk turneringsplattform
+                Turneringsadmin
               </Badge>
-              <span className="pill">WCAG 2.2 AA</span>
-              <span className="pill">Polling 5s</span>
+              <Badge variant="outline" className="rounded-full font-medium">
+                For arrangører og lagledere
+              </Badge>
             </div>
-            <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground sm:text-5xl">
-              Moderne administrasjon for fotballturneringer
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
+              Gjør turneringshverdagen enklere
             </h1>
-            <p className="max-w-2xl text-lg text-muted-foreground">
-              Planlegg, publiser og vis alt fra én kontrollflate. Selvbetjent
-              onboarding, avansert kampoppsett og en storskjerm som matcher
-              x.ai-inspirert design.
+            <p className="max-w-2xl text-lg text-muted-foreground sm:text-xl">
+              En komplett plattform for planlegging og gjennomføring av
+              fotballturneringer. Fra påmelding og kampoppsett til live
+              resultater på storskjerm.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg" className="rounded-full px-6">
-                <Link href="/dashboard/competitions/new">
-                  Start din turnering
-                </Link>
+            <div className="flex flex-wrap gap-4 pt-2">
+              <Button asChild size="lg" className="rounded-full px-8">
+                <Link href="/dashboard">Kom i gang</Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
                 size="lg"
-                className="rounded-full border border-border/80 px-6"
+                className="rounded-full border border-border/80 px-8"
               >
-                <Link href="/competitions/trondheim-cup/2025/scoreboard">
-                  Se scoreboard-demo
-                </Link>
+                <Link href="/hjelp">Les brukerveiledning</Link>
               </Button>
             </div>
           </div>
         </section>
 
-        <section className="mt-10 grid gap-4 md:grid-cols-3">
-          <FeatureCard
-            title="Planlegg raskere"
-            description="Generer kampoppsett for gruppespill og sluttspill, med tidsluker og baner ferdig fylt ut."
-            metric="<5 min"
-            hint="fra idé til publisert plan"
-          />
-          <FeatureCard
-            title="Live oppdateringer"
-            description="Polling og TanStack Query holder dashboard, toppscorere og tabeller ferske uten komplisert oppsett."
-            metric="200 ms"
-            hint="p95 på scoreboard-endepunkt"
-          />
-          <FeatureCard
-            title="Venue-modus"
-            description="Publikum får en storskjerm som roterer mellom kamper, tabeller og høydepunkter med høy kontrast."
-            metric="5 s"
-            hint="rotasjon som standard"
-          />
+        {/* Product Explanation Section (Based on Help Page) */}
+        <section className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">📋</div>
+              <CardTitle>Alt på ett sted</CardTitle>
+              <CardDescription className="text-base">
+                Administrer alle deler av turneringen fra ett dashboard. Full
+                kontroll over konkurranser, utgaver, arenaer og tilganger for
+                hele teamet ditt.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">⚡</div>
+              <CardTitle>Smarte kampoppsett</CardTitle>
+              <CardDescription className="text-base">
+                Generer terminlister automatisk for både gruppespill og
+                utslagsrunder. Systemet håndterer baner, tider og plassholdere
+                for sluttspill.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">🏆</div>
+              <CardTitle>Scoreboard for publikum</CardTitle>
+              <CardDescription className="text-base">
+                Gi publikum en profesjonell opplevelse med et live scoreboard
+                som roterer mellom kamper, tabeller og toppscorere automatisk.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">👥</div>
+              <CardTitle>Lagledelse</CardTitle>
+              <CardDescription className="text-base">
+                Lagledere kan selv administrere sine lag og spillertropper.
+                Enkel påmelding og oversikt over egne kamper gjennom hele
+                turneringen.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">📱</div>
+              <CardTitle>Resultater i lomma</CardTitle>
+              <CardDescription className="text-base">
+                Både administrasjon og publikumsvisning fungerer like godt på
+                mobil som på desktop. Før resultater direkte fra sidelinja.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader>
+              <div className="mb-2 text-2xl">🔒</div>
+              <CardTitle>Trygg forvaltning</CardTitle>
+              <CardDescription className="text-base">
+                Innebygd revisjonshistorikk og rollebasert tilgangsstyring
+                sørger for at du alltid har kontroll på hvem som har gjort hva.
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </section>
 
-        <section className="mt-12 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-                Navigasjon
+        {/* Navigation Section */}
+        <section className="mt-20 space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-primary">
+                Hurtigstart
               </p>
-              <h2 className="text-2xl font-semibold text-foreground">
-                Alt du trenger i én meny
+              <h2 className="text-3xl font-semibold text-foreground">
+                Gå direkte til verktøyene
               </h2>
-              <p className="max-w-2xl text-sm text-muted-foreground">
-                Direkte snarveier til alle sidene som dekker spesifikasjonen:
-                onboarding, revisjon, planlegging, lag og storskjerm.
+              <p className="max-w-2xl text-muted-foreground">
+                Trenger du å hoppe rett til en spesifikk del av systemet? Her er
+                snarveier til de viktigste funksjonene for din rolle.
               </p>
             </div>
-            <Button asChild size="sm" className="rounded-full">
-              <Link href="/dashboard/admin/overview">Åpne dashboard</Link>
+            <Button
+              asChild
+              variant="outline"
+              className="w-fit rounded-full px-6"
+            >
+              <Link href="/dashboard">Gå til hoveddashboard →</Link>
             </Button>
           </div>
           <NavigationGrid />
         </section>
 
-        <section className="mt-12 grid gap-6 md:grid-cols-[2fr,1fr]">
-          <Card className="border-border/70 bg-card/60">
-            <CardHeader>
-              <CardTitle className="text-foreground">
-                Designet for mørkt og lyst modus
-              </CardTitle>
-              <CardDescription>
-                Systemtema brukes som standard. Alle flater er bygget med samme
-                glasstekstur, gradienter og kontraster for konsistente
-                opplevelser.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="pill">Shadcn-komponenter</span>
-              <span className="pill">Tilgjengelig navigasjon</span>
-              <span className="pill">Bokmål i UI</span>
-              <span className="pill">RFC 9457-feil</span>
-              <span className="pill">Bedre-auth</span>
-            </CardContent>
-          </Card>
-          <Card className="border-border/70 bg-card/60">
-            <CardHeader>
-              <CardTitle className="text-foreground">Rask start</CardTitle>
-              <CardDescription>
-                Oppsettet følger spesifikasjonen i
-                `/specs/001-build-football-admin-app/` med klare lenker til
-                hvert steg.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3 text-sm text-muted-foreground">
-              <Link
-                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
-                href="/dashboard/competitions/new"
-              >
-                Opprett arrangørkonto →
-              </Link>
-              <Link
-                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
-                href="/dashboard/competitions/new"
-              >
-                Bygg konkurranse →
-              </Link>
-              <Link
-                className="rounded-lg border border-border/60 px-3 py-2 hover:border-primary/60"
-                href="/dashboard/editions/demo-2025/schedule"
-              >
-                Planlegg utgave →
-              </Link>
-            </CardContent>
-          </Card>
+        {/* Support Section */}
+        <section className="mt-20 rounded-3xl border border-border/60 bg-card/40 p-8 sm:p-12 text-center">
+          <h2 className="text-3xl font-semibold text-foreground">
+            Trenger du hjelp?
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
+            Vi har laget en omfattende brukerveiledning som tar deg gjennom alt
+            fra din første turnering til avansert resultathåndtering.
+          </p>
+          <div className="mt-8">
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="rounded-full px-10"
+            >
+              <Link href="/hjelp">Se brukerveiledning</Link>
+            </Button>
+          </div>
         </section>
       </main>
 
-      <footer className="border-t border-border/60 bg-background/80 py-8">
+      <footer className="mt-20 border-t border-border/60 bg-background/80 py-12">
         <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
           <p>
-            &copy; {new Date().getFullYear()} Turneringsadmin · Moderne
-            turneringsadministrasjon i samsvar med spesifikasjonen.
+            &copy; {new Date().getFullYear()} Turneringsadmin · Profesjonell
+            turneringsadministrasjon for moderne idrett.
           </p>
         </div>
       </footer>
     </div>
-  );
-}
-
-type FeatureCardProps = {
-  title: string;
-  description: string;
-  metric: string;
-  hint: string;
-};
-
-function FeatureCard({ title, description, metric, hint }: FeatureCardProps) {
-  return (
-    <Card className="border-border/60 bg-card/70">
-      <CardHeader className="space-y-3">
-        <Badge variant="outline" className="w-fit uppercase tracking-[0.2em]">
-          {hint}
-        </Badge>
-        <CardTitle className="text-foreground">{title}</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          {description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-semibold text-foreground">{metric}</p>
-      </CardContent>
-    </Card>
   );
 }
