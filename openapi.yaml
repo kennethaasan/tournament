@@ -266,13 +266,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  stages:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Stage'
-                    maxItems: 200
+                $ref: '#/components/schemas/StageListResponse'
           headers: *standardResponseHeaders
         '403':
           $ref: '#/components/responses/ProblemDetails'
@@ -299,6 +293,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Stage'
           headers: *standardResponseHeaders
+    patch:
+      tags:
+        - competitions
+      summary: Reorder stages for an edition
+      description: Reorder stages for an edition
+      operationId: reorder_stages
+      parameters:
+        - $ref: '#/components/parameters/EditionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderStagesRequest'
+      responses:
+        <<: *standardErrorResponses
+        '200':
+          description: Edition stages reordered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageListResponse'
+          headers: *standardResponseHeaders
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
   /api/editions/{edition_id}/stages/{stage_id}:
     delete:
       tags:
@@ -1675,6 +1694,16 @@ components:
           format: date-time
           nullable: true
           maxLength: 30
+    StageListResponse:
+      type: object
+      required:
+        - stages
+      properties:
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stage'
+          maxItems: 200
     CreateStageRequest:
       type: object
       required:
@@ -1695,6 +1724,18 @@ components:
           description: Required for group stages
           items:
             $ref: '#/components/schemas/CreateGroupRequest'
+          maxItems: 200
+    ReorderStagesRequest:
+      type: object
+      required:
+        - stage_ids
+      properties:
+        stage_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+            maxLength: 36
           maxItems: 200
     Group:
       type: object

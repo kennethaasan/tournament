@@ -7,6 +7,7 @@ import {
 import { db, withTransaction } from "@/server/db/client";
 import {
   brackets,
+  competitions,
   editionSettings,
   editions,
   groups,
@@ -215,6 +216,94 @@ export async function listStages(editionId: string): Promise<StageSummary[]> {
     publishedAt: stage.publishedAt,
     groups: groupsByStage.get(stage.id) ?? [],
   }));
+}
+
+export async function reorderStages(
+  editionId: string,
+  stageIds: string[],
+): Promise<StageSummary[]> {
+  const uniqueIds = new Set(stageIds);
+
+  if (uniqueIds.size !== stageIds.length) {
+    throw createProblem({
+      type: "https://tournament.app/problems/stages/invalid-order",
+      title: "Ugyldig rekkefølge",
+      status: 400,
+      detail: "Listen over stadier inneholder duplikater.",
+    });
+  }
+
+  if (stageIds.length === 0) {
+    const existing = await db
+      .select({ id: stages.id })
+      .from(stages)
+      .where(eq(stages.editionId, editionId))
+      .limit(1);
+
+    if (existing.length === 0) {
+      return [];
+    }
+
+    throw createProblem({
+      type: "https://tournament.app/problems/stages/invalid-order",
+      title: "Ugyldig rekkefølge",
+      status: 400,
+      detail: "Alle stadier må være med i rekkefølgen.",
+    });
+  }
+
+  await withTransaction(async (tx) => {
+    const stageRows = await tx
+      .select({ id: stages.id })
+      .from(stages)
+      .where(eq(stages.editionId, editionId));
+
+    if (stageRows.length === 0) {
+      throw createProblem({
+        type: "https://tournament.app/problems/stages/not-found",
+        title: "Stadier finnes ikke",
+        status: 404,
+        detail: "Fant ingen stadier for denne utgaven.",
+      });
+    }
+
+    if (stageRows.length !== stageIds.length) {
+      throw createProblem({
+        type: "https://tournament.app/problems/stages/invalid-order",
+        title: "Ugyldig rekkefølge",
+        status: 400,
+        detail: "Alle stadier må være med i rekkefølgen.",
+      });
+    }
+
+    const validIds = new Set(stageRows.map((stage) => stage.id));
+    for (const stageId of stageIds) {
+      if (!validIds.has(stageId)) {
+        throw createProblem({
+          type: "https://tournament.app/problems/stages/not-found",
+          title: "Stadie finnes ikke",
+          status: 404,
+          detail: "Fant ikke stadiet du prøver å flytte.",
+        });
+      }
+    }
+
+    for (const [index, stageId] of stageIds.entries()) {
+      await tx
+        .update(stages)
+        .set({ orderIndex: -(index + 1) })
+        .where(and(eq(stages.id, stageId), eq(stages.editionId, editionId)));
+    }
+
+    for (const [index, stageId] of stageIds.entries()) {
+      await tx
+        .update(stages)
+        .set({ orderIndex: index + 1 })
+        .where(and(eq(stages.id, stageId), eq(stages.editionId, editionId)));
+    }
+  });
+
+  return listStages(editionId);
 }
 
 export async function deleteStage(
@@ -466,6 +555,8 @@ export type UpdateEditionInput = {
 export type EditionDetail = {
   id: string;
   competitionId: string;
+  competitionName: string;
+  competitionSlug: string;
   label: string;
   slug: string;
   format: string;
@@ -482,9 +573,27 @@ export type EditionDetail = {
 export async function getEditionDetail(
   editionId: string,
 ): Promise<EditionDetail> {
-  const edition = await db.query.editions.findFirst({
-    where: eq(editions.id, editionId),
-  });
+  const [edition] = await db
+    .select({
+      id: editions.id,
+      competitionId: editions.competitionId,
+      competitionName: competitions.name,
+      competitionSlug: competitions.slug,
+      label: editions.label,
+      slug: editions.slug,
+      format: editions.format,
+      timezone: editions.timezone,
+      status: editions.status,
+      registrationOpensAt: editions.registrationOpensAt,
+      registrationClosesAt: editions.registrationClosesAt,
+      contactEmail: editions.contactEmail,
+      contactPhone: editions.contactPhone,
+      createdAt: editions.createdAt,
+      updatedAt: editions.updatedAt,
+    })
+    .from(editions)
+    .innerJoin(competitions, eq(competitions.id, editions.competitionId))
+    .where(eq(editions.id, editionId));
 
   if (!edition) {
     throw createProblem({
@@ -498,6 +607,8 @@ export async function getEditionDetail(
   return {
     id: edition.id,
     competitionId: edition.competitionId,
+    competitionName: edition.competitionName,
+    competitionSlug: edition.competitionSlug,
     label: edition.label,
     slug: edition.slug,
     format: edition.format,
@@ -595,9 +706,27 @@ export async function updateEdition(
         .where(eq(editions.id, input.editionId));
     }
 
-    const updated = await tx.query.editions.findFirst({
-      where: eq(editions.id, input.editionId),
-    });
+    const [updated] = await tx
+      .select({
+        id: editions.id,
+        competitionId: editions.competitionId,
+        competitionName: competitions.name,
+        competitionSlug: competitions.slug,
+        label: editions.label,
+        slug: editions.slug,
+        format: editions.format,
+        timezone: editions.timezone,
+        status: editions.status,
+        registrationOpensAt: editions.registrationOpensAt,
+        registrationClosesAt: editions.registrationClosesAt,
+        contactEmail: editions.contactEmail,
+        contactPhone: editions.contactPhone,
+        createdAt: editions.createdAt,
+        updatedAt: editions.updatedAt,
+      })
+      .from(editions)
+      .innerJoin(competitions, eq(competitions.id, editions.competitionId))
+      .where(eq(editions.id, input.editionId));
 
     if (!updated) {
       throw createProblem({
@@ -611,6 +740,8 @@ export async function updateEdition(
     return {
       id: updated.id,
       competitionId: updated.competitionId,
+      competitionName: updated.competitionName,
+      competitionSlug: updated.competitionSlug,
       label: updated.label,
       slug: updated.slug,
       format: updated.format,

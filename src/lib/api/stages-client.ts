@@ -57,3 +57,20 @@ export async function deleteStage(
     unwrapResponse({ data: undefined, error, response });
   }
 }
+
+export async function reorderStages(
+  editionId: string,
+  stageIds: string[],
+): Promise<Stage[]> {
+  const { data, error, response } = await apiClient.PATCH(
+    "/api/editions/{edition_id}/stages",
+    {
+      params: { path: { edition_id: editionId } },
+      body: { stage_ids: stageIds },
+      credentials: "include",
+    },
+  );
+
+  const payload = unwrapResponse({ data, error, response });
+  return payload.stages ?? [];
+}
