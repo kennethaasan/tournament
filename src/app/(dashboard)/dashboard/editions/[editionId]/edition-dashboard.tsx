@@ -1,9 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Route } from "next";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiClient, unwrapResponse } from "@/lib/api/client";
 import {
@@ -14,6 +11,7 @@ import {
   updateEntryStatus,
 } from "@/lib/api/entries-client";
 import { updateEditionScoreboard } from "@/lib/api/scoreboard-client";
+import { translateEditionStatus } from "@/lib/utils/translations";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
@@ -87,9 +85,9 @@ const FORMATS = [
 ];
 
 const STATUSES = [
-  { value: "draft", label: "Utkast" },
-  { value: "published", label: "Publisert" },
-  { value: "archived", label: "Arkivert" },
+  { value: "draft", label: translateEditionStatus("draft") },
+  { value: "published", label: translateEditionStatus("published") },
+  { value: "archived", label: translateEditionStatus("archived") },
 ];
 
 const TIMEZONES = [
@@ -98,45 +96,6 @@ const TIMEZONES = [
   "Europe/Stockholm",
   "UTC",
 ];
-
-const EDITION_NAV_ITEMS = [
-  { label: "Oversikt", path: "", exact: true },
-  { label: "Kampoppsett", path: "/schedule" },
-  { label: "Lag og tropp", path: "/teams" },
-  { label: "Kamp-administrasjon", path: "/results" },
-  { label: "Hendelser", path: "/events" },
-  { label: "Scoreboard-innstillinger", path: "/scoreboard" },
-];
-
-export function EditionNav({ editionId }: { editionId: string }) {
-  const pathname = usePathname();
-  const basePath = `/dashboard/editions/${editionId}`;
-
-  return (
-    <nav aria-label="Utgave-navigasjon" className="flex flex-wrap gap-3">
-      {EDITION_NAV_ITEMS.map((item) => {
-        const href = `${basePath}${item.path}` as Route;
-        const isActive = item.exact
-          ? pathname === href
-          : pathname?.startsWith(href);
-
-        return (
-          <Button
-            key={item.label}
-            asChild
-            size="sm"
-            variant={isActive ? "default" : "outline"}
-            className="rounded-full"
-          >
-            <Link href={href} aria-current={isActive ? "page" : undefined}>
-              {item.label}
-            </Link>
-          </Button>
-        );
-      })}
-    </nav>
-  );
-}
 
 type EditionHeaderProps = {
   editionId: string;
@@ -179,7 +138,6 @@ export function EditionHeader({
           {editionLabel}
         </h1>
       </header>
-      <EditionNav editionId={editionId} />
       <div className="space-y-2">
         <h2 className="text-xl font-semibold text-foreground">{pageTitle}</h2>
         <p className="max-w-3xl text-sm text-muted-foreground">
@@ -484,8 +442,7 @@ function EditionSettingsCard({
               <Badge
                 variant={edition.status === "published" ? "accent" : "outline"}
               >
-                {STATUSES.find((s) => s.value === edition.status)?.label ??
-                  edition.status}
+                {translateEditionStatus(edition.status)}
               </Badge>
             </div>
           </div>

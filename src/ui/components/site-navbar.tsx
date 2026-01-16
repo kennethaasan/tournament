@@ -26,7 +26,9 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
     layout === "dashboard" ? "max-w-[1440px]" : "max-w-[1200px]";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+    <header
+      className={`${layout === "dashboard" ? "hidden lg:block" : ""} sticky top-0 z-[60] border-b border-border/60 bg-background/80 backdrop-blur-xl`}
+    >
       <div
         className={`mx-auto flex h-14 w-full items-center gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4 lg:px-6 ${containerWidth}`}
       >
@@ -118,7 +120,9 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
           </nav>
 
           {/* Mobile navigation menu */}
-          <details className="group relative md:hidden">
+          <details
+            className={`group relative md:hidden ${layout === "dashboard" ? "hidden" : ""}`}
+          >
             <summary className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-border/70 text-foreground transition hover:bg-primary/10 [&::-webkit-details-marker]:hidden">
               <svg
                 className="h-5 w-5 group-open:hidden"

@@ -14,7 +14,7 @@ export function DashboardHeader({ sections }: DashboardHeaderProps) {
   const pathname = usePathname();
 
   return (
-    <header className="lg:hidden">
+    <header className="relative z-50 lg:hidden">
       <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-4 py-3 shadow-sm backdrop-blur">
         <Link
           href="/"
@@ -29,7 +29,7 @@ export function DashboardHeader({ sections }: DashboardHeaderProps) {
             <summary className="list-none rounded-full border border-border/70 bg-background/70 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground shadow-sm transition hover:bg-primary/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 [&::-webkit-details-marker]:hidden group-open:bg-primary/15 group-open:text-foreground">
               Meny
             </summary>
-            <div className="absolute right-0 mt-3 w-72 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
+            <div className="absolute right-0 z-50 mt-3 w-72 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
               <nav className="space-y-3">
                 {sections.map((section) => (
                   <div key={section.label} className="space-y-1">
