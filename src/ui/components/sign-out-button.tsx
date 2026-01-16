@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils/cn";
+import { Button } from "@/ui/components/button";
 
 type SignOutButtonProps = {
   className?: string;
@@ -51,16 +52,18 @@ export function SignOutButton({
   };
 
   return (
-    <button
+    <Button
       type="button"
       onClick={() => void handleSignOut()}
+      variant="outline"
+      size="sm"
       className={cn(
-        "rounded-full border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-70",
+        "disabled:cursor-not-allowed disabled:opacity-70",
         className,
       )}
       disabled={isSubmitting}
     >
       {children}
-    </button>
+    </Button>
   );
 }

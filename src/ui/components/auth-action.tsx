@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Button } from "@/ui/components/button";
 import { SignOutButton } from "@/ui/components/sign-out-button";
 
 type AuthActionProps = {
@@ -76,11 +77,8 @@ export function AuthAction({ initialAuthenticated = false }: AuthActionProps) {
   return shouldShowSignOut ? (
     <SignOutButton />
   ) : (
-    <Link
-      href="/auth/login"
-      className="rounded-full border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"
-    >
-      Logg inn
-    </Link>
+    <Button asChild variant="outline" size="sm">
+      <Link href="/auth/login">Logg inn</Link>
+    </Button>
   );
 }
