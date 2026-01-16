@@ -48,6 +48,12 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
                   Dashboard
                 </Link>
                 <Link
+                  href="/hjelp"
+                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                >
+                  Hjelp
+                </Link>
+                <Link
                   href="/dashboard/notifications"
                   className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
@@ -92,12 +98,20 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
                 ) : null}
               </>
             ) : (
-              <Link
-                href="/competitions/trondheim-cup/2025/scoreboard"
-                className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
-              >
-                Scoreboard-demo
-              </Link>
+              <>
+                <Link
+                  href="/competitions/trondheim-cup/2025/scoreboard"
+                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                >
+                  Scoreboard-demo
+                </Link>
+                <Link
+                  href="/hjelp"
+                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                >
+                  Hjelp
+                </Link>
+              </>
             )}
           </nav>
         </div>
