@@ -71,9 +71,8 @@ export function EditionTeamsDashboard({
     <div className="space-y-8">
       <EditionHeader
         editionId={editionId}
-        eyebrow="Utgave · Lag og tropp"
-        title="Lagoversikt"
-        description="Her finner du lagene som er påmeldt denne utgaven. Bruk «Stall» for å legge til eller oppdatere spillere."
+        pageTitle="Lagoversikt"
+        pageDescription="Her finner du lagene som er påmeldt denne utgaven. Bruk «Stall» for å legge til eller oppdatere spillere."
       />
 
       <div className="flex justify-end">

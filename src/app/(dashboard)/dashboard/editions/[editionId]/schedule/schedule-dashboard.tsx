@@ -587,9 +587,8 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     <div className="space-y-10">
       <EditionHeader
         editionId={editionId}
-        eyebrow="Utgave · Kampoppsett"
-        title="Planlegg stadier og kampoppsett"
-        description="Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer kampoppsett for turneringen. Når du er fornøyd, kan du publisere kampene og varsle lagene."
+        pageTitle="Planlegg stadier og kampoppsett"
+        pageDescription="Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer kampoppsett for turneringen. Når du er fornøyd, kan du publisere kampene og varsle lagene."
       />
 
       <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
