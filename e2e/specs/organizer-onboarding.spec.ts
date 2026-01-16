@@ -40,14 +40,15 @@ test.describe("Organizer onboarding", () => {
       page.getByRole("heading", { name: /Ny konkurranse/i }),
     ).toBeVisible();
     await expect(
-      page.getByRole("heading", { name: /Adminoversikt/i }),
+      page.getByRole("heading", { name: /Global admin/i }),
     ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: /Offentlig scoreboard/i }),
     ).toBeVisible();
 
-    await expect(
-      page.getByRole("link", { name: /Åpne dashboard/i }),
-    ).toHaveAttribute("href", "/dashboard/admin/overview");
+    await expect(page.getByRole("link", { name: /Åpne/i })).toHaveAttribute(
+      "href",
+      "/dashboard/admin/overview",
+    );
   });
 });
