@@ -28,11 +28,11 @@ export default async function DashboardLayout({
     <div className="page-shell min-h-screen">
       <SiteNavbar layout="dashboard" />
       <div className="grid-overlay absolute inset-0" aria-hidden />
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1440px] gap-6 px-4 py-6 lg:px-6">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[1440px] gap-4 px-3 py-4 sm:gap-6 sm:px-4 sm:py-6 lg:px-6">
         <DashboardSidebar sections={dashboardSections} />
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           <DashboardHeader sections={dashboardSections} />
-          <main className="min-w-0 flex-1 rounded-3xl border border-border/60 bg-background/75 p-6 shadow-[0_24px_70px_-45px_rgba(0,0,0,0.45)] backdrop-blur">
+          <main className="min-w-0 flex-1 rounded-2xl border border-border/60 bg-background/75 p-3 shadow-[0_24px_70px_-45px_rgba(0,0,0,0.45)] backdrop-blur sm:rounded-3xl sm:p-6">
             {children}
           </main>
         </div>

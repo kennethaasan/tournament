@@ -436,7 +436,7 @@ export function GenerateMatchesForm({
                     control={form.control}
                     name={`seeds.${index}.entryId`}
                     render={({ field }) => (
-                      <FormItem className="min-w-[200px] flex-1">
+                      <FormItem className="flex-1">
                         <FormControl>
                           <Input {...field} placeholder="Lag-ID" />
                         </FormControl>
@@ -447,7 +447,7 @@ export function GenerateMatchesForm({
                     control={form.control}
                     name={`seeds.${index}.label`}
                     render={({ field }) => (
-                      <FormItem className="min-w-[200px] flex-1">
+                      <FormItem className="flex-1">
                         <FormControl>
                           <Input
                             {...field}

@@ -19,7 +19,7 @@ export function PageHero({
   actionLabel,
 }: PageHeroProps) {
   return (
-    <div className="relative mb-8 overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-white/5 via-primary/10 to-transparent p-8 shadow-xl">
+    <div className="relative mb-6 overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-white/5 via-primary/10 to-transparent p-4 shadow-xl sm:mb-8 sm:rounded-3xl sm:p-8">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08),transparent_30%),radial-gradient(circle_at_80%_0%,rgba(138,180,255,0.16),transparent_30%)]" />
       <div className="relative flex flex-col gap-4">
         <Badge
@@ -28,7 +28,7 @@ export function PageHero({
         >
           {eyebrow}
         </Badge>
-        <h1 className="text-3xl font-semibold leading-tight text-foreground sm:text-4xl">
+        <h1 className="text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-4xl">
           {title}
         </h1>
         <p className="max-w-3xl text-base text-muted-foreground">

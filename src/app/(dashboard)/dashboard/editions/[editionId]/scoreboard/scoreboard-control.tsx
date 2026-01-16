@@ -282,7 +282,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
         </div>
       ) : (
         <div className="space-y-10">
-          <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <section className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:space-y-6 sm:rounded-2xl sm:p-8">
             <header className="space-y-1">
               <h2 className="text-xl font-semibold text-foreground">
                 Tema og rotasjon
@@ -418,7 +418,7 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
             </form>
           </section>
 
-          <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <section className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:space-y-6 sm:rounded-2xl sm:p-8">
             <header className="space-y-1">
               <h2 className="text-xl font-semibold text-foreground">
                 Highlight-overlegg
