@@ -879,7 +879,7 @@ function MatchSummaryCard({
         <button
           type="button"
           onClick={onEdit}
-          className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+          className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90"
         >
           Rediger
         </button>
