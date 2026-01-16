@@ -42,7 +42,6 @@ const MODULE_OPTIONS: Array<{ id: ScoreboardModule; label: string }> = [
 export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   const queryClient = useQueryClient();
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [editionLabel, setEditionLabel] = useState("");
 
   const [rotationSeconds, setRotationSeconds] = useState<string>("5");
   const [modules, setModules] = useState<ScoreboardModule[]>(
@@ -70,7 +69,6 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
   }, [activeHighlight]);
 
   const applySummary = useCallback((summary: EditionScoreboardView) => {
-    setEditionLabel(summary.edition.label);
     setRotationSeconds(summary.edition.scoreboard_rotation_seconds.toString());
     setModules(
       summary.edition.scoreboard_modules?.length
@@ -267,9 +265,8 @@ export function ScoreboardControl({ editionId }: ScoreboardControlProps) {
     <div className="space-y-10">
       <EditionHeader
         editionId={editionId}
-        eyebrow="Utgave · Storskjerm"
-        title={`Kontroller scoreboard for ${editionLabel || "utgaven"}`}
-        description="Tilpass farger, rotasjon og highlight-overlegg før du viser scoreboardet på arenaen. Endringer trer i kraft umiddelbart."
+        pageTitle="Storskjerm"
+        pageDescription="Tilpass farger, rotasjon og highlight-overlegg før du viser scoreboardet på arenaen. Endringer trer i kraft umiddelbart."
       />
 
       {isLoading ? (

@@ -404,9 +404,8 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     <div className="space-y-8">
       <EditionHeader
         editionId={editionId}
-        eyebrow="Utgave · Kampresultater"
-        title="Kampadministrasjon"
-        description="Oppdater status, poeng og kampdetaljer. Endringer oppdaterer scoreboardet fortløpende."
+        pageTitle="Kampadministrasjon"
+        pageDescription="Oppdater status, poeng og kampdetaljer. Endringer oppdaterer scoreboardet fortløpende."
       />
 
       {actionError ? (

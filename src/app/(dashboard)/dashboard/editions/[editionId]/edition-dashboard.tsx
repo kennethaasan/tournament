@@ -42,6 +42,8 @@ type EditionData = {
   edition: {
     id: string;
     competition_id: string;
+    competition_name?: string | null;
+    competition_slug?: string | null;
     label: string;
     slug: string;
     format: string;
@@ -130,29 +132,52 @@ export function EditionNav({ editionId }: { editionId: string }) {
 
 type EditionHeaderProps = {
   editionId: string;
-  eyebrow: string;
-  title: string;
-  description: string;
+  pageTitle: string;
+  pageDescription: string;
+  edition?: EditionData["edition"];
 };
 
 export function EditionHeader({
   editionId,
-  eyebrow,
-  title,
-  description,
+  pageTitle,
+  pageDescription,
+  edition,
 }: EditionHeaderProps) {
+  const shouldFetchEdition = !edition;
+  const editionQuery = useQuery({
+    queryKey: editionQueryKey(editionId),
+    queryFn: ({ signal }) => fetchEdition(editionId, signal),
+    enabled: shouldFetchEdition,
+  });
+  const resolvedEdition = edition ?? editionQuery.data?.edition;
+  const competitionName =
+    resolvedEdition?.competition_name ??
+    (editionQuery.isLoading && shouldFetchEdition
+      ? "Laster..."
+      : "Ukjent konkurranse");
+  const editionLabel =
+    resolvedEdition?.label ??
+    (editionQuery.isLoading && shouldFetchEdition
+      ? "Laster..."
+      : "Ukjent utgave");
+
   return (
     <div className="space-y-4">
-      <header className="space-y-2">
+      <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          {eyebrow}
+          {competitionName}
         </p>
         <h1 className="text-3xl font-bold text-foreground md:text-4xl">
-          {title}
+          {editionLabel}
         </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">{description}</p>
       </header>
       <EditionNav editionId={editionId} />
+      <div className="space-y-2">
+        <h2 className="text-xl font-semibold text-foreground">{pageTitle}</h2>
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          {pageDescription}
+        </p>
+      </div>
     </div>
   );
 }
@@ -189,9 +214,8 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
       <div className="space-y-8">
         <EditionHeader
           editionId={editionId}
-          eyebrow="Utgave · Administrasjon"
-          title="Laster..."
-          description="Henter utgavedetaljer..."
+          pageTitle="Administrasjon"
+          pageDescription="Henter utgavedetaljer..."
         />
       </div>
     );
@@ -202,9 +226,8 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
       <div className="space-y-8">
         <EditionHeader
           editionId={editionId}
-          eyebrow="Utgave · Administrasjon"
-          title="Feil"
-          description="Kunne ikke laste utgaven."
+          pageTitle="Administrasjon"
+          pageDescription="Kunne ikke laste utgaven."
         />
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error instanceof Error ? error.message : "Ukjent feil"}
@@ -219,9 +242,9 @@ export function EditionDashboard({ editionId }: EditionDashboardProps) {
     <div className="space-y-8">
       <EditionHeader
         editionId={editionId}
-        eyebrow="Utgave · Administrasjon"
-        title={edition.label}
-        description="Administrer innstillinger, format og registrering for denne utgaven."
+        edition={edition}
+        pageTitle="Administrasjon"
+        pageDescription="Administrer innstillinger, format og registrering for denne utgaven."
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
