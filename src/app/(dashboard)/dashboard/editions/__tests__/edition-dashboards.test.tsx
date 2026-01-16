@@ -35,7 +35,9 @@ describe("edition dashboards", () => {
 
   test("renders results dashboard shell", () => {
     render(<ResultsDashboard editionId="edition-1" />);
-    expect(screen.getByText("Kampadministrasjon")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Kamp-administrasjon" }),
+    ).toBeInTheDocument();
   });
 
   test("renders scoreboard control shell", () => {

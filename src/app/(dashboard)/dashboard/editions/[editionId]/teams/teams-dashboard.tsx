@@ -147,12 +147,6 @@ export function EditionTeamsDashboard({
                     >
                       Stall
                     </Link>
-                    <Link
-                      href={`/dashboard/teams/${item.team.id}/entries`}
-                      className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
-                    >
-                      Tropp
-                    </Link>
                   </div>
                 </div>
               </article>

@@ -732,9 +732,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                               {group.name}
                             </span>
                           ) : (
-                            <span className="text-xs font-semibold uppercase text-primary">
-                              Gruppe {group.code}
-                            </span>
+                            <>
+                              <span className="text-xs font-semibold uppercase text-primary">
+                                Gruppe {group.code}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                Ingen visningsnavn
+                              </span>
+                            </>
                           )}
                         </li>
                       ))}

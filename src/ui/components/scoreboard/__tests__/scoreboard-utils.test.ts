@@ -92,12 +92,26 @@ describe("formatMatchScore", () => {
     status: ScoreboardMatch["status"],
     homeScore: number,
     awayScore: number,
+    extraTime?: { home?: number | null; away?: number | null },
+    penalties?: { home?: number | null; away?: number | null },
   ): ScoreboardMatch => ({
     id: "match-1",
     status,
     kickoffAt: new Date(),
-    home: { entryId: "e1", name: "Home", score: homeScore },
-    away: { entryId: "e2", name: "Away", score: awayScore },
+    home: {
+      entryId: "e1",
+      name: "Home",
+      score: homeScore,
+      extraTime: extraTime?.home ?? null,
+      penalties: penalties?.home ?? null,
+    },
+    away: {
+      entryId: "e2",
+      name: "Away",
+      score: awayScore,
+      extraTime: extraTime?.away ?? null,
+      penalties: penalties?.away ?? null,
+    },
   });
 
   it("returns empty string for scheduled match with 0-0 score", () => {
@@ -114,6 +128,19 @@ describe("formatMatchScore", () => {
 
   it("returns score for finalized match", () => {
     expect(formatMatchScore(createMatch("finalized", 3, 3))).toBe("3 – 3");
+  });
+
+  it("includes extra time in the score display", () => {
+    const match = createMatch("finalized", 1, 1, { home: 1, away: 0 });
+    expect(formatMatchScore(match)).toBe("2 – 1 (EEO)");
+  });
+
+  it("includes penalty shootout results in the score display", () => {
+    const match = createMatch("finalized", 1, 1, undefined, {
+      home: 4,
+      away: 3,
+    });
+    expect(formatMatchScore(match)).toBe("1 – 1 (ESP) 4–3 str.");
   });
 });
 
@@ -498,12 +525,23 @@ describe("computeMatchStats", () => {
     status: ScoreboardMatch["status"],
     homeScore = 0,
     awayScore = 0,
+    extraTime?: { home?: number | null; away?: number | null },
   ): ScoreboardMatch => ({
     id: "match-1",
     status,
     kickoffAt: new Date(),
-    home: { entryId: "e1", name: "Home", score: homeScore },
-    away: { entryId: "e2", name: "Away", score: awayScore },
+    home: {
+      entryId: "e1",
+      name: "Home",
+      score: homeScore,
+      extraTime: extraTime?.home ?? null,
+    },
+    away: {
+      entryId: "e2",
+      name: "Away",
+      score: awayScore,
+      extraTime: extraTime?.away ?? null,
+    },
   });
 
   it("returns zeros for empty array", () => {
@@ -519,11 +557,11 @@ describe("computeMatchStats", () => {
   it("counts finalized matches and their goals", () => {
     const matches = [
       createMatch("finalized", 2, 1),
-      createMatch("finalized", 0, 0),
+      createMatch("finalized", 0, 0, { home: 1, away: 0 }),
     ];
     const stats = computeMatchStats(matches);
     expect(stats.completedMatches).toBe(2);
-    expect(stats.totalGoals).toBe(3);
+    expect(stats.totalGoals).toBe(4);
   });
 
   it("counts live matches (in_progress, extra_time, penalty_shootout, and disputed)", () => {

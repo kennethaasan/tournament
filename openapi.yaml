@@ -1966,11 +1966,13 @@ components:
         extra_time:
           type: integer
           minimum: 0
+          nullable: true
           format: int32
           maximum: 2147483647
         penalties:
           type: integer
           minimum: 0
+          nullable: true
           format: int32
           maximum: 2147483647
     MatchEvent:
@@ -2816,6 +2818,18 @@ components:
           format: int32
           minimum: 0
           maximum: 2147483647
+        extra_time:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
+          nullable: true
+        penalties:
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 2147483647
+          nullable: true
     Standing:
       type: object
       required:

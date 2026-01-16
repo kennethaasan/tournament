@@ -22,8 +22,8 @@ type RouteParams = {
 
 type ScoreBreakdownInput = {
   regulation?: number;
-  extra_time?: number;
-  penalties?: number;
+  extra_time?: number | null;
+  penalties?: number | null;
 };
 
 type MatchEventInput = {
@@ -46,7 +46,13 @@ type UpdateMatchBody = {
   away_entry_id?: string | null;
   kickoff_at?: string | null;
   venue_id?: string | null;
-  status?: "scheduled" | "in_progress" | "finalized" | "disputed";
+  status?:
+    | "scheduled"
+    | "in_progress"
+    | "extra_time"
+    | "penalty_shootout"
+    | "finalized"
+    | "disputed";
   score?: {
     home?: ScoreBreakdownInput;
     away?: ScoreBreakdownInput;
@@ -369,15 +375,15 @@ async function buildMatchUpdate(
   if (payload.score) {
     const home = normalizeScoreBreakdown(
       match.homeScore ?? 0,
-      match.homeExtraTime ?? 0,
-      match.homePenalties ?? 0,
+      match.homeExtraTime ?? null,
+      match.homePenalties ?? null,
       payload.score.home,
     );
 
     const away = normalizeScoreBreakdown(
       match.awayScore ?? 0,
-      match.awayExtraTime ?? 0,
-      match.awayPenalties ?? 0,
+      match.awayExtraTime ?? null,
+      match.awayPenalties ?? null,
       payload.score.away,
     );
 
@@ -402,13 +408,13 @@ async function buildMatchUpdate(
 
 function normalizeScoreBreakdown(
   currentRegulation: number,
-  currentExtra: number,
-  currentPenalties: number,
+  currentExtra: number | null,
+  currentPenalties: number | null,
   input?: ScoreBreakdownInput,
 ) {
   const regulation = sanitizeScore(input?.regulation, currentRegulation);
-  const extraTime = sanitizeScore(input?.extra_time, currentExtra);
-  const penalties = sanitizeScore(input?.penalties, currentPenalties);
+  const extraTime = sanitizeOptionalScore(input?.extra_time, currentExtra);
+  const penalties = sanitizeOptionalScore(input?.penalties, currentPenalties);
 
   return { regulation, extraTime, penalties };
 }
@@ -430,18 +436,54 @@ function sanitizeScore(incoming: number | undefined, fallback: number): number {
   return Math.trunc(incoming);
 }
 
-function computeOutcome(
-  home: { regulation: number; extraTime: number; penalties: number },
-  away: { regulation: number; extraTime: number; penalties: number },
-): (typeof matches.$inferInsert)["outcome"] {
-  const homeTotal = home.regulation + home.extraTime;
-  const awayTotal = away.regulation + away.extraTime;
+function sanitizeOptionalScore(
+  incoming: number | null | undefined,
+  fallback: number | null,
+): number | null {
+  if (incoming === undefined) {
+    return fallback;
+  }
 
-  if (home.penalties > 0 || away.penalties > 0) {
-    if (home.penalties > away.penalties) {
+  if (incoming === null) {
+    return null;
+  }
+
+  if (!Number.isFinite(incoming) || incoming < 0) {
+    throw createProblem({
+      type: "https://tournament.app/problems/matches/invalid-score",
+      title: "Ugyldig poengsum",
+      status: 400,
+      detail: "Målsummer må være ikke-negative tall.",
+    });
+  }
+
+  return Math.trunc(incoming);
+}
+
+function computeOutcome(
+  home: {
+    regulation: number;
+    extraTime: number | null;
+    penalties: number | null;
+  },
+  away: {
+    regulation: number;
+    extraTime: number | null;
+    penalties: number | null;
+  },
+): (typeof matches.$inferInsert)["outcome"] {
+  const homeExtra = home.extraTime ?? 0;
+  const awayExtra = away.extraTime ?? 0;
+  const homePens = home.penalties ?? 0;
+  const awayPens = away.penalties ?? 0;
+  const homeTotal = home.regulation + homeExtra;
+  const awayTotal = away.regulation + awayExtra;
+
+  if (homePens > 0 || awayPens > 0) {
+    if (homePens > awayPens) {
       return "home_win";
     }
-    if (away.penalties > home.penalties) {
+    if (awayPens > homePens) {
       return "away_win";
     }
   }
@@ -475,13 +517,13 @@ function mapMatchToResponse(
     away_entry_id: match.awayEntryId,
     home_score: {
       regulation: match.homeScore ?? 0,
-      extra_time: match.homeExtraTime ?? 0,
-      penalties: match.homePenalties ?? 0,
+      extra_time: match.homeExtraTime ?? undefined,
+      penalties: match.homePenalties ?? undefined,
     },
     away_score: {
       regulation: match.awayScore ?? 0,
-      extra_time: match.awayExtraTime ?? 0,
-      penalties: match.awayPenalties ?? 0,
+      extra_time: match.awayExtraTime ?? undefined,
+      penalties: match.awayPenalties ?? undefined,
     },
     outcome: match.outcome ?? null,
     events: events.map((event) => ({

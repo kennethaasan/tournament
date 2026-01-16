@@ -282,13 +282,13 @@ export const POST = createApiHandler<RouteParams>(
           : null,
         home_score: {
           regulation: match.homeScore ?? 0,
-          extra_time: match.homeExtraTime ?? 0,
-          penalties: match.homePenalties ?? 0,
+          extra_time: match.homeExtraTime ?? undefined,
+          penalties: match.homePenalties ?? undefined,
         },
         away_score: {
           regulation: match.awayScore ?? 0,
-          extra_time: match.awayExtraTime ?? 0,
-          penalties: match.awayPenalties ?? 0,
+          extra_time: match.awayExtraTime ?? undefined,
+          penalties: match.awayPenalties ?? undefined,
         },
         outcome: match.outcome ?? null,
       },
@@ -449,13 +449,13 @@ function mapMatchResponse(
     away_entry_name: awayEntryName ?? null,
     home_score: {
       regulation: row.homeScore ?? 0,
-      extra_time: row.homeExtraTime ?? 0,
-      penalties: row.homePenalties ?? 0,
+      extra_time: row.homeExtraTime ?? undefined,
+      penalties: row.homePenalties ?? undefined,
     },
     away_score: {
       regulation: row.awayScore ?? 0,
-      extra_time: row.awayExtraTime ?? 0,
-      penalties: row.awayPenalties ?? 0,
+      extra_time: row.awayExtraTime ?? undefined,
+      penalties: row.awayPenalties ?? undefined,
     },
     outcome: row.outcome ?? null,
   };

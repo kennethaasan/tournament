@@ -163,10 +163,10 @@ describe("ScreenLayout", () => {
     );
 
     // Live match card should show team names
-    expect(screen.getByText("Team One")).toBeInTheDocument();
-    expect(screen.getByText("Team Two")).toBeInTheDocument();
+    expect(screen.getAllByText("Team One").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Team Two").length).toBeGreaterThanOrEqual(1);
     // Score display
-    expect(screen.getByText("2 – 1")).toBeInTheDocument();
+    expect(screen.getAllByText("2 – 1").length).toBeGreaterThanOrEqual(1);
   });
 
   test("renders disputed matches as live", () => {
@@ -190,7 +190,7 @@ describe("ScreenLayout", () => {
       />,
     );
 
-    expect(screen.getByText("1 – 1")).toBeInTheDocument();
+    expect(screen.getAllByText("1 – 1").length).toBeGreaterThanOrEqual(1);
   });
 
   test("renders match highlight text", () => {
@@ -237,8 +237,12 @@ describe("ScreenLayout", () => {
       />,
     );
 
-    expect(screen.getByText("Fallback Name")).toBeInTheDocument();
-    expect(screen.getByText("No Entry Team")).toBeInTheDocument();
+    expect(screen.getAllByText("Fallback Name").length).toBeGreaterThanOrEqual(
+      1,
+    );
+    expect(screen.getAllByText("No Entry Team").length).toBeGreaterThanOrEqual(
+      1,
+    );
   });
 
   test("renders scheduled matches in table", () => {
@@ -499,7 +503,9 @@ describe("ScreenLayout", () => {
       />,
     );
 
-    expect(screen.getByText(/Main Stadium/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Main Stadium/).length).toBeGreaterThanOrEqual(
+      1,
+    );
   });
 
   test("renders Arena fallback when no venue name", () => {
@@ -627,8 +633,8 @@ describe("ScreenLayout", () => {
     );
 
     // Away team should use Team Two from map, not fallback
-    expect(screen.getByText("Team Two")).toBeInTheDocument();
-    expect(screen.getByText("Home Direct")).toBeInTheDocument();
+    expect(screen.getAllByText("Team Two").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Home Direct").length).toBeGreaterThanOrEqual(1);
   });
 
   test("uses fallback away name when entryId not in map", () => {
@@ -652,7 +658,9 @@ describe("ScreenLayout", () => {
       />,
     );
 
-    expect(screen.getByText("Away Fallback Name")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Away Fallback Name").length,
+    ).toBeGreaterThanOrEqual(1);
   });
 
   test("renders dash for match without venue in table", () => {

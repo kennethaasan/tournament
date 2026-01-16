@@ -33,6 +33,8 @@ export type ScoreboardMatchSide = {
   entryId: string | null;
   name: string;
   score: number;
+  extraTime?: number | null;
+  penalties?: number | null;
 };
 
 export type ScoreboardMatch = {
@@ -172,11 +174,15 @@ export function toApiScoreboardPayload(
         entry_id: match.home.entryId,
         name: match.home.name,
         score: match.home.score,
+        extra_time: match.home.extraTime ?? null,
+        penalties: match.home.penalties ?? null,
       },
       away: {
         entry_id: match.away.entryId,
         name: match.away.name,
         score: match.away.score,
+        extra_time: match.away.extraTime ?? null,
+        penalties: match.away.penalties ?? null,
       },
       highlight: match.highlight ?? data.overlayMessage ?? null,
       venue_name: match.venueName ?? null,
@@ -278,11 +284,15 @@ export function fromApiScoreboardPayload(
         entryId: match.home.entry_id ?? null,
         name: match.home.name,
         score: match.home.score,
+        extraTime: match.home.extra_time ?? null,
+        penalties: match.home.penalties ?? null,
       },
       away: {
         entryId: match.away.entry_id ?? null,
         name: match.away.name,
         score: match.away.score,
+        extraTime: match.away.extra_time ?? null,
+        penalties: match.away.penalties ?? null,
       },
       highlight: match.highlight ?? null,
       venueName: match.venue_name ?? null,
