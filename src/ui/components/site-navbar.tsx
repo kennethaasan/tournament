@@ -22,8 +22,7 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
   const isTeamManager = userHasRole(session, "team_manager");
   const canInvite = isGlobalAdmin || isCompetitionAdmin || isTeamManager;
   const isAuthenticated = Boolean(session) || hasSessionCookie;
-  const containerWidth =
-    layout === "dashboard" ? "max-w-[1440px]" : "max-w-[1200px]";
+  const containerWidth = "max-w-[1440px]";
 
   return (
     <header
@@ -35,45 +34,44 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-3 py-1.5 text-sm font-semibold tracking-tight text-foreground shadow-md sm:gap-3 sm:px-4 sm:py-2"
+            className="flex shrink-0 items-center gap-2 rounded-xl border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-3 py-1.5 text-sm font-semibold tracking-tight text-foreground shadow-md sm:gap-3 sm:px-4 sm:py-2"
           >
             <span className="text-lg sm:text-xl">🏆</span>
             <span className="hidden xs:inline sm:inline">Turneringsadmin</span>
           </Link>
 
-          {/* Desktop navigation */}
-          <nav className="hidden items-center gap-2 text-sm font-semibold md:flex">
+          <nav className="hidden items-center gap-1 text-sm font-semibold md:flex">
             {isAuthenticated ? (
               <>
                 <Link
                   href="/dashboard"
-                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/hjelp"
-                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
                   Hjelp
                 </Link>
                 <Link
                   href="/dashboard/notifications"
-                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
                   Varsler
                 </Link>
                 {canInvite ? (
                   <Link
                     href="/dashboard/invitations"
-                    className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                    className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                   >
                     Invitasjoner
                   </Link>
                 ) : null}
                 {isGlobalAdmin ? (
                   <details className="group relative">
-                    <summary className="list-none rounded-full border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15 [&::-webkit-details-marker]:hidden">
+                    <summary className="list-none rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-foreground shadow-sm transition hover:bg-primary/15 [&::-webkit-details-marker]:hidden">
                       Global admin
                     </summary>
                     <div className="absolute left-0 mt-2 w-64 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
@@ -105,13 +103,13 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
               <>
                 <Link
                   href="/competitions/trondheim-cup/2025/scoreboard"
-                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
                   Scoreboard-demo
                 </Link>
                 <Link
                   href="/hjelp"
-                  className="rounded-full px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
+                  className="rounded-xl px-3 py-2 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
                 >
                   Hjelp
                 </Link>
