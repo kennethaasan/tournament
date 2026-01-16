@@ -28,17 +28,19 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div
-        className={`mx-auto flex h-16 w-full items-center gap-4 px-4 lg:px-6 ${containerWidth}`}
+        className={`mx-auto flex h-14 w-full items-center gap-2 px-3 sm:h-16 sm:gap-4 sm:px-4 lg:px-6 ${containerWidth}`}
       >
-        <div className="flex min-w-0 flex-1 items-center gap-4">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
           <Link
             href="/"
-            className="flex items-center gap-3 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-4 py-2 text-sm font-semibold tracking-tight text-foreground shadow-md"
+            className="flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-gradient-to-r from-primary/15 to-transparent px-3 py-1.5 text-sm font-semibold tracking-tight text-foreground shadow-md sm:gap-3 sm:px-4 sm:py-2"
           >
-            <span className="text-xl">🏆</span>
-            <span>Turneringsadmin</span>
+            <span className="text-lg sm:text-xl">🏆</span>
+            <span className="hidden xs:inline sm:inline">Turneringsadmin</span>
           </Link>
-          <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold">
+
+          {/* Desktop navigation */}
+          <nav className="hidden items-center gap-2 text-sm font-semibold md:flex">
             {isAuthenticated ? (
               <>
                 <Link
@@ -114,8 +116,118 @@ export async function SiteNavbar({ layout = "public" }: SiteNavbarProps) {
               </>
             )}
           </nav>
+
+          {/* Mobile navigation menu */}
+          <details className="group relative md:hidden">
+            <summary className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-border/70 text-foreground transition hover:bg-primary/10 [&::-webkit-details-marker]:hidden">
+              <svg
+                className="h-5 w-5 group-open:hidden"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              <svg
+                className="hidden h-5 w-5 group-open:block"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+              <span className="sr-only">Åpne meny</span>
+            </summary>
+            <div className="absolute left-0 top-full mt-2 w-56 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl backdrop-blur-xl">
+              <nav className="space-y-1 text-sm font-semibold">
+                {isAuthenticated ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/hjelp"
+                      className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                    >
+                      Hjelp
+                    </Link>
+                    <Link
+                      href="/dashboard/notifications"
+                      className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                    >
+                      Varsler
+                    </Link>
+                    {canInvite ? (
+                      <Link
+                        href="/dashboard/invitations"
+                        className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                      >
+                        Invitasjoner
+                      </Link>
+                    ) : null}
+                    {isGlobalAdmin ? (
+                      <>
+                        <div className="my-2 border-t border-border/40" />
+                        <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                          Global admin
+                        </p>
+                        <Link
+                          href="/dashboard/admin/overview"
+                          className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                        >
+                          Oversikt
+                        </Link>
+                        <Link
+                          href="/dashboard/admin/audit"
+                          className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                        >
+                          Revisjon
+                        </Link>
+                        <Link
+                          href="/dashboard/competitions/new"
+                          className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                        >
+                          Ny konkurranse
+                        </Link>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/competitions/trondheim-cup/2025/scoreboard"
+                      className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                    >
+                      Scoreboard-demo
+                    </Link>
+                    <Link
+                      href="/hjelp"
+                      className="block rounded-xl px-3 py-2 text-foreground transition hover:bg-primary/10"
+                    >
+                      Hjelp
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </div>
+          </details>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <AuthAction initialAuthenticated={isAuthenticated} />
           <ThemeToggle />
         </div>

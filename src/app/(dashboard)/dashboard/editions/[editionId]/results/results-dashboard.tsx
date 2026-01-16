@@ -374,9 +374,9 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
         </div>
       ) : (
         <>
-          <section className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-sm">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="min-w-[220px] flex-1 space-y-2">
+          <section className="rounded-2xl border border-border/60 bg-card/70 p-3 shadow-sm sm:p-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+              <div className="col-span-2 space-y-1.5 sm:space-y-2 md:col-span-3 lg:col-span-2 xl:col-span-2">
                 <label
                   htmlFor="match-search"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -392,11 +392,11 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       query: event.target.value,
                     }))
                   }
-                  placeholder="Lag, kode, runde eller arena"
+                  placeholder="Lag, kode, runde..."
                   className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 />
               </div>
-              <div className="min-w-[160px] space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <label
                   htmlFor="match-status"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -412,7 +412,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       status: event.target.value as MatchStatus | "all",
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   <option value="scheduled">Planlagt</option>
@@ -421,7 +421,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   <option value="disputed">Tvist</option>
                 </select>
               </div>
-              <div className="min-w-[160px] space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <label
                   htmlFor="match-round"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -437,7 +437,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       roundLabel: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {roundOptions.map((label) => (
@@ -447,7 +447,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   ))}
                 </select>
               </div>
-              <div className="min-w-[160px] space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <label
                   htmlFor="match-group"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -463,7 +463,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       groupCode: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {groupOptions.map((code) => (
@@ -473,7 +473,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   ))}
                 </select>
               </div>
-              <div className="min-w-[160px] space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <label
                   htmlFor="match-venue"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -489,7 +489,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       venueId: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {venues.map((venue) => (
@@ -499,7 +499,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   ))}
                 </select>
               </div>
-              <div className="min-w-[180px] space-y-2">
+              <div className="space-y-1.5 sm:space-y-2">
                 <label
                   htmlFor="match-team"
                   className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -515,7 +515,7 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       teamId: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {teamOptions.map((team) => (
@@ -525,41 +525,41 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                   ))}
                 </select>
               </div>
-              <div className="flex flex-1 flex-wrap items-center justify-between gap-3 md:justify-end">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFilters((current) => ({
-                        ...current,
-                        view: "compact",
-                      }))
-                    }
-                    className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
-                      filters.view === "compact"
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border/70 text-foreground hover:bg-primary/5"
-                    }`}
-                  >
-                    Kompakt
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setFilters((current) => ({
-                        ...current,
-                        view: "comfortable",
-                      }))
-                    }
-                    className={`rounded-md border px-3 py-2 text-xs font-semibold transition ${
-                      filters.view === "comfortable"
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border/70 text-foreground hover:bg-primary/5"
-                    }`}
-                  >
-                    Komfort
-                  </button>
-                </div>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      view: "compact",
+                    }))
+                  }
+                  className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition sm:px-3 sm:py-2 ${
+                    filters.view === "compact"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border/70 text-foreground hover:bg-primary/5"
+                  }`}
+                >
+                  Kompakt
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setFilters((current) => ({
+                      ...current,
+                      view: "comfortable",
+                    }))
+                  }
+                  className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition sm:px-3 sm:py-2 ${
+                    filters.view === "comfortable"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border/70 text-foreground hover:bg-primary/5"
+                  }`}
+                >
+                  Komfort
+                </button>
                 <button
                   type="button"
                   onClick={() =>
@@ -573,14 +573,14 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
                       teamId: "all",
                     }))
                   }
-                  className="rounded-md border border-border/70 px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/5"
+                  className="rounded-md border border-border/70 px-2.5 py-1.5 text-xs font-semibold text-foreground transition hover:bg-primary/5 sm:px-3 sm:py-2"
                 >
                   Nullstill
                 </button>
               </div>
-            </div>
-            <div className="mt-3 text-xs text-muted-foreground">
-              Viser {filteredMatches.length} av {sortedMatches.length} kamper.
+              <div className="text-xs text-muted-foreground">
+                {filteredMatches.length} av {sortedMatches.length} kamper
+              </div>
             </div>
           </section>
 

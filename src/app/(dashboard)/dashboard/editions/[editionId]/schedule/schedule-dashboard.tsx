@@ -563,7 +563,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         pageDescription="Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer kampoppsett for turneringen. Når du er fornøyd, kan du publisere kampene og varsle lagene."
       />
 
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+      <section className="mb-8 space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:mb-12 sm:space-y-6 sm:rounded-2xl sm:p-8">
         <header>
           <h2 className="text-xl font-semibold text-foreground">
             Opprett nytt stadium
@@ -769,7 +769,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         )}
       </section>
 
-      <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+      <section className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:space-y-6 sm:rounded-2xl sm:p-8">
         <header>
           <h2 className="text-xl font-semibold text-foreground">
             Generer kampoppsett
@@ -792,7 +792,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         />
       </section>
 
-      <section className="space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+      <section className="space-y-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:space-y-6 sm:rounded-2xl sm:p-8">
         <header className="space-y-2">
           <h2 className="text-xl font-semibold text-foreground">
             Opprett kamper manuelt
