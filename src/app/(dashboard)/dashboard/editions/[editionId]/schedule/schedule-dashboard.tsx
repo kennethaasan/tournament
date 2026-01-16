@@ -6,22 +6,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-  deleteEntry,
-  type EntryReview,
   editionEntriesQueryKey,
   fetchEditionEntries,
-  updateEntryStatus,
 } from "@/lib/api/entries-client";
 import {
   type CreateMatchInput,
   createMatch,
   editionMatchesQueryKey,
 } from "@/lib/api/matches-client";
-import {
-  editionScoreboardQueryKey,
-  fetchEditionScoreboard,
-  updateEditionScoreboard,
-} from "@/lib/api/scoreboard-client";
 import {
   deleteStage,
   editionStagesQueryKey,
@@ -108,9 +100,15 @@ function toLocalDatetimeString(date: Date | null): string {
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+function formatGroupLabel(group: StageGroup): string {
+  return `Gruppe ${group.code}${group.name ? ` – ${group.name}` : ""}`;
+}
+
 const manualMatchItemSchema = z.object({
   homeEntryId: z.string().optional(),
   awayEntryId: z.string().optional(),
+  groupId: z.string().optional(),
+  venueId: z.string().optional(),
   code: z.string().max(50, "Kampkode kan maks være 50 tegn.").optional(),
 });
 
@@ -136,17 +134,6 @@ type CreateMatchFormValues = z.infer<typeof createMatchSchema>;
 export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const queryClient = useQueryClient();
 
-  const [entryLockMessage, setEntryLockMessage] = useState<string | null>(null);
-  const [entryLockError, setEntryLockError] = useState<string | null>(null);
-  const [entryReviewMessage, setEntryReviewMessage] = useState<string | null>(
-    null,
-  );
-  const [entryReviewError, setEntryReviewError] = useState<string | null>(null);
-  const [decisionReasons, setDecisionReasons] = useState<
-    Record<string, string>
-  >({});
-  const [reviewingEntryId, setReviewingEntryId] = useState<string | null>(null);
-
   // Manual match creation state
   const [manualMatchError, setManualMatchError] = useState<string | null>(null);
   const [manualMatchSuccess, setManualMatchSuccess] = useState<string | null>(
@@ -164,7 +151,15 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       matchDuration: 60,
       breakMinutes: 15,
       concurrentMatches: 1,
-      matches: [{ homeEntryId: "", awayEntryId: "", code: "" }],
+      matches: [
+        {
+          homeEntryId: "",
+          awayEntryId: "",
+          groupId: "",
+          venueId: "",
+          code: "",
+        },
+      ],
     },
   });
 
@@ -203,8 +198,8 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
           kickoffAt: kickoffAt.toISOString(),
           homeEntryId: match.homeEntryId || null,
           awayEntryId: match.awayEntryId || null,
-          venueId: values.venueId || null,
-          groupId: values.groupId || null,
+          venueId: match.venueId || values.venueId || null,
+          groupId: match.groupId || values.groupId || null,
           code: match.code?.trim() || null,
         };
         createdMatches.push(await createMatch(editionId, payload));
@@ -231,7 +226,15 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         matchDuration: values.matchDuration,
         breakMinutes: values.breakMinutes,
         concurrentMatches: values.concurrentMatches,
-        matches: [{ homeEntryId: "", awayEntryId: "", code: "" }],
+        matches: [
+          {
+            homeEntryId: "",
+            awayEntryId: "",
+            groupId: "",
+            venueId: "",
+            code: "",
+          },
+        ],
       });
     },
     onError: (error) => {
@@ -242,91 +245,10 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     },
   });
 
-  const scoreboardQuery = useQuery({
-    queryKey: editionScoreboardQueryKey(editionId),
-    queryFn: ({ signal }) => fetchEditionScoreboard(editionId, { signal }),
-    staleTime: 30_000,
-  });
-
-  const lockMutation = useMutation({
-    mutationFn: (lock: boolean) =>
-      updateEditionScoreboard(editionId, {
-        entries_locked: lock,
-      }),
-    onSuccess: (data) => {
-      queryClient.setQueryData(editionScoreboardQueryKey(editionId), data);
-      setEntryLockMessage(
-        data.edition.entries_locked_at
-          ? "Påmeldinger er låst for denne utgaven."
-          : "Påmeldinger er åpnet igjen.",
-      );
-      setEntryLockError(null);
-    },
-    onError: (error) => {
-      setEntryLockError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingslåsen.",
-      );
-    },
-  });
-
   const entriesQuery = useQuery({
     queryKey: editionEntriesQueryKey(editionId),
     queryFn: ({ signal }) => fetchEditionEntries(editionId, { signal }),
     staleTime: 30_000,
-  });
-
-  const entryReviewMutation = useMutation({
-    mutationFn: (payload: {
-      entryId: string;
-      status: "approved" | "rejected";
-      reason?: string;
-    }) =>
-      updateEntryStatus(payload.entryId, {
-        status: payload.status,
-        ...(payload.reason ? { reason: payload.reason } : {}),
-      }),
-    onSuccess: (updated) => {
-      queryClient.setQueryData(
-        editionEntriesQueryKey(editionId),
-        (current: EntryReview[] | undefined) =>
-          current?.map((item) =>
-            item.entry.id === updated.id
-              ? { ...item, entry: { ...item.entry, ...updated } }
-              : item,
-          ),
-      );
-      setEntryReviewMessage("Påmeldingen er oppdatert.");
-      setEntryReviewError(null);
-    },
-    onError: (error) => {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingen.",
-      );
-    },
-  });
-
-  const deleteEntryMutation = useMutation({
-    mutationFn: (entryId: string) => deleteEntry(entryId),
-    onSuccess: (_, entryId) => {
-      queryClient.setQueryData(
-        editionEntriesQueryKey(editionId),
-        (current: EntryReview[] | undefined) =>
-          current?.filter((item) => item.entry.id !== entryId),
-      );
-      setEntryReviewMessage("Påmeldingen er slettet.");
-      setEntryReviewError(null);
-    },
-    onError: (error) => {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke slette påmeldingen.",
-      );
-    },
   });
 
   const deleteStageMutation = useMutation({
@@ -371,20 +293,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
   const availableVenues = venuesQuery.data ?? [];
 
   const entries = entriesQuery.data ?? [];
-  const entriesLoading = entriesQuery.isLoading;
-  const entriesError =
-    entriesQuery.error instanceof Error ? entriesQuery.error.message : null;
-
-  const scoreboardLoadError =
-    scoreboardQuery.error instanceof Error
-      ? scoreboardQuery.error.message
-      : null;
-  const entriesLockedAt =
-    scoreboardQuery.data?.edition.entries_locked_at ?? null;
-  const entriesLockedAtDate = entriesLockedAt
-    ? new Date(entriesLockedAt)
-    : null;
-  const isLockingEntries = lockMutation.isPending;
 
   // Manual match defaults
   const stageId = form.watch("stageId");
@@ -419,6 +327,14 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       return;
     }
 
+    if (
+      groupId &&
+      !manualMatchStage.groups.some((group) => group.id === groupId)
+    ) {
+      form.setValue("groupId", "");
+      return;
+    }
+
     if (!groupId && !groupTouched && manualMatchStage.groups.length === 1) {
       form.setValue("groupId", manualMatchStage.groups[0]?.id ?? "");
     }
@@ -429,6 +345,49 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
       form.setValue("venueId", availableVenues[0]?.id ?? "");
     }
   }, [availableVenues, venueId, venueTouched, form]);
+
+  const defaultGroupOptionLabel = useMemo(() => {
+    if (manualMatchStage?.stageType !== "group" || !groupId) {
+      return "Ingen gruppe";
+    }
+    const selectedGroup = manualMatchStage.groups.find(
+      (group) => group.id === groupId,
+    );
+    if (!selectedGroup) {
+      return "Ingen gruppe";
+    }
+    return `Standardgruppe (${formatGroupLabel(selectedGroup)})`;
+  }, [groupId, manualMatchStage]);
+
+  const defaultVenueOptionLabel = useMemo(() => {
+    if (!venueId) {
+      return "Ingen arena";
+    }
+    const selectedVenue = availableVenues.find((venue) => venue.id === venueId);
+    if (!selectedVenue) {
+      return "Ingen arena";
+    }
+    return `Standardarena (${selectedVenue.name})`;
+  }, [availableVenues, venueId]);
+
+  useEffect(() => {
+    if (!manualMatchStage) {
+      return;
+    }
+    const validGroupIds =
+      manualMatchStage.stageType === "group"
+        ? new Set(manualMatchStage.groups.map((group) => group.id))
+        : null;
+    matchFields.forEach((_, index) => {
+      const matchGroupId = form.getValues(`matches.${index}.groupId`);
+      if (
+        matchGroupId &&
+        (!validGroupIds || !validGroupIds.has(matchGroupId))
+      ) {
+        form.setValue(`matches.${index}.groupId`, "");
+      }
+    });
+  }, [manualMatchStage, matchFields, form]);
 
   const kickoffSchedule = useMemo(
     () =>
@@ -478,70 +437,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
     }
   }
 
-  async function handleEntryLockChange(lock: boolean) {
-    setEntryLockError(null);
-    setEntryLockMessage(null);
-
-    try {
-      await lockMutation.mutateAsync(lock);
-    } catch (error) {
-      setEntryLockError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingslåsen.",
-      );
-    }
-  }
-
-  async function handleEntryDecision(
-    entryId: string,
-    status: "approved" | "rejected",
-  ) {
-    setEntryReviewError(null);
-    setEntryReviewMessage(null);
-    setReviewingEntryId(entryId);
-
-    try {
-      const reason = decisionReasons[entryId]?.trim();
-      await entryReviewMutation.mutateAsync({
-        entryId,
-        status,
-        reason: reason ? reason : undefined,
-      });
-      setDecisionReasons((prev) => ({
-        ...prev,
-        [entryId]: "",
-      }));
-    } catch (error) {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingen.",
-      );
-    } finally {
-      setReviewingEntryId(null);
-    }
-  }
-
-  async function handleEntryDelete(entryId: string) {
-    if (!confirm("Er du sikker på at du vil slette denne påmeldingen?")) {
-      return;
-    }
-
-    setEntryReviewError(null);
-    setEntryReviewMessage(null);
-
-    try {
-      await deleteEntryMutation.mutateAsync(entryId);
-    } catch (error) {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke slette påmeldingen.",
-      );
-    }
-  }
-
   async function handleStageDelete(stageId: string) {
     if (
       !confirm(
@@ -558,14 +453,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         error instanceof Error ? error.message : "Kunne ikke slette stadiet.",
       );
     }
-  }
-
-  function statusLabel(status: string) {
-    if (status === "approved") return "Godkjent";
-    if (status === "rejected") return "Avvist";
-    if (status === "pending") return "Venter";
-    if (status === "withdrawn") return "Trukket";
-    return status;
   }
 
   function toStageListItem(stage: Stage): StageListItem {
@@ -590,223 +477,6 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
         pageTitle="Planlegg stadier og kampoppsett"
         pageDescription="Opprett gruppespill og sluttspill, legg inn lag per gruppe, og generer kampoppsett for turneringen. Når du er fornøyd, kan du publisere kampene og varsle lagene."
       />
-
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <header className="space-y-1">
-          <h2 className="text-xl font-semibold text-foreground">
-            Påmeldingslås
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Lås nye påmeldinger når kampoppsettet er i ferd med å publiseres for
-            å unngå endringer i laglisten.
-          </p>
-        </header>
-
-        {entryLockMessage && (
-          <output
-            aria-live="polite"
-            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
-          >
-            {entryLockMessage}
-          </output>
-        )}
-
-        {entryLockError && (
-          <div
-            role="alert"
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {entryLockError}
-          </div>
-        )}
-
-        {scoreboardQuery.isLoading ? (
-          <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-            Laster påmeldingsstatus …
-          </div>
-        ) : scoreboardLoadError ? (
-          <div
-            role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {scoreboardLoadError}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-foreground">
-              Status:{" "}
-              <span className="font-medium">
-                {entriesLockedAtDate
-                  ? `Låst ${entriesLockedAtDate.toLocaleString("no-NB")}`
-                  : "Åpen"}
-              </span>
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => handleEntryLockChange(false)}
-                disabled={!entriesLockedAtDate || isLockingEntries}
-                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-card/60 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Åpne påmeldinger
-              </button>
-              <button
-                type="button"
-                onClick={() => handleEntryLockChange(true)}
-                disabled={Boolean(entriesLockedAtDate) || isLockingEntries}
-                className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                Lås påmeldinger
-              </button>
-            </div>
-          </div>
-        )}
-      </section>
-
-      <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-        <header className="space-y-1">
-          <h2 className="text-xl font-semibold text-foreground">
-            Påmeldingsforespørsler
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Godkjenn eller avvis nye påmeldinger før kampoppsettet publiseres.
-          </p>
-        </header>
-
-        {entryReviewMessage && (
-          <output
-            aria-live="polite"
-            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
-          >
-            {entryReviewMessage}
-          </output>
-        )}
-
-        {entryReviewError && (
-          <div
-            role="alert"
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {entryReviewError}
-          </div>
-        )}
-
-        {entriesLoading ? (
-          <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-            Laster påmeldinger …
-          </div>
-        ) : entriesError ? (
-          <div
-            role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {entriesError}
-          </div>
-        ) : entries.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
-            Ingen påmeldinger tilgjengelig ennå.
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {entries.map((item) => {
-              const entry = item.entry;
-              const isPending = entry.status === "pending";
-              const isReviewing = reviewingEntryId === entry.id;
-              return (
-                <article
-                  key={entry.id}
-                  className="rounded-xl border border-border/80 bg-card/50 p-5 shadow-sm"
-                >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-                        {item.team.name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Lag-ID: {item.team.id}
-                      </p>
-                    </div>
-                    <span className="rounded-full border border-border px-3 py-1 text-xs font-semibold text-foreground">
-                      {statusLabel(entry.status)}
-                    </span>
-                  </div>
-
-                  <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2">
-                    <div>
-                      Påmeldt:{" "}
-                      {entry.submitted_at
-                        ? new Date(entry.submitted_at).toLocaleString("no-NB")
-                        : "—"}
-                    </div>
-                    <div>
-                      Notat: {entry.notes ? entry.notes : "Ingen notat"}
-                    </div>
-                  </div>
-
-                  {isPending ? (
-                    <div className="mt-4 space-y-2">
-                      <label
-                        htmlFor={`decision-${entry.id}`}
-                        className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                      >
-                        Begrunnelse (valgfritt)
-                      </label>
-                      <textarea
-                        id={`decision-${entry.id}`}
-                        value={decisionReasons[entry.id] ?? ""}
-                        onChange={(event) =>
-                          setDecisionReasons((prev) => ({
-                            ...prev,
-                            [entry.id]: event.target.value,
-                          }))
-                        }
-                        rows={2}
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                      />
-                    </div>
-                  ) : entry.decision_reason ? (
-                    <p className="mt-4 text-sm text-muted-foreground">
-                      Begrunnelse: {entry.decision_reason}
-                    </p>
-                  ) : null}
-
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleEntryDecision(entry.id, "approved")}
-                      disabled={!isPending || isReviewing}
-                      className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
-                    >
-                      {isReviewing ? "Oppdaterer ..." : "Godkjenn"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEntryDecision(entry.id, "rejected")}
-                      disabled={!isPending || isReviewing}
-                      className="rounded-md border border-destructive/30 px-4 py-2 text-sm font-semibold text-destructive shadow-sm transition hover:border-destructive/60 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      Avvis
-                    </button>
-                    {(entry.status === "rejected" ||
-                      entry.status === "withdrawn") && (
-                      <button
-                        type="button"
-                        onClick={() => handleEntryDelete(entry.id)}
-                        disabled={deleteEntryMutation.isPending}
-                        className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        {deleteEntryMutation.isPending
-                          ? "Sletter ..."
-                          : "Slett permanent"}
-                      </button>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
 
       <section className="mb-12 space-y-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
         <header>
@@ -1043,16 +713,15 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       name="groupId"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Gruppe (valgfritt)</FormLabel>
+                          <FormLabel>Standardgruppe (valgfritt)</FormLabel>
                           <select
                             {...field}
                             className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                           >
-                            <option value="">Ingen gruppe</option>
+                            <option value="">Ingen standardgruppe</option>
                             {manualMatchStage.groups.map((group) => (
                               <option key={group.id} value={group.id}>
-                                Gruppe {group.code}
-                                {group.name ? ` – ${group.name}` : ""}
+                                {formatGroupLabel(group)}
                               </option>
                             ))}
                           </select>
@@ -1067,12 +736,12 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                   name="venueId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Arena (valgfritt)</FormLabel>
+                      <FormLabel>Standardarena (valgfritt)</FormLabel>
                       <select
                         {...field}
                         className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
-                        <option value="">Velg arena</option>
+                        <option value="">Ingen standardarena</option>
                         {availableVenues.map((venue) => (
                           <option key={venue.id} value={venue.id}>
                             {venue.name}
@@ -1158,7 +827,13 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                 <button
                   type="button"
                   onClick={() =>
-                    appendMatch({ homeEntryId: "", awayEntryId: "", code: "" })
+                    appendMatch({
+                      homeEntryId: "",
+                      awayEntryId: "",
+                      groupId: "",
+                      venueId: "",
+                      code: "",
+                    })
                   }
                   className="inline-flex items-center justify-center rounded-md border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition hover:border-primary/50 hover:bg-primary/10"
                 >
@@ -1222,6 +897,55 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                             {approvedEntries.map((item) => (
                               <option key={item.entry.id} value={item.entry.id}>
                                 {item.team.name}
+                              </option>
+                            ))}
+                          </select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {manualMatchStage?.stageType === "group" &&
+                      manualMatchStage.groups.length > 0 && (
+                        <FormField
+                          control={form.control}
+                          name={`matches.${index}.groupId`}
+                          render={({ field: matchField }) => (
+                            <FormItem>
+                              <FormLabel>Gruppe (overstyr)</FormLabel>
+                              <select
+                                {...matchField}
+                                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                              >
+                                <option value="">
+                                  {defaultGroupOptionLabel}
+                                </option>
+                                {manualMatchStage.groups.map((group) => (
+                                  <option key={group.id} value={group.id}>
+                                    {formatGroupLabel(group)}
+                                  </option>
+                                ))}
+                              </select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                    <FormField
+                      control={form.control}
+                      name={`matches.${index}.venueId`}
+                      render={({ field: matchField }) => (
+                        <FormItem>
+                          <FormLabel>Arena (overstyr)</FormLabel>
+                          <select
+                            {...matchField}
+                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                          >
+                            <option value="">{defaultVenueOptionLabel}</option>
+                            {availableVenues.map((venue) => (
+                              <option key={venue.id} value={venue.id}>
+                                {venue.name}
                               </option>
                             ))}
                           </select>
