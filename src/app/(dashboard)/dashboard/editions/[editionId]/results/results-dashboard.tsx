@@ -107,11 +107,6 @@ const EMPTY_VENUES: Venue[] = [];
 export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
-  const [filterNotice, setFilterNotice] = useState<{
-    matchId: string;
-    matchLabel: string;
-    status: MatchStatus;
-  } | null>(null);
   const [filters, setFilters] = useState<ResultsFilters>({
     query: "",
     status: "all",
@@ -121,9 +116,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     teamId: "all",
     view: "comfortable",
   });
-  const [pinnedMatchIds, setPinnedMatchIds] = useState<Set<string>>(
-    () => new Set(),
-  );
   const [editingMatchId, setEditingMatchId] = useState<string | null>(null);
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState<Set<string>>(
     () => new Set(),
@@ -176,14 +168,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       });
       void queryClient.invalidateQueries({
         queryKey: matchDetailQueryKey(matchId),
-      });
-      setPinnedMatchIds((current) => {
-        if (!current.has(matchId)) {
-          return current;
-        }
-        const next = new Set(current);
-        next.delete(matchId);
-        return next;
       });
       setActionError(null);
     },
@@ -302,19 +286,9 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     });
   }, [filters, matchIndexById, sortedMatches]);
 
-  const pinnedMatches = useMemo(
-    () => sortedMatches.filter((match) => pinnedMatchIds.has(match.id)),
-    [pinnedMatchIds, sortedMatches],
-  );
-
-  const filteredMatchesWithoutPinned = useMemo(
-    () => filteredMatches.filter((match) => !pinnedMatchIds.has(match.id)),
-    [filteredMatches, pinnedMatchIds],
-  );
-
   const groupedMatches = useMemo(
-    () => groupMatches(filteredMatchesWithoutPinned),
-    [filteredMatchesWithoutPinned],
+    () => groupMatches(filteredMatches),
+    [filteredMatches],
   );
   const activeMatch = editingMatchId
     ? (matches.find((match) => match.id === editingMatchId) ?? null)
@@ -326,44 +300,16 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       "Kamp")
     : "Kamp";
 
-  useEffect(() => {
-    setPinnedMatchIds((current) => {
-      if (current.size === 0) {
-        return current;
-      }
-      const availableIds = new Set(matches.map((match) => match.id));
-      const next = new Set(
-        Array.from(current).filter((id) => availableIds.has(id)),
-      );
-      return next.size === current.size ? current : next;
-    });
-  }, [matches]);
-
   async function handleSaveMatch(
     matchId: string,
     payload: components["schemas"]["UpdateMatchRequest"],
   ) {
     setActionError(null);
     try {
-      const updatedMatch = await updateMutation.mutateAsync({
+      await updateMutation.mutateAsync({
         matchId,
         payload,
       });
-      const updatedIndex = buildMatchIndex(updatedMatch, entryMap, venueMap);
-      setPinnedMatchIds((current) => {
-        const next = new Set(current);
-        next.add(updatedMatch.id);
-        return next;
-      });
-      if (!doesMatchIndexPassFilters(updatedIndex, filters)) {
-        setFilterNotice({
-          matchId: updatedMatch.id,
-          matchLabel: updatedIndex.matchLabel,
-          status: updatedMatch.status,
-        });
-      } else {
-        setFilterNotice(null);
-      }
       return true;
     } catch {
       // handled in mutation callbacks
@@ -638,162 +584,83 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
             </div>
           </section>
 
-          {filterNotice ? (
-            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold">
-                    {filterNotice.matchLabel} er lagret, men filtrert bort.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Status: {statusLabel(filterNotice.status)}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPinnedMatchIds((current) => {
-                        const next = new Set(current);
-                        next.add(filterNotice.matchId);
-                        return next;
-                      });
-                      setFilterNotice(null);
-                    }}
-                    className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                  >
-                    Vis kampen
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFilters((current) => ({
-                        ...current,
-                        status: "all",
-                      }));
-                      setFilterNotice(null);
-                    }}
-                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                  >
-                    Fjern statusfilter
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {filteredMatches.length === 0 && pinnedMatches.length === 0 ? (
+          {filteredMatches.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
               Ingen kamper matcher filteret.
             </div>
           ) : (
             <div className="space-y-4">
-              {pinnedMatches.length > 0 ? (
-                <section className="rounded-2xl border border-primary/30 bg-primary/5 p-4 shadow-sm">
-                  <header className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground">
-                        Fremhevet kamp
-                      </h3>
-                      <p className="text-xs text-muted-foreground">
-                        Festet for rask tilgang mens du oppdaterer.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setPinnedMatchIds(new Set())}
-                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                    >
-                      Fjern alle
-                    </button>
-                  </header>
-                  <div className="mt-4 space-y-3">
-                    {pinnedMatches.map((match) => renderMatchBlock(match))}
-                  </div>
-                </section>
+              {groupedMatches.length > 1 ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCollapsedGroupKeys(new Set())}
+                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                  >
+                    Åpne alle grupper
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCollapsedGroupKeys(
+                        new Set(groupedMatches.map((group) => group.key)),
+                      )
+                    }
+                    className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
+                  >
+                    Skjul alle grupper
+                  </button>
+                </div>
               ) : null}
 
-              {filteredMatchesWithoutPinned.length === 0 ? (
-                <div className="rounded-lg border border-dashed border-border bg-card/60 px-4 py-6 text-sm text-muted-foreground">
-                  Ingen kamper matcher filteret.
-                </div>
-              ) : (
-                <>
-                  {groupedMatches.length > 1 ? (
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCollapsedGroupKeys(new Set())}
-                        className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                      >
-                        Åpne alle grupper
-                      </button>
+              {groupedMatches.map((group) => {
+                const isCollapsed = collapsedGroupKeys.has(group.key);
+                return (
+                  <section
+                    key={group.key}
+                    className="rounded-2xl border border-border/60 bg-card/40 p-4 shadow-sm"
+                  >
+                    <header className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {group.title}
+                        </h3>
+                        {group.subtitle ? (
+                          <p className="text-xs text-muted-foreground">
+                            {group.subtitle}
+                          </p>
+                        ) : null}
+                        <p className="text-xs text-muted-foreground">
+                          {group.matches.length} kamper
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() =>
-                          setCollapsedGroupKeys(
-                            new Set(groupedMatches.map((group) => group.key)),
-                          )
+                          setCollapsedGroupKeys((current) => {
+                            const next = new Set(current);
+                            if (next.has(group.key)) {
+                              next.delete(group.key);
+                            } else {
+                              next.add(group.key);
+                            }
+                            return next;
+                          })
                         }
                         className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
                       >
-                        Skjul alle grupper
+                        {isCollapsed ? "Vis" : "Skjul"}
                       </button>
-                    </div>
-                  ) : null}
+                    </header>
 
-                  {groupedMatches.map((group) => {
-                    const isCollapsed = collapsedGroupKeys.has(group.key);
-                    return (
-                      <section
-                        key={group.key}
-                        className="rounded-2xl border border-border/60 bg-card/40 p-4 shadow-sm"
-                      >
-                        <header className="flex flex-wrap items-center justify-between gap-3">
-                          <div>
-                            <h3 className="text-sm font-semibold text-foreground">
-                              {group.title}
-                            </h3>
-                            {group.subtitle ? (
-                              <p className="text-xs text-muted-foreground">
-                                {group.subtitle}
-                              </p>
-                            ) : null}
-                            <p className="text-xs text-muted-foreground">
-                              {group.matches.length} kamper
-                            </p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setCollapsedGroupKeys((current) => {
-                                const next = new Set(current);
-                                if (next.has(group.key)) {
-                                  next.delete(group.key);
-                                } else {
-                                  next.add(group.key);
-                                }
-                                return next;
-                              })
-                            }
-                            className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                          >
-                            {isCollapsed ? "Vis" : "Skjul"}
-                          </button>
-                        </header>
-
-                        {isCollapsed ? null : (
-                          <div className="mt-4 space-y-3">
-                            {group.matches.map((match) =>
-                              renderMatchBlock(match),
-                            )}
-                          </div>
-                        )}
-                      </section>
-                    );
-                  })}
-                </>
-              )}
+                    {isCollapsed ? null : (
+                      <div className="mt-4 space-y-3">
+                        {group.matches.map((match) => renderMatchBlock(match))}
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
             </div>
           )}
         </>
