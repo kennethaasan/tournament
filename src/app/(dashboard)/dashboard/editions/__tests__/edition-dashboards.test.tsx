@@ -28,16 +28,18 @@ vi.mock("next/navigation", () => ({
 describe("edition dashboards", () => {
   test("renders schedule dashboard shell", () => {
     render(<ScheduleDashboard editionId="edition-1" />);
-    expect(screen.getByText("Utgave · Kampoppsett")).toBeInTheDocument();
+    expect(
+      screen.getByText("Planlegg stadier og kampoppsett"),
+    ).toBeInTheDocument();
   });
 
   test("renders results dashboard shell", () => {
     render(<ResultsDashboard editionId="edition-1" />);
-    expect(screen.getByText("Utgave · Kampresultater")).toBeInTheDocument();
+    expect(screen.getByText("Kampadministrasjon")).toBeInTheDocument();
   });
 
   test("renders scoreboard control shell", () => {
     render(<ScoreboardControl editionId="edition-1" />);
-    expect(screen.getByText("Utgave · Storskjerm")).toBeInTheDocument();
+    expect(screen.getByText("Storskjerm")).toBeInTheDocument();
   });
 });
