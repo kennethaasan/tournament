@@ -30,7 +30,7 @@ export default function LandingPage() {
                 For arrangører og lagledere
               </Badge>
             </div>
-            <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
+            <h1 className="max-w-3xl text-balance text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
               Gjør turneringshverdagen enklere
             </h1>
             <p className="max-w-2xl text-lg text-muted-foreground sm:text-xl">
