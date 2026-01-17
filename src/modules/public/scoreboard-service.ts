@@ -741,7 +741,7 @@ function buildPersonName(first: string | null, last: string | null) {
   return parts.join(" ");
 }
 
-function formatPersonNameWithJersey(
+function _formatPersonNameWithJersey(
   first: string | null,
   last: string | null,
   jerseyNumber: number | null,

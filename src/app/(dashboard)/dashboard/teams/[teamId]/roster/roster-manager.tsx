@@ -13,12 +13,6 @@ import {
   updateTeamMember,
 } from "@/lib/api/teams-client";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/ui/components/dialog";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -29,6 +23,12 @@ import {
   AlertDialogTitle,
 } from "@/ui/components/alert-dialog";
 import { Button } from "@/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/components/dialog";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
 

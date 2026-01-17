@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   type EntryReview,
   editionEntriesQueryKey,
@@ -33,14 +34,6 @@ import {
   fetchEditionVenues,
   type Venue,
 } from "@/lib/api/venues-client";
-import { Badge } from "@/ui/components/badge";
-import { Button } from "@/ui/components/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/ui/components/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +44,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/ui/components/alert-dialog";
-import { toast } from "sonner";
+import { Button } from "@/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/components/dialog";
 import { EditionHeader } from "../edition-dashboard";
 
 type MatchStatus = components["schemas"]["MatchStatus"];
@@ -2030,7 +2029,7 @@ function groupMatches(matches: Match[]) {
           month: "long",
         })
       : "Tidspunkt ikke satt";
-    const venueName = match.venue_id ? "Arena" : null; // Placeholder, real name comes from venueMap in parent
+    const _venueName = match.venue_id ? "Arena" : null; // Placeholder, real name comes from venueMap in parent
 
     const groupKey = `${dateKey}`;
     if (!groups.has(groupKey)) {
@@ -2127,7 +2126,7 @@ function toLocalInput(iso: string) {
 
 function parseScore(val: string) {
   const n = parseInt(val, 10);
-  return isNaN(n) ? 0 : n;
+  return Number.isNaN(n) ? 0 : n;
 }
 
 function hasAnyScoreValues(h: number, a: number, opt: OptionalScoreInputs) {
@@ -2149,7 +2148,7 @@ function resolveOptionalScores(opt: OptionalScoreInputs): {
   const parse = (s: string) => {
     if (!s.trim()) return null;
     const n = parseInt(s, 10);
-    return isNaN(n) ? null : n;
+    return Number.isNaN(n) ? null : n;
   };
 
   return {
@@ -2180,12 +2179,12 @@ function createEventDraft(
 
 function parseMinute(val: string) {
   const n = parseInt(val, 10);
-  return isNaN(n) ? null : n;
+  return Number.isNaN(n) ? null : n;
 }
 
 function buildRosterOptions(roster: TeamRoster | null) {
   if (!roster) return [];
-  return roster.members.map((m: any) => ({
+  return roster.members.map((m: components["schemas"]["TeamMember"]) => ({
     value: m.membership_id ?? m.id,
     label: m.display_name ?? m.name,
   }));

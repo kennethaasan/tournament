@@ -14,6 +14,16 @@ import {
 } from "@/lib/api/entries-client";
 import { updateEditionScoreboard } from "@/lib/api/scoreboard-client";
 import { translateEditionStatus } from "@/lib/utils/translations";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/components/alert-dialog";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import {
@@ -25,16 +35,6 @@ import {
 } from "@/ui/components/card";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/ui/components/alert-dialog";
 
 /**
  * Formats an ISO date string to a local datetime-local input value.
@@ -309,6 +309,7 @@ function EditionSettingsCard({
                 label: "Se offentlig side",
                 onClick: () =>
                   router.push(
+                    /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
                     `/${edition.competition_slug}/${edition.slug}` as any,
                   ),
               }
@@ -749,7 +750,7 @@ function RegistrationLockCard({
   async function handleEntryLockChange(lock: boolean) {
     try {
       await lockMutation.mutateAsync(lock);
-    } catch (error) {
+    } catch (_error) {
       // Handled by mutation onError
     }
   }
@@ -887,7 +888,7 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
         ...prev,
         [entryId]: "",
       }));
-    } catch (error) {
+    } catch (_error) {
       // Handled by mutation onError
     } finally {
       setReviewingEntryId(null);
@@ -897,7 +898,7 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
   async function handleEntryDelete(entryId: string) {
     try {
       await deleteEntryMutation.mutateAsync(entryId);
-    } catch (error) {
+    } catch (_error) {
       // Handled by mutation onError
     }
   }
