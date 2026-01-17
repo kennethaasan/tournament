@@ -1349,7 +1349,7 @@ function MatchEditorCard({
   }
 
   return (
-    <article className="rounded-2xl border border-border/70 bg-card/70 p-6 shadow-sm">
+    <article className="max-h-full space-y-6">
       <header className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">
