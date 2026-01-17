@@ -165,7 +165,7 @@ test.describe("Public scoreboard", () => {
 
     await page.getByRole("tab", { name: /Storskjerm/i }).click();
 
-    const overlay = page.locator('[aria-live="polite"]');
+    const overlay = page.locator('div[aria-live="polite"]');
     await expect(overlay).toHaveText("Mål for Trondheim Nord!");
 
     await expect.poll(() => callCount).toBeGreaterThan(1);
