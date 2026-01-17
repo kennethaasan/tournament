@@ -1,7 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { apiClient, unwrapResponse } from "@/lib/api/client";
 import {
   deleteEntry,
@@ -23,6 +25,16 @@ import {
 } from "@/ui/components/card";
 import { Input } from "@/ui/components/input";
 import { Label } from "@/ui/components/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/components/alert-dialog";
 
 /**
  * Formats an ISO date string to a local datetime-local input value.
@@ -255,6 +267,7 @@ function EditionSettingsCard({
   editionId: string;
   onUpdate: () => void;
 }) {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [label, setLabel] = useState(edition.label);
   const [format, setFormat] = useState(edition.format);
@@ -289,8 +302,27 @@ function EditionSettingsCard({
       return unwrapResponse({ data, error, response });
     },
     onSuccess: () => {
+      toast.success("Utgaveinnstillinger oppdatert.", {
+        action:
+          edition.competition_slug && edition.slug
+            ? {
+                label: "Se offentlig side",
+                onClick: () =>
+                  router.push(
+                    `/${edition.competition_slug}/${edition.slug}` as any,
+                  ),
+              }
+            : undefined,
+      });
       onUpdate();
       setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error(
+        `Kunne ikke lagre innstillinger: ${
+          error instanceof Error ? error.message : "Ukjent feil"
+        }`,
+      );
     },
   });
 
@@ -503,8 +535,16 @@ function RegistrationSettingsCard({
       return unwrapResponse({ data, error, response });
     },
     onSuccess: () => {
+      toast.success("Påmeldingsinnstillinger oppdatert.");
       onUpdate();
       setIsEditing(false);
+    },
+    onError: (error) => {
+      toast.error(
+        `Kunne ikke lagre innstillinger: ${
+          error instanceof Error ? error.message : "Ukjent feil"
+        }`,
+      );
     },
   });
 
@@ -678,8 +718,6 @@ function RegistrationLockCard({
   entriesLockedAt: string | null;
 }) {
   const queryClient = useQueryClient();
-  const [entryLockMessage, setEntryLockMessage] = useState<string | null>(null);
-  const [entryLockError, setEntryLockError] = useState<string | null>(null);
 
   const lockMutation = useMutation({
     mutationFn: (lock: boolean) =>
@@ -688,15 +726,14 @@ function RegistrationLockCard({
       }),
     onSuccess: (data) => {
       queryClient.setQueryData(editionQueryKey(editionId), data);
-      setEntryLockMessage(
+      toast.success(
         data.edition.entries_locked_at
           ? "Påmeldinger er låst for denne utgaven."
           : "Påmeldinger er åpnet igjen.",
       );
-      setEntryLockError(null);
     },
     onError: (error) => {
-      setEntryLockError(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Kunne ikke oppdatere påmeldingslåsen.",
@@ -710,17 +747,10 @@ function RegistrationLockCard({
   const isLockingEntries = lockMutation.isPending;
 
   async function handleEntryLockChange(lock: boolean) {
-    setEntryLockError(null);
-    setEntryLockMessage(null);
-
     try {
       await lockMutation.mutateAsync(lock);
     } catch (error) {
-      setEntryLockError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingslåsen.",
-      );
+      // Handled by mutation onError
     }
   }
 
@@ -734,24 +764,6 @@ function RegistrationLockCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {entryLockMessage && (
-          <output
-            aria-live="polite"
-            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
-          >
-            {entryLockMessage}
-          </output>
-        )}
-
-        {entryLockError && (
-          <div
-            role="alert"
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {entryLockError}
-          </div>
-        )}
-
         <div className="space-y-3">
           <p className="text-sm text-foreground">
             Status:{" "}
@@ -788,14 +800,14 @@ function RegistrationLockCard({
 function RegistrationRequestsCard({ editionId }: { editionId: string }) {
   const queryClient = useQueryClient();
 
-  const [entryReviewMessage, setEntryReviewMessage] = useState<string | null>(
-    null,
-  );
-  const [entryReviewError, setEntryReviewError] = useState<string | null>(null);
   const [decisionReasons, setDecisionReasons] = useState<
     Record<string, string>
   >({});
   const [reviewingEntryId, setReviewingEntryId] = useState<string | null>(null);
+  const [entryToDelete, setEntryToDelete] = useState<{
+    id: string;
+    teamName: string;
+  } | null>(null);
 
   const entriesQuery = useQuery({
     queryKey: editionEntriesQueryKey(editionId),
@@ -823,11 +835,10 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
               : item,
           ),
       );
-      setEntryReviewMessage("Påmeldingen er oppdatert.");
-      setEntryReviewError(null);
+      toast.success("Påmeldingen er oppdatert.");
     },
     onError: (error) => {
-      setEntryReviewError(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Kunne ikke oppdatere påmeldingen.",
@@ -843,11 +854,10 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
         (current: EntryReview[] | undefined) =>
           current?.filter((item) => item.entry.id !== entryId),
       );
-      setEntryReviewMessage("Påmeldingen er slettet.");
-      setEntryReviewError(null);
+      toast.success("Påmeldingen er slettet.");
     },
     onError: (error) => {
-      setEntryReviewError(
+      toast.error(
         error instanceof Error
           ? error.message
           : "Kunne ikke slette påmeldingen.",
@@ -864,8 +874,6 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
     entryId: string,
     status: "approved" | "rejected",
   ) {
-    setEntryReviewError(null);
-    setEntryReviewMessage(null);
     setReviewingEntryId(entryId);
 
     try {
@@ -880,32 +888,17 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
         [entryId]: "",
       }));
     } catch (error) {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke oppdatere påmeldingen.",
-      );
+      // Handled by mutation onError
     } finally {
       setReviewingEntryId(null);
     }
   }
 
   async function handleEntryDelete(entryId: string) {
-    if (!confirm("Er du sikker på at du vil slette denne påmeldingen?")) {
-      return;
-    }
-
-    setEntryReviewError(null);
-    setEntryReviewMessage(null);
-
     try {
       await deleteEntryMutation.mutateAsync(entryId);
     } catch (error) {
-      setEntryReviewError(
-        error instanceof Error
-          ? error.message
-          : "Kunne ikke slette påmeldingen.",
-      );
+      // Handled by mutation onError
     }
   }
 
@@ -920,24 +913,6 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {entryReviewMessage && (
-          <output
-            aria-live="polite"
-            className="block rounded-md border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200"
-          >
-            {entryReviewMessage}
-          </output>
-        )}
-
-        {entryReviewError && (
-          <div
-            role="alert"
-            className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {entryReviewError}
-          </div>
-        )}
-
         {entriesLoading ? (
           <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
             Laster påmeldinger …
@@ -1038,7 +1013,12 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
                       entry.status === "withdrawn") && (
                       <button
                         type="button"
-                        onClick={() => handleEntryDelete(entry.id)}
+                        onClick={() =>
+                          setEntryToDelete({
+                            id: entry.id,
+                            teamName: item.team.name,
+                          })
+                        }
                         disabled={deleteEntryMutation.isPending}
                         className="rounded-md border border-border px-4 py-2 text-sm font-semibold text-muted-foreground shadow-sm transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
                       >
@@ -1054,6 +1034,36 @@ function RegistrationRequestsCard({ editionId }: { editionId: string }) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog
+        open={entryToDelete !== null}
+        onOpenChange={(open) => !open && setEntryToDelete(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Slett påmelding permanent?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Er du sikker på at du vil slette påmeldingen for{" "}
+              <span className="font-semibold">{entryToDelete?.teamName}</span>?
+              Denne handlingen kan ikke angres.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (entryToDelete) {
+                  void handleEntryDelete(entryToDelete.id);
+                  setEntryToDelete(null);
+                }
+              }}
+            >
+              Slett permanent
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import type { components } from "@/lib/api/generated/openapi";
 import {
   addTeamMember,
@@ -11,7 +12,25 @@ import {
   updateTeam,
   updateTeamMember,
 } from "@/lib/api/teams-client";
-import { ConfirmDialog, Dialog } from "@/ui/components/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/components/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/components/alert-dialog";
+import { Button } from "@/ui/components/button";
+import { Input } from "@/ui/components/input";
+import { Label } from "@/ui/components/label";
 
 type TeamMemberRole = components["schemas"]["AddTeamMemberRequest"]["role"];
 type TeamMember = components["schemas"]["TeamMember"];
@@ -47,7 +66,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     role: "player",
     jerseyNumber: "",
   });
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Team name edit state
   const [isEditingName, setIsEditingName] = useState(false);
@@ -65,11 +83,9 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     role: "player",
     jerseyNumber: "",
   });
-  const [editMemberError, setEditMemberError] = useState<string | null>(null);
 
   // Remove member confirmation state
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
-  const [removeError, setRemoveError] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -100,6 +116,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
       });
+      toast.success("Medlem lagt til.");
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Kunne ikke legge til medlem.",
+      );
     },
   });
   const isSubmitting = addMemberMutation.isPending;
@@ -112,6 +134,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
       });
+      toast.success("Lagnavn oppdatert.");
     },
     onError: (err) => {
       setNameError(
@@ -119,6 +142,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           ? err.message
           : "Kunne ikke oppdatere lagnavnet. Prøv igjen.",
       );
+      toast.error("Kunne ikke oppdatere lagnavnet.");
     },
   });
 
@@ -134,16 +158,14 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       }),
     onSuccess: () => {
       setEditingMember(null);
-      setEditMemberError(null);
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
       });
+      toast.success("Medlem oppdatert.");
     },
     onError: (err) => {
-      setEditMemberError(
-        err instanceof Error
-          ? err.message
-          : "Kunne ikke oppdatere medlemmet. Prøv igjen.",
+      toast.error(
+        err instanceof Error ? err.message : "Kunne ikke oppdatere medlemmet.",
       );
     },
   });
@@ -153,16 +175,14 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       removeTeamMember(teamId, membershipId),
     onSuccess: () => {
       setMemberToRemove(null);
-      setRemoveError(null);
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
       });
+      toast.success("Medlem fjernet.");
     },
     onError: (err) => {
-      setRemoveError(
-        err instanceof Error
-          ? err.message
-          : "Kunne ikke fjerne medlemmet. Prøv igjen.",
+      toast.error(
+        err instanceof Error ? err.message : "Kunne ikke fjerne medlemmet.",
       );
     },
   });
@@ -176,21 +196,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitError(null);
     const jerseyResult = parseOptionalNumber(form.jerseyNumber);
     if (!jerseyResult.isValid) {
-      setSubmitError("Draktnummer må være et ikke-negativt tall.");
+      toast.error("Draktnummer må være et ikke-negativt tall.");
       return;
     }
-    try {
-      await addMemberMutation.mutateAsync();
-    } catch (err) {
-      setSubmitError(
-        err instanceof Error
-          ? err.message
-          : "Kunne ikke legge til medlem. Prøv igjen.",
-      );
-    }
+    await addMemberMutation.mutateAsync();
   }
 
   function handleStartEditName() {
@@ -228,12 +239,10 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           ? String(member.jersey_number)
           : "",
     });
-    setEditMemberError(null);
   }
 
   function handleCloseEditMember() {
     setEditingMember(null);
-    setEditMemberError(null);
   }
 
   async function handleSaveMember(event: React.FormEvent<HTMLFormElement>) {
@@ -245,11 +254,11 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     const jerseyResult = parseOptionalNumber(editMemberForm.jerseyNumber);
 
     if (!trimmedFirstName || !trimmedLastName) {
-      setEditMemberError("Fornavn og etternavn er påkrevd.");
+      toast.error("Fornavn og etternavn er påkrevd.");
       return;
     }
     if (!jerseyResult.isValid) {
-      setEditMemberError("Draktnummer må være et ikke-negativt tall.");
+      toast.error("Draktnummer må være et ikke-negativt tall.");
       return;
     }
 
@@ -258,12 +267,10 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
   function handleStartRemoveMember(member: TeamMember) {
     setMemberToRemove(member);
-    setRemoveError(null);
   }
 
   function handleCancelRemove() {
     setMemberToRemove(null);
-    setRemoveError(null);
   }
 
   async function handleConfirmRemove() {
@@ -304,29 +311,30 @@ export function RosterManager({ teamId }: RosterManagerProps) {
               {isEditingName ? (
                 <form onSubmit={handleSaveName} className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <input
+                    <Input
                       ref={nameInputRef}
                       type="text"
                       value={editedName}
                       onChange={(e) => setEditedName(e.target.value)}
-                      className="flex-1 rounded border border-border px-3 py-1.5 text-sm font-medium shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                      className="flex-1"
                       aria-label="Lagnavn"
                     />
-                    <button
+                    <Button
                       type="submit"
                       disabled={updateTeamMutation.isPending}
-                      className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                      size="sm"
                     >
                       {updateTeamMutation.isPending ? "Lagrer …" : "Lagre"}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
                       onClick={handleCancelEditName}
                       disabled={updateTeamMutation.isPending}
-                      className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
+                      variant="outline"
+                      size="sm"
                     >
                       Avbryt
-                    </button>
+                    </Button>
                   </div>
                   {nameError && (
                     <p className="text-xs text-destructive">{nameError}</p>
@@ -340,13 +348,14 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                       Team-ID: {roster?.team.id}
                     </p>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     onClick={handleStartEditName}
-                    className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-muted"
+                    variant="outline"
+                    size="sm"
                   >
                     Endre navn
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -370,20 +379,23 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     </td>
                     <td className="px-2 py-2 text-right">
                       <div className="flex justify-end gap-2">
-                        <button
+                        <Button
                           type="button"
                           onClick={() => handleStartEditMember(member)}
-                          className="rounded-md border border-border px-2 py-1 text-xs font-medium text-foreground transition hover:bg-muted"
+                          variant="outline"
+                          size="sm"
                         >
                           Rediger
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => handleStartRemoveMember(member)}
-                          className="rounded-md border border-destructive/30 px-2 py-1 text-xs font-medium text-destructive transition hover:bg-destructive/10"
+                          variant="outline"
+                          size="sm"
+                          className="border-destructive/30 text-destructive hover:bg-destructive/10"
                         >
                           Fjern
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -415,25 +427,11 @@ export function RosterManager({ teamId }: RosterManagerProps) {
           </p>
         </header>
 
-        {submitError && (
-          <div
-            role="alert"
-            className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {submitError}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="first-name"
-              >
-                Fornavn
-              </label>
-              <input
+              <Label htmlFor="first-name">Fornavn</Label>
+              <Input
                 id="first-name"
                 type="text"
                 value={form.firstName}
@@ -444,18 +442,12 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   }))
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="last-name"
-              >
-                Etternavn
-              </label>
-              <input
+              <Label htmlFor="last-name">Etternavn</Label>
+              <Input
                 id="last-name"
                 type="text"
                 value={form.lastName}
@@ -463,20 +455,14 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   setForm((prev) => ({ ...prev, lastName: event.target.value }))
                 }
                 required
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="preferred-name"
-              >
-                Kallenavn (valgfritt)
-              </label>
-              <input
+              <Label htmlFor="preferred-name">Kallenavn (valgfritt)</Label>
+              <Input
                 id="preferred-name"
                 type="text"
                 value={form.preferredName}
@@ -486,37 +472,25 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     preferredName: event.target.value,
                   }))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="country"
-              >
-                Land (valgfritt)
-              </label>
-              <input
+              <Label htmlFor="country">Land (valgfritt)</Label>
+              <Input
                 id="country"
                 type="text"
                 value={form.country}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, country: event.target.value }))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="role"
-              >
-                Rolle
-              </label>
+              <Label htmlFor="role">Rolle</Label>
               <select
                 id="role"
                 value={form.role}
@@ -535,13 +509,8 @@ export function RosterManager({ teamId }: RosterManagerProps) {
               </select>
             </div>
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="jersey-number"
-              >
-                Draktnummer (valgfritt)
-              </label>
-              <input
+              <Label htmlFor="jersey-number">Draktnummer (valgfritt)</Label>
+              <Input
                 id="jersey-number"
                 type="number"
                 min={0}
@@ -553,18 +522,13 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   }))
                 }
                 placeholder="#"
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
-          >
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Legger til …" : "Legg til medlem"}
-          </button>
+          </Button>
         </form>
       </section>
 
@@ -574,202 +538,160 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         onOpenChange={(open) => {
           if (!open) handleCloseEditMember();
         }}
-        title="Rediger medlem"
       >
-        <form onSubmit={handleSaveMember} className="space-y-4">
-          {editMemberError && (
-            <div
-              role="alert"
-              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-            >
-              {editMemberError}
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="edit-first-name"
-            >
-              Fornavn
-            </label>
-            <input
-              id="edit-first-name"
-              type="text"
-              value={editMemberForm.firstName}
-              onChange={(e) =>
-                setEditMemberForm((prev) => ({
-                  ...prev,
-                  firstName: e.target.value,
-                }))
-              }
-              required
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="edit-last-name"
-            >
-              Etternavn
-            </label>
-            <input
-              id="edit-last-name"
-              type="text"
-              value={editMemberForm.lastName}
-              onChange={(e) =>
-                setEditMemberForm((prev) => ({
-                  ...prev,
-                  lastName: e.target.value,
-                }))
-              }
-              required
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="edit-preferred-name"
-            >
-              Kallenavn (valgfritt)
-            </label>
-            <input
-              id="edit-preferred-name"
-              type="text"
-              value={editMemberForm.preferredName}
-              onChange={(e) =>
-                setEditMemberForm((prev) => ({
-                  ...prev,
-                  preferredName: e.target.value,
-                }))
-              }
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              className="text-sm font-medium text-foreground"
-              htmlFor="edit-country"
-            >
-              Land (valgfritt)
-            </label>
-            <input
-              id="edit-country"
-              type="text"
-              value={editMemberForm.country}
-              onChange={(e) =>
-                setEditMemberForm((prev) => ({
-                  ...prev,
-                  country: e.target.value,
-                }))
-              }
-              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rediger medlem</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveMember} className="space-y-4">
             <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="edit-role"
-              >
-                Rolle
-              </label>
-              <select
-                id="edit-role"
-                value={editMemberForm.role}
+              <Label htmlFor="edit-first-name">Fornavn</Label>
+              <Input
+                id="edit-first-name"
+                type="text"
+                value={editMemberForm.firstName}
                 onChange={(e) =>
                   setEditMemberForm((prev) => ({
                     ...prev,
-                    role: e.target.value as TeamMemberRole,
+                    firstName: e.target.value,
                   }))
                 }
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                <option value="player">Spiller</option>
-                <option value="coach">Trener</option>
-                <option value="manager">Lagleder</option>
-                <option value="staff">Støtteapparat</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="edit-jersey-number"
-              >
-                Draktnummer (valgfritt)
-              </label>
-              <input
-                id="edit-jersey-number"
-                type="number"
-                min={0}
-                value={editMemberForm.jerseyNumber}
-                onChange={(event) =>
-                  setEditMemberForm((prev) => ({
-                    ...prev,
-                    jerseyNumber: event.target.value,
-                  }))
-                }
-                placeholder="#"
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                required
               />
             </div>
-          </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={handleCloseEditMember}
-              disabled={updateMemberMutation.isPending}
-              className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              Avbryt
-            </button>
-            <button
-              type="submit"
-              disabled={updateMemberMutation.isPending}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {updateMemberMutation.isPending ? "Lagrer …" : "Lagre"}
-            </button>
-          </div>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="edit-last-name">Etternavn</Label>
+              <Input
+                id="edit-last-name"
+                type="text"
+                value={editMemberForm.lastName}
+                onChange={(e) =>
+                  setEditMemberForm((prev) => ({
+                    ...prev,
+                    lastName: e.target.value,
+                  }))
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-preferred-name">Kallenavn (valgfritt)</Label>
+              <Input
+                id="edit-preferred-name"
+                type="text"
+                value={editMemberForm.preferredName}
+                onChange={(e) =>
+                  setEditMemberForm((prev) => ({
+                    ...prev,
+                    preferredName: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-country">Land (valgfritt)</Label>
+              <Input
+                id="edit-country"
+                type="text"
+                value={editMemberForm.country}
+                onChange={(e) =>
+                  setEditMemberForm((prev) => ({
+                    ...prev,
+                    country: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="edit-role">Rolle</Label>
+                <select
+                  id="edit-role"
+                  value={editMemberForm.role}
+                  onChange={(e) =>
+                    setEditMemberForm((prev) => ({
+                      ...prev,
+                      role: e.target.value as TeamMemberRole,
+                    }))
+                  }
+                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="player">Spiller</option>
+                  <option value="coach">Trener</option>
+                  <option value="manager">Lagleder</option>
+                  <option value="staff">Støtteapparat</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-jersey-number">
+                  Draktnummer (valgfritt)
+                </Label>
+                <Input
+                  id="edit-jersey-number"
+                  type="number"
+                  min={0}
+                  value={editMemberForm.jerseyNumber}
+                  onChange={(event) =>
+                    setEditMemberForm((prev) => ({
+                      ...prev,
+                      jerseyNumber: event.target.value,
+                    }))
+                  }
+                  placeholder="#"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                onClick={handleCloseEditMember}
+                disabled={updateMemberMutation.isPending}
+                variant="outline"
+              >
+                Avbryt
+              </Button>
+              <Button type="submit" disabled={updateMemberMutation.isPending}>
+                {updateMemberMutation.isPending ? "Lagrer …" : "Lagre"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
       </Dialog>
 
       {/* Remove Member Confirmation */}
-      <ConfirmDialog
+      <AlertDialog
         open={memberToRemove !== null}
         onOpenChange={(open) => {
           if (!open) handleCancelRemove();
         }}
-        onConfirm={handleConfirmRemove}
-        title="Fjern medlem"
-        description={
-          memberToRemove
-            ? `Er du sikker på at du vil fjerne ${formatMemberName(
-                memberToRemove,
-              )} fra laget? Medlemmet vil bli deaktivert og kan ikke velges til tropper.`
-            : ""
-        }
-        confirmLabel="Fjern"
-        cancelLabel="Avbryt"
-        isLoading={removeMemberMutation.isPending}
-        variant="danger"
-      />
-
-      {removeError && (
-        <div
-          role="alert"
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-        >
-          {removeError}
-        </div>
-      )}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Fjern medlem</AlertDialogTitle>
+            <AlertDialogDescription>
+              {memberToRemove
+                ? `Er du sikker på at du vil fjerne ${formatMemberName(
+                    memberToRemove,
+                  )} fra laget? Medlemmet vil bli deaktivert og kan ikke velges til tropper.`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmRemove}
+            >
+              Fjern
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

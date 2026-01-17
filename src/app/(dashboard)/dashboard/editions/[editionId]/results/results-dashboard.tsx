@@ -33,7 +33,25 @@ import {
   fetchEditionVenues,
   type Venue,
 } from "@/lib/api/venues-client";
-import { ConfirmDialog, Dialog } from "@/ui/components/dialog";
+import { Badge } from "@/ui/components/badge";
+import { Button } from "@/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/components/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/ui/components/alert-dialog";
+import { toast } from "sonner";
 import { EditionHeader } from "../edition-dashboard";
 
 type MatchStatus = components["schemas"]["MatchStatus"];
@@ -106,7 +124,6 @@ const EMPTY_VENUES: Venue[] = [];
 
 export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   const queryClient = useQueryClient();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [filters, setFilters] = useState<ResultsFilters>({
     query: "",
     status: "all",
@@ -151,10 +168,10 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       void queryClient.invalidateQueries({
         queryKey: matchDetailQueryKey(variables.matchId),
       });
-      setActionError(null);
+      toast.success("Kampen er oppdatert.");
     },
     onError: (error) => {
-      setActionError(
+      toast.error(
         error instanceof Error ? error.message : "Kunne ikke oppdatere kampen.",
       );
     },
@@ -169,10 +186,10 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       void queryClient.invalidateQueries({
         queryKey: matchDetailQueryKey(matchId),
       });
-      setActionError(null);
+      toast.success("Kampen er slettet.");
     },
     onError: (error) => {
-      setActionError(
+      toast.error(
         error instanceof Error ? error.message : "Kunne ikke slette kampen.",
       );
     },
@@ -304,7 +321,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
     matchId: string,
     payload: components["schemas"]["UpdateMatchRequest"],
   ) {
-    setActionError(null);
     try {
       await updateMutation.mutateAsync({
         matchId,
@@ -318,7 +334,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
   }
 
   async function handleDeleteMatch(matchId: string) {
-    setActionError(null);
     try {
       await deleteMutation.mutateAsync(matchId);
       return true;
@@ -347,15 +362,6 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
         pageTitle="Kamp-administrasjon"
         pageDescription="Oppdater status, poeng og kampdetaljer. Endringer oppdaterer scoreboardet fortløpende."
       />
-
-      {actionError ? (
-        <div
-          role="alert"
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-        >
-          {actionError}
-        </div>
-      ) : null}
 
       {isLoading ? (
         <div className="rounded-lg border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
@@ -667,28 +673,31 @@ export function ResultsDashboard({ editionId }: ResultsDashboardProps) {
       )}
 
       <Dialog
-        open={Boolean(activeMatch)}
+        open={Boolean(editingMatchId)}
         onOpenChange={(open) => {
           if (!open) {
             setEditingMatchId(null);
           }
         }}
-        title={`Rediger ${activeMatchLabel}`}
-        size="xl"
       >
-        {activeMatch ? (
-          <MatchEditorCard
-            match={activeMatch}
-            entries={sortedEntries}
-            entryMap={entryMap}
-            venues={venues}
-            isSaving={updateMutation.isPending}
-            isDeleting={deleteMutation.isPending}
-            onSave={(payload) => handleSaveMatch(activeMatch.id, payload)}
-            onDelete={() => handleDeleteMatch(activeMatch.id)}
-            onClose={() => setEditingMatchId(null)}
-          />
-        ) : null}
+        <DialogContent size="xl">
+          <DialogHeader>
+            <DialogTitle>Rediger {activeMatchLabel}</DialogTitle>
+          </DialogHeader>
+          {activeMatch ? (
+            <MatchEditorCard
+              match={activeMatch}
+              entries={sortedEntries}
+              entryMap={entryMap}
+              venues={venues}
+              isSaving={updateMutation.isPending}
+              isDeleting={deleteMutation.isPending}
+              onSave={(payload) => handleSaveMatch(activeMatch.id, payload)}
+              onDelete={() => handleDeleteMatch(activeMatch.id)}
+              onClose={() => setEditingMatchId(null)}
+            />
+          ) : null}
+        </DialogContent>
       </Dialog>
     </div>
   );
@@ -1511,21 +1520,15 @@ function MatchEditorCard({
                   {homeLabel}
                 </p>
               </div>
-              <div className="flex items-center justify-end">
-                <label htmlFor={`${idBase}-home-score`} className="sr-only">
-                  Hjemmelag score
-                </label>
-                <input
-                  id={`${idBase}-home-score`}
-                  type="number"
-                  min={0}
-                  value={homeScore}
-                  onChange={(event) =>
-                    handleScoreChange("home", event.target.value)
-                  }
-                  className="w-20 rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
+              <input
+                type="number"
+                min="0"
+                value={homeScore}
+                onChange={(event) =>
+                  handleScoreChange("home", event.target.value)
+                }
+                className="w-full rounded border border-border px-2 py-1 text-center text-lg font-bold shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:py-2 sm:text-xl"
+              />
             </div>
             <div className="grid items-center gap-3 rounded-xl border border-border/60 bg-card/60 px-4 py-3 md:grid-cols-[minmax(0,1fr)_96px]">
               <div>
@@ -1536,461 +1539,392 @@ function MatchEditorCard({
                   {awayLabel}
                 </p>
               </div>
-              <div className="flex items-center justify-end">
-                <label htmlFor={`${idBase}-away-score`} className="sr-only">
-                  Bortelag score
-                </label>
-                <input
-                  id={`${idBase}-away-score`}
-                  type="number"
-                  min={0}
-                  value={awayScore}
-                  onChange={(event) =>
-                    handleScoreChange("away", event.target.value)
-                  }
-                  className="w-20 rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
+              <input
+                type="number"
+                min="0"
+                value={awayScore}
+                onChange={(event) =>
+                  handleScoreChange("away", event.target.value)
+                }
+                className="w-full rounded border border-border px-2 py-1 text-center text-lg font-bold shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3 sm:py-2 sm:text-xl"
+              />
             </div>
           </div>
-          <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
-                Ekstraomganger (EEO)
-              </p>
-              <span className="text-xs text-muted-foreground">Valgfritt</span>
-            </div>
-            <div className="mt-2 grid gap-3 md:grid-cols-2">
-              <div className="space-y-1">
-                <label
-                  htmlFor={`${idBase}-home-extra`}
-                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                >
-                  Hjemmelag
-                </label>
-                <input
-                  id={`${idBase}-home-extra`}
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={optionalScoreInputs.homeExtraTime}
-                  onChange={(event) =>
-                    handleOptionalScoreChange(
-                      "homeExtraTime",
-                      event.target.value,
-                    )
-                  }
-                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor={`${idBase}-away-extra`}
-                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                >
-                  Bortelag
-                </label>
-                <input
-                  id={`${idBase}-away-extra`}
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={optionalScoreInputs.awayExtraTime}
-                  onChange={(event) =>
-                    handleOptionalScoreChange(
-                      "awayExtraTime",
-                      event.target.value,
-                    )
-                  }
-                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Brukes hvis kampen gikk til ekstraomganger. 0–0 betyr at det ikke
-              ble scoret i ekstraomgangene.
-            </p>
-          </div>
-          <div className="rounded-xl border border-border/60 bg-card/60 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground">
-                Straffesparkkonkurranse (ESP)
-              </p>
-              <span className="text-xs text-muted-foreground">Valgfritt</span>
-            </div>
-            <div className="mt-2 grid gap-3 md:grid-cols-2">
-              <div className="space-y-1">
-                <label
-                  htmlFor={`${idBase}-home-penalties`}
-                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                >
-                  Hjemmelag
-                </label>
-                <input
-                  id={`${idBase}-home-penalties`}
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={optionalScoreInputs.homePenalties}
-                  onChange={(event) =>
-                    handleOptionalScoreChange(
-                      "homePenalties",
-                      event.target.value,
-                    )
-                  }
-                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
-              <div className="space-y-1">
-                <label
-                  htmlFor={`${idBase}-away-penalties`}
-                  className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                >
-                  Bortelag
-                </label>
-                <input
-                  id={`${idBase}-away-penalties`}
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  value={optionalScoreInputs.awayPenalties}
-                  onChange={(event) =>
-                    handleOptionalScoreChange(
-                      "awayPenalties",
-                      event.target.value,
-                    )
-                  }
-                  className="w-full rounded border border-border px-3 py-2 text-right text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Brukes kun når kampen avgjøres på straffer. Straffer påvirker ikke
-              totalmålet, men vises som ESP på scoreboardet.
-            </p>
-          </div>
-          {optionalScoreError ? (
-            <output aria-live="polite" className="text-xs text-destructive">
-              {optionalScoreError}
-            </output>
-          ) : null}
         </div>
-        <div className="space-y-2">
-          <label
-            htmlFor={`${idBase}-status`}
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            Status
-          </label>
-          <select
-            id={`${idBase}-status`}
-            value={status}
-            onChange={(event) => {
-              setStatus(event.target.value as MatchStatus);
-              setStatusNotice(null);
-            }}
-            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          >
-            <option value="scheduled">Planlagt</option>
-            <option value="in_progress">Pågår</option>
-            <option value="finalized">Fullført</option>
-            <option value="disputed">Tvist</option>
-          </select>
-          {statusNotice ? (
-            <output aria-live="polite" className="text-xs text-primary">
-              {statusNotice}
-            </output>
-          ) : null}
-        </div>
-      </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <label
-            htmlFor={`${idBase}-kickoff`}
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            Tidspunkt
-          </label>
-          <input
-            id={`${idBase}-kickoff`}
-            type="datetime-local"
-            value={kickoffAt}
-            onChange={(event) => setKickoffAt(event.target.value)}
-            placeholder="Valgfritt"
-            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        <div className="space-y-2">
-          <label
-            htmlFor={`${idBase}-venue`}
-            className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-          >
-            Arena
-          </label>
-          <select
-            id={`${idBase}-venue`}
-            value={venueId}
-            onChange={(event) => setVenueId(event.target.value)}
-            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          >
-            <option value="">Ikke satt</option>
-            {venues.map((venue) => (
-              <option key={venue.id} value={venue.id}>
-                {venue.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <label
+              htmlFor={`${idBase}-status`}
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Kampstatus
+            </label>
+            <select
+              id={`${idBase}-status`}
+              value={status}
+              onChange={(event) => {
+                setStatus(event.target.value as MatchStatus);
+                setStatusNotice(null);
+              }}
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="scheduled">Planlagt</option>
+              <option value="in_progress">Pågår</option>
+              <option value="finalized">Fullført</option>
+              <option value="disputed">Tvist</option>
+            </select>
+            {statusNotice ? (
+              <p className="text-[0.65rem] font-medium text-emerald-600 dark:text-emerald-400">
+                {statusNotice}
+              </p>
+            ) : null}
+          </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          disabled={isSaving || isDeleting}
-          onClick={() => setDeleteDialogOpen(true)}
-          className="rounded-md border border-destructive/40 px-4 py-2 text-sm font-semibold text-destructive transition hover:border-destructive/70 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          Slett kamp
-        </button>
-        <button
-          type="button"
-          disabled={isSaving || isDeleting}
-          onClick={() => {
-            void handleSaveMatch();
-          }}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSaving ? "Lagrer …" : "Lagre kamp"}
-        </button>
+          <div className="space-y-2">
+            <label
+              htmlFor={`${idBase}-kickoff`}
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Tidspunkt
+            </label>
+            <input
+              id={`${idBase}-kickoff`}
+              type="datetime-local"
+              value={kickoffAt}
+              onChange={(event) => setKickoffAt(event.target.value)}
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label
+              htmlFor={`${idBase}-venue`}
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+            >
+              Arena
+            </label>
+            <select
+              id={`${idBase}-venue`}
+              value={venueId}
+              onChange={(event) => setVenueId(event.target.value)}
+              className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+            >
+              <option value="">Ingen arena</option>
+              {venues.map((venue) => (
+                <option key={venue.id} value={venue.id}>
+                  {venue.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 border-t border-border/60 pt-6">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground">
-              Hendelser
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Registrer mål, kort og assist for å oppdatere toppscorerlisten.
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-foreground">
+            Tilleggspoeng
+          </h3>
+          {optionalScoreError ? (
+            <p className="text-xs font-medium text-destructive">
+              {optionalScoreError}
             </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setEventsOpen((prev) => !prev)}
-            className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:bg-primary/10"
-          >
-            {eventsOpen ? "Skjul" : "Vis"} hendelser
-          </button>
+          ) : null}
         </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2 rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground">
+              Ekstraomganger
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-home-et`}
+                  className="text-[0.6rem] font-semibold text-muted-foreground"
+                >
+                  Hjemme
+                </label>
+                <input
+                  id={`${idBase}-home-et`}
+                  type="number"
+                  min="0"
+                  placeholder="—"
+                  value={optionalScoreInputs.homeExtraTime}
+                  onChange={(e) =>
+                    handleOptionalScoreChange("homeExtraTime", e.target.value)
+                  }
+                  className="w-full rounded border border-border px-2 py-1.5 text-center text-sm font-semibold focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-away-et`}
+                  className="text-[0.6rem] font-semibold text-muted-foreground"
+                >
+                  Borte
+                </label>
+                <input
+                  id={`${idBase}-away-et`}
+                  type="number"
+                  min="0"
+                  placeholder="—"
+                  value={optionalScoreInputs.awayExtraTime}
+                  onChange={(e) =>
+                    handleOptionalScoreChange("awayExtraTime", e.target.value)
+                  }
+                  className="w-full rounded border border-border px-2 py-1.5 text-center text-sm font-semibold focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2 rounded-xl border border-border/60 bg-card/40 p-4">
+            <p className="text-[0.65rem] font-bold uppercase tracking-widest text-muted-foreground">
+              Straffespark
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-home-p`}
+                  className="text-[0.6rem] font-semibold text-muted-foreground"
+                >
+                  Hjemme
+                </label>
+                <input
+                  id={`${idBase}-home-p`}
+                  type="number"
+                  min="0"
+                  placeholder="—"
+                  value={optionalScoreInputs.homePenalties}
+                  onChange={(e) =>
+                    handleOptionalScoreChange("homePenalties", e.target.value)
+                  }
+                  className="w-full rounded border border-border px-2 py-1.5 text-center text-sm font-semibold focus:border-primary focus:outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label
+                  htmlFor={`${idBase}-away-p`}
+                  className="text-[0.6rem] font-semibold text-muted-foreground"
+                >
+                  Borte
+                </label>
+                <input
+                  id={`${idBase}-away-p`}
+                  type="number"
+                  min="0"
+                  placeholder="—"
+                  value={optionalScoreInputs.awayPenalties}
+                  onChange={(e) =>
+                    handleOptionalScoreChange("awayPenalties", e.target.value)
+                  }
+                  className="w-full rounded border border-border px-2 py-1.5 text-center text-sm font-semibold focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-6 border-t border-border/60 pt-6">
+        <button
+          type="button"
+          onClick={() => setEventsOpen(!eventsOpen)}
+          className="flex w-full items-center justify-between text-sm font-semibold text-foreground hover:text-primary"
+        >
+          <span>Hendelser & Målscorere</span>
+          <span className="text-xs font-normal text-muted-foreground">
+            {eventsOpen ? "Skjul" : "Vis"}
+          </span>
+        </button>
 
         {eventsOpen ? (
           <div className="mt-4 space-y-4">
-            {eventsError ? (
-              <div
-                role="alert"
-                className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              >
-                {eventsError}
-              </div>
-            ) : null}
-
-            {eventsLoadError ? (
+            {eventsLoading ? (
+              <p className="py-4 text-center text-sm text-muted-foreground italic">
+                Laster tropper og hendelser …
+              </p>
+            ) : eventsLoadError ? (
               <div
                 role="alert"
                 className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
               >
                 {eventsLoadError}
               </div>
-            ) : eventsLoading ? (
-              <div className="rounded-md border border-border bg-card/60 px-4 py-3 text-sm text-muted-foreground">
-                Laster hendelser …
-              </div>
             ) : (
               <>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => addGoalRow("home")}
+                    className="rounded-md bg-emerald-600/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-600/20 dark:text-emerald-400"
+                  >
+                    + Mål hjemme
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addGoalRow("away")}
+                    className="rounded-md bg-emerald-600/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-600/20 dark:text-emerald-400"
+                  >
+                    + Mål borte
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addEventRow}
+                    className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
+                  >
+                    Annen hendelse
+                  </button>
+                </div>
+
                 {eventRows.length === 0 ? (
-                  <div className="rounded-md border border-dashed border-border px-4 py-4 text-sm text-muted-foreground">
-                    Ingen registrerte hendelser.
-                  </div>
+                  <p className="py-6 text-center text-xs text-muted-foreground italic">
+                    Ingen hendelser registrert for denne kampen.
+                  </p>
                 ) : (
-                  <div className="space-y-3">
-                    {eventRows.map((row) => {
-                      const rosterOptions =
-                        row.teamSide === "home"
-                          ? homeRosterOptions
-                          : awayRosterOptions;
-                      return (
-                        <div
-                          key={row.id}
-                          className="grid gap-3 rounded-xl border border-border/60 bg-card/60 p-4 md:grid-cols-[120px_160px_1fr_100px_100px_auto]"
-                        >
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`${idBase}-side-${row.id}`}
-                              className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Side
-                            </label>
-                            <select
-                              id={`${idBase}-side-${row.id}`}
-                              value={row.teamSide}
-                              onChange={(event) =>
-                                updateEventRow(row.id, {
-                                  teamSide: event.target
-                                    .value as MatchEventSide,
-                                  membershipId: "",
-                                  squadMemberId: null,
-                                })
-                              }
-                              className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            >
-                              <option value="home">Hjemme · {homeLabel}</option>
-                              <option value="away">Borte · {awayLabel}</option>
-                            </select>
-                          </div>
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`${idBase}-type-${row.id}`}
-                              className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Type
-                            </label>
-                            <select
-                              id={`${idBase}-type-${row.id}`}
-                              value={row.eventType}
-                              onChange={(event) =>
-                                updateEventRow(row.id, {
-                                  eventType: event.target
-                                    .value as MatchEventType,
-                                })
-                              }
-                              className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            >
-                              {EVENT_TYPE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`${idBase}-player-${row.id}`}
-                              className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Spiller
-                            </label>
-                            <select
-                              id={`${idBase}-player-${row.id}`}
-                              value={row.membershipId}
-                              onChange={(event) =>
-                                updateEventRow(row.id, {
-                                  membershipId: event.target.value,
-                                  squadMemberId: null,
-                                })
-                              }
-                              className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            >
-                              <option value="">Velg spiller</option>
-                              {rosterOptions.map((option) => (
-                                <option
-                                  key={option.membershipId}
-                                  value={option.membershipId}
-                                >
-                                  {option.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`${idBase}-minute-${row.id}`}
-                              className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Minutt
-                            </label>
-                            <input
-                              id={`${idBase}-minute-${row.id}`}
-                              value={row.minute}
-                              onChange={(event) =>
-                                updateEventRow(row.id, {
-                                  minute: event.target.value,
-                                })
-                              }
-                              placeholder="Valgfritt"
-                              className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            />
-                          </div>
-                          <div className="space-y-1">
-                            <label
-                              htmlFor={`${idBase}-stoppage-${row.id}`}
-                              className="text-[0.65rem] font-semibold uppercase tracking-wide text-muted-foreground"
-                            >
-                              Tillegg
-                            </label>
-                            <input
-                              id={`${idBase}-stoppage-${row.id}`}
-                              value={row.stoppageTime}
-                              onChange={(event) =>
-                                updateEventRow(row.id, {
-                                  stoppageTime: event.target.value,
-                                })
-                              }
-                              placeholder="Valgfritt"
-                              className="w-full rounded border border-border px-2 py-1 text-xs shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            />
-                          </div>
-                          <div className="flex items-end justify-end">
-                            <button
-                              type="button"
-                              onClick={() => removeEventRow(row.id)}
-                              className="rounded-md border border-destructive/30 px-3 py-1 text-xs font-semibold text-destructive transition hover:border-destructive/60 hover:bg-destructive/10"
-                            >
-                              Fjern
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-border/60">
+                          <th className="py-2 pr-2 font-semibold text-muted-foreground uppercase tracking-wider">
+                            Side
+                          </th>
+                          <th className="py-2 pr-2 font-semibold text-muted-foreground uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th className="py-2 pr-2 font-semibold text-muted-foreground uppercase tracking-wider">
+                            Spiller
+                          </th>
+                          <th className="py-2 pr-2 font-semibold text-muted-foreground uppercase tracking-wider">
+                            Tid
+                          </th>
+                          <th className="py-2 font-semibold text-muted-foreground uppercase tracking-wider text-right">
+                            Fjern
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {eventRows.map((row) => (
+                          <tr
+                            key={row.id}
+                            className="border-b border-border/40"
+                          >
+                            <td className="py-2 pr-2">
+                              <select
+                                value={row.teamSide}
+                                onChange={(e) =>
+                                  updateEventRow(row.id, {
+                                    teamSide: e.target.value as MatchEventSide,
+                                    membershipId: "",
+                                    squadMemberId: null,
+                                  })
+                                }
+                                className="rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                              >
+                                <option value="home">Hjemme</option>
+                                <option value="away">Borte</option>
+                              </select>
+                            </td>
+                            <td className="py-2 pr-2">
+                              <select
+                                value={row.eventType}
+                                onChange={(e) =>
+                                  updateEventRow(row.id, {
+                                    eventType: e.target.value as MatchEventType,
+                                  })
+                                }
+                                className="rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                              >
+                                <option value="goal">Mål</option>
+                                <option value="yellow_card">Gult kort</option>
+                                <option value="red_card">Rødt kort</option>
+                                <option value="own_goal">Selvmål</option>
+                              </select>
+                            </td>
+                            <td className="py-2 pr-2">
+                              <select
+                                id={`${idBase}-player-${row.id}`}
+                                value={row.membershipId}
+                                onChange={(e) =>
+                                  updateEventRow(row.id, {
+                                    membershipId: e.target.value,
+                                    squadMemberId: null,
+                                  })
+                                }
+                                className="max-w-[140px] rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary"
+                              >
+                                <option value="">Velg spiller</option>
+                                {(row.teamSide === "home"
+                                  ? homeRosterOptions
+                                  : awayRosterOptions
+                                ).map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </td>
+                            <td className="py-2 pr-2">
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="Min"
+                                  value={row.minute}
+                                  onChange={(e) =>
+                                    updateEventRow(row.id, {
+                                      minute: e.target.value,
+                                    })
+                                  }
+                                  className="w-10 rounded border border-border bg-transparent px-1 py-1 text-center focus:outline-none"
+                                />
+                                <span className="text-muted-foreground">+</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder="0"
+                                  value={row.stoppageTime}
+                                  onChange={(e) =>
+                                    updateEventRow(row.id, {
+                                      stoppageTime: e.target.value,
+                                    })
+                                  }
+                                  className="w-8 rounded border border-border bg-transparent px-1 py-1 text-center focus:outline-none"
+                                />
+                              </div>
+                            </td>
+                            <td className="py-2 text-right">
+                              <button
+                                type="button"
+                                onClick={() => removeEventRow(row.id)}
+                                className="text-destructive hover:text-destructive/80"
+                              >
+                                Slett
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() => addGoalRow("home")}
-                      className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                    >
-                      Hjemmemål ({homeLabel})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addGoalRow("away")}
-                      className="rounded-md border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary transition hover:border-primary/70 hover:bg-primary/10"
-                    >
-                      Bortemål ({awayLabel})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={addEventRow}
-                      className="rounded-md border border-border/70 px-3 py-1.5 text-xs font-semibold text-foreground transition hover:border-border hover:bg-primary/5"
-                    >
-                      Legg til hendelse
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    disabled={
-                      eventsSaving || (!eventsDirty && eventRows.length === 0)
-                    }
-                    onClick={() => {
-                      void handleSaveEvents();
-                    }}
-                    className="rounded-md bg-primary px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                <div className="flex items-center justify-between border-t border-border/40 pt-4">
+                  {eventsError ? (
+                    <p className="text-xs font-medium text-destructive">
+                      {eventsError}
+                    </p>
+                  ) : (
+                    <div />
+                  )}
+                  <Button
+                    onClick={handleSaveEvents}
+                    disabled={!eventsDirty || eventsSaving}
+                    size="sm"
+                    variant="accent"
                   >
                     {eventsSaving ? "Lagrer …" : "Lagre hendelser"}
-                  </button>
+                  </Button>
                 </div>
               </>
             )}
@@ -1998,247 +1932,119 @@ function MatchEditorCard({
         ) : null}
       </div>
 
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        title="Slett kamp?"
-        description={`Dette sletter kampen ${homeLabel} – ${awayLabel}. Alle hendelser blir også fjernet.`}
-        confirmLabel="Slett kamp"
-        cancelLabel="Avbryt"
-        onConfirm={() => {
-          void handleDeleteMatch();
-        }}
-        isLoading={isDeleting}
-        variant="danger"
-      />
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex gap-3">
+          <Button
+            onClick={handleSaveMatch}
+            disabled={isSaving || isDeleting}
+            size="sm"
+          >
+            {isSaving ? "Lagrer …" : "Lagre kamp"}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isSaving || isDeleting}
+            size="sm"
+          >
+            Lukk
+          </Button>
+        </div>
+        <Button
+          variant="destructive"
+          onClick={() => setDeleteDialogOpen(true)}
+          disabled={isSaving || isDeleting}
+          size="sm"
+        >
+          Slett kamp
+        </Button>
+      </div>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Slett kamp?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Er du sikker på at du vil slette kampen mellom{" "}
+              <span className="font-semibold">{homeLabel}</span> og{" "}
+              <span className="font-semibold">{awayLabel}</span>? Denne
+              handlingen kan ikke angres.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Avbryt</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDeleteMatch}
+            >
+              Slett kamp
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </article>
   );
 }
 
-type RosterOption = {
-  membershipId: string;
-  label: string;
-};
-
-const EVENT_TYPE_OPTIONS: Array<{ value: MatchEventType; label: string }> = [
-  { value: "goal", label: "Mål" },
-  { value: "penalty_goal", label: "Straffemål" },
-  { value: "own_goal", label: "Selvmål" },
-  { value: "assist", label: "Assist" },
-  { value: "yellow_card", label: "Gult kort" },
-  { value: "red_card", label: "Rødt kort" },
-];
-
-function buildRosterOptions(roster: TeamRoster | null): RosterOption[] {
-  if (!roster) {
-    return [];
-  }
-
-  return roster.members
-    .filter((member) => member.membership_id && member.role === "player")
-    .map((member) => ({
-      membershipId: member.membership_id,
-      label: formatRosterMemberLabel(member),
-    }))
-    .sort((left, right) => left.label.localeCompare(right.label, "nb"));
-}
-
-function formatRosterMemberLabel(member: TeamRoster["members"][number]) {
-  const name = member.person.full_name;
-  const jerseyNumber = member.jersey_number;
-  if (jerseyNumber == null) {
-    return name;
-  }
-  return `#${jerseyNumber} ${name}`;
-}
-
-function createEventDraft(
-  overrides: Partial<MatchEventDraft> = {},
-): MatchEventDraft {
-  const base: MatchEventDraft = {
-    id:
-      typeof crypto !== "undefined" ? crypto.randomUUID() : String(Date.now()),
-    teamSide: "home",
-    eventType: "goal",
-    minute: "",
-    stoppageTime: "",
-    membershipId: "",
-    squadMemberId: null,
-  };
-
-  return { ...base, ...overrides };
-}
-
-function parseMinute(value: string): number | null {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return null;
-  }
-  const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return null;
-  }
-  return parsed;
-}
-
-function parseScore(value: string) {
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
-}
-
-function parseOptionalScoreInput(value: string): {
-  value: number | null;
-  isValid: boolean;
-} {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return { value: null, isValid: true };
-  }
-  const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return { value: null, isValid: false };
-  }
-  return { value: parsed, isValid: true };
-}
-
-function hasAnyScoreValues(
-  homeScore: number,
-  awayScore: number,
-  optionalInputs: OptionalScoreInputs,
-): boolean {
-  if (homeScore !== 0 || awayScore !== 0) {
-    return true;
-  }
-  return (
-    optionalInputs.homeExtraTime.trim().length > 0 ||
-    optionalInputs.awayExtraTime.trim().length > 0 ||
-    optionalInputs.homePenalties.trim().length > 0 ||
-    optionalInputs.awayPenalties.trim().length > 0
-  );
-}
-
-function toLocalInput(value: string) {
-  const date = new Date(value);
-  const offsetMinutes = date.getTimezoneOffset();
-  const local = new Date(date.getTime() - offsetMinutes * 60 * 1000);
-  return local.toISOString().slice(0, 16);
-}
-
-function normalizeMatchStatus(status: MatchStatus): MatchStatus {
-  if (status === "extra_time" || status === "penalty_shootout") {
-    return "in_progress";
-  }
+function statusLabel(status: MatchStatus) {
+  if (status === "scheduled") return "Planlagt";
+  if (status === "in_progress") return "Pågår";
+  if (status === "finalized") return "Fullført";
+  if (status === "disputed") return "Tvist";
   return status;
 }
 
-function deriveOptionalScoreInputs(match: Match): OptionalScoreInputs {
-  const homeExtraTime = match.home_score?.extra_time;
-  const awayExtraTime = match.away_score?.extra_time;
-  const homePenalties = match.home_score?.penalties;
-  const awayPenalties = match.away_score?.penalties;
-  const hasExtraTime = homeExtraTime != null || awayExtraTime != null;
-  const hasPenalties = homePenalties != null || awayPenalties != null;
+function formatAdminMatchScore(match: Match) {
+  const home = match.home_score;
+  const away = match.away_score;
+  if (!home || !away) return "–";
 
-  return {
-    homeExtraTime:
-      hasExtraTime && homeExtraTime != null ? String(homeExtraTime) : "",
-    awayExtraTime:
-      hasExtraTime && awayExtraTime != null ? String(awayExtraTime) : "",
-    homePenalties:
-      hasPenalties && homePenalties != null ? String(homePenalties) : "",
-    awayPenalties:
-      hasPenalties && awayPenalties != null ? String(awayPenalties) : "",
-  };
+  const totalHome = (home.regulation ?? 0) + (home.extra_time ?? 0);
+  const totalAway = (away.regulation ?? 0) + (away.extra_time ?? 0);
+
+  let label = `${totalHome} – ${totalAway}`;
+
+  if (home.extra_time != null || away.extra_time != null) {
+    label += " (e.e.o)";
+  }
+
+  if (home.penalties != null || away.penalties != null) {
+    label += ` (${home.penalties ?? 0} – ${away.penalties ?? 0} e.str)`;
+  }
+
+  return label;
 }
 
-function resolveOptionalScores(inputs: OptionalScoreInputs): {
-  values: OptionalScores;
-  error: string | null;
-} {
-  const homeExtra = parseOptionalScoreInput(inputs.homeExtraTime);
-  const awayExtra = parseOptionalScoreInput(inputs.awayExtraTime);
-  const homePenalties = parseOptionalScoreInput(inputs.homePenalties);
-  const awayPenalties = parseOptionalScoreInput(inputs.awayPenalties);
+function groupMatches(matches: Match[]) {
+  const groups: Map<
+    string,
+    { key: string; title: string; subtitle: string | null; matches: Match[] }
+  > = new Map();
 
-  if (
-    !homeExtra.isValid ||
-    !awayExtra.isValid ||
-    !homePenalties.isValid ||
-    !awayPenalties.isValid
-  ) {
-    return {
-      values: {
-        homeExtraTime: null,
-        awayExtraTime: null,
-        homePenalties: null,
-        awayPenalties: null,
-      },
-      error: "Oppgi gyldige tall for ekstraomganger og straffespark.",
-    };
+  for (const match of matches) {
+    const kickoff = match.kickoff_at ? new Date(match.kickoff_at) : null;
+    const dateKey = kickoff
+      ? kickoff.toLocaleDateString("no-NB", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        })
+      : "Tidspunkt ikke satt";
+    const venueName = match.venue_id ? "Arena" : null; // Placeholder, real name comes from venueMap in parent
+
+    const groupKey = `${dateKey}`;
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, {
+        key: groupKey,
+        title: dateKey,
+        subtitle: null,
+        matches: [],
+      });
+    }
+    groups.get(groupKey)?.matches.push(match);
   }
 
-  const hasExtraTime = homeExtra.value !== null || awayExtra.value !== null;
-  const hasPenalties =
-    homePenalties.value !== null || awayPenalties.value !== null;
-
-  return {
-    values: {
-      homeExtraTime: hasExtraTime ? (homeExtra.value ?? 0) : null,
-      awayExtraTime: hasExtraTime ? (awayExtra.value ?? 0) : null,
-      homePenalties: hasPenalties ? (homePenalties.value ?? 0) : null,
-      awayPenalties: hasPenalties ? (awayPenalties.value ?? 0) : null,
-    },
-    error: null,
-  };
-}
-
-function statusLabel(status: MatchStatus) {
-  switch (status) {
-    case "scheduled":
-      return "Planlagt";
-    case "in_progress":
-      return "Pågår";
-    case "extra_time":
-    case "penalty_shootout":
-      return "Pågår";
-    case "finalized":
-      return "Fullført";
-    case "disputed":
-      return "Tvist";
-    default:
-      return status;
-  }
-}
-
-function formatAdminMatchScore(match: Match): string {
-  const homeRegulation = match.home_score?.regulation ?? 0;
-  const awayRegulation = match.away_score?.regulation ?? 0;
-  const homeExtraTime = match.home_score?.extra_time ?? 0;
-  const awayExtraTime = match.away_score?.extra_time ?? 0;
-  const homePenalties = match.home_score?.penalties ?? 0;
-  const awayPenalties = match.away_score?.penalties ?? 0;
-  const hasExtraTime =
-    match.home_score?.extra_time != null ||
-    match.away_score?.extra_time != null;
-  const hasPenalties =
-    match.home_score?.penalties != null || match.away_score?.penalties != null;
-  const homeTotal = homeRegulation + homeExtraTime;
-  const awayTotal = awayRegulation + awayExtraTime;
-
-  const markers: string[] = [];
-  if (hasExtraTime) {
-    markers.push("EEO");
-  }
-  if (hasPenalties) {
-    markers.push("ESP");
-  }
-
-  const markerLabel = markers.length > 0 ? ` (${markers.join(", ")})` : "";
-  const penaltyLabel = hasPenalties
-    ? ` ${homePenalties}–${awayPenalties} str.`
-    : "";
-
-  return `${homeTotal}–${awayTotal}${markerLabel}${penaltyLabel}`;
+  return Array.from(groups.values());
 }
 
 function buildMatchIndex(
@@ -2246,24 +2052,16 @@ function buildMatchIndex(
   entryMap: Map<string, EntryReview>,
   venueMap: Map<string, Venue>,
 ): MatchIndex {
-  const labels = resolveMatchLabels(match, entryMap);
-  const venueName =
-    (match.venue_id ? venueMap.get(match.venue_id)?.name : null) ??
-    match.venue_name ??
-    null;
-  const searchable = [
-    labels.matchLabel,
-    labels.homeLabel,
-    labels.awayLabel,
-    match.round_label,
-    match.group_code,
-    venueName,
-    match.code,
-    match.id,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+  const homeEntry = match.home_entry_id
+    ? entryMap.get(match.home_entry_id)
+    : null;
+  const awayEntry = match.away_entry_id
+    ? entryMap.get(match.away_entry_id)
+    : null;
+  const venue = match.venue_id ? venueMap.get(match.venue_id) : null;
+
+  const homeLabel = homeEntry?.team.name ?? match.home_entry_name ?? "Ukjent";
+  const awayLabel = awayEntry?.team.name ?? match.away_entry_name ?? "Ukjent";
 
   return {
     id: match.id,
@@ -2272,113 +2070,123 @@ function buildMatchIndex(
     roundLabel: match.round_label ?? null,
     groupCode: match.group_code ?? null,
     venueId: match.venue_id ?? null,
-    venueName,
+    venueName: venue?.name ?? null,
     homeEntryId: match.home_entry_id ?? null,
     awayEntryId: match.away_entry_id ?? null,
-    homeTeamId: labels.homeTeamId,
-    awayTeamId: labels.awayTeamId,
-    homeLabel: labels.homeLabel,
-    awayLabel: labels.awayLabel,
-    matchLabel: labels.matchLabel,
-    searchable,
+    homeTeamId: homeEntry?.team.id ?? null,
+    awayTeamId: awayEntry?.team.id ?? null,
+    homeLabel,
+    awayLabel,
+    matchLabel: match.code ?? match.group_code ?? "Kamp",
+    searchable:
+      `${homeLabel} ${awayLabel} ${match.code ?? ""} ${match.group_code ?? ""} ${match.round_label ?? ""}`.toLowerCase(),
   };
 }
 
 function doesMatchIndexPassFilters(index: MatchIndex, filters: ResultsFilters) {
-  if (filters.status !== "all") {
-    if (filters.status === "in_progress") {
-      if (
-        index.status !== "in_progress" &&
-        index.status !== "extra_time" &&
-        index.status !== "penalty_shootout"
-      ) {
-        return false;
-      }
-    } else if (index.status !== filters.status) {
-      return false;
-    }
-  }
-  if (filters.roundLabel !== "all" && index.roundLabel !== filters.roundLabel) {
+  if (filters.status !== "all" && index.status !== filters.status) return false;
+  if (filters.roundLabel !== "all" && index.roundLabel !== filters.roundLabel)
     return false;
-  }
-  if (filters.groupCode !== "all" && index.groupCode !== filters.groupCode) {
+  if (filters.groupCode !== "all" && index.groupCode !== filters.groupCode)
     return false;
-  }
-  if (filters.venueId !== "all" && index.venueId !== filters.venueId) {
+  if (filters.venueId !== "all" && index.venueId !== filters.venueId)
     return false;
-  }
   if (
     filters.teamId !== "all" &&
     index.homeTeamId !== filters.teamId &&
     index.awayTeamId !== filters.teamId
-  ) {
+  )
     return false;
+
+  if (filters.query.trim()) {
+    const q = filters.query.toLowerCase();
+    if (!index.searchable.includes(q)) return false;
   }
-  const query = filters.query.trim().toLowerCase();
-  if (query.length > 0 && !index.searchable.includes(query)) {
-    return false;
-  }
+
   return true;
 }
 
-type MatchGroup = {
-  key: string;
-  title: string;
-  subtitle: string | null;
-  matches: Match[];
-};
-
-function groupMatches(matches: Match[]): MatchGroup[] {
-  const groups: MatchGroup[] = [];
-  const groupMap = new Map<string, MatchGroup>();
-
-  for (const match of matches) {
-    const roundLabel = match.round_label ?? "Ukjent runde";
-    const subtitle = match.group_code ? `Gruppe ${match.group_code}` : null;
-    const key = `${roundLabel}::${match.group_code ?? "none"}`;
-
-    const existing = groupMap.get(key);
-    if (existing) {
-      existing.matches.push(match);
-      continue;
-    }
-
-    const group: MatchGroup = {
-      key,
-      title: roundLabel,
-      subtitle,
-      matches: [match],
-    };
-    groupMap.set(key, group);
-    groups.push(group);
-  }
-
-  return groups;
+function normalizeMatchStatus(status: MatchStatus): MatchStatus {
+  return status;
 }
 
-function resolveMatchLabels(match: Match, entryMap: Map<string, EntryReview>) {
-  const homeEntry = match.home_entry_id
-    ? (entryMap.get(match.home_entry_id) ?? null)
-    : null;
-  const awayEntry = match.away_entry_id
-    ? (entryMap.get(match.away_entry_id) ?? null)
-    : null;
+function deriveOptionalScoreInputs(match: Match): OptionalScoreInputs {
+  return {
+    homeExtraTime: match.home_score?.extra_time?.toString() ?? "",
+    awayExtraTime: match.away_score?.extra_time?.toString() ?? "",
+    homePenalties: match.home_score?.penalties?.toString() ?? "",
+    awayPenalties: match.away_score?.penalties?.toString() ?? "",
+  };
+}
 
-  const matchLabel = match.code?.trim() || match.group_code || "Uten kode";
+function toLocalInput(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function parseScore(val: string) {
+  const n = parseInt(val, 10);
+  return isNaN(n) ? 0 : n;
+}
+
+function hasAnyScoreValues(h: number, a: number, opt: OptionalScoreInputs) {
+  if (h > 0 || a > 0) return true;
+  if (
+    opt.homeExtraTime ||
+    opt.awayExtraTime ||
+    opt.homePenalties ||
+    opt.awayPenalties
+  )
+    return true;
+  return false;
+}
+
+function resolveOptionalScores(opt: OptionalScoreInputs): {
+  values: OptionalScores;
+  error: string | null;
+} {
+  const parse = (s: string) => {
+    if (!s.trim()) return null;
+    const n = parseInt(s, 10);
+    return isNaN(n) ? null : n;
+  };
 
   return {
-    matchLabel,
-    homeLabel:
-      homeEntry?.team.name ??
-      match.home_entry_name ??
-      match.home_entry_id ??
-      "Ukjent",
-    awayLabel:
-      awayEntry?.team.name ??
-      match.away_entry_name ??
-      match.away_entry_id ??
-      "Ukjent",
-    homeTeamId: homeEntry?.team.id ?? null,
-    awayTeamId: awayEntry?.team.id ?? null,
+    values: {
+      homeExtraTime: parse(opt.homeExtraTime),
+      awayExtraTime: parse(opt.awayExtraTime),
+      homePenalties: parse(opt.homePenalties),
+      awayPenalties: parse(opt.awayPenalties),
+    },
+    error: null,
   };
+}
+
+function createEventDraft(
+  overrides?: Partial<MatchEventDraft>,
+): MatchEventDraft {
+  return {
+    id: Math.random().toString(36).substring(2, 9),
+    teamSide: "home",
+    eventType: "goal",
+    minute: "0",
+    stoppageTime: "",
+    membershipId: "",
+    squadMemberId: null,
+    ...overrides,
+  };
+}
+
+function parseMinute(val: string) {
+  const n = parseInt(val, 10);
+  return isNaN(n) ? null : n;
+}
+
+function buildRosterOptions(roster: TeamRoster | null) {
+  if (!roster) return [];
+  return roster.members.map((m: any) => ({
+    value: m.membership_id ?? m.id,
+    label: m.display_name ?? m.name,
+  }));
 }
