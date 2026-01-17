@@ -753,7 +753,7 @@ function formatPersonNameWithJersey(
   if (jerseyNumber == null) {
     return name;
   }
-  return `#${jerseyNumber} ${name}`;
+  return `${name} (#${jerseyNumber})`;
 }
 
 function formatScorerName(
@@ -765,7 +765,7 @@ function formatScorerName(
   if (jerseyNumber == null) {
     return base;
   }
-  return `#${jerseyNumber} ${base}`;
+  return `${base} (#${jerseyNumber})`;
 }
 
 function resolveJerseyNumber(meta: unknown): number | null {

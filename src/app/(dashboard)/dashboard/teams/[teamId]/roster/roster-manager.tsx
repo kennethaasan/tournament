@@ -717,7 +717,7 @@ function formatMemberName(member: TeamMember): string {
   if (jerseyNumber === null || jerseyNumber === undefined) {
     return baseName;
   }
-  return `#${jerseyNumber} ${baseName}`;
+  return `${baseName} (#${jerseyNumber})`;
 }
 
 function parseOptionalNumber(value: string): {

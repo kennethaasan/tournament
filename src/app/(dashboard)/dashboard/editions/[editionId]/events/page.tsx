@@ -391,7 +391,7 @@ function formatEventPlayerName(event: EventRow) {
   if (jerseyNumber == null) {
     return baseName;
   }
-  return `#${jerseyNumber} ${baseName}`;
+  return `${baseName} (#${jerseyNumber})`;
 }
 
 function resolveJerseyNumber(meta: unknown): number | null {
