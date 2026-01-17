@@ -624,11 +624,7 @@ function buildTopScorers(
     const key = `${event.entryId}:${event.personId}`;
     const jerseyNumber =
       event.jerseyNumber ?? resolveJerseyNumber(event.membershipMeta);
-    const name = formatPersonNameWithJersey(
-      event.firstName,
-      event.lastName,
-      jerseyNumber,
-    );
+    const name = buildPersonName(event.firstName, event.lastName);
 
     let scorer = scorers.get(key);
 

@@ -891,6 +891,38 @@ describe("getPublicScoreboard", () => {
     expect(result.topScorers[1]?.name).toBe("Zoe Scorer");
   });
 
+  it("does not duplicate jersey number in top scorer names", async () => {
+    const entries = [{ id: "entry-1", name: "Team A" }];
+    const scorerEvents = [
+      {
+        eventType: "goal",
+        personId: "person-1",
+        entryId: "entry-1",
+        firstName: "Ida",
+        lastName: "Strand",
+        jerseyNumber: 10,
+        membershipMeta: {},
+      },
+    ];
+
+    const result = await getPublicScoreboard(
+      { editionSlug: "jersey-test", competitionSlug: null },
+      {
+        findEdition: async () => ({
+          ...baseEdition,
+          slug: "jersey-test",
+        }),
+        listEntries: async () => entries,
+        listMatches: async () => [],
+        listScorerEvents: async () => scorerEvents,
+        findActiveHighlight: async () => null,
+        now: () => new Date("2024-06-01T12:00:00Z"),
+      },
+    );
+
+    expect(result.topScorers[0]?.name).toBe("#10 Ida Strand");
+  });
+
   it("applies head-to-head tiebreaker when teams are tied", async () => {
     const entries = [
       { id: "entry-1", name: "Alpha" },
