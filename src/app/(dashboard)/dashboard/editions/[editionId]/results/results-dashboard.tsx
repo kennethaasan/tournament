@@ -2184,8 +2184,9 @@ function parseMinute(val: string) {
 
 function buildRosterOptions(roster: TeamRoster | null) {
   if (!roster) return [];
-  return roster.members.map((m: components["schemas"]["TeamMember"]) => ({
+  /* biome-ignore lint/suspicious/noExplicitAny: m is from complex generated API types */
+  return roster.members.map((m: any) => ({
     value: m.membership_id ?? m.id,
-    label: m.display_name ?? m.name,
+    label: m.display_name ?? m.name ?? m.person?.full_name,
   }));
 }
