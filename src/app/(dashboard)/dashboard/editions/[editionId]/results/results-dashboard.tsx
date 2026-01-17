@@ -1058,12 +1058,12 @@ function MatchEditorCard({
     }
 
     if (hasAnyScoreValues(nextHomeScore, nextAwayScore, optionalScoreInputs)) {
-      if (status !== "finalized") {
+      if (status !== "finalized" && status !== "in_progress") {
         setStatus("finalized");
+        setStatusNotice(
+          "Resultat registrert. Status settes automatisk til Fullført.",
+        );
       }
-      setStatusNotice(
-        "Resultat registrert. Status settes automatisk til Fullført.",
-      );
     } else {
       setStatusNotice(null);
     }
@@ -1076,12 +1076,12 @@ function MatchEditorCard({
     setOptionalScoreInputs((prev) => {
       const next = { ...prev, [field]: value };
       if (hasAnyScoreValues(homeScore, awayScore, next)) {
-        if (status !== "finalized") {
+        if (status !== "finalized" && status !== "in_progress") {
           setStatus("finalized");
+          setStatusNotice(
+            "Resultat registrert. Status settes automatisk til Fullført.",
+          );
         }
-        setStatusNotice(
-          "Resultat registrert. Status settes automatisk til Fullført.",
-        );
       } else {
         setStatusNotice(null);
       }
