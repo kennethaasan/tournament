@@ -168,15 +168,15 @@ function LiveMatchCard({ match, entryNames }: LiveMatchCardProps) {
       {/* Teams and Score */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
         <div className="text-right">
-          <p className="text-sm font-bold leading-tight">{homeName}</p>
+          <p className="text-base font-bold leading-tight">{homeName}</p>
         </div>
         <div className="rounded bg-black/30 px-3 py-1 text-center">
-          <p className="text-xl font-bold tabular-nums">
+          <p className="text-3xl font-bold tabular-nums leading-none">
             {formatMatchScore(match) || "—"}
           </p>
         </div>
         <div className="text-left">
-          <p className="text-sm font-bold leading-tight">{awayName}</p>
+          <p className="text-base font-bold leading-tight">{awayName}</p>
         </div>
       </div>
 
@@ -199,7 +199,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
   return (
     <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <div className="border-b border-white/10 px-3 py-1">
-        <h2 className="text-[0.65rem] font-bold text-white">
+        <h2 className="text-xs font-bold text-white">
           Kampoppsett ({matches.length} kamper)
         </h2>
       </div>
@@ -362,7 +362,7 @@ function ScreenStandingsTable({
   return (
     <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <div className="border-b border-white/10 px-2 py-1">
-        <h2 className="text-[0.6rem] font-bold text-white">{title}</h2>
+        <h2 className="text-xs font-bold text-white">{title}</h2>
       </div>
       <div className="overflow-auto">
         <Table variant="compact" fixed>
@@ -398,40 +398,21 @@ function ScreenStandingsTable({
             ) : (
               standings.map((row, index) => (
                 <TableRow key={row.entryId} index={index}>
-                  <TableCell variant="compact" bold className="py-0.5">
+                  <TableCell variant="compact" bold>
                     {row.position}
                   </TableCell>
-                  <TableCell
-                    variant="compact"
-                    truncate
-                    className="py-0.5 font-medium"
-                  >
+                  <TableCell variant="compact" truncate className="font-medium">
                     {entryNames.get(row.entryId) ?? row.entryId}
                   </TableCell>
-                  <TableCell
-                    variant="compact"
-                    align="center"
-                    muted
-                    className="py-0.5"
-                  >
+                  <TableCell variant="compact" align="center" muted>
                     {row.played}
                   </TableCell>
-                  <TableCell
-                    variant="compact"
-                    align="center"
-                    muted
-                    className="py-0.5"
-                  >
+                  <TableCell variant="compact" align="center" muted>
                     {row.goalDifference > 0
                       ? `+${row.goalDifference}`
                       : row.goalDifference}
                   </TableCell>
-                  <TableCell
-                    variant="compact"
-                    align="center"
-                    bold
-                    className="py-0.5"
-                  >
+                  <TableCell variant="compact" align="center" bold>
                     {row.points}
                   </TableCell>
                 </TableRow>
@@ -456,7 +437,7 @@ function ScreenTopScorersTable({
   return (
     <section className="overflow-hidden rounded-lg border border-white/20 bg-white/5 shadow-xl backdrop-blur">
       <div className="border-b border-white/10 px-2 py-1">
-        <h2 className="text-[0.6rem] font-bold text-white">Toppscorere</h2>
+        <h2 className="text-xs font-bold text-white">Toppscorere</h2>
       </div>
       <div>
         {scorers.length === 0 ? (
@@ -479,11 +460,11 @@ function ScreenTopScorersTable({
                   key={`${player.entryId}-${player.personId}`}
                   index={index}
                 >
-                  <TableCell variant="compact" className="py-0.5">
-                    <p className="truncate font-medium text-[0.7rem]">
+                  <TableCell variant="compact">
+                    <p className="truncate font-medium text-xs leading-tight">
                       {player.name || "Ukjent"}
                     </p>
-                    <p className="truncate text-[0.55rem] text-white/50">
+                    <p className="truncate text-[0.65rem] text-white/50 leading-tight mt-0.5">
                       {entryNames.get(player.entryId) ?? ""}
                     </p>
                   </TableCell>
@@ -491,7 +472,7 @@ function ScreenTopScorersTable({
                     variant="compact"
                     align="center"
                     bold
-                    className="py-0.5 text-sm"
+                    className="text-base"
                   >
                     {player.goals}
                   </TableCell>

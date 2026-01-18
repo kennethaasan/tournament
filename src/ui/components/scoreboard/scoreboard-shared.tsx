@@ -363,8 +363,8 @@ export function Table({
   fixed = false,
   className = "",
 }: TableProps) {
-  const baseClasses = "w-full text-left text-white/90";
-  const variantClasses = variant === "compact" ? "text-xs" : "text-sm";
+  const baseClasses = "w-full text-left text-white/90 leading-tight";
+  const variantClasses = variant === "compact" ? "text-sm" : "text-sm";
   const fixedClass = fixed ? "table-fixed" : "";
 
   return (
@@ -415,8 +415,8 @@ export function TableHeadRow({
   variant = "normal",
   className = "",
 }: TableHeadRowProps) {
-  const textSize = variant === "compact" ? "text-[0.55rem]" : "text-xs";
-  const baseClasses = `${textSize} uppercase tracking-wide text-white/60`;
+  const textSize = variant === "compact" ? "text-[0.65rem]" : "text-xs";
+  const baseClasses = `${textSize} uppercase tracking-wide text-white/60 leading-tight`;
 
   return <tr className={`${baseClasses} ${className}`}>{children}</tr>;
 }
@@ -439,7 +439,7 @@ export function TableHeaderCell({
   variant = "normal",
   className = "",
 }: TableHeaderCellProps) {
-  const padding = variant === "compact" ? "px-1.5 py-0.5" : "px-4 py-3";
+  const padding = variant === "compact" ? "px-1.5 py-1.5" : "px-4 py-3";
   const alignClass =
     align === "center" ? "text-center" : align === "right" ? "text-right" : "";
   const widthStyle = width ? { width } : undefined;
