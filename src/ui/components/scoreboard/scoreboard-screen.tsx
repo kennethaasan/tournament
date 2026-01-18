@@ -210,7 +210,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
               <TableHeaderCell variant="compact" width="6%">
                 Tid
               </TableHeaderCell>
-              <TableHeaderCell variant="compact" width="4%">
+              <TableHeaderCell variant="compact" width="6%">
                 Kamp
               </TableHeaderCell>
               <TableHeaderCell variant="compact" width="8%">
@@ -250,7 +250,7 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
                     <TableCell variant="compact" muted>
                       {formatKickoffTime(match.kickoffAt)}
                     </TableCell>
-                    <TableCell variant="compact" muted>
+                    <TableCell variant="compact" muted truncate>
                       {match.code ?? match.groupCode ?? "—"}
                     </TableCell>
                     <TableCell variant="compact" muted truncate>

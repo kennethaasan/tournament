@@ -512,11 +512,18 @@ export function MatchEditorCard({
       homeEntryId !== (match.home_entry_id ?? "") ||
       awayEntryId !== (match.away_entry_id ?? "");
     if (teamsChanged) {
-      if (!hasHomeEntry || !hasAwayEntry) {
-        setMatchError("Velg hjemme- og bortelag før du lagrer.");
+      if (
+        !hasHomeEntry &&
+        !hasAwayEntry &&
+        !homePlaceholder.trim() &&
+        !awayPlaceholder.trim()
+      ) {
+        setMatchError(
+          "Legg inn minst ett lag eller visningsnavn før du lagrer.",
+        );
         return;
       }
-      if (homeEntryId === awayEntryId) {
+      if (hasHomeEntry && hasAwayEntry && homeEntryId === awayEntryId) {
         setMatchError("Hjemmelag og bortelag kan ikke være det samme.");
         return;
       }
@@ -599,9 +606,16 @@ export function MatchEditorCard({
         let squadMemberId = row.squadMemberId;
 
         if (membershipId) {
+          const isOpponent = row.eventType === "own_goal";
+          const effectiveSide = isOpponent
+            ? row.teamSide === "home"
+              ? "away"
+              : "home"
+            : row.teamSide;
+
           const memberMap =
-            row.teamSide === "home" ? homeMemberMap : awayMemberMap;
-          const squadId = row.teamSide === "home" ? homeSquadId : awaySquadId;
+            effectiveSide === "home" ? homeMemberMap : awayMemberMap;
+          const squadId = effectiveSide === "home" ? homeSquadId : awaySquadId;
           const existing = memberMap.get(membershipId);
           if (existing) {
             squadMemberId = existing;
@@ -614,16 +628,12 @@ export function MatchEditorCard({
           }
         }
 
-        if (!squadMemberId) {
-          throw new Error("Velg spiller for alle hendelser.");
-        }
-
         resolvedEvents.push({
           team_side: row.teamSide,
           event_type: row.eventType,
           minute: minute ?? 0,
           stoppage_time: stoppageTime ?? undefined,
-          squad_member_id: squadMemberId,
+          squad_member_id: squadMemberId ?? undefined,
         });
       }
 
@@ -884,18 +894,6 @@ export function MatchEditorCard({
                     setStatus(event.target.value as MatchStatus);
                     setStatusNotice(null);
                   }}
-                  className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-                >
-                  <option value="scheduled">Planlagt</option>
-                  <option value="in_progress">Pågår</option>
-                  <option value="finalized">Fullført</option>
-                  <option value="disputed">Tvist</option>
-                </select>
-                ...
-                <select
-                  id={`${idBase}-venue`}
-                  value={venueId}
-                  onChange={(event) => setVenueId(event.target.value)}
                   className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   <option value="scheduled">Planlagt</option>
@@ -1181,10 +1179,16 @@ export function MatchEditorCard({
                                 }
                                 className="max-w-[180px] rounded border border-border bg-background px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
                               >
-                                <option value="">Velg spiller</option>
-                                {(row.teamSide === "home"
-                                  ? homeRosterOptions
-                                  : awayRosterOptions
+                                <option value="">
+                                  Velg spiller (valgfritt)
+                                </option>
+                                {(row.eventType === "own_goal"
+                                  ? row.teamSide === "home"
+                                    ? awayRosterOptions
+                                    : homeRosterOptions
+                                  : row.teamSide === "home"
+                                    ? homeRosterOptions
+                                    : awayRosterOptions
                                 ).map((opt) => (
                                   <option key={opt.value} value={opt.value}>
                                     {opt.label}
