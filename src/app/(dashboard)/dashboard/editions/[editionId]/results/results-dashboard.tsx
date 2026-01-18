@@ -10,6 +10,7 @@ import {
 } from "@/lib/api/entries-client";
 import type { components } from "@/lib/api/generated/openapi";
 import {
+  deleteMatch,
   editionMatchesQueryKey,
   fetchEditionMatches,
   matchDetailQueryKey,
@@ -91,6 +92,25 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
     onError: (error) => {
       toast.error(
         error instanceof Error ? error.message : "Kunne ikke oppdatere kampen.",
+      );
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (matchId: string) => deleteMatch(matchId),
+    onSuccess: (_data, matchId) => {
+      void queryClient.invalidateQueries({
+        queryKey: editionMatchesQueryKey(editionId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: matchDetailQueryKey(matchId),
+      });
+      toast.success("Kampen er slettet.");
+      setEditingMatchId(null);
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : "Kunne ikke slette kampen.",
       );
     },
   });
@@ -580,9 +600,16 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
               entryMap={entryMap}
               venues={venues}
               isSaving={updateMutation.isPending}
-              isDeleting={false}
+              isDeleting={deleteMutation.isPending}
               onSave={(payload) => handleSaveMatch(activeMatch.id, payload)}
-              onDelete={() => Promise.resolve(true)}
+              onDelete={async () => {
+                try {
+                  await deleteMutation.mutateAsync(activeMatch.id);
+                  return true;
+                } catch {
+                  return false;
+                }
+              }}
               onClose={() => setEditingMatchId(null)}
             />
           ) : null}
