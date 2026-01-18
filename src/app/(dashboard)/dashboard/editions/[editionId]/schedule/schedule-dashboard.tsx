@@ -836,7 +836,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       <FormLabel>Stadium</FormLabel>
                       <select
                         {...field}
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         <option value="">Velg stadium</option>
                         {stages.map((stage) => (
@@ -863,7 +863,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           <FormLabel>Standardgruppe (valgfritt)</FormLabel>
                           <select
                             {...field}
-                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                           >
                             <option value="">Ingen standardgruppe</option>
                             {manualMatchStage.groups.map((group) => (
@@ -886,7 +886,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                       <FormLabel>Standardarena (valgfritt)</FormLabel>
                       <select
                         {...field}
-                        className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                       >
                         <option value="">Ingen standardarena</option>
                         {availableVenues.map((venue) => (
@@ -1001,7 +1001,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           <FormLabel>Hjemmelag (valgfritt)</FormLabel>
                           <select
                             {...matchField}
-                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                           >
                             <option value="">Ikke satt</option>
                             {approvedEntries.map((item) => (
@@ -1023,7 +1023,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           <FormLabel>Bortelag (valgfritt)</FormLabel>
                           <select
                             {...matchField}
-                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                           >
                             <option value="">Ikke satt</option>
                             {approvedEntries.map((item) => (
@@ -1047,7 +1047,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                               <FormLabel>Gruppe (overstyr)</FormLabel>
                               <select
                                 {...matchField}
-                                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                               >
                                 <option value="">
                                   {defaultGroupOptionLabel}
@@ -1072,7 +1072,7 @@ export function ScheduleDashboard({ editionId }: ScheduleDashboardProps) {
                           <FormLabel>Arena (overstyr)</FormLabel>
                           <select
                             {...matchField}
-                            className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                           >
                             <option value="">{defaultVenueOptionLabel}</option>
                             {availableVenues.map((venue) => (

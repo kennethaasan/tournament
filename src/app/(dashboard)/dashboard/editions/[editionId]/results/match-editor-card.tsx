@@ -685,7 +685,7 @@ export function MatchEditorCard({
                     setHomePlaceholderTouched(false);
                   }
                 }}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="">Velg lag</option>
                 {entries.map((entry) => (
@@ -713,7 +713,7 @@ export function MatchEditorCard({
                     setAwayPlaceholderTouched(false);
                   }
                 }}
-                className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               >
                 <option value="">Velg lag</option>
                 {entries.map((entry) => (
@@ -843,7 +843,19 @@ export function MatchEditorCard({
                     setStatus(event.target.value as MatchStatus);
                     setStatusNotice(null);
                   }}
-                  className="w-full rounded border border-border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="scheduled">Planlagt</option>
+                  <option value="in_progress">Pågår</option>
+                  <option value="finalized">Fullført</option>
+                  <option value="disputed">Tvist</option>
+                </select>
+                ...
+                <select
+                  id={`${idBase}-venue`}
+                  value={venueId}
+                  onChange={(event) => setVenueId(event.target.value)}
+                  className="w-full rounded border border-border bg-background px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   <option value="scheduled">Planlagt</option>
                   <option value="in_progress">Pågår</option>
@@ -1094,7 +1106,7 @@ export function MatchEditorCard({
                                     squadMemberId: null,
                                   })
                                 }
-                                className="rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+                                className="rounded border border-border bg-background px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
                               >
                                 <option value="home">Hjemme</option>
                                 <option value="away">Borte</option>
@@ -1108,7 +1120,7 @@ export function MatchEditorCard({
                                     eventType: e.target.value as MatchEventType,
                                   })
                                 }
-                                className="rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+                                className="rounded border border-border bg-background px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
                               >
                                 <option value="goal">Mål</option>
                                 <option value="yellow_card">Gult</option>
@@ -1126,7 +1138,7 @@ export function MatchEditorCard({
                                     squadMemberId: null,
                                   })
                                 }
-                                className="max-w-[180px] rounded border border-border bg-transparent px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
+                                className="max-w-[180px] rounded border border-border bg-background px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
                               >
                                 <option value="">Velg spiller</option>
                                 {(row.teamSide === "home"
@@ -1150,7 +1162,7 @@ export function MatchEditorCard({
                                       minute: e.target.value,
                                     })
                                   }
-                                  className="w-10 rounded border border-border bg-transparent px-1 py-1 text-center focus:outline-none text-xs"
+                                  className="w-10 rounded border border-border bg-background px-1 py-1 text-center focus:outline-none text-xs"
                                 />
                                 <span className="text-muted-foreground">+</span>
                                 <input
@@ -1162,7 +1174,7 @@ export function MatchEditorCard({
                                       stoppageTime: e.target.value,
                                     })
                                   }
-                                  className="w-8 rounded border border-border bg-transparent px-1 py-1 text-center focus:outline-none text-xs"
+                                  className="w-8 rounded border border-border bg-background px-1 py-1 text-center focus:outline-none text-xs"
                                 />
                               </div>
                             </td>

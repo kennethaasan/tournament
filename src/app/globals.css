@@ -108,6 +108,20 @@ body {
   min-height: 100vh;
 }
 
+select,
+input,
+textarea {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.dark select option,
+.dark input option,
+.dark textarea option {
+  background-color: #0b1021; /* Solid color for dark mode options */
+  color: #e5ecff;
+}
+
 .dark body {
   background:
     radial-gradient(

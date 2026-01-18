@@ -327,7 +327,7 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
                       status: event.target.value as MatchStatus | "all",
                     }))
                   }
-                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
+                  className="w-full rounded border border-border bg-background px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   <option value="scheduled">Planlagt</option>
@@ -352,7 +352,7 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
                       roundLabel: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
+                  className="w-full rounded border border-border bg-background px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {roundOptions.map((label) => (
@@ -378,7 +378,7 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
                       groupCode: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
+                  className="w-full rounded border border-border bg-background px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {groupOptions.map((code) => (
@@ -404,7 +404,7 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
                       venueId: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
+                  className="w-full rounded border border-border bg-background px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {venues.map((venue) => (
@@ -430,7 +430,7 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
                       teamId: event.target.value,
                     }))
                   }
-                  className="w-full rounded border border-border px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
+                  className="w-full rounded border border-border bg-background px-2 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 sm:px-3"
                 >
                   <option value="all">Alle</option>
                   {teamOptions.map((team) => (
