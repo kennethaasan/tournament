@@ -210,18 +210,18 @@ function ScreenMatchesTable({ matches, entryNames }: ScreenMatchesTableProps) {
               <TableHeaderCell variant="compact" width="6%">
                 Tid
               </TableHeaderCell>
-              <TableHeaderCell variant="compact" width="5%">
+              <TableHeaderCell variant="compact" width="4%">
                 Kamp
               </TableHeaderCell>
-              <TableHeaderCell variant="compact" width="10%">
+              <TableHeaderCell variant="compact" width="8%">
                 Arena
               </TableHeaderCell>
-              <TableHeaderCell variant="compact" width="10%">
+              <TableHeaderCell variant="compact" width="8%">
                 Status
               </TableHeaderCell>
               <TableHeaderCell variant="compact">Hjemmelag</TableHeaderCell>
               <TableHeaderCell variant="compact">Bortelag</TableHeaderCell>
-              <TableHeaderCell variant="compact" width="12%" align="center">
+              <TableHeaderCell variant="compact" width="22%" align="center">
                 Res.
               </TableHeaderCell>
             </TableHeadRow>

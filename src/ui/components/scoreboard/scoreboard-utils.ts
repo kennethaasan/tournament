@@ -36,12 +36,17 @@ export function formatMatchScore(match: ScoreboardMatch): string {
   const awayExtraTime = match.away.extraTime ?? 0;
   const homePenalties = match.home.penalties ?? 0;
   const awayPenalties = match.away.penalties ?? 0;
-  const hasExtraTime =
-    (match.home.extraTime !== null && match.home.extraTime !== undefined) ||
-    (match.away.extraTime !== null && match.away.extraTime !== undefined);
+
   const hasPenalties =
-    (match.home.penalties !== null && match.home.penalties !== undefined) ||
-    (match.away.penalties !== null && match.away.penalties !== undefined);
+    match.status === "penalty_shootout" ||
+    homePenalties > 0 ||
+    awayPenalties > 0;
+  const hasExtraTime =
+    match.status === "extra_time" ||
+    hasPenalties ||
+    homeExtraTime > 0 ||
+    awayExtraTime > 0;
+
   const homeTotal = match.home.score + homeExtraTime;
   const awayTotal = match.away.score + awayExtraTime;
 

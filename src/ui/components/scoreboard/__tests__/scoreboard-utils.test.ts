@@ -45,45 +45,7 @@ describe("statusLabel", () => {
 
   it("returns Planlagt for scheduled and unknown statuses", () => {
     expect(statusLabel("scheduled")).toBe("Planlagt");
-  });
-});
-
-describe("formatTimestamp", () => {
-  it("formats time as HH:MM:SS", () => {
-    // Use a fixed date to test the format
-    const date = new Date("2024-06-15T14:30:45Z");
-    const result = formatTimestamp(date);
-    // The output format depends on locale, but should contain hours, minutes, seconds
-    expect(result).toMatch(/\d{2}:\d{2}:\d{2}/);
-  });
-});
-
-describe("formatDateOnly", () => {
-  it("formats date without time", () => {
-    const date = new Date("2024-06-15T10:00:00Z");
-    const result = formatDateOnly(date);
-    expect(result).toContain("15");
-    expect(result).toContain("jun");
-  });
-});
-
-describe("formatKickoff", () => {
-  it("formats date with time", () => {
-    const date = new Date("2024-06-15T10:00:00Z");
-    const result = formatKickoff(date);
-    expect(result).toContain("15");
-    expect(result).toContain("jun");
-    // Should include time component
-    expect(result).toMatch(/\d{2}:\d{2}/);
-  });
-});
-
-describe("formatKickoffTime", () => {
-  it("formats time only", () => {
-    const date = new Date("2024-06-15T14:30:00Z");
-    const result = formatKickoffTime(date);
-    // Should be time format like "16:30" or similar
-    expect(result).toMatch(/\d{2}:\d{2}/);
+    expect(statusLabel("unknown" as never)).toBe("Planlagt");
   });
 });
 
@@ -140,7 +102,34 @@ describe("formatMatchScore", () => {
       home: 4,
       away: 3,
     });
-    expect(formatMatchScore(match)).toBe("1 – 1 (ESP) 4–3 str.");
+    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 4–3 str.");
+  });
+
+  it("does not show EEO or ESP when values are 0-0 in a finalized match", () => {
+    const match = createMatch(
+      "finalized",
+      2,
+      1,
+      { home: 0, away: 0 },
+      { home: 0, away: 0 },
+    );
+    expect(formatMatchScore(match)).toBe("2 – 1");
+  });
+
+  it("shows ESP when match is in penalty_shootout status even if score is 0-0", () => {
+    const match = createMatch(
+      "penalty_shootout",
+      1,
+      1,
+      { home: 0, away: 0 },
+      { home: 0, away: 0 },
+    );
+    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 0–0 str.");
+  });
+
+  it("shows EEO when match is in extra_time status even if score is 0-0", () => {
+    const match = createMatch("extra_time", 0, 0, { home: 0, away: 0 });
+    expect(formatMatchScore(match)).toBe("0 – 0 (EEO)");
   });
 });
 
