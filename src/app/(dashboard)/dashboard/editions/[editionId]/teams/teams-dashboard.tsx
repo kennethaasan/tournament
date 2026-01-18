@@ -147,6 +147,15 @@ export function EditionTeamsDashboard({
                     >
                       Stall
                     </Link>
+                    <Link
+                      href={
+                        /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
+                        `/dashboard/editions/${editionId}/teams/${item.team.id}/squad` as any
+                      }
+                      className="rounded-full border border-border/70 px-4 py-2 text-xs font-semibold text-foreground transition hover:bg-primary/10"
+                    >
+                      Tropp
+                    </Link>
                   </div>
                 </div>
               </article>

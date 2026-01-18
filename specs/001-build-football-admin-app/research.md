@@ -121,12 +121,12 @@ lessons from the `mattis` reference application (e.g., `/tmp/mattis/src/lib/*`, 
 
 ## 12. Logging, Metrics & Auditing
 
-- **Decision**: Use pino for structured logging with correlation IDs, emit audit events to a
+- **Decision**: Use @aws-lambda-powertools/logger for structured logging with correlation IDs, emit audit events to a
   dedicated channel/table, and record metrics via OpenTelemetry instrumentation exported to the
   monitoring stack.
 - **Rationale**: Aligns with constitution expectations and `mattis/src/lib/observability` structure;
   supports incident response and the required audit log filters.
-- **Alternatives considered**: console logging (forbidden); Winston (flexible but heavier, less
+- **Alternatives considered**: console logging (forbidden); pino (removed in favor of AWS Powertools for Lambda compatibility); Winston (flexible but heavier, less
   performant for high-volume polling endpoints).
 
 ## 13. Testing & Quality Gates

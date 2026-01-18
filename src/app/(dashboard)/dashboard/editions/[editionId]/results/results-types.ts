@@ -59,3 +59,10 @@ export type OptionalScores = {
   homePenalties: number | null;
   awayPenalties: number | null;
 };
+
+export type RosterOption = {
+  value: string;
+  label: string;
+  jerseyNumber: number | null;
+  warning?: string;
+};

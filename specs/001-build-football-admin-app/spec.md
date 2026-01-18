@@ -176,7 +176,7 @@
 - **NFR-004**: All persistent identifiers (users, competitions, editions, entries, teams, persons, matches, events, notifications) MUST be UUID v7.
 - **NFR-005**: APIs MUST be described in an OpenAPI 3.2 contract, validated via Spectral, surfaced through a typed client consumed by the frontend, and error responses MUST conform to Problem Details for HTTP APIs (RFC 9457).
 - **NFR-006**: Polling endpoints MUST respond within 200 ms at p95 under expected edition load (≤ 10 active matches) and support ETag/If-None-Match for caching.
-- **NFR-007**: Logging MUST use structured logs (pino) with correlation IDs across API boundaries; audit events must emit to a dedicated channel.
+- **NFR-007**: Logging MUST use structured logs (@aws-lambda-powertools/logger) with correlation IDs across API boundaries; audit events must emit to a dedicated channel.
 - **NFR-008**: Automated testing MUST cover unit/integration scenarios with Vitest, E2E flows with Playwright, and maintain ≥ 85 % statement coverage.
 - **NFR-009**: Continuous integration MUST run linting (Biome), type-checking, contract validation, and tests on every push; deploy pipelines MUST use concurrency controls.
 - **NFR-010**: Data seeding MUST provide sample competitions, editions, teams, and matches for local development without conflicting with production IDs.

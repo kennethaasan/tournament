@@ -268,7 +268,6 @@ describe("MatchEditorCard event sync", () => {
           },
           role: "player",
           status: "active",
-          jersey_number: 9,
         },
       ],
     };
@@ -278,6 +277,7 @@ describe("MatchEditorCard event sync", () => {
         squad_id: "squad-1",
         membership_id: "member-1",
         person_id: "person-1",
+        jersey_number: 9,
       },
     ];
 
@@ -312,7 +312,7 @@ describe("MatchEditorCard event sync", () => {
     fireEvent.click(addEventButton);
 
     const playerOption = await screen.findByRole("option", {
-      name: /Velg spiller/i,
+      name: /Player One \(#9\)/i,
     });
     const playerSelect = playerOption.closest("select");
     if (!(playerSelect instanceof HTMLSelectElement)) {

@@ -8,6 +8,7 @@ import {
   entries,
   matchDisputes,
   matches,
+  persons,
   type Squad,
   type SquadMember,
   squadMembers,
@@ -31,6 +32,13 @@ export type ReviewEntryInput = {
 export type SquadMemberInput = {
   squadId: string;
   membershipId: string;
+  jerseyNumber?: number | null;
+  position?: string | null;
+  availability?: SquadMember["availability"];
+  notes?: string | null;
+};
+
+export type UpdateSquadMemberInput = {
   jerseyNumber?: number | null;
   position?: string | null;
   availability?: SquadMember["availability"];
@@ -316,6 +324,57 @@ export async function addSquadMember(
 
     return member;
   });
+}
+
+export async function listSquadMembers(squadId: string) {
+  return db
+    .select({
+      id: squadMembers.id,
+      squadId: squadMembers.squadId,
+      personId: squadMembers.personId,
+      membershipId: squadMembers.membershipId,
+      jerseyNumber: squadMembers.jerseyNumber,
+      position: squadMembers.position,
+      availability: squadMembers.availability,
+      notes: squadMembers.notes,
+      person: persons,
+    })
+    .from(squadMembers)
+    .where(eq(squadMembers.squadId, squadId))
+    .innerJoin(persons, eq(squadMembers.personId, persons.id));
+}
+
+export async function updateSquadMember(
+  squadMemberId: string,
+  input: UpdateSquadMemberInput,
+): Promise<SquadMember> {
+  const [updated] = await db
+    .update(squadMembers)
+    .set({
+      jerseyNumber:
+        input.jerseyNumber !== undefined ? input.jerseyNumber : undefined,
+      position: input.position?.trim() ?? undefined,
+      availability: input.availability ?? undefined,
+      notes: input.notes?.trim() ?? undefined,
+      updatedAt: new Date(),
+    })
+    .where(eq(squadMembers.id, squadMemberId))
+    .returning();
+
+  if (!updated) {
+    throw createProblem({
+      type: "https://tournament.app/problems/squad-member-not-found",
+      title: "Spilleren ble ikke funnet i troppen",
+      status: 404,
+      detail: "Spilleren du prøver å oppdatere finnes ikke i denne troppen.",
+    });
+  }
+
+  return updated;
+}
+
+export async function removeSquadMember(squadMemberId: string): Promise<void> {
+  await db.delete(squadMembers).where(eq(squadMembers.id, squadMemberId));
 }
 
 export async function submitMatchDispute(

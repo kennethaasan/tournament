@@ -564,6 +564,30 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/squads/{squad_id}/members/{member_id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remove a member from a squad
+     * @description Remove a member from an edition squad. Does not affect the global roster.
+     */
+    delete: operations["remove_squad_member"];
+    options?: never;
+    head?: never;
+    /**
+     * Update a squad member
+     * @description Update a squad member's jersey number or position
+     */
+    patch: operations["update_squad_member"];
+    trace?: never;
+  };
   "/api/notifications": {
     parameters: {
       query?: never;
@@ -1141,6 +1165,7 @@ export interface components {
       membership_id?: string | null;
       /** Format: uuid */
       person_id: string;
+      person?: components["schemas"]["Person"];
       /** Format: int32 */
       jersey_number?: number | null;
       position?: string | null;
@@ -1388,6 +1413,7 @@ export interface components {
     MembershipId: string;
     EntryId: string;
     SquadId: string;
+    SquadMemberId: string;
     /** @description Continue notification pagination */
     NotificationCursor: string;
     EditionSlug: string;
@@ -2724,6 +2750,78 @@ export interface operations {
       };
       400: components["responses"]["ProblemDetails"];
       401: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  remove_squad_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        squad_id: components["parameters"]["SquadId"];
+        member_id: components["parameters"]["SquadMemberId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Member removed */
+      204: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_squad_member: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        squad_id: components["parameters"]["SquadId"];
+        member_id: components["parameters"]["SquadMemberId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          jersey_number?: number | null;
+          position?: string | null;
+          /** @enum {string} */
+          availability?: "available" | "doubtful" | "injured" | "suspended";
+          notes?: string | null;
+        };
+      };
+    };
+    responses: {
+      /** @description Member updated */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SquadMember"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
       429: components["responses"]["TooManyRequests"];
       500: components["responses"]["InternalServerError"];
     };

@@ -41,7 +41,6 @@ type RosterFormState = {
   preferredName: string;
   country: string;
   role: TeamMemberRole;
-  jerseyNumber: string;
 };
 
 type EditMemberFormState = {
@@ -50,7 +49,6 @@ type EditMemberFormState = {
   preferredName: string;
   country: string;
   role: TeamMemberRole;
-  jerseyNumber: string;
 };
 
 type RosterManagerProps = {
@@ -64,7 +62,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     preferredName: "",
     country: "",
     role: "player",
-    jerseyNumber: "",
   });
 
   // Team name edit state
@@ -81,7 +78,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
     preferredName: "",
     country: "",
     role: "player",
-    jerseyNumber: "",
   });
 
   // Remove member confirmation state
@@ -102,7 +98,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferred_name: form.preferredName || null,
         country: form.country || null,
         role: form.role,
-        jersey_number: parseOptionalNumber(form.jerseyNumber).value,
       }),
     onSuccess: () => {
       setForm({
@@ -111,7 +106,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferredName: "",
         country: "",
         role: "player",
-        jerseyNumber: "",
       });
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
@@ -154,7 +148,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
         preferred_name: editMemberForm.preferredName || null,
         country: editMemberForm.country || null,
         role: editMemberForm.role,
-        jersey_number: parseOptionalNumber(editMemberForm.jerseyNumber).value,
       }),
     onSuccess: () => {
       setEditingMember(null);
@@ -196,11 +189,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const jerseyResult = parseOptionalNumber(form.jerseyNumber);
-    if (!jerseyResult.isValid) {
-      toast.error("Draktnummer må være et ikke-negativt tall.");
-      return;
-    }
     await addMemberMutation.mutateAsync();
   }
 
@@ -234,10 +222,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
       preferredName: member.person.preferred_name ?? "",
       country: "",
       role: (member.role as TeamMemberRole) ?? "player",
-      jerseyNumber:
-        member.jersey_number !== null && member.jersey_number !== undefined
-          ? String(member.jersey_number)
-          : "",
     });
   }
 
@@ -251,14 +235,9 @@ export function RosterManager({ teamId }: RosterManagerProps) {
 
     const trimmedFirstName = editMemberForm.firstName.trim();
     const trimmedLastName = editMemberForm.lastName.trim();
-    const jerseyResult = parseOptionalNumber(editMemberForm.jerseyNumber);
 
     if (!trimmedFirstName || !trimmedLastName) {
       toast.error("Fornavn og etternavn er påkrevd.");
-      return;
-    }
-    if (!jerseyResult.isValid) {
-      toast.error("Draktnummer må være et ikke-negativt tall.");
       return;
     }
 
@@ -535,22 +514,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 <option value="staff">Støtteapparat</option>
               </select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="jersey-number">Draktnummer (valgfritt)</Label>
-              <Input
-                id="jersey-number"
-                type="number"
-                min={0}
-                value={form.jerseyNumber}
-                onChange={(event) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    jerseyNumber: event.target.value,
-                  }))
-                }
-                placeholder="#"
-              />
-            </div>
           </div>
 
           <Button type="submit" disabled={isSubmitting}>
@@ -653,24 +616,6 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                   <option value="staff">Støtteapparat</option>
                 </select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-jersey-number">
-                  Draktnummer (valgfritt)
-                </Label>
-                <Input
-                  id="edit-jersey-number"
-                  type="number"
-                  min={0}
-                  value={editMemberForm.jerseyNumber}
-                  onChange={(event) =>
-                    setEditMemberForm((prev) => ({
-                      ...prev,
-                      jerseyNumber: event.target.value,
-                    }))
-                  }
-                  placeholder="#"
-                />
-              </div>
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
@@ -739,29 +684,11 @@ function formatRole(role: string | undefined): string {
 }
 
 function formatMemberName(member: TeamMember): string {
-  const jerseyNumber = member.jersey_number;
-  const baseName = member.person.full_name;
-  if (jerseyNumber === null || jerseyNumber === undefined) {
-    return baseName;
-  }
-  return `${baseName} (#${jerseyNumber})`;
+  return member.person.full_name;
 }
 
 function memberSortName(member: TeamMember): string {
   return member.person.preferred_name ?? member.person.full_name;
 }
 
-function parseOptionalNumber(value: string): {
-  value: number | null;
-  isValid: boolean;
-} {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return { value: null, isValid: true };
-  }
-  const parsed = Number.parseInt(trimmed, 10);
-  if (!Number.isFinite(parsed) || parsed < 0) {
-    return { value: null, isValid: false };
-  }
-  return { value: parsed, isValid: true };
-}
+// remove parseOptionalNumber from here

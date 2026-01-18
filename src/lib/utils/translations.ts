@@ -10,3 +10,18 @@ export function translateEditionStatus(status: string): string {
       return status;
   }
 }
+
+export function translateEntryStatus(status: string): string {
+  switch (status) {
+    case "approved":
+      return "Godkjent";
+    case "pending":
+      return "Venter";
+    case "rejected":
+      return "Avvist";
+    case "withdrawn":
+      return "Trukket";
+    default:
+      return status;
+  }
+}

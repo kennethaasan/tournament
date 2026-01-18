@@ -9,6 +9,7 @@ import type {
   OptionalScoreInputs,
   OptionalScores,
   ResultsFilters,
+  RosterOption,
 } from "./results-types";
 
 export function statusLabel(status: MatchStatus) {
@@ -214,14 +215,31 @@ export function parseMinute(val: string) {
   return Number.isNaN(n) ? null : n;
 }
 
-export function buildRosterOptions(roster: TeamRoster | null) {
+export function buildRosterOptions(
+  roster: TeamRoster | null,
+  /* biome-ignore lint/suspicious/noExplicitAny: typed schema from openapi is too deep for a simple helper */
+  squadMembers: any[] = [],
+): RosterOption[] {
   if (!roster) return [];
+
+  const squadMemberMap = new Map(
+    squadMembers
+      .filter((sm) => sm.membership_id)
+      .map((sm) => [sm.membership_id, sm]),
+  );
+
   return roster.members.map((m: TeamMember) => {
     const name = m.person.preferred_name ?? m.person.full_name;
-    const jerseyNumber = m.jersey_number;
+    const sm = squadMemberMap.get(m.membership_id);
+    const jerseyNumber = sm?.jersey_number ?? null;
+
     return {
       value: m.membership_id,
       label: jerseyNumber ? `${name} (#${jerseyNumber})` : name,
+      jerseyNumber,
+      warning: !jerseyNumber
+        ? "Mangler draktnummer for denne utgaven"
+        : undefined,
     };
   });
 }

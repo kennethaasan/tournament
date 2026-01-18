@@ -185,36 +185,29 @@ Påmeldinger kan kun sendes innenfor det definerte påmeldingsvinduet:
 
 ### Administrere spillertroppen
 
-Som lagleder har du tilgang til spillertroppadministrasjon:
+Som lagleder har du tilgang til å administrere både lagets stall og utgave-spesifikke tropper:
+
+#### 1. Stall (Global spillerliste)
+Her legger du inn alle spillere som tilhører laget. Informasjon her (navn, fødselsdato, land) gjenbrukes på tvers av alle turneringer og år.
 
 1. Gå til `/dashboard/teams/[teamId]/roster`
+2. Klikk **Legg til medlem** for å opprette spillerprofiler.
+3. Her trenger du ikke fylle inn draktnummer, da dette ofte endres fra år til år.
 
-#### Legge til medlem
+#### 2. Tropp (Utgave-spesifikk liste)
+For hver utgave (f.eks. 2025, 2026) må du velge hvilke spillere fra stallen som skal delta, og tildele dem draktnummer for akkurat denne utgaven.
 
-1. Klikk **Legg til medlem**
-2. Fyll ut:
-   - **Navn**: Fullt navn
-   - **Rolle**: `player` (spiller), `coach` (trener), eller `staff` (støtteapparat)
-   - **Draktnummer** (valgfritt): Nummer på drakten
-3. Klikk **Legg til**
+1. Gå til utgaveadministrasjon → **Lag**-fanen.
+2. Finn ditt lag og klikk **Tropp**.
+3. Velg spillere fra **Stall** til høyre for å legge dem i årets tropp.
+4. Klikk **Endre** på spilleren i troppen for å sette draktnummer og posisjon.
 
-#### Redigere medlem
-
-1. Finn medlemmet i listen
-2. Klikk **Rediger**
-3. Oppdater informasjon (navn, rolle, draktnummer)
-4. Klikk **Lagre**
-
-#### Fjerne medlem
-
-1. Finn medlemmet i listen
-2. Klikk **Fjern** og bekreft
+> **Tips**: Du kan også velge spillere direkte når du registrerer kamphendelser. Hvis en spiller fra stallen velges i en kamp, men ikke er lagt til i troppen enda, vil systemet automatisk legge dem til. Du vil se en varseltrekant ved navnet deres i kamprapporten helt til de har fått tildelt et draktnummer i troppen.
 
 ### Draktnummer
-
-- Draktnummer vises i format `#10 Erik Hansen`
-- Synlig i kamprapporter, hendelseslister og toppscorerstatistikk
-- Lagres i spillerens medlemskapsdata
+- Draktnummer er spesifikt for hver utgave (årstall).
+- Synlig i kamprapporter, hendelseslister og toppscorerstatistikk.
+- Administreres under **Tropp** for den aktuelle utgaven.
 
 ---
 
