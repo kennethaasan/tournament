@@ -48,13 +48,7 @@ type UpdateMatchBody = {
   away_label?: string | null;
   kickoff_at?: string | null;
   venue_id?: string | null;
-  status?:
-    | "scheduled"
-    | "in_progress"
-    | "extra_time"
-    | "penalty_shootout"
-    | "finalized"
-    | "disputed";
+  status?: "scheduled" | "in_progress" | "finalized" | "disputed";
   score?: {
     home?: ScoreBreakdownInput;
     away?: ScoreBreakdownInput;

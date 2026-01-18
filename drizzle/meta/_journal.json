@@ -22,6 +22,13 @@
       "when": 1768464654842,
       "tag": "0002_steep_ma_gnuci",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1768756709040,
+      "tag": "0003_wandering_wiccan",
+      "breakpoints": true
     }
   ]
 }

@@ -1974,8 +1974,6 @@ components:
       enum:
         - scheduled
         - in_progress
-        - extra_time
-        - penalty_shootout
         - finalized
         - disputed
     ScoreBreakdown:

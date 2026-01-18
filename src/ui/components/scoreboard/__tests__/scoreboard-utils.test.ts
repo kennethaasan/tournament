@@ -23,14 +23,6 @@ describe("statusLabel", () => {
     expect(statusLabel("in_progress")).toBe("Live");
   });
 
-  it("returns EEO for extra_time", () => {
-    expect(statusLabel("extra_time")).toBe("EEO");
-  });
-
-  it("returns ESP for penalty_shootout", () => {
-    expect(statusLabel("penalty_shootout")).toBe("ESP");
-  });
-
   it("returns Tvist for disputed", () => {
     expect(statusLabel("disputed")).toBe("Tvist");
   });
@@ -106,40 +98,32 @@ describe("formatMatchScore", () => {
       "finalized",
       2,
       1,
-      { home: 0, away: 0 },
-      { home: 0, away: 0 },
+      { home: null, away: null },
+      { home: null, away: null },
     );
     expect(formatMatchScore(match)).toBe("2 – 1");
   });
 
-  it("shows ESP when match is in penalty_shootout status even if score is 0-0", () => {
+  it("shows ESP when match has penalty score even if in_progress", () => {
     const match = createMatch(
-      "penalty_shootout",
+      "in_progress",
       1,
       1,
       { home: 0, away: 0 },
-      { home: 0, away: 0 },
+      { home: 4, away: 3 },
     );
-    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 0–0 str.");
+    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 4–3 str.");
   });
 
-  it("shows EEO when match is in extra_time status even if score is 0-0", () => {
-    const match = createMatch("extra_time", 0, 0, { home: 0, away: 0 });
-    expect(formatMatchScore(match)).toBe("0 – 0 (EEO)");
+  it("shows EEO when match has extra time score", () => {
+    const match = createMatch("in_progress", 1, 1, { home: 1, away: 0 });
+    expect(formatMatchScore(match)).toBe("2 – 1 (EEO)");
   });
 });
 
 describe("isLiveMatch", () => {
   it("returns true for in_progress", () => {
     expect(isLiveMatch("in_progress")).toBe(true);
-  });
-
-  it("returns true for extra_time", () => {
-    expect(isLiveMatch("extra_time")).toBe(true);
-  });
-
-  it("returns true for penalty_shootout", () => {
-    expect(isLiveMatch("penalty_shootout")).toBe(true);
   });
 
   it("returns true for disputed", () => {
@@ -549,16 +533,14 @@ describe("computeMatchStats", () => {
     expect(stats.totalGoals).toBe(4);
   });
 
-  it("counts live matches (in_progress, extra_time, penalty_shootout, and disputed)", () => {
+  it("counts live matches (in_progress and disputed)", () => {
     const matches = [
       createMatch("in_progress", 1, 0),
       createMatch("disputed", 1, 1),
-      createMatch("extra_time", 2, 2),
-      createMatch("penalty_shootout", 3, 3),
     ];
     const stats = computeMatchStats(matches);
-    expect(stats.liveMatches).toBe(4);
-    expect(stats.totalGoals).toBe(13);
+    expect(stats.liveMatches).toBe(2);
+    expect(stats.totalGoals).toBe(3);
   });
 
   it("does not count scheduled matches in goals", () => {

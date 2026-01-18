@@ -6,22 +6,13 @@ import type {
 } from "./scoreboard-ui-types";
 
 export function isLiveMatch(status: ScoreboardMatch["status"]): boolean {
-  return (
-    status === "in_progress" ||
-    status === "extra_time" ||
-    status === "penalty_shootout" ||
-    status === "disputed"
-  );
+  return status === "in_progress" || status === "disputed";
 }
 
 export function statusLabel(status: ScoreboardMatch["status"]): string {
   switch (status) {
     case "in_progress":
       return "Live";
-    case "extra_time":
-      return "EEO";
-    case "penalty_shootout":
-      return "ESP";
     case "disputed":
       return "Tvist";
     case "finalized":
@@ -36,16 +27,12 @@ export function formatMatchScore(match: ScoreboardMatch): string {
   const awayExtraTime = match.away.extraTime ?? 0;
   const homePenalties = match.home.penalties ?? 0;
   const awayPenalties = match.away.penalties ?? 0;
-
   const hasPenalties =
-    match.status === "penalty_shootout" ||
-    homePenalties > 0 ||
-    awayPenalties > 0;
+    match.home.penalties !== null || match.away.penalties !== null;
   const hasExtraTime =
-    match.status === "extra_time" ||
     hasPenalties ||
-    homeExtraTime > 0 ||
-    awayExtraTime > 0;
+    match.home.extraTime !== null ||
+    match.away.extraTime !== null;
 
   const homeTotal = match.home.score + homeExtraTime;
   const awayTotal = match.away.score + awayExtraTime;

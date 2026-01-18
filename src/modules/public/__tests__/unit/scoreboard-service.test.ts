@@ -1016,7 +1016,7 @@ describe("getPublicScoreboard", () => {
     expect(result.standings).toHaveLength(3);
   });
 
-  it("includes live_matches section for extra_time and penalty_shootout", async () => {
+  it("includes live_matches section for in_progress and disputed", async () => {
     const entries = [
       { id: "entry-1", name: "Team A" },
       { id: "entry-2", name: "Team B" },
@@ -1025,7 +1025,7 @@ describe("getPublicScoreboard", () => {
     const matches = [
       {
         id: "match-1",
-        status: "extra_time",
+        status: "in_progress",
         kickoffAt: new Date("2024-06-01T10:00:00Z"),
         createdAt: new Date("2024-05-30T11:00:00Z"),
         homeEntryId: "entry-1",

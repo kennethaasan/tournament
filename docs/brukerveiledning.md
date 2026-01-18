@@ -362,8 +362,6 @@ Klikk **Vis ekstra tid / straffer** for å legge til:
 |--------|-------------|
 | `scheduled` | Planlagt, ikke startet |
 | `in_progress` | Pågår |
-| `extra_time` | I ekstraomganger |
-| `penalty_shootout` | Straffesparkkonkurranse |
 | `finalized` | Fullført |
 | `disputed` | Tvist/protest |
 
@@ -669,8 +667,6 @@ Svar: Kontakt support eller opprett en sak i GitHub-repositoryet.
 |------|-------|-------------|
 | `scheduled` | Planlagt | Kampen er satt opp |
 | `in_progress` | Pågår | Kampen spilles nå |
-| `extra_time` | Ekstraomganger | I forlengelse |
-| `penalty_shootout` | Straffer | Straffesparkkonkurranse |
 | `finalized` | Fullført | Kampen er ferdig |
 | `disputed` | Tvist | Under protest |
 
