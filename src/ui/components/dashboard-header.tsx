@@ -31,37 +31,59 @@ export function DashboardHeader({ sections }: DashboardHeaderProps) {
             </summary>
             <div className="absolute right-0 z-50 mt-3 w-72 rounded-2xl border border-border/70 bg-background/95 p-3 shadow-xl">
               <nav className="space-y-3">
-                {sections.map((section) => (
-                  <div key={section.label} className="space-y-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                      {section.label}
-                    </p>
-                    {section.links.map((link) => {
-                      const isActive =
-                        link.href === "/dashboard"
-                          ? pathname === "/dashboard"
-                          : pathname.startsWith(link.href);
+                {sections.map((section) => {
+                  // Filter out Global Admin and Tools (demo scoreboard) as requested
+                  if (
+                    section.label === "Global administrasjon" ||
+                    section.label === "Verktøy"
+                  ) {
+                    return null;
+                  }
 
-                      return (
-                        <Link
-                          key={link.href}
-                          href={link.href as Route}
-                          aria-current={isActive ? "page" : undefined}
-                          className={`block rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                            isActive
-                              ? "bg-primary/15 text-foreground"
-                              : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
-                          }`}
-                        >
-                          <div>{link.label}</div>
-                          <div className="text-xs font-normal text-muted-foreground">
-                            {link.description}
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
+                  // Filter out links already in top navbar
+                  const filteredLinks = section.links.filter((link) => {
+                    const redundantHrefs = [
+                      "/dashboard",
+                      "/dashboard/invitations",
+                      "/dashboard/notifications",
+                    ];
+                    return !redundantHrefs.includes(link.href);
+                  });
+
+                  if (filteredLinks.length === 0) return null;
+
+                  return (
+                    <div key={section.label} className="space-y-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                        {section.label}
+                      </p>
+                      {filteredLinks.map((link) => {
+                        const isActive =
+                          link.href === "/dashboard"
+                            ? pathname === "/dashboard"
+                            : pathname.startsWith(link.href);
+
+                        return (
+                          <Link
+                            key={link.href}
+                            href={link.href as Route}
+                            aria-current={isActive ? "page" : undefined}
+                            className={`block rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                              isActive
+                                ? "bg-primary/15 text-foreground"
+                                : "text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+                            }`}
+                          >
+                            <div>{link.label}</div>
+                            <div className="text-xs font-normal text-muted-foreground">
+                              {link.description}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
               </nav>
             </div>
           </details>

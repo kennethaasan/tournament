@@ -84,24 +84,54 @@ export function DashboardSidebar({ sections }: DashboardSidebarProps) {
     enabled: !!(competitionId || editionId),
   });
 
-  const editionLinks = editionId
-    ? [
-        { label: "Oversikt", path: "" },
-        { label: "Kampoppsett", path: "/schedule" },
-        { label: "Lag og tropp", path: "/teams" },
-        { label: "Kamp-administrasjon", path: "/results" },
-        { label: "Hendelser", path: "/events" },
-        { label: "Scoreboard-innstillinger", path: "/scoreboard" },
-      ]
-    : [];
+  const editionLinks =
+    editionId && context?.edition
+      ? [
+          { label: "Oversikt", path: `/dashboard/editions/${editionId}` },
+          {
+            label: "Kampoppsett",
+            path: `/dashboard/editions/${editionId}/schedule`,
+          },
+          {
+            label: "Lag og tropp",
+            path: `/dashboard/editions/${editionId}/teams`,
+          },
+          {
+            label: "Kamp-administrasjon",
+            path: `/dashboard/editions/${editionId}/results`,
+          },
+          {
+            label: "Hendelser",
+            path: `/dashboard/editions/${editionId}/events`,
+          },
+          {
+            label: "Scoreboard-innstillinger",
+            path: `/dashboard/editions/${editionId}/scoreboard`,
+          },
+          {
+            label: "Offentlig scoreboard",
+            path: `/competitions/${context.edition.competition_slug}/${context.edition.slug}/scoreboard`,
+            external: true,
+          },
+        ]
+      : [];
 
   const effectiveCompetitionId = context?.competition?.id;
 
   const competitionLinks = effectiveCompetitionId
     ? [
-        { label: "Oversikt", path: "" },
-        { label: "Arenaer", path: "/venues" },
-        { label: "Ny utgave", path: "/editions/new" },
+        {
+          label: "Oversikt",
+          path: `/dashboard/competitions/${effectiveCompetitionId}`,
+        },
+        {
+          label: "Arenaer",
+          path: `/dashboard/competitions/${effectiveCompetitionId}/venues`,
+        },
+        {
+          label: "Ny utgave",
+          path: `/dashboard/competitions/${effectiveCompetitionId}/editions/new`,
+        },
       ]
     : [];
 
@@ -143,16 +173,15 @@ export function DashboardSidebar({ sections }: DashboardSidebarProps) {
                   {competitionLinks.length > 0 && (
                     <nav className="ml-4 space-y-1 border-l border-border/60 pl-4">
                       {competitionLinks.map((item) => {
-                        const href =
-                          `/dashboard/competitions/${context.competition?.id}${item.path}` as Route;
                         const isActive =
-                          item.path === ""
-                            ? pathname === href
-                            : pathname.startsWith(href);
+                          item.path ===
+                          `/dashboard/competitions/${effectiveCompetitionId}`
+                            ? pathname === item.path
+                            : pathname.startsWith(item.path);
                         return (
                           <Link
                             key={item.label}
-                            href={href}
+                            href={item.path as Route}
                             className={cn(
                               "block py-1 text-xs font-medium transition hover:text-primary",
                               isActive
@@ -199,22 +228,28 @@ export function DashboardSidebar({ sections }: DashboardSidebarProps) {
                   {/* Contextual Edition Sub-navigation */}
                   <nav className="ml-4 space-y-1 border-l border-border/60 pl-4">
                     {editionLinks.map((item) => {
-                      const href =
-                        `/dashboard/editions/${context.edition?.id}${item.path}` as Route;
                       const isActive =
-                        item.path === ""
-                          ? pathname === href
-                          : pathname.startsWith(href);
+                        item.path === `/dashboard/editions/${editionId}`
+                          ? pathname === item.path
+                          : pathname.startsWith(item.path);
                       return (
                         <Link
                           key={item.label}
-                          href={href}
+                          href={item.path as Route}
+                          target={
+                            "external" in item && item.external
+                              ? "_blank"
+                              : undefined
+                          }
                           className={cn(
                             "block py-1 text-xs font-medium transition hover:text-primary",
                             isActive ? "text-primary" : "text-muted-foreground",
                           )}
                         >
                           {item.label}
+                          {"external" in item && item.external && (
+                            <span className="ml-1 opacity-70">↗</span>
+                          )}
                         </Link>
                       );
                     })}
@@ -228,15 +263,31 @@ export function DashboardSidebar({ sections }: DashboardSidebarProps) {
         {/* Global Navigation (Filtered) */}
         <div className="space-y-6">
           {sections.map((section) => {
-            // Filter out "Oversikt" if we are in a deep context to reduce noise
-            if (section.label === "Oversikt" && (competitionId || editionId))
+            // Filter out Global Admin and Tools (demo scoreboard) as requested
+            if (
+              section.label === "Global administrasjon" ||
+              section.label === "Verktøy"
+            ) {
               return null;
+            }
+
+            // Filter out links already in top navbar
+            const filteredLinks = section.links.filter((link) => {
+              const redundantHrefs = [
+                "/dashboard",
+                "/dashboard/invitations",
+                "/dashboard/notifications",
+              ];
+              return !redundantHrefs.includes(link.href);
+            });
+
+            if (filteredLinks.length === 0) return null;
 
             return (
               <SidebarSection
                 key={section.label}
                 label={section.label}
-                links={section.links}
+                links={filteredLinks}
                 pathname={pathname}
               />
             );
