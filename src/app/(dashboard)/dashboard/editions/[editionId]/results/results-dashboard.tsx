@@ -80,7 +80,19 @@ export function ResultsDashboard({ editionId }: { editionId: string }) {
       matchId: string;
       payload: components["schemas"]["UpdateMatchRequest"];
     }) => updateMatch(matchId, payload),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(matchDetailQueryKey(variables.matchId), data);
+      queryClient.setQueryData<Match[]>(
+        editionMatchesQueryKey(editionId),
+        (current) => {
+          if (!current) {
+            return current;
+          }
+          return current.map((match) =>
+            match.id === data.id ? { ...match, ...data } : match,
+          );
+        },
+      );
       void queryClient.invalidateQueries({
         queryKey: editionMatchesQueryKey(editionId),
       });

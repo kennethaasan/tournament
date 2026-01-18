@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { components } from "@/lib/api/generated/openapi";
 import {
@@ -286,6 +286,33 @@ export function RosterManager({ teamId }: RosterManagerProps) {
   // Filter to only show active members
   const activeMembers =
     roster?.members.filter((m) => m.status === "active") ?? [];
+  const sortedMembers = useMemo(() => {
+    const collator = new Intl.Collator("nb", { sensitivity: "base" });
+    return [...activeMembers].sort((left, right) => {
+      const leftNumber = left.jersey_number;
+      const rightNumber = right.jersey_number;
+      const leftHasNumber =
+        typeof leftNumber === "number" && Number.isFinite(leftNumber);
+      const rightHasNumber =
+        typeof rightNumber === "number" && Number.isFinite(rightNumber);
+
+      if (leftHasNumber && rightHasNumber) {
+        if (leftNumber !== rightNumber) {
+          return leftNumber - rightNumber;
+        }
+        return collator.compare(memberSortName(left), memberSortName(right));
+      }
+
+      if (leftHasNumber) {
+        return -1;
+      }
+      if (rightHasNumber) {
+        return 1;
+      }
+
+      return collator.compare(memberSortName(left), memberSortName(right));
+    });
+  }, [activeMembers]);
 
   return (
     <div className="space-y-8">
@@ -369,7 +396,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                 </tr>
               </thead>
               <tbody>
-                {activeMembers.map((member) => (
+                {sortedMembers.map((member) => (
                   <tr key={member.membership_id} className="border-t">
                     <td className="px-2 py-2 text-foreground">
                       {formatMemberName(member)}
@@ -400,7 +427,7 @@ export function RosterManager({ teamId }: RosterManagerProps) {
                     </td>
                   </tr>
                 ))}
-                {!activeMembers.length && (
+                {!sortedMembers.length && (
                   <tr>
                     <td
                       className="px-2 py-4 text-center text-sm text-muted-foreground"
@@ -718,6 +745,10 @@ function formatMemberName(member: TeamMember): string {
     return baseName;
   }
   return `${baseName} (#${jerseyNumber})`;
+}
+
+function memberSortName(member: TeamMember): string {
+  return member.person.preferred_name ?? member.person.full_name;
 }
 
 function parseOptionalNumber(value: string): {

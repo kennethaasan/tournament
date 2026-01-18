@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { EntryReview } from "@/lib/api/entries-client";
 import type { components } from "@/lib/api/generated/openapi";
 import { fetchMatch, matchDetailQueryKey } from "@/lib/api/matches-client";
@@ -74,6 +74,7 @@ export function MatchEditorCard({
   onDelete,
   onClose,
 }: MatchEditorCardProps) {
+  const lastMatchIdRef = useRef<string | null>(null);
   const [homeScore, setHomeScore] = useState(match.home_score?.regulation ?? 0);
   const [awayScore, setAwayScore] = useState(match.away_score?.regulation ?? 0);
   const [status, setStatus] = useState<MatchStatus>(
@@ -104,7 +105,6 @@ export function MatchEditorCard({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventsOpen, _setEventsOpen] = useState(true);
   const [eventRows, setEventRows] = useState<MatchEventDraft[]>([]);
-  const [eventsLoaded, setEventsLoaded] = useState(false);
   const [eventsDirty, setEventsDirty] = useState(false);
   const [eventsError, setEventsError] = useState<string | null>(null);
   const [eventsSaving, setEventsSaving] = useState(false);
@@ -113,6 +113,9 @@ export function MatchEditorCard({
   );
 
   useEffect(() => {
+    const isSameMatch = lastMatchIdRef.current === match.id;
+    lastMatchIdRef.current = match.id;
+
     setHomeScore(match.home_score?.regulation ?? 0);
     setAwayScore(match.away_score?.regulation ?? 0);
     setStatus(normalizeMatchStatus(match.status));
@@ -133,12 +136,13 @@ export function MatchEditorCard({
     setMatchError(null);
     setStatusNotice(null);
     setOptionalScoreError(null);
-    setEventRows([]);
-    setEventsLoaded(false);
-    setEventsDirty(false);
-    setEventsError(null);
-    setPendingEventFocusId(null);
-    setDeleteDialogOpen(false);
+    if (!isSameMatch) {
+      setEventRows([]);
+      setEventsDirty(false);
+      setEventsError(null);
+      setPendingEventFocusId(null);
+      setDeleteDialogOpen(false);
+    }
   }, [match]);
 
   const homeEntry = homeEntryId ? entryMap.get(homeEntryId) : null;
@@ -236,11 +240,11 @@ export function MatchEditorCard({
     [awaySquadMembers],
   );
 
-  useEffect(() => {
-    if (!eventsOpen || eventsLoaded || !matchDetailQuery.data) {
-      return;
+  const matchEventDrafts = useMemo(() => {
+    if (!matchDetailQuery.data) {
+      return null;
     }
-    const initialEvents = (matchDetailQuery.data.events ?? []).map((event) => {
+    return (matchDetailQuery.data.events ?? []).map((event) => {
       const memberMap =
         event.team_side === "home" ? homeMembersById : awayMembersById;
       const member = event.squad_member_id
@@ -256,16 +260,15 @@ export function MatchEditorCard({
         squadMemberId: event.squad_member_id ?? null,
       } satisfies MatchEventDraft;
     });
-    setEventRows(initialEvents);
-    setEventsLoaded(true);
+  }, [awayMembersById, homeMembersById, matchDetailQuery.data]);
+
+  useEffect(() => {
+    if (!eventsOpen || eventsDirty || !matchEventDrafts) {
+      return;
+    }
+    setEventRows(matchEventDrafts);
     setEventsDirty(false);
-  }, [
-    eventsOpen,
-    eventsLoaded,
-    matchDetailQuery.data,
-    homeMembersById,
-    awayMembersById,
-  ]);
+  }, [eventsOpen, eventsDirty, matchEventDrafts]);
 
   useEffect(() => {
     if (!eventsOpen || eventRows.length === 0) {
@@ -524,33 +527,48 @@ export function MatchEditorCard({
       return;
     }
 
-    const didSave = await onSave(buildMatchPayload(optionalScores));
-    if (didSave) {
-      // already open
+    const shouldSaveEvents = eventsDirty;
+    let resolvedEvents: MatchEventInput[] | null = null;
+
+    try {
+      if (shouldSaveEvents) {
+        setEventsSaving(true);
+        resolvedEvents = await resolveEventInputs();
+        if (!resolvedEvents) {
+          return;
+        }
+      }
+
+      const payload = buildMatchPayload(optionalScores);
+      if (resolvedEvents) {
+        payload.events = resolvedEvents;
+      }
+
+      const didSave = await onSave(payload);
+      if (didSave && resolvedEvents) {
+        setEventsDirty(false);
+      }
+    } finally {
+      if (shouldSaveEvents) {
+        setEventsSaving(false);
+      }
     }
   }
 
-  async function handleSaveEvents() {
+  async function resolveEventInputs(): Promise<MatchEventInput[] | null> {
     setEventsError(null);
     if (!homeEntryId || !awayEntryId) {
       setEventsError("Velg hjemme- og bortelag før du registrerer hendelser.");
-      return;
+      return null;
     }
     if (!homeSquadId || !awaySquadId) {
       setEventsError("Troppene er ikke klare enda. Prøv igjen om litt.");
-      return;
+      return null;
     }
     if (homeEntryId === awayEntryId) {
       setEventsError("Hjemmelag og bortelag kan ikke være det samme.");
-      return;
+      return null;
     }
-
-    const optionalScores = resolveOptionalScoresForPayload();
-    if (!optionalScores) {
-      return;
-    }
-
-    setEventsSaving(true);
 
     try {
       const homeMemberMap = new Map(
@@ -607,6 +625,29 @@ export function MatchEditorCard({
           stoppage_time: stoppageTime ?? undefined,
           squad_member_id: squadMemberId,
         });
+      }
+
+      return resolvedEvents;
+    } catch (error) {
+      setEventsError(
+        error instanceof Error ? error.message : "Kunne ikke lagre hendelsene.",
+      );
+      return null;
+    }
+  }
+
+  async function handleSaveEvents() {
+    const optionalScores = resolveOptionalScoresForPayload();
+    if (!optionalScores) {
+      return;
+    }
+
+    setEventsSaving(true);
+
+    try {
+      const resolvedEvents = await resolveEventInputs();
+      if (!resolvedEvents) {
+        return;
       }
 
       const payload = buildMatchPayload(optionalScores);
