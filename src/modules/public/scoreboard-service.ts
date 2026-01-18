@@ -673,11 +673,7 @@ function buildTopScorers(
     .slice(0, 100)
     .map((scorer) => ({
       ...scorer,
-      name: formatScorerName(
-        scorer.name,
-        scorer.jerseyNumber,
-        entryMap.get(scorer.entryId)?.name,
-      ),
+      name: scorer.name || entryMap.get(scorer.entryId)?.name || "Ukjent",
     }));
 }
 
@@ -756,7 +752,7 @@ function _formatPersonNameWithJersey(
   return `${name} (#${jerseyNumber})`;
 }
 
-function formatScorerName(
+function _formatScorerName(
   name: string,
   jerseyNumber: number | null | undefined,
   fallbackName?: string,

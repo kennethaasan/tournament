@@ -463,6 +463,7 @@ function ScreenTopScorersTable({
                   <TableCell variant="compact">
                     <p className="truncate font-medium text-xs leading-tight">
                       {player.name || "Ukjent"}
+                      {player.jerseyNumber ? ` (#${player.jerseyNumber})` : ""}
                     </p>
                     <p className="truncate text-[0.65rem] text-white/50 leading-tight mt-0.5">
                       {entryNames.get(player.entryId) ?? ""}

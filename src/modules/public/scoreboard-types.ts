@@ -227,6 +227,7 @@ export function toApiScoreboardPayload(
       assists: scorer.assists,
       yellow_cards: scorer.yellowCards,
       red_cards: scorer.redCards,
+      jersey_number: scorer.jerseyNumber ?? null,
     })),
     rotation: data.rotation,
     // entries are server-only metadata and are intentionally omitted from the API payload
@@ -320,6 +321,7 @@ export function fromApiScoreboardPayload(
       assists: scorer.assists ?? 0,
       yellowCards: scorer.yellow_cards ?? 0,
       redCards: scorer.red_cards ?? 0,
+      jerseyNumber: scorer.jersey_number ?? null,
     })),
     tables:
       payload.tables?.map((table) => ({

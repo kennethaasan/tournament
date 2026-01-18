@@ -1308,6 +1308,8 @@ export interface components {
       entry_id: string;
       name?: string;
       /** Format: int32 */
+      jersey_number?: number | null;
+      /** Format: int32 */
       goals: number;
       /** Format: int32 */
       assists?: number;

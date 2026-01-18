@@ -3110,6 +3110,12 @@ components:
           type: string
           maxLength: 200
           pattern: ^.{0,200}$
+        jersey_number:
+          type: integer
+          nullable: true
+          format: int32
+          minimum: 0
+          maximum: 2147483647
         goals:
           type: integer
           format: int32

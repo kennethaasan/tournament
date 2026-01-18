@@ -920,7 +920,8 @@ describe("getPublicScoreboard", () => {
       },
     );
 
-    expect(result.topScorers[0]?.name).toBe("Ida Strand (#10)");
+    expect(result.topScorers[0]?.name).toBe("Ida Strand");
+    expect(result.topScorers[0]?.jerseyNumber).toBe(10);
   });
 
   it("applies head-to-head tiebreaker when teams are tied", async () => {

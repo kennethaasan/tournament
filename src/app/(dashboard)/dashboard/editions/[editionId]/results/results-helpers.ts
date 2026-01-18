@@ -1,5 +1,5 @@
 import type { EntryReview } from "@/lib/api/entries-client";
-import type { TeamRoster } from "@/lib/api/teams-client";
+import type { TeamMember, TeamRoster } from "@/lib/api/teams-client";
 import type { Venue } from "@/lib/api/venues-client";
 import type {
   Match,
@@ -216,9 +216,12 @@ export function parseMinute(val: string) {
 
 export function buildRosterOptions(roster: TeamRoster | null) {
   if (!roster) return [];
-  /* biome-ignore lint/suspicious/noExplicitAny: m is from complex generated API types */
-  return roster.members.map((m: any) => ({
-    value: m.membership_id ?? m.id,
-    label: m.display_name ?? m.name ?? m.person?.full_name,
-  }));
+  return roster.members.map((m: TeamMember) => {
+    const name = m.person.preferred_name ?? m.person.full_name;
+    const jerseyNumber = m.jersey_number;
+    return {
+      value: m.membership_id,
+      label: jerseyNumber ? `${name} (#${jerseyNumber})` : name,
+    };
+  });
 }

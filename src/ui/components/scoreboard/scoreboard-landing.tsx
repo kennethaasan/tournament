@@ -675,7 +675,10 @@ function TopScorersContent({ scorers, entryNames }: TopScorersContentProps) {
               {index + 1}
             </span>
             <div>
-              <p className="font-semibold">{player.name || "Navn mangler"}</p>
+              <p className="font-semibold">
+                {player.name || "Navn mangler"}
+                {player.jerseyNumber ? ` (#${player.jerseyNumber})` : ""}
+              </p>
               <p className="text-xs text-white/60">
                 {entryNames.get(player.entryId) ?? player.entryId}
               </p>
