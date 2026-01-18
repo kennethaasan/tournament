@@ -1,14 +1,13 @@
-import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   addSquadMember,
+  createEntry,
+  ensureSquad,
   listSquadMembers,
   removeSquadMember,
   updateSquadMember,
-  ensureSquad,
-  createEntry,
 } from "@/modules/entries/service";
-import { addRosterMember, createTeam } from "@/modules/teams/service";
+import { addRosterMember } from "@/modules/teams/service";
 import { db } from "@/server/db/client";
 import {
   competitions,
@@ -95,24 +94,24 @@ describe("squad service integration", () => {
     expect(members).toHaveLength(2);
 
     const sm1 = members.find((m) => m.membershipId === member1.membershipId);
-    expect(sm1).toBeDefined();
-    expect(sm1?.jerseyNumber).toBe(10);
-    expect(sm1?.position).toBe("Forward");
-    expect(sm1?.person.firstName).toBe("Player");
+    if (!sm1) throw new Error("Squad member 1 not found");
+    expect(sm1.jerseyNumber).toBe(10);
+    expect(sm1.position).toBe("Forward");
+    expect(sm1.person.firstName).toBe("Player");
 
     // 5. Update a member
-    await updateSquadMember(sm1!.id, {
+    await updateSquadMember(sm1.id, {
       jerseyNumber: 11,
       position: "Midfielder",
     });
 
     const updatedMembers = await listSquadMembers(squad.id);
-    const updatedSm1 = updatedMembers.find((m) => m.id === sm1!.id);
+    const updatedSm1 = updatedMembers.find((m) => m.id === sm1.id);
     expect(updatedSm1?.jerseyNumber).toBe(11);
     expect(updatedSm1?.position).toBe("Midfielder");
 
     // 6. Remove a member
-    await removeSquadMember(sm1!.id);
+    await removeSquadMember(sm1.id);
     const finalMembers = await listSquadMembers(squad.id);
     expect(finalMembers).toHaveLength(1);
     expect(finalMembers[0]?.membershipId).toBe(member2.membershipId);

@@ -1,11 +1,13 @@
-import { NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
+import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { GET, POST } from "@/app/api/squads/[squadId]/members/route";
 import {
-  PATCH,
   DELETE,
+  PATCH,
 } from "@/app/api/squads/[squadId]/members/[memberId]/route";
+import { GET, POST } from "@/app/api/squads/[squadId]/members/route";
+import type { AuthContext } from "@/server/auth";
+import { getSession } from "@/server/auth";
 import { db } from "@/server/db/client";
 import {
   competitions,
@@ -17,9 +19,7 @@ import {
   teamMemberships,
   teams,
 } from "@/server/db/schema";
-import { getSession } from "@/server/auth";
 import { createTeamManagerContext } from "@/test/factories";
-import type { AuthContext } from "@/server/auth";
 
 vi.mock("@/server/auth");
 

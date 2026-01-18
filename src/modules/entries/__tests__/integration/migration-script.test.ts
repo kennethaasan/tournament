@@ -2,14 +2,14 @@ import { eq, isNotNull, sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/server/db/client";
 import {
+  competitions,
+  editions,
   entries,
+  persons,
   squadMembers,
   squads,
   teamMemberships,
   teams,
-  persons,
-  competitions,
-  editions,
 } from "@/server/db/schema";
 
 const COMPETITION_ID = "00000000-0000-0000-0000-000000000501";
