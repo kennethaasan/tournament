@@ -28,11 +28,11 @@ export function formatMatchScore(match: ScoreboardMatch): string {
   const homePenalties = match.home.penalties ?? 0;
   const awayPenalties = match.away.penalties ?? 0;
   const hasPenalties =
-    match.home.penalties !== null || match.away.penalties !== null;
+    match.home.penalties != null || match.away.penalties != null;
   const hasExtraTime =
     hasPenalties ||
-    match.home.extraTime !== null ||
-    match.away.extraTime !== null;
+    match.home.extraTime != null ||
+    match.away.extraTime != null;
 
   const homeTotal = match.home.score + homeExtraTime;
   const awayTotal = match.away.score + awayExtraTime;
