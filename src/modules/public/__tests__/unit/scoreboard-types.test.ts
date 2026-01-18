@@ -492,6 +492,7 @@ describe("fromApiScoreboardPayload", () => {
         assists: 3,
         yellow_cards: 1,
         red_cards: 0,
+        jersey_number: 10,
       },
     ];
     const result = fromApiScoreboardPayload(payload);
@@ -505,6 +506,7 @@ describe("fromApiScoreboardPayload", () => {
       assists: 3,
       yellowCards: 1,
       redCards: 0,
+      jerseyNumber: 10,
     });
   });
 
@@ -527,6 +529,7 @@ describe("fromApiScoreboardPayload", () => {
     expect(result.topScorers[0]?.assists).toBe(0);
     expect(result.topScorers[0]?.yellowCards).toBe(0);
     expect(result.topScorers[0]?.redCards).toBe(0);
+    expect(result.topScorers[0]?.jerseyNumber).toBeNull();
   });
 
   it("converts tables correctly", () => {
