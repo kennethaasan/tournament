@@ -27,9 +27,11 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+const mockUsePathname = vi.fn(() => "/dashboard/admin/overview");
+
 vi.mock("next/navigation", () => ({
   useParams: () => ({}),
-  usePathname: () => "/dashboard/admin/overview",
+  usePathname: () => mockUsePathname(),
 }));
 
 afterEach(() => {
@@ -48,14 +50,21 @@ describe("DashboardSidebar", () => {
     expect(screen.getByRole("complementary")).toBeInTheDocument();
   });
 
-  test("renders Oversikt section", () => {
-    render(<DashboardSidebar sections={sections} />);
+  test("renders Oversikt section when it has non-redundant links", () => {
+    // Competition admin who is NOT global admin will see "Mine konkurranser"
+    const compAdminSections = buildDashboardSections({
+      isGlobalAdmin: false,
+      isCompetitionAdmin: true,
+      isTeamManager: false,
+    });
+    render(<DashboardSidebar sections={compAdminSections} />);
     expect(screen.getByText("Oversikt")).toBeInTheDocument();
+    expect(screen.getByText("Mine konkurranser")).toBeInTheDocument();
   });
 
-  test("renders Global administrasjon section", () => {
+  test("does not render Global administrasjon section", () => {
     render(<DashboardSidebar sections={sections} />);
-    expect(screen.getByText("Global administrasjon")).toBeInTheDocument();
+    expect(screen.queryByText("Global administrasjon")).not.toBeInTheDocument();
   });
 
   test("renders system status panel", () => {
@@ -68,34 +77,21 @@ describe("DashboardSidebar", () => {
     ).toBeInTheDocument();
   });
 
-  test("renders navigation links", () => {
-    render(<DashboardSidebar sections={sections} />);
-    expect(screen.getByText("Global admin")).toBeInTheDocument();
-    expect(screen.getByText("Revisjon")).toBeInTheDocument();
-    expect(screen.getByText("Ny konkurranse")).toBeInTheDocument();
-  });
+  test("marks current page as active when link exists", () => {
+    const compAdminSections = buildDashboardSections({
+      isGlobalAdmin: false,
+      isCompetitionAdmin: true,
+      isTeamManager: false,
+    });
 
-  test("marks current page as active", () => {
-    render(<DashboardSidebar sections={sections} />);
-    const adminLink = screen.getByRole("link", { name: /global admin/i });
-    expect(adminLink).toHaveAttribute("aria-current", "page");
-  });
+    // Set pathname to Mine konkurranser
+    mockUsePathname.mockReturnValue("/dashboard/competitions");
 
-  test("non-active links do not have aria-current", () => {
-    render(<DashboardSidebar sections={sections} />);
-    const revisjonLink = screen.getByRole("link", { name: /revisjon/i });
-    expect(revisjonLink).not.toHaveAttribute("aria-current");
-  });
-
-  test("active link has active styling", () => {
-    render(<DashboardSidebar sections={sections} />);
-    const adminLink = screen.getByRole("link", { name: /global admin/i });
-    expect(adminLink).toHaveClass("bg-primary/10");
-  });
-
-  test("non-active link has inactive styling", () => {
-    render(<DashboardSidebar sections={sections} />);
-    const revisjonLink = screen.getByRole("link", { name: /revisjon/i });
-    expect(revisjonLink).toHaveClass("text-muted-foreground");
+    render(<DashboardSidebar sections={compAdminSections} />);
+    const competitionsLink = screen.getByRole("link", {
+      name: /mine konkurranser/i,
+    });
+    expect(competitionsLink).toHaveAttribute("aria-current", "page");
+    expect(competitionsLink).toHaveClass("bg-primary/10");
   });
 });

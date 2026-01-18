@@ -19,8 +19,10 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+const mockUsePathname = vi.fn(() => "/dashboard/admin/overview");
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/dashboard/admin/overview",
+  usePathname: () => mockUsePathname(),
 }));
 
 vi.mock("@/ui/components/theme-toggle", () => ({
@@ -59,24 +61,38 @@ describe("DashboardHeader", () => {
     expect(screen.getByText("Theme Toggle")).toBeInTheDocument();
   });
 
-  test("renders navigation links in menu", () => {
-    render(<DashboardHeader sections={sections} />);
-    expect(screen.getByText("Dashboard")).toBeInTheDocument();
-    expect(screen.getByText("Invitasjoner")).toBeInTheDocument();
-    expect(screen.getByText("Ny konkurranse")).toBeInTheDocument();
+  test("renders navigation links in menu when they are not redundant", () => {
+    // Competition admin who is NOT global admin will see "Mine konkurranser"
+    const compAdminSections = buildDashboardSections({
+      isGlobalAdmin: false,
+      isCompetitionAdmin: true,
+      isTeamManager: false,
+    });
+    render(<DashboardHeader sections={compAdminSections} />);
+    expect(screen.getByText("Mine konkurranser")).toBeInTheDocument();
   });
 
-  test("marks current page as active", () => {
+  test("does not render redundant links or global admin links", () => {
     render(<DashboardHeader sections={sections} />);
-    // The current path is /dashboard/admin/overview, so Adminoversikt should be active
-    const adminLink = screen.getByRole("link", { name: /global admin/i });
-    expect(adminLink).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByText("Dashboard")).not.toBeInTheDocument();
+    expect(screen.queryByText("Invitasjoner")).not.toBeInTheDocument();
+    expect(screen.queryByText("Ny konkurranse")).not.toBeInTheDocument();
   });
 
-  test("non-active links do not have aria-current", () => {
-    render(<DashboardHeader sections={sections} />);
-    // Use exact text match to avoid matching the description in Adminoversikt
-    const revisjonLink = screen.getByRole("link", { name: /revisjon/i });
-    expect(revisjonLink).not.toHaveAttribute("aria-current");
+  test("marks current page as active when link exists", () => {
+    const compAdminSections = buildDashboardSections({
+      isGlobalAdmin: false,
+      isCompetitionAdmin: true,
+      isTeamManager: false,
+    });
+
+    // Use a path that exists in the filtered menu
+    mockUsePathname.mockReturnValue("/dashboard/competitions");
+
+    render(<DashboardHeader sections={compAdminSections} />);
+    const competitionsLink = screen.getByRole("link", {
+      name: /mine konkurranser/i,
+    });
+    expect(competitionsLink).toHaveAttribute("aria-current", "page");
   });
 });

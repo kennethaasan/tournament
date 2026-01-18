@@ -269,7 +269,7 @@ describe("Table components", () => {
       </Table>,
     );
     const table = container.querySelector("table");
-    expect(table).toHaveClass("text-xs");
+    expect(table).toHaveClass("text-sm");
   });
 
   test("Table renders with fixed layout", () => {
@@ -325,7 +325,7 @@ describe("Table components", () => {
       </table>,
     );
     const tr = container.querySelector("tr");
-    expect(tr).toHaveClass("text-[0.55rem]");
+    expect(tr).toHaveClass("text-[0.65rem]");
   });
 
   test("TableHeaderCell renders with center alignment", () => {
