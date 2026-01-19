@@ -59,7 +59,15 @@ export async function fetchSquadMembers(
 export async function addSquadMember(
   squadId: string,
   payload: {
-    membership_id: string;
+    membership_id?: string;
+    team_id?: string;
+    person?: {
+      first_name: string;
+      last_name: string;
+      preferred_name?: string | null;
+      birth_date?: string | null;
+      country?: string | null;
+    };
     jersey_number?: number | null;
     position?: string | null;
   },
@@ -68,7 +76,8 @@ export async function addSquadMember(
     "/api/squads/{squad_id}/members",
     {
       params: { path: { squad_id: squadId } },
-      body: payload,
+      /* biome-ignore lint/suspicious/noExplicitAny: complex union type in openapi generated types */
+      body: payload as any,
       credentials: "include",
     },
   );

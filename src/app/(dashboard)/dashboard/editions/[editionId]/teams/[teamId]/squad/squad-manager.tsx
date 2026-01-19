@@ -32,6 +32,15 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
     position: string;
   }>({ jerseyNumber: "", position: "" });
 
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newPlayerForm, setNewPlayerForm] = useState({
+    firstName: "",
+    lastName: "",
+    preferredName: "",
+    jerseyNumber: "",
+    position: "",
+  });
+
   // 1. Fetch entries to find the one for this team/edition
   const entriesQuery = useQuery({
     queryKey: ["edition", editionId, "entries"],
@@ -88,6 +97,38 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
     },
   });
 
+  const createAndAddMutation = useMutation({
+    mutationFn: (payload: {
+      team_id: string;
+      person: {
+        first_name: string;
+        last_name: string;
+        preferred_name?: string;
+      };
+      jersey_number?: number | null;
+      position?: string | null;
+    }) =>
+      /* biome-ignore lint/style/noNonNullAssertion: squadId is checked by isLoading */
+      addSquadMember(squadId!, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["squad", squadId, "members"],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: teamRosterQueryKey(teamId),
+      });
+      setShowAddForm(false);
+      setNewPlayerForm({
+        firstName: "",
+        lastName: "",
+        preferredName: "",
+        jerseyNumber: "",
+        position: "",
+      });
+      toast.success("Ny spiller opprettet og lagt i troppen.");
+    },
+  });
+
   const removeMutation = useMutation({
     mutationFn: (memberId: string) =>
       /* biome-ignore lint/style/noNonNullAssertion: squadId is checked by isLoading */
@@ -138,6 +179,27 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
       memberId,
       jerseyNumber: Number.isNaN(num) ? null : num,
       position: editForm.position || null,
+    });
+  };
+
+  const handleCreateAndAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPlayerForm.firstName || !newPlayerForm.lastName) {
+      toast.error("Fornavn og etternavn er påkrevd");
+      return;
+    }
+
+    const jerseyNum = parseInt(newPlayerForm.jerseyNumber, 10);
+
+    createAndAddMutation.mutate({
+      team_id: teamId,
+      person: {
+        first_name: newPlayerForm.firstName,
+        last_name: newPlayerForm.lastName,
+        preferred_name: newPlayerForm.preferredName || undefined,
+      },
+      jersey_number: Number.isNaN(jerseyNum) ? null : jerseyNum,
+      position: newPlayerForm.position || null,
     });
   };
 
@@ -290,50 +352,164 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
           </CardContent>
         </Card>
 
-        {/* Available from Stall */}
-        <Card className="border-border/70 bg-card/70">
-          <CardHeader>
-            <CardTitle className="text-base">
-              Stall (tilgjengelige spillere)
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="divide-y divide-border/50">
-              {roster.map((m) => {
-                const isInSquad = membersInSquadIds.has(m.membership_id);
-                return (
-                  <div
-                    key={m.membership_id}
-                    className="flex items-center justify-between py-3"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {m.person.first_name} {m.person.last_name}
-                      </p>
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {m.role}
-                      </p>
+        {/* Available from Stall & New Player Form */}
+        <div className="space-y-6">
+          <Card className="border-border/70 bg-card/70">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-base">
+                Stall (tilgjengelige spillere)
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 text-xs text-primary"
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                {showAddForm ? "Lukk skjema" : "Opprett ny spiller"}
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {showAddForm ? (
+                <form
+                  onSubmit={handleCreateAndAdd}
+                  className="mb-6 space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4"
+                >
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="firstName"
+                        className="text-[10px] uppercase"
+                      >
+                        Fornavn
+                      </Label>
+                      <Input
+                        id="firstName"
+                        className="h-8 text-sm"
+                        value={newPlayerForm.firstName}
+                        onChange={(e) =>
+                          setNewPlayerForm((prev) => ({
+                            ...prev,
+                            firstName: e.target.value,
+                          }))
+                        }
+                        placeholder="Erik"
+                        required
+                      />
                     </div>
-                    <Button
-                      size="sm"
-                      variant={isInSquad ? "secondary" : "default"}
-                      className="h-8"
-                      disabled={isInSquad || addMutation.isPending}
-                      onClick={() => addMutation.mutate(m.membership_id)}
-                    >
-                      {isInSquad ? "Lagt til" : "Legg i tropp"}
-                    </Button>
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="lastName"
+                        className="text-[10px] uppercase"
+                      >
+                        Etternavn
+                      </Label>
+                      <Input
+                        id="lastName"
+                        className="h-8 text-sm"
+                        value={newPlayerForm.lastName}
+                        onChange={(e) =>
+                          setNewPlayerForm((prev) => ({
+                            ...prev,
+                            lastName: e.target.value,
+                          }))
+                        }
+                        placeholder="Hansen"
+                        required
+                      />
+                    </div>
                   </div>
-                );
-              })}
-              {roster.length === 0 && (
-                <p className="py-4 text-center text-sm text-muted-foreground italic">
-                  Ingen aktive spillere i stallen.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="jerseyNumber"
+                        className="text-[10px] uppercase"
+                      >
+                        Draktnummer
+                      </Label>
+                      <Input
+                        id="jerseyNumber"
+                        type="number"
+                        className="h-8 text-sm"
+                        value={newPlayerForm.jerseyNumber}
+                        onChange={(e) =>
+                          setNewPlayerForm((prev) => ({
+                            ...prev,
+                            jerseyNumber: e.target.value,
+                          }))
+                        }
+                        placeholder="10"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor="position"
+                        className="text-[10px] uppercase"
+                      >
+                        Posisjon
+                      </Label>
+                      <Input
+                        id="position"
+                        className="h-8 text-sm"
+                        value={newPlayerForm.position}
+                        onChange={(e) =>
+                          setNewPlayerForm((prev) => ({
+                            ...prev,
+                            position: e.target.value,
+                          }))
+                        }
+                        placeholder="Spiss"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    type="submit"
+                    className="h-8 w-full text-xs font-semibold"
+                    disabled={createAndAddMutation.isPending}
+                  >
+                    {createAndAddMutation.isPending
+                      ? "Oppretter..."
+                      : "Opprett og legg i tropp"}
+                  </Button>
+                </form>
+              ) : null}
+
+              <div className="divide-y divide-border/50">
+                {roster.map((m) => {
+                  const isInSquad = membersInSquadIds.has(m.membership_id);
+                  return (
+                    <div
+                      key={m.membership_id}
+                      className="flex items-center justify-between py-3"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {m.person.first_name} {m.person.last_name}
+                        </p>
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {m.role}
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant={isInSquad ? "secondary" : "default"}
+                        className="h-8"
+                        disabled={isInSquad || addMutation.isPending}
+                        onClick={() => addMutation.mutate(m.membership_id)}
+                      >
+                        {isInSquad ? "Lagt til" : "Legg i tropp"}
+                      </Button>
+                    </div>
+                  );
+                })}
+                {roster.length === 0 && (
+                  <p className="py-4 text-center text-sm text-muted-foreground italic">
+                    Ingen aktive spillere i stallen.
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

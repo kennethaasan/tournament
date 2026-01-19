@@ -2713,13 +2713,18 @@ components:
           maxItems: 200
     AddSquadMemberRequest:
       type: object
-      required:
-        - membership_id
       properties:
         membership_id:
           type: string
           format: uuid
           maxLength: 36
+        team_id:
+          type: string
+          format: uuid
+          maxLength: 36
+          description: Required when creating a new person
+        person:
+          $ref: '#/components/schemas/CreatePersonRequest'
         jersey_number:
           type: integer
           nullable: true
@@ -2743,6 +2748,35 @@ components:
           nullable: true
           maxLength: 2000
           pattern: ^.{0,2000}$
+    CreatePersonRequest:
+      type: object
+      required:
+        - first_name
+        - last_name
+      properties:
+        first_name:
+          type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
+        last_name:
+          type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
+        preferred_name:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
+        country:
+          type: string
+          nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          maxLength: 10
     Person:
       type: object
       required:

@@ -1178,13 +1178,27 @@ export interface components {
     };
     AddSquadMemberRequest: {
       /** Format: uuid */
-      membership_id: string;
+      membership_id?: string;
+      /**
+       * Format: uuid
+       * @description Required when creating a new person
+       */
+      team_id?: string;
+      person?: components["schemas"]["CreatePersonRequest"];
       /** Format: int32 */
       jersey_number?: number | null;
       position?: string | null;
       /** @enum {string} */
       availability?: "available" | "doubtful" | "injured" | "suspended";
       notes?: string | null;
+    };
+    CreatePersonRequest: {
+      first_name: string;
+      last_name: string;
+      preferred_name?: string | null;
+      country?: string | null;
+      /** Format: date */
+      birth_date?: string | null;
     };
     Person: {
       /** Format: uuid */

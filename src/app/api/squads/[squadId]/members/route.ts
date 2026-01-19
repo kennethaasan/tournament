@@ -1,14 +1,27 @@
 import { NextResponse } from "next/server";
-import { addSquadMember, listSquadMembers } from "@/modules/entries/service";
+import {
+  addSquadMember,
+  createAndAddSquadMember,
+  listSquadMembers,
+} from "@/modules/entries/service";
 import { assertSquadAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
+import type { SquadMember } from "@/server/db/schema";
 
 type RouteParams = {
   squadId: string;
 };
 
 type RequestBody = {
-  membership_id: string;
+  membership_id?: string;
+  team_id?: string;
+  person?: {
+    first_name: string;
+    last_name: string;
+    preferred_name?: string | null;
+    birth_date?: string | null;
+    country?: string | null;
+  };
   jersey_number?: number | null;
   position?: string | null;
   availability?: "available" | "doubtful" | "injured" | "suspended";
@@ -61,17 +74,46 @@ export const POST = createApiHandler<RouteParams>(
     await assertSquadAccess(squadId, auth);
     const payload = (await request.json()) as RequestBody;
 
-    const member = await addSquadMember({
-      squadId,
-      membershipId: payload.membership_id,
-      jerseyNumber: payload.jersey_number ?? null,
-      position: payload.position,
-      availability: payload.availability,
-      notes: payload.notes,
-    });
+    let member: SquadMember;
 
-    const [_row] = await listSquadMembers(squadId);
-    // Find the member we just added/updated
+    if (payload.person) {
+      if (!payload.team_id) {
+        return NextResponse.json(
+          { title: "Team ID is required when creating a new person" },
+          { status: 400 },
+        );
+      }
+      member = await createAndAddSquadMember({
+        squadId,
+        teamId: payload.team_id,
+        person: {
+          firstName: payload.person.first_name,
+          lastName: payload.person.last_name,
+          preferredName: payload.person.preferred_name,
+          birthDate: payload.person.birth_date,
+          country: payload.person.country,
+        },
+        jerseyNumber: payload.jersey_number,
+        position: payload.position,
+      });
+    } else {
+      if (!payload.membership_id) {
+        return NextResponse.json(
+          { title: "Membership ID is required" },
+          { status: 400 },
+        );
+      }
+      member = await addSquadMember({
+        squadId,
+        membershipId: payload.membership_id,
+        jerseyNumber: payload.jersey_number ?? null,
+        position: payload.position,
+        availability: payload.availability,
+        notes: payload.notes,
+      });
+    }
+
+    // Find the member we just added/updated to get person details
     const updatedMember = (await listSquadMembers(squadId)).find(
       (m) => m.id === member.id,
     );

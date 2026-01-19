@@ -1,6 +1,8 @@
+import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   addSquadMember,
+  createAndAddSquadMember,
   createEntry,
   ensureSquad,
   listSquadMembers,
@@ -143,5 +145,35 @@ describe("squad service integration", () => {
     expect(members).toHaveLength(1);
     expect(members[0]?.jerseyNumber).toBe(55);
     expect(members[0]?.position).toBe("Defender");
+  });
+
+  it("creates a new person and adds them to squad in one go", async () => {
+    const entry = await createEntry({ editionId: EDITION_ID, teamId: TEAM_ID });
+    const squad = await ensureSquad(entry.id);
+
+    const member = await createAndAddSquadMember({
+      squadId: squad.id,
+      teamId: TEAM_ID,
+      person: {
+        firstName: "New",
+        lastName: "Person",
+      },
+      jerseyNumber: 7,
+      position: "Winger",
+    });
+
+    expect(member.jerseyNumber).toBe(7);
+    expect(member.position).toBe("Winger");
+
+    const roster = await db
+      .select()
+      .from(teamMemberships)
+      .where(eq(teamMemberships.teamId, TEAM_ID));
+    expect(roster).toHaveLength(1);
+    expect(roster[0]?.personId).toBe(member.personId);
+
+    const squadMembersList = await listSquadMembers(squad.id);
+    expect(squadMembersList).toHaveLength(1);
+    expect(squadMembersList[0]?.person.firstName).toBe("New");
   });
 });
