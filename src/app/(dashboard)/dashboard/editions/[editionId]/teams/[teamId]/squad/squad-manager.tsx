@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { fetchEditionEntries } from "@/lib/api/entries-client";
 import {
@@ -26,6 +26,8 @@ type SquadManagerProps = {
 
 export function SquadManager({ editionId, teamId }: SquadManagerProps) {
   const queryClient = useQueryClient();
+  const firstNameRef = useRef<HTMLInputElement>(null);
+
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<{
     jerseyNumber: string;
@@ -117,7 +119,7 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
       void queryClient.invalidateQueries({
         queryKey: teamRosterQueryKey(teamId),
       });
-      setShowAddForm(false);
+      // Clear form but KEEP IT OPEN for fast entry
       setNewPlayerForm({
         firstName: "",
         lastName: "",
@@ -125,6 +127,7 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
         jerseyNumber: "",
         position: "",
       });
+      firstNameRef.current?.focus();
       toast.success("Ny spiller opprettet og lagt i troppen.");
     },
   });
@@ -211,6 +214,9 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
     );
   }
 
+  /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
+  const path = `/dashboard/editions/${editionId}/teams/${teamId}/squad` as any;
+
   return (
     <div className="space-y-8">
       <header className="flex items-start justify-between">
@@ -224,12 +230,7 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
           </p>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link
-            /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
-            href={`/dashboard/editions/${editionId}/teams` as any}
-          >
-            Tilbake til lagoversikt
-          </Link>
+          <Link href={path}>Tilbake til lagoversikt</Link>
         </Button>
       </header>
 
@@ -384,6 +385,7 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
                       </Label>
                       <Input
                         id="firstName"
+                        ref={firstNameRef}
                         className="h-8 text-sm"
                         value={newPlayerForm.firstName}
                         onChange={(e) =>
@@ -483,7 +485,10 @@ export function SquadManager({ editionId, teamId }: SquadManagerProps) {
                     >
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          {m.person.first_name} {m.person.last_name}
+                          {/* biome-ignore lint/suspicious/noExplicitAny: roster types not yet updated for person */}
+                          {m.person && (m.person as any).first_name}{" "}
+                          {/* biome-ignore lint/suspicious/noExplicitAny: roster types not yet updated for person */}
+                          {m.person && (m.person as any).last_name}
                         </p>
                         <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                           {m.role}

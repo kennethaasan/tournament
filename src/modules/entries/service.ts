@@ -225,7 +225,7 @@ export async function reviewEntry(input: ReviewEntryInput): Promise<Entry> {
 
 export async function ensureSquad(entryId: string): Promise<Squad> {
   const existing = await db.query.squads.findFirst({
-    where: eq(squads.id, entryId),
+    where: eq(squads.entryId, entryId),
   });
 
   if (existing) {
