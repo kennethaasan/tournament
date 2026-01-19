@@ -34,7 +34,7 @@ description: "Task list template for feature implementation"
 - [X] T004 Generate Drizzle configuration targeting the Postgres container and migrations output in `drizzle.config.ts`.
 - [X] T005 Implement reusable Postgres client and transaction helpers in `src/server/db/client.ts`.
 - [X] T006 [P] Define shared database enums, timestamp helpers, and base schema utilities in `src/server/db/schema/shared.ts`.
-- [X] T007 Configure structured logging with correlation context in `src/lib/logger/pino.ts`.
+- [X] T007 Configure structured logging with correlation context in `src/lib/logger/powertools.ts`.
 - [X] T008 Add ProblemDetails error types and Result helper utilities in `src/lib/errors/problem.ts`.
 - [X] T009 Build API handler wrapper enforcing auth, logging, and RFC 9457 error translation in `src/server/api/handler.ts`.
 - [X] T010 [P] Scaffold better-auth server configuration with role guards in `src/server/auth/index.ts`.

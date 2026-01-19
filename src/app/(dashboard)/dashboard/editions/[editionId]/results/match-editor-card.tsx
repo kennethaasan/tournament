@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { EntryReview } from "@/lib/api/entries-client";
 import type { components } from "@/lib/api/generated/openapi";
@@ -291,12 +292,12 @@ export function MatchEditorCard({
   }, [eventsOpen, eventRows.length, homeMembersById, awayMembersById]);
 
   const homeRosterOptions = useMemo(
-    () => buildRosterOptions(homeRoster),
-    [homeRoster],
+    () => buildRosterOptions(homeRoster, homeSquadMembers),
+    [homeRoster, homeSquadMembers],
   );
   const awayRosterOptions = useMemo(
-    () => buildRosterOptions(awayRoster),
-    [awayRoster],
+    () => buildRosterOptions(awayRoster, awaySquadMembers),
+    [awayRoster, awaySquadMembers],
   );
 
   const eventsLoading =
@@ -1168,33 +1169,57 @@ export function MatchEditorCard({
                               </select>
                             </td>
                             <td className="py-2 pr-2">
-                              <select
-                                id={`${idBase}-player-${row.id}`}
-                                value={row.membershipId}
-                                onChange={(e) =>
-                                  updateEventRow(row.id, {
-                                    membershipId: e.target.value,
-                                    squadMemberId: null,
-                                  })
-                                }
-                                className="max-w-[180px] rounded border border-border bg-background px-1 py-1 focus:outline-none focus:ring-1 focus:ring-primary text-xs"
-                              >
-                                <option value="">
-                                  Velg spiller (valgfritt)
-                                </option>
-                                {(row.eventType === "own_goal"
-                                  ? row.teamSide === "home"
-                                    ? awayRosterOptions
-                                    : homeRosterOptions
-                                  : row.teamSide === "home"
-                                    ? homeRosterOptions
-                                    : awayRosterOptions
-                                ).map((opt) => (
-                                  <option key={opt.value} value={opt.value}>
-                                    {opt.label}
+                              <div className="flex items-center gap-1.5">
+                                <select
+                                  id={`${idBase}-player-${row.id}`}
+                                  value={row.membershipId}
+                                  onChange={(e) =>
+                                    updateEventRow(row.id, {
+                                      membershipId: e.target.value,
+                                      squadMemberId: null,
+                                    })
+                                  }
+                                  className="max-w-[180px] flex-1 rounded border border-border bg-background px-1 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                >
+                                  <option value="">
+                                    Velg spiller (valgfritt)
                                   </option>
-                                ))}
-                              </select>
+                                  {(row.eventType === "own_goal"
+                                    ? row.teamSide === "home"
+                                      ? awayRosterOptions
+                                      : homeRosterOptions
+                                    : row.teamSide === "home"
+                                      ? homeRosterOptions
+                                      : awayRosterOptions
+                                  ).map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                {row.membershipId &&
+                                  (() => {
+                                    const options =
+                                      row.eventType === "own_goal"
+                                        ? row.teamSide === "home"
+                                          ? awayRosterOptions
+                                          : homeRosterOptions
+                                        : row.teamSide === "home"
+                                          ? homeRosterOptions
+                                          : awayRosterOptions;
+                                    const selected = options.find(
+                                      (o) => o.value === row.membershipId,
+                                    );
+                                    return selected?.warning ? (
+                                      <div
+                                        title={selected.warning}
+                                        className="text-amber-500"
+                                      >
+                                        <AlertTriangle className="h-3.5 w-3.5" />
+                                      </div>
+                                    ) : null;
+                                  })()}
+                              </div>
                             </td>
                             <td className="py-2 pr-2">
                               <div className="flex items-center gap-1">

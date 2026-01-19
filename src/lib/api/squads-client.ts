@@ -55,3 +55,69 @@ export async function fetchSquadMembers(
   const payload = unwrapResponse({ data, error, response });
   return payload.members ?? [];
 }
+
+export async function addSquadMember(
+  squadId: string,
+  payload: {
+    membership_id?: string;
+    team_id?: string;
+    person?: {
+      first_name: string;
+      last_name: string;
+      preferred_name?: string | null;
+      birth_date?: string | null;
+      country?: string | null;
+    };
+    jersey_number?: number | null;
+    position?: string | null;
+  },
+): Promise<SquadMember> {
+  const { data, error, response } = await apiClient.POST(
+    "/api/squads/{squad_id}/members",
+    {
+      params: { path: { squad_id: squadId } },
+      /* biome-ignore lint/suspicious/noExplicitAny: complex union type in openapi generated types */
+      body: payload as any,
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
+}
+
+export async function updateSquadMember(
+  squadId: string,
+  memberId: string,
+  payload: { jersey_number?: number | null; position?: string | null },
+): Promise<SquadMember> {
+  const { data, error, response } =
+    await /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
+    (apiClient as any).PATCH("/api/squads/{squad_id}/members/{member_id}", {
+      params: { path: { squad_id: squadId, member_id: memberId } },
+      body: payload,
+      credentials: "include",
+    });
+
+  return unwrapResponse({ data, error, response });
+}
+
+export async function removeSquadMember(
+  squadId: string,
+  memberId: string,
+): Promise<void> {
+  const { error, response } =
+    await /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
+    (apiClient as any).DELETE("/api/squads/{squad_id}/members/{member_id}", {
+      params: { path: { squad_id: squadId, member_id: memberId } },
+      credentials: "include",
+    });
+
+  if (error) {
+    unwrapResponse({
+      /* biome-ignore lint/suspicious/noExplicitAny: response has no body */
+      data: undefined as any,
+      error,
+      response,
+    });
+  }
+}

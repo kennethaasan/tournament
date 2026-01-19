@@ -7,8 +7,10 @@ import {
   competitions,
   editionSettings,
   editions,
+  entries as entriesTable,
   notifications,
   roleInvitations,
+  teams,
   userRoles,
   users,
 } from "@/server/db/schema";
@@ -299,6 +301,78 @@ export async function getCompetitionsForUser(
   return [...competitions].sort(
     (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
   );
+}
+
+export type AdminTeamSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  contactEmail: string | null;
+  createdAt: Date;
+  entries: {
+    id: string;
+    status: string;
+    editionLabel: string;
+    editionId: string;
+    competitionName: string;
+  }[];
+};
+
+export async function getTeamsForUser(
+  userId: string,
+): Promise<AdminTeamSummary[]> {
+  const teamRoles = await db
+    .select({ scopeId: userRoles.scopeId })
+    .from(userRoles)
+    .where(
+      and(
+        eq(userRoles.userId, userId),
+        eq(userRoles.role, "team_manager"),
+        eq(userRoles.scopeType, "team"),
+      ),
+    );
+
+  const teamIds = teamRoles
+    .map((r) => r.scopeId)
+    .filter((id): id is string => Boolean(id));
+
+  if (teamIds.length === 0) return [];
+
+  const teamRows = await db
+    .select()
+    .from(teams)
+    .where(inArray(teams.id, teamIds));
+
+  const entryRows = await db
+    .select({
+      id: entriesTable.id,
+      status: entriesTable.status,
+      teamId: entriesTable.teamId,
+      editionId: editions.id,
+      editionLabel: editions.label,
+      competitionName: competitions.name,
+    })
+    .from(entriesTable)
+    .innerJoin(editions, eq(entriesTable.editionId, editions.id))
+    .innerJoin(competitions, eq(editions.competitionId, competitions.id))
+    .where(inArray(entriesTable.teamId, teamIds));
+
+  return teamRows.map((team) => ({
+    id: team.id,
+    name: team.name,
+    slug: team.slug,
+    contactEmail: team.contactEmail,
+    createdAt: team.createdAt,
+    entries: entryRows
+      .filter((e) => e.teamId === team.id)
+      .map((e) => ({
+        id: e.id,
+        status: e.status,
+        editionLabel: e.editionLabel,
+        editionId: e.editionId,
+        competitionName: e.competitionName,
+      })),
+  }));
 }
 
 async function fetchCompetitionsFromDatabase(

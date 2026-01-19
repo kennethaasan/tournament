@@ -1,17 +1,27 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
-import { addSquadMember } from "@/modules/entries/service";
+import {
+  addSquadMember,
+  createAndAddSquadMember,
+  listSquadMembers,
+} from "@/modules/entries/service";
 import { assertSquadAccess } from "@/server/api/access";
 import { createApiHandler } from "@/server/api/handler";
-import { db } from "@/server/db/client";
-import { squadMembers } from "@/server/db/schema";
+import type { SquadMember } from "@/server/db/schema";
 
 type RouteParams = {
   squadId: string;
 };
 
 type RequestBody = {
-  membership_id: string;
+  membership_id?: string;
+  team_id?: string;
+  person?: {
+    first_name: string;
+    last_name: string;
+    preferred_name?: string | null;
+    birth_date?: string | null;
+    country?: string | null;
+  };
   jersey_number?: number | null;
   position?: string | null;
   availability?: "available" | "doubtful" | "injured" | "suspended";
@@ -25,21 +35,26 @@ export const GET = createApiHandler<RouteParams>(
       : params.squadId;
     await assertSquadAccess(squadId, auth);
 
-    const rows = await db.query.squadMembers.findMany({
-      where: eq(squadMembers.squadId, squadId),
-    });
+    const rows = await listSquadMembers(squadId);
 
     return NextResponse.json(
       {
-        members: rows.map((member) => ({
-          id: member.id,
-          squad_id: member.squadId,
-          membership_id: member.membershipId ?? null,
-          person_id: member.personId,
-          jersey_number: member.jerseyNumber ?? null,
-          position: member.position ?? null,
-          availability: member.availability,
-          notes: member.notes ?? null,
+        members: rows.map((row) => ({
+          id: row.id,
+          squad_id: row.squadId,
+          membership_id: row.membershipId ?? null,
+          person_id: row.personId,
+          jersey_number: row.jerseyNumber ?? null,
+          position: row.position ?? null,
+          availability: row.availability,
+          notes: row.notes ?? null,
+          person: {
+            id: row.person.id,
+            first_name: row.person.firstName,
+            last_name: row.person.lastName,
+            full_name: `${row.person.firstName} ${row.person.lastName}`,
+            preferred_name: row.person.preferredName,
+          },
         })),
       },
       { status: 200 },
@@ -59,24 +74,73 @@ export const POST = createApiHandler<RouteParams>(
     await assertSquadAccess(squadId, auth);
     const payload = (await request.json()) as RequestBody;
 
-    const member = await addSquadMember({
-      squadId,
-      membershipId: payload.membership_id,
-      jerseyNumber: payload.jersey_number ?? null,
-      position: payload.position,
-      availability: payload.availability,
-      notes: payload.notes,
-    });
+    let member: SquadMember;
+
+    if (payload.person) {
+      if (!payload.team_id) {
+        return NextResponse.json(
+          { title: "Team ID is required when creating a new person" },
+          { status: 400 },
+        );
+      }
+      member = await createAndAddSquadMember({
+        squadId,
+        teamId: payload.team_id,
+        person: {
+          firstName: payload.person.first_name,
+          lastName: payload.person.last_name,
+          preferredName: payload.person.preferred_name,
+          birthDate: payload.person.birth_date,
+          country: payload.person.country,
+        },
+        jerseyNumber: payload.jersey_number,
+        position: payload.position,
+      });
+    } else {
+      if (!payload.membership_id) {
+        return NextResponse.json(
+          { title: "Membership ID is required" },
+          { status: 400 },
+        );
+      }
+      member = await addSquadMember({
+        squadId,
+        membershipId: payload.membership_id,
+        jerseyNumber: payload.jersey_number ?? null,
+        position: payload.position,
+        availability: payload.availability,
+        notes: payload.notes,
+      });
+    }
+
+    // Find the member we just added/updated to get person details
+    const updatedMember = (await listSquadMembers(squadId)).find(
+      (m) => m.id === member.id,
+    );
+
+    if (!updatedMember) {
+      return NextResponse.json(
+        { title: "Failed to fetch updated member" },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json(
       {
-        id: member.id,
-        squad_id: member.squadId,
-        membership_id: member.membershipId,
-        person_id: member.personId,
-        jersey_number: member.jerseyNumber,
-        position: member.position,
-        availability: member.availability,
+        id: updatedMember.id,
+        squad_id: updatedMember.squadId,
+        membership_id: updatedMember.membershipId,
+        person_id: updatedMember.personId,
+        jersey_number: updatedMember.jerseyNumber,
+        position: updatedMember.position,
+        availability: updatedMember.availability,
+        person: {
+          id: updatedMember.person.id,
+          first_name: updatedMember.person.firstName,
+          last_name: updatedMember.person.lastName,
+          full_name: `${updatedMember.person.firstName} ${updatedMember.person.lastName}`,
+          preferred_name: updatedMember.person.preferredName,
+        },
       },
       { status: 201 },
     );

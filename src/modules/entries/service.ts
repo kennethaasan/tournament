@@ -8,11 +8,13 @@ import {
   entries,
   matchDisputes,
   matches,
+  persons,
   type Squad,
   type SquadMember,
   squadMembers,
   squads,
   teamMemberships,
+  teams,
 } from "@/server/db/schema";
 
 export type CreateEntryInput = {
@@ -31,6 +33,28 @@ export type ReviewEntryInput = {
 export type SquadMemberInput = {
   squadId: string;
   membershipId: string;
+  jerseyNumber?: number | null;
+  position?: string | null;
+  availability?: SquadMember["availability"];
+  notes?: string | null;
+};
+
+export type CreateAndAddSquadMemberInput = {
+  squadId: string;
+  teamId: string;
+  person: {
+    firstName: string;
+    lastName: string;
+    preferredName?: string | null;
+    birthDate?: string | Date | null;
+    country?: string | null;
+  };
+  role?: "player" | "coach" | "manager" | "staff";
+  jerseyNumber?: number | null;
+  position?: string | null;
+};
+
+export type UpdateSquadMemberInput = {
   jerseyNumber?: number | null;
   position?: string | null;
   availability?: SquadMember["availability"];
@@ -316,6 +340,144 @@ export async function addSquadMember(
 
     return member;
   });
+}
+
+export async function createAndAddSquadMember(
+  input: CreateAndAddSquadMemberInput,
+): Promise<SquadMember> {
+  return withTransaction(async (tx) => {
+    // 1. Verify squad and team
+    const squad = await tx.query.squads.findFirst({
+      where: eq(squads.id, input.squadId),
+    });
+
+    if (!squad) {
+      throw createProblem({
+        type: "https://tournament.app/problems/squad-not-found",
+        title: "Troppen ble ikke funnet",
+        status: 404,
+        detail: "Oppdater siden og prøv igjen.",
+      });
+    }
+
+    const team = await tx.query.teams.findFirst({
+      where: eq(teams.id, input.teamId),
+    });
+
+    if (!team) {
+      throw createProblem({
+        type: "https://tournament.app/problems/team-not-found",
+        title: "Laget ble ikke funnet",
+        status: 404,
+        detail: "Verifiser at du bruker riktig lag-ID.",
+      });
+    }
+
+    // 2. Create Person
+    const personRecord = await tx
+      .insert(persons)
+      .values({
+        firstName: input.person.firstName.trim(),
+        lastName: input.person.lastName.trim(),
+        preferredName: input.person.preferredName?.trim() || null,
+        birthDate: input.person.birthDate
+          ? new Date(input.person.birthDate)
+          : null,
+        country: input.person.country?.trim() || null,
+      })
+      .returning();
+
+    const person = personRecord[0];
+    if (!person) {
+      throw new Error("Person could not be created");
+    }
+
+    // 3. Create Team Membership
+    const membershipRecord = await tx
+      .insert(teamMemberships)
+      .values({
+        teamId: team.id,
+        personId: person.id,
+        role: input.role ?? "player",
+      })
+      .returning();
+
+    const membership = membershipRecord[0];
+    if (!membership) {
+      throw new Error("Membership could not be created");
+    }
+
+    // 4. Add to Squad
+    const [member] = await tx
+      .insert(squadMembers)
+      .values({
+        squadId: squad.id,
+        personId: person.id,
+        membershipId: membership.id,
+        jerseyNumber:
+          typeof input.jerseyNumber === "number" ? input.jerseyNumber : null,
+        position: input.position?.trim() ?? null,
+        availability: "available",
+      })
+      .returning();
+
+    if (!member) {
+      throw new Error("Squad member could not be created");
+    }
+
+    return member;
+  });
+}
+
+export async function listSquadMembers(squadId: string) {
+  return db
+    .select({
+      id: squadMembers.id,
+      squadId: squadMembers.squadId,
+      personId: squadMembers.personId,
+      membershipId: squadMembers.membershipId,
+      jerseyNumber: squadMembers.jerseyNumber,
+      position: squadMembers.position,
+      availability: squadMembers.availability,
+      notes: squadMembers.notes,
+      person: persons,
+    })
+    .from(squadMembers)
+    .where(eq(squadMembers.squadId, squadId))
+    .innerJoin(persons, eq(squadMembers.personId, persons.id));
+}
+
+export async function updateSquadMember(
+  squadMemberId: string,
+  input: UpdateSquadMemberInput,
+): Promise<SquadMember> {
+  const [updated] = await db
+    .update(squadMembers)
+    .set({
+      jerseyNumber:
+        input.jerseyNumber !== undefined ? input.jerseyNumber : undefined,
+      position: input.position?.trim() ?? undefined,
+      availability: input.availability ?? undefined,
+      notes: input.notes?.trim() ?? undefined,
+      updatedAt: new Date(),
+    })
+    .where(eq(squadMembers.id, squadMemberId))
+    .returning();
+
+  if (!updated) {
+    throw createProblem({
+      type: "https://tournament.app/problems/squad-member-not-found",
+      title: "Spilleren ble ikke funnet i troppen",
+      status: 404,
+      detail: "Spilleren du prøver å oppdatere finnes ikke i denne troppen.",
+    });
+  }
+
+  return updated;
+}
+
+export async function removeSquadMember(squadMemberId: string): Promise<void> {
+  await db.delete(squadMembers).where(eq(squadMembers.id, squadMemberId));
 }
 
 export async function submitMatchDispute(

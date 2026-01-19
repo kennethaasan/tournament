@@ -946,6 +946,62 @@ paths:
               schema:
                 $ref: '#/components/schemas/SquadMember'
           headers: *standardResponseHeaders
+  /api/squads/{squad_id}/members/{member_id}:
+    patch:
+      tags:
+        - teams
+      summary: Update a squad member
+      description: Update a squad member's jersey number or position
+      operationId: update_squad_member
+      parameters:
+        - $ref: '#/components/parameters/SquadId'
+        - $ref: '#/components/parameters/SquadMemberId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jersey_number:
+                  type: integer
+                  nullable: true
+                position:
+                  type: string
+                  nullable: true
+                availability:
+                  type: string
+                  enum: [available, doubtful, injured, suspended]
+                notes:
+                  type: string
+                  nullable: true
+      responses:
+        <<: *standardErrorResponses
+        '200':
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SquadMember'
+          headers: *standardResponseHeaders
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags:
+        - teams
+      summary: Remove a member from a squad
+      description: Remove a member from an edition squad. Does not affect the global roster.
+      operationId: remove_squad_member
+      parameters:
+        - $ref: '#/components/parameters/SquadId'
+        - $ref: '#/components/parameters/SquadMemberId'
+      responses:
+        <<: *standardErrorResponses
+        '204':
+          description: Member removed
+          headers: *standardResponseHeaders
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/notifications:
     get:
       tags:
@@ -1133,6 +1189,14 @@ components:
         maxLength: 36
     SquadId:
       name: squad_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+        maxLength: 36
+    SquadMemberId:
+      name: member_id
       in: path
       required: true
       schema:
@@ -2612,6 +2676,8 @@ components:
           type: string
           format: uuid
           maxLength: 36
+        person:
+          $ref: '#/components/schemas/Person'
         jersey_number:
           type: integer
           nullable: true
@@ -2647,13 +2713,18 @@ components:
           maxItems: 200
     AddSquadMemberRequest:
       type: object
-      required:
-        - membership_id
       properties:
         membership_id:
           type: string
           format: uuid
           maxLength: 36
+        team_id:
+          type: string
+          format: uuid
+          maxLength: 36
+          description: Required when creating a new person
+        person:
+          $ref: '#/components/schemas/CreatePersonRequest'
         jersey_number:
           type: integer
           nullable: true
@@ -2677,6 +2748,35 @@ components:
           nullable: true
           maxLength: 2000
           pattern: ^.{0,2000}$
+    CreatePersonRequest:
+      type: object
+      required:
+        - first_name
+        - last_name
+      properties:
+        first_name:
+          type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
+        last_name:
+          type: string
+          maxLength: 200
+          pattern: ^.{0,200}$
+        preferred_name:
+          type: string
+          nullable: true
+          maxLength: 200
+          pattern: ^.{0,200}$
+        country:
+          type: string
+          nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          maxLength: 10
     Person:
       type: object
       required:

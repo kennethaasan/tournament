@@ -16,7 +16,6 @@ import {
   matches,
   persons,
   squadMembers,
-  teamMemberships,
   teams,
   venues,
 } from "@/server/db/schema";
@@ -74,7 +73,6 @@ type EventRow = {
   firstName: string | null;
   lastName: string | null;
   jerseyNumber: number | null;
-  membershipMeta: unknown;
 };
 
 const timestampFormatter = new Intl.DateTimeFormat("nb-NO", {
@@ -205,15 +203,10 @@ export default async function EditionEventsPage({ params }: PageProps) {
       firstName: persons.firstName,
       lastName: persons.lastName,
       jerseyNumber: squadMembers.jerseyNumber,
-      membershipMeta: teamMemberships.meta,
     })
     .from(matchEvents)
     .innerJoin(matches, eq(matches.id, matchEvents.matchId))
     .leftJoin(squadMembers, eq(squadMembers.id, matchEvents.relatedMemberId))
-    .leftJoin(
-      teamMemberships,
-      eq(teamMemberships.id, squadMembers.membershipId),
-    )
     .leftJoin(persons, eq(persons.id, squadMembers.personId))
     .where(eq(matches.editionId, edition.id))
     .orderBy(desc(matchEvents.createdAt));
@@ -383,8 +376,7 @@ function formatMinuteLabel(minute: number | null, stoppage: number | null) {
 
 function formatEventPlayerName(event: EventRow) {
   const baseName = `${event.firstName ?? ""} ${event.lastName ?? ""}`.trim();
-  const jerseyNumber =
-    event.jerseyNumber ?? resolveJerseyNumber(event.membershipMeta);
+  const jerseyNumber = event.jerseyNumber;
   if (!baseName) {
     return "Ukjent spiller";
   }
@@ -394,15 +386,4 @@ function formatEventPlayerName(event: EventRow) {
   return `${baseName} (#${jerseyNumber})`;
 }
 
-function resolveJerseyNumber(meta: unknown): number | null {
-  if (!meta || typeof meta !== "object" || Array.isArray(meta)) {
-    return null;
-  }
-
-  const value = (meta as Record<string, unknown>).jerseyNumber;
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
-    return null;
-  }
-
-  return Math.trunc(value);
-}
+// remove resolveJerseyNumber from here

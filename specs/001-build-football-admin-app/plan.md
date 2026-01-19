@@ -10,7 +10,7 @@ Build a Next.js 16 (App Router) platform that replaces the legacy Laravel admini
 ## Technical Context
 
 **Language/Version**: TypeScript 5 on Node.js 22 with React 19 server/client components  
-**Primary Dependencies**: Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack  
+**Primary Dependencies**: Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, @aws-lambda-powertools/logger, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack  
 **Storage**: PostgreSQL via Drizzle ORM with UUID v7 identifiers  
 **Testing**: Vitest (unit/integration), Playwright (E2E), Spectral (OpenAPI), Biome (lint/format), npm scripts (`npm run lint`, `npm run tsc`, `npm run test`, `npm run build`)  
 **Target Platform**: Web (Next.js server + edge-friendly APIs) deployed to Node 22 environment  
@@ -23,7 +23,7 @@ Build a Next.js 16 (App Router) platform that replaces the legacy Laravel admini
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- [x] **Quality-Driven TypeScript Craft** — Scope covers domain modules under `src/modules/*`, API handlers in `src/server/api`, and UI routes in `src/app/(dashboard|public)`. Mandatory `npm run lint`, `npm run tsc`, and `npm run build` before review; propagate failures through typed `Result` helpers or thrown `Error` instances logged via pino. Data contracts captured in `/openapi.yaml` align with Drizzle schemas in `data-model.md`.
+- [x] **Quality-Driven TypeScript Craft** — Scope covers domain modules under `src/modules/*`, API handlers in `src/server/api`, and UI routes in `src/app/(dashboard|public)`. Mandatory `npm run lint`, `npm run tsc`, and `npm run build` before review; propagate failures through typed `Result` helpers or thrown `Error` instances logged via @aws-lambda-powertools/logger. Data contracts captured in `/openapi.yaml` align with Drizzle schemas in `data-model.md`.
 - [x] **Evidence-Backed Testing Discipline** — Plan includes Vitest suites alongside modules (`src/modules/**/__tests__`), integration checks for scheduling/statistics services, Playwright specs for onboarding/scheduling/scoreboard, and Spectral + contract tests for OpenAPI changes; `research.md` and `data-model.md` enumerate seeding assumptions so `npm run seed` prepares fixtures before integration/E2E runs.
 - [x] **Inclusive, Consistent Experience** — Reuse mattis-inspired layout primitives in `src/ui/components`, adhere to Tailwind tokens, enforce keyboard navigation and screen-reader announcements for dashboards and scoreboard overlays, centralize Bokmål copy helpers to avoid drift. Accessibility touchpoints are embedded in scoreboard payload definitions and quickstart guidance.
 - [x] **Performance-Conscious Delivery** — Budgets: admin dashboards <500 ms TTFB, scoreboard polling ≤200 ms p95 with ETag caching, bundle budgets tracked via Next.js analyzer; rollback strategy relies on feature flags per module and configurable polling intervals if targets slip, with metrics surfaced via OpenTelemetry (see `research.md`).

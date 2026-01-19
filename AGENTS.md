@@ -9,7 +9,7 @@ AGENT QUICK REFERENCE
 7. Lint rules (Biome): defaults from Biome with TypeScript support. Continue to avoid console usage, prefer type-only imports, and keep floating promises handled explicitly.
 8. Style: 2-space indent (.editorconfig). Use type-only imports (import type { X }). noUncheckedIndexedAccess enabled; handle possibly undefined values.
 9. Naming: files kebab-case; test files: _.test.ts / _.test.tsx in `__tests__` folders. Env vars UPPER_SNAKE_CASE. Constants UPPER_SNAKE_CASE. Avoid default exports; prefer named.
-10. Errors: never swallow. Return typed Result or throw Error with actionable message. Log via pino; console.\* is forbidden (lint). Reject promises with Error instances only.
+10. Errors: never swallow. Return typed Result or throw Error with actionable message. Log via @aws-lambda-powertools/logger; console.\* is forbidden (lint). Reject promises with Error instances only.
 11. Imports: group builtin, external, internal (path aliases via tsconfig paths), then relative. No side-effect imports unless required (polyfills, env setup). Keep unused imports out (lint enforced).
 12. Spectral: openapi lint (npm run spectral / spectral:ci) with project rules (.spectral.yaml overrides some rules off).
 13. Secrets: never commit .env (ignored) except .env.example / .env.production. Use placeholder values.
@@ -22,8 +22,8 @@ AGENT QUICK REFERENCE
 20. Never touch any code in the `/laravel` folder; it's legacy and is not maintained anymore.
 
 ## Active Technologies
-- TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack (001-build-football-admin-app)
+- TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, @aws-lambda-powertools/logger, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack (001-build-football-admin-app)
 - PostgreSQL via Drizzle ORM with UUID v7 identifiers (001-build-football-admin-app)
 
 ## Recent Changes
-- 001-build-football-admin-app: Added TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, pino, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack
+- 001-build-football-admin-app: Added TypeScript 5 on Node.js 24 with React 19 server/client components + Next.js 16 App Router, Tailwind CSS 4, Shadcn UI, better-auth, Drizzle ORM, @aws-lambda-powertools/logger, OpenAPI tooling (openapi-fetch), TanStack Query (polling), Vitest/Playwright stack

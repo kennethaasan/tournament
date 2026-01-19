@@ -101,7 +101,7 @@ src/
 ├── lib/                    # Shared utilities
 │   ├── api/                # API client and OpenAPI types
 │   ├── errors/             # RFC 9457 Problem Details
-│   └── logger/             # pino logging
+│   └── logger/             # @aws-lambda-powertools/logger logging
 ├── modules/                # Domain business logic
 │   ├── competitions/       # Competition/Edition management
 │   ├── entries/            # Team entries and squads
