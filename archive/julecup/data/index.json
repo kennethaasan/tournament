@@ -134,6 +134,11 @@
     { "id": "hjem", "title": "Hjem", "file": "pages/hjem.md" },
     { "id": "pamelding", "title": "Påmelding", "file": "pages/pamelding.md" },
     {
+      "id": "pamelding-fullfort",
+      "title": "Påmelding fullført",
+      "file": "pages/pamelding-fullfort.md"
+    },
+    {
       "id": "pameldte-lag",
       "title": "Påmeldte lag",
       "file": "pages/pameldte-lag.md"
@@ -149,6 +154,7 @@
       "title": "Tidligere turneringer",
       "file": "pages/tidligere.md"
     },
+    { "id": "nyheter", "title": "Nyheter", "file": "pages/nyheter.md" },
     {
       "id": "kontakt-oss",
       "title": "Kontakt oss",

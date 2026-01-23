@@ -17,10 +17,12 @@ The main website pages, converted to Markdown with internal links updated:
 |------|-------------|
 | [Hjem](./pages/hjem.md) | Home page with tournament information |
 | [Påmelding](./pages/pamelding.md) | Registration information |
+| [Påmelding fullført](./pages/pamelding-fullfort.md) | Registration confirmation page |
 | [Påmeldte lag](./pages/pameldte-lag.md) | List of registered teams |
 | [Reglement](./pages/reglement.md) | Tournament rules and regulations |
 | [Kampoppsett](./pages/kampoppsett.md) | Match schedule |
 | [Tidligere turneringer](./pages/tidligere.md) | Previous tournaments overview |
+| [Nyheter](./pages/nyheter.md) | News page |
 | [Kontakt oss](./pages/kontakt-oss.md) | Contact information |
 
 ### Tournament Results
@@ -99,10 +101,12 @@ archive/julecup/
 ├── pages/                     # Main website pages (Markdown)
 │   ├── hjem.md
 │   ├── pamelding.md
+│   ├── pamelding-fullfort.md
 │   ├── pameldte-lag.md
 │   ├── reglement.md
 │   ├── kampoppsett.md
 │   ├── tidligere.md
+│   ├── nyheter.md
 │   └── kontakt-oss.md
 ├── resultater/                # Tournament results (Markdown)
 │   ├── julecup-2012.md
