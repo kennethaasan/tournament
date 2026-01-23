@@ -1,0 +1,585 @@
+{
+  "tournament": "Julecup 2013",
+  "type": "julecup",
+  "year": 2013,
+  "location": "Vanvikanhallen",
+  "winners": {
+    "herrer": "Team Fjeldvær",
+    "damer": "Flying Kangaroos"
+  },
+  "groups": [
+    {
+      "name": "Damer",
+      "standings": [
+        {
+          "team": "Flying Kangaroos",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 8,
+          "goalsAgainst": 2,
+          "goalDiff": 6,
+          "points": 9
+        },
+        {
+          "team": "Nederlaget FK",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 6,
+          "goalsAgainst": 4,
+          "goalDiff": 2,
+          "points": 6
+        },
+        {
+          "team": "Bayern Neverloosen",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 8,
+          "goalsAgainst": 5,
+          "goalDiff": 3,
+          "points": 3
+        },
+        {
+          "team": "FC Hønan",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 3,
+          "goalsAgainst": 14,
+          "goalDiff": -11,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:00",
+          "pitch": 1,
+          "home": "FC Hønan",
+          "away": "Nederlaget FK",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "time": "11:00",
+          "pitch": 2,
+          "home": "Flying Kangaroos",
+          "away": "Bayern Neverloosen",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "time": "12:15",
+          "pitch": 1,
+          "home": "FC Hønan",
+          "away": "Flying Kangaroos",
+          "homeScore": 1,
+          "awayScore": 5
+        },
+        {
+          "time": "12:15",
+          "pitch": 2,
+          "home": "Nederlaget FK",
+          "away": "Bayern Neverloosen",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "time": "13:30",
+          "pitch": 1,
+          "home": "FC Hønan",
+          "away": "Bayern Neverloosen",
+          "homeScore": 1,
+          "awayScore": 7
+        },
+        {
+          "time": "13:30",
+          "pitch": 2,
+          "home": "Nederlaget FK",
+          "away": "Flying Kangaroos",
+          "homeScore": 1,
+          "awayScore": 2
+        }
+      ]
+    },
+    {
+      "name": "Gruppe A",
+      "standings": [
+        {
+          "team": "Jumboflyers",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 9,
+          "goalsAgainst": 1,
+          "goalDiff": 8,
+          "points": 9
+        },
+        {
+          "team": "Team Retardico",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 6,
+          "goalsAgainst": 10,
+          "goalDiff": -4,
+          "points": 6
+        },
+        {
+          "team": "Brotherhood",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 4,
+          "goalsAgainst": 5,
+          "goalDiff": -1,
+          "points": 3
+        },
+        {
+          "team": "Wolfpack Futsal",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 4,
+          "goalsAgainst": 7,
+          "goalDiff": -3,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:15",
+          "pitch": 1,
+          "home": "Jumboflyers",
+          "away": "Wolfpack Futsal",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "time": "11:15",
+          "pitch": 2,
+          "home": "Brotherhood",
+          "away": "Team Retardico",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "time": "12:30",
+          "pitch": 1,
+          "home": "Jumboflyers",
+          "away": "Brotherhood",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "12:30",
+          "pitch": 2,
+          "home": "Wolfpack Futsal",
+          "away": "Team Retardico",
+          "homeScore": 3,
+          "awayScore": 4
+        },
+        {
+          "time": "13:45",
+          "pitch": 1,
+          "home": "Jumboflyers",
+          "away": "Team Retardico",
+          "homeScore": 6,
+          "awayScore": 0
+        },
+        {
+          "time": "13:45",
+          "pitch": 2,
+          "home": "Wolfpack Futsal",
+          "away": "Brotherhood",
+          "homeScore": 1,
+          "awayScore": 2
+        }
+      ]
+    },
+    {
+      "name": "Gruppe B",
+      "standings": [
+        {
+          "team": "Team Fjeldvær",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 17,
+          "goalsAgainst": 0,
+          "goalDiff": 17,
+          "points": 9
+        },
+        {
+          "team": "SGG",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 11,
+          "goalsAgainst": 4,
+          "goalDiff": 7,
+          "points": 6
+        },
+        {
+          "team": "Ozonlaget",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 2,
+          "goalsAgainst": 9,
+          "goalDiff": -7,
+          "points": 3
+        },
+        {
+          "team": "RFSU",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 1,
+          "goalsAgainst": 18,
+          "goalDiff": -17,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:30",
+          "pitch": 1,
+          "home": "Team Fjeldvær",
+          "away": "SGG",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "time": "11:30",
+          "pitch": 2,
+          "home": "Ozonlaget",
+          "away": "RFSU",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "12:45",
+          "pitch": 1,
+          "home": "Team Fjeldvær",
+          "away": "Ozonlaget",
+          "homeScore": 6,
+          "awayScore": 0
+        },
+        {
+          "time": "12:45",
+          "pitch": 2,
+          "home": "SGG",
+          "away": "RFSU",
+          "homeScore": 9,
+          "awayScore": 0
+        },
+        {
+          "time": "14:00",
+          "pitch": 2,
+          "home": "Team Fjeldvær",
+          "away": "RFSU",
+          "homeScore": 7,
+          "awayScore": 0
+        },
+        {
+          "time": "14:00",
+          "pitch": 1,
+          "home": "SGG",
+          "away": "Ozonlaget",
+          "homeScore": 2,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "name": "Gruppe C",
+      "standings": [
+        {
+          "team": "FC Ungkaran",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 12,
+          "goalsAgainst": 4,
+          "goalDiff": 8,
+          "points": 9
+        },
+        {
+          "team": "Vanvik 1",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 9,
+          "goalsAgainst": 5,
+          "goalDiff": 4,
+          "points": 6
+        },
+        {
+          "team": "Patriots 2005",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 4,
+          "goalsAgainst": 9,
+          "goalDiff": -5,
+          "points": 3
+        },
+        {
+          "team": "SDL Hooligans",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 1,
+          "goalsAgainst": 8,
+          "goalDiff": -7,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:45",
+          "pitch": 1,
+          "home": "FC Ungkaran",
+          "away": "Vanvik 1",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "11:45",
+          "pitch": 2,
+          "home": "Patriots 2005",
+          "away": "SDL Hooligans",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "time": "13:00",
+          "pitch": 1,
+          "home": "FC Ungkaran",
+          "away": "Patriots 2005",
+          "homeScore": 6,
+          "awayScore": 1
+        },
+        {
+          "time": "13:00",
+          "pitch": 2,
+          "home": "Vanvik 1",
+          "away": "SDL Hooligans",
+          "homeScore": 4,
+          "awayScore": 0
+        },
+        {
+          "time": "14:15",
+          "pitch": 2,
+          "home": "FC Ungkaran",
+          "away": "SDL Hooligans",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "time": "14:15",
+          "pitch": 1,
+          "home": "Vanvik 1",
+          "away": "Patriots 2005",
+          "homeScore": 3,
+          "awayScore": 2
+        }
+      ]
+    },
+    {
+      "name": "Gruppe D",
+      "standings": [
+        {
+          "team": "The Gunners",
+          "played": 2,
+          "won": 2,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 6,
+          "goalsAgainst": 3,
+          "goalDiff": 3,
+          "points": 6
+        },
+        {
+          "team": "Werder Beermen",
+          "played": 2,
+          "won": 1,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 6,
+          "goalsAgainst": 4,
+          "goalDiff": 2,
+          "points": 3
+        },
+        {
+          "team": "HIL/FIL Oldboys",
+          "played": 2,
+          "won": 0,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 4,
+          "goalsAgainst": 9,
+          "goalDiff": -5,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "12:00",
+          "pitch": 1,
+          "home": "Werder Beermen",
+          "away": "The Gunners",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "time": "13:15",
+          "pitch": 1,
+          "home": "Werder Beermen",
+          "away": "HIL/FIL Oldboys",
+          "homeScore": 5,
+          "awayScore": 2
+        },
+        {
+          "time": "14:30",
+          "pitch": 1,
+          "home": "The Gunners",
+          "away": "HIL/FIL Oldboys",
+          "homeScore": 4,
+          "awayScore": 2
+        }
+      ]
+    }
+  ],
+  "knockout": [
+    {
+      "round": "Finale Damer",
+      "matches": [
+        {
+          "time": "14:45",
+          "pitch": 2,
+          "home": "Flying Kangaroos",
+          "away": "Nederlaget FK",
+          "homeScore": 2,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "round": "Kvartfinale",
+      "matches": [
+        {
+          "time": "15:00",
+          "pitch": 1,
+          "home": "Jumboflyers",
+          "away": "Vanvik 1",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "time": "15:00",
+          "pitch": 2,
+          "home": "Team Fjeldvær",
+          "away": "Werder Beermen",
+          "homeScore": 4,
+          "awayScore": 3
+        },
+        {
+          "time": "15:15",
+          "pitch": 1,
+          "home": "FC Ungkaran",
+          "away": "Team Retardico",
+          "homeScore": 2,
+          "awayScore": 1,
+          "extraTime": true
+        },
+        {
+          "time": "15:15",
+          "pitch": 2,
+          "home": "The Gunners",
+          "away": "SGG",
+          "homeScore": 3,
+          "awayScore": 5
+        }
+      ]
+    },
+    {
+      "round": "Semifinale",
+      "matches": [
+        {
+          "time": "15:35",
+          "pitch": 1,
+          "home": "Jumboflyers",
+          "away": "Team Fjeldvær",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "time": "15:35",
+          "pitch": 2,
+          "home": "FC Ungkaran",
+          "away": "SGG",
+          "homeScore": 1,
+          "awayScore": 2,
+          "extraTime": true
+        }
+      ]
+    },
+    {
+      "round": "Finale Herrer",
+      "matches": [
+        {
+          "time": "15:55",
+          "pitch": 1,
+          "home": "Team Fjeldvær",
+          "away": "SGG",
+          "homeScore": 2,
+          "awayScore": 0
+        }
+      ]
+    }
+  ],
+  "topScorers": {
+    "damer": [
+      { "rank": 1, "name": "Randi Brødreskift", "goals": 4 },
+      { "rank": 1, "name": "Anne Berit Sundset", "goals": 4 },
+      { "rank": 3, "name": "Hege Flataunet", "goals": 3 },
+      { "rank": 3, "name": "Tonje Rødde", "goals": 3 },
+      { "rank": 5, "name": "Oda Johanne Sørli", "goals": 2 },
+      { "rank": 5, "name": "Amanda Robertsen", "goals": 2 },
+      { "rank": 5, "name": "Karina Kruksve", "goals": 2 },
+      { "rank": 5, "name": "Veronica Fjeldvær", "goals": 2 },
+      { "rank": 5, "name": "Irene Solhus", "goals": 2 }
+    ],
+    "herrer": [
+      { "rank": 1, "name": "Håkon Fjeldvær", "goals": 9 },
+      { "rank": 2, "name": "Martin Fjeldvær", "goals": 6 },
+      { "rank": 3, "name": "Aleksander Sørloth", "goals": 5 },
+      { "rank": 4, "name": "Stian Stegavik", "goals": 4 },
+      { "rank": 4, "name": "Robert Killingberg", "goals": 4 },
+      { "rank": 4, "name": "Jørgen Solli", "goals": 4 },
+      { "rank": 4, "name": "Marius Korshavn", "goals": 4 },
+      { "rank": 4, "name": "Aleksander Killingberg", "goals": 4 },
+      { "rank": 4, "name": "Aleksander Jensen", "goals": 4 },
+      { "rank": 4, "name": "Bjørn Vegard Stormo", "goals": 4 }
+    ]
+  }
+}

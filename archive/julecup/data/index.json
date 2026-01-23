@@ -1,0 +1,177 @@
+{
+  "name": "Vanvikan Julecup Archive",
+  "description": "Archived content from venneturnering.vanvikil.no",
+  "archivedDate": "2026-01-23",
+  "originalUrl": "https://venneturnering.vanvikil.no/",
+  "location": "Vanvikanhallen, Vanvikan, Norway",
+  "tournaments": [
+    {
+      "id": "julecup-2024",
+      "name": "Julecup 2024",
+      "type": "julecup",
+      "year": 2024,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2024.md",
+      "screenshot": "assets/screenshots/julecup-2024.png"
+    },
+    {
+      "id": "julecup-2023",
+      "name": "Julecup 2023",
+      "type": "julecup",
+      "year": 2023,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2023.md",
+      "screenshot": "assets/screenshots/julecup-2023.png"
+    },
+    {
+      "id": "julecup-2022",
+      "name": "Julecup 2022",
+      "type": "julecup",
+      "year": 2022,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2022.md",
+      "screenshot": "assets/screenshots/julecup-2022.png"
+    },
+    {
+      "id": "julecup-2019",
+      "name": "Julecup 2019",
+      "type": "julecup",
+      "year": 2019,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2019.md",
+      "screenshot": "assets/screenshots/julecup-2019.png"
+    },
+    {
+      "id": "julecup-2018",
+      "name": "Julecup 2018",
+      "type": "julecup",
+      "year": 2018,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2018.md",
+      "screenshot": "assets/screenshots/julecup-2018.png"
+    },
+    {
+      "id": "julecup-2016",
+      "name": "Julecup 2016",
+      "type": "julecup",
+      "year": 2016,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2016.md",
+      "screenshot": "assets/screenshots/julecup-2016.png"
+    },
+    {
+      "id": "paskecup-2016",
+      "name": "Påskecup 2016",
+      "type": "paskecup",
+      "year": 2016,
+      "dataFile": null,
+      "markdownFile": "resultater/paskecup-2016.md",
+      "screenshot": "assets/screenshots/paskecup-2016.png"
+    },
+    {
+      "id": "julecup-2014",
+      "name": "Julecup 2014",
+      "type": "julecup",
+      "year": 2014,
+      "dataFile": null,
+      "markdownFile": "resultater/julecup-2014.md",
+      "screenshot": "assets/screenshots/julecup-2014.png"
+    },
+    {
+      "id": "paskecup-2014",
+      "name": "Påskecup 2014",
+      "type": "paskecup",
+      "year": 2014,
+      "dataFile": "data/paskecup-2014.json",
+      "markdownFile": "resultater/paskecup-2014.md",
+      "screenshot": null,
+      "winners": {
+        "herrer": "Ungkaran FC",
+        "damer": "Nederlaget"
+      }
+    },
+    {
+      "id": "julecup-2013",
+      "name": "Julecup 2013",
+      "type": "julecup",
+      "year": 2013,
+      "dataFile": "data/julecup-2013.json",
+      "markdownFile": "resultater/julecup-2013.md",
+      "screenshot": null,
+      "winners": {
+        "herrer": "Team Fjeldvær",
+        "damer": "Flying Kangaroos"
+      }
+    },
+    {
+      "id": "paskecup-2013",
+      "name": "Påskecup 2013",
+      "type": "paskecup",
+      "year": 2013,
+      "dataFile": "data/paskecup-2013.json",
+      "markdownFile": "resultater/paskecup-2013.md",
+      "screenshot": null,
+      "winners": {
+        "herrer": "FC Ungkaran",
+        "damer": "Leksvik damer"
+      }
+    },
+    {
+      "id": "julecup-2012",
+      "name": "Julecup 2012",
+      "type": "julecup",
+      "year": 2012,
+      "dataFile": "data/julecup-2012.json",
+      "markdownFile": "resultater/julecup-2012.md",
+      "screenshot": null,
+      "winners": {
+        "herrer": "Real Kuuse",
+        "damer": "Shooting Stars"
+      }
+    }
+  ],
+  "pages": [
+    { "id": "hjem", "title": "Hjem", "file": "pages/hjem.md" },
+    { "id": "pamelding", "title": "Påmelding", "file": "pages/pamelding.md" },
+    {
+      "id": "pamelding-fullfort",
+      "title": "Påmelding fullført",
+      "file": "pages/pamelding-fullfort.md"
+    },
+    {
+      "id": "pameldte-lag",
+      "title": "Påmeldte lag",
+      "file": "pages/pameldte-lag.md"
+    },
+    { "id": "reglement", "title": "Reglement", "file": "pages/reglement.md" },
+    {
+      "id": "kampoppsett",
+      "title": "Kampoppsett",
+      "file": "pages/kampoppsett.md"
+    },
+    {
+      "id": "tidligere",
+      "title": "Tidligere turneringer",
+      "file": "pages/tidligere.md"
+    },
+    { "id": "nyheter", "title": "Nyheter", "file": "pages/nyheter.md" },
+    {
+      "id": "kontakt-oss",
+      "title": "Kontakt oss",
+      "file": "pages/kontakt-oss.md"
+    }
+  ],
+  "assets": {
+    "headerImage": "assets/header-image.jpg",
+    "screenshots": [
+      "assets/screenshots/julecup-2024.png",
+      "assets/screenshots/julecup-2023.png",
+      "assets/screenshots/julecup-2022.png",
+      "assets/screenshots/julecup-2019.png",
+      "assets/screenshots/julecup-2018.png",
+      "assets/screenshots/julecup-2016.png",
+      "assets/screenshots/paskecup-2016.png",
+      "assets/screenshots/julecup-2014.png"
+    ]
+  }
+}

@@ -1,0 +1,593 @@
+{
+  "tournament": "Påskecup 2014",
+  "type": "paskecup",
+  "year": 2014,
+  "location": "Vanvikanhallen",
+  "winners": {
+    "herrer": "Ungkaran FC",
+    "damer": "Nederlaget"
+  },
+  "groups": [
+    {
+      "name": "Damer",
+      "standings": [
+        {
+          "team": "Nederlaget",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 8,
+          "goalsAgainst": 2,
+          "goalDiff": 6,
+          "points": 9
+        },
+        {
+          "team": "God blanding",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 5,
+          "goalsAgainst": 6,
+          "goalDiff": -1,
+          "points": 3
+        },
+        {
+          "team": "Flying Kangaroos",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 4,
+          "goalsAgainst": 5,
+          "goalDiff": -1,
+          "points": 3
+        },
+        {
+          "team": "Ibrahimobitch",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 3,
+          "goalsAgainst": 6,
+          "goalDiff": -3,
+          "points": 3
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:00",
+          "pitch": 1,
+          "home": "Flying Kangaroos",
+          "away": "Nederlaget",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "time": "11:00",
+          "pitch": 2,
+          "home": "God blanding",
+          "away": "Ibrahimobitch",
+          "homeScore": 0,
+          "awayScore": 1
+        },
+        {
+          "time": "12:15",
+          "pitch": 1,
+          "home": "Flying Kangaroos",
+          "away": "Ibrahimobitch",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "time": "12:15",
+          "pitch": 2,
+          "home": "God blanding",
+          "away": "Nederlaget",
+          "homeScore": 2,
+          "awayScore": 3
+        },
+        {
+          "time": "13:30",
+          "pitch": 1,
+          "home": "Flying Kangaroos",
+          "away": "God blanding",
+          "homeScore": 2,
+          "awayScore": 3
+        },
+        {
+          "time": "13:30",
+          "pitch": 2,
+          "home": "Ibrahimobitch",
+          "away": "Nederlaget",
+          "homeScore": 0,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "name": "Gruppe A",
+      "standings": [
+        {
+          "team": "The Gunners",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 9,
+          "goalsAgainst": 5,
+          "goalDiff": 4,
+          "points": 7
+        },
+        {
+          "team": "Team Retardico",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 8,
+          "goalsAgainst": 7,
+          "goalDiff": 1,
+          "points": 6
+        },
+        {
+          "team": "Hil/Fil Oldboys",
+          "played": 3,
+          "won": 1,
+          "drawn": 1,
+          "lost": 1,
+          "goalsFor": 4,
+          "goalsAgainst": 4,
+          "goalDiff": 0,
+          "points": 4
+        },
+        {
+          "team": "SDL Hooligans",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 3,
+          "goalsAgainst": 6,
+          "goalDiff": -3,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:15",
+          "pitch": 1,
+          "home": "Hil/Fil Oldboys",
+          "away": "The Gunners",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "time": "11:15",
+          "pitch": 2,
+          "home": "SDL Hooligans",
+          "away": "Team Retardico",
+          "homeScore": 1,
+          "awayScore": 4
+        },
+        {
+          "time": "12:30",
+          "pitch": 1,
+          "home": "Hil/Fil Oldboys",
+          "away": "Team Retardico",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "time": "12:30",
+          "pitch": 2,
+          "home": "SDL Hooligans",
+          "away": "The Gunners",
+          "homeScore": 2,
+          "awayScore": 3
+        },
+        {
+          "time": "13:45",
+          "pitch": 1,
+          "home": "Hil/Fil Oldboys",
+          "away": "SDL Hooligans",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "13:45",
+          "pitch": 2,
+          "home": "Team Retardico",
+          "away": "The Gunners",
+          "homeScore": 2,
+          "awayScore": 5
+        }
+      ]
+    },
+    {
+      "name": "Gruppe B",
+      "standings": [
+        {
+          "team": "Vanvik 1",
+          "played": 3,
+          "won": 3,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 16,
+          "goalsAgainst": 3,
+          "goalDiff": 13,
+          "points": 9
+        },
+        {
+          "team": "Jumbo Flyers",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 12,
+          "goalsAgainst": 5,
+          "goalDiff": 7,
+          "points": 6
+        },
+        {
+          "team": "Hil/Fil Gubbelag",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 6,
+          "goalsAgainst": 11,
+          "goalDiff": -5,
+          "points": 3
+        },
+        {
+          "team": "Heimdal Ludo",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 2,
+          "goalsAgainst": 16,
+          "goalDiff": -14,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:30",
+          "pitch": 1,
+          "home": "Heimdal Ludoklubb",
+          "away": "Vanvik 1",
+          "homeScore": 0,
+          "awayScore": 10
+        },
+        {
+          "time": "11:30",
+          "pitch": 2,
+          "home": "Hil/fil Gubbelag",
+          "away": "Jumbo Flyers",
+          "homeScore": 2,
+          "awayScore": 7
+        },
+        {
+          "time": "12:45",
+          "pitch": 1,
+          "home": "Heimdal Ludoklubb",
+          "away": "Jumbo Flyers",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "time": "12:45",
+          "pitch": 2,
+          "home": "Hil/fil Gubbelag",
+          "away": "Vanvik 1",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "time": "14:00",
+          "pitch": 1,
+          "home": "Heimdal Ludoklubb",
+          "away": "Hil/fil Gubbelag",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "time": "14:00",
+          "pitch": 2,
+          "home": "Jumbo Flyers",
+          "away": "Vanvik 1",
+          "homeScore": 2,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "name": "Gruppe C",
+      "standings": [
+        {
+          "team": "Ungkarran FC",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 9,
+          "goalsAgainst": 3,
+          "goalDiff": 6,
+          "points": 6
+        },
+        {
+          "team": "Werder Beermen",
+          "played": 3,
+          "won": 2,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 10,
+          "goalsAgainst": 5,
+          "goalDiff": 5,
+          "points": 6
+        },
+        {
+          "team": "La tiki-taka",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 5,
+          "goalsAgainst": 7,
+          "goalDiff": -2,
+          "points": 4
+        },
+        {
+          "team": "Stb Oldboys Jr",
+          "played": 3,
+          "won": 0,
+          "drawn": 1,
+          "lost": 2,
+          "goalsFor": 3,
+          "goalsAgainst": 7,
+          "goalDiff": -4,
+          "points": 1
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:45",
+          "pitch": 1,
+          "home": "La tiki-taka",
+          "away": "Werder Beermen",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "11:45",
+          "pitch": 2,
+          "home": "Stadsbygd Oldboys Jr",
+          "away": "Ungkarran FC",
+          "homeScore": 0,
+          "awayScore": 4
+        },
+        {
+          "time": "13:00",
+          "pitch": 1,
+          "home": "La tiki-taka",
+          "away": "Ungkarran FC",
+          "homeScore": 0,
+          "awayScore": 3
+        },
+        {
+          "time": "13:00",
+          "pitch": 2,
+          "home": "Stadsbygd Oldboys Jr",
+          "away": "Werder Beermen",
+          "homeScore": 1,
+          "awayScore": 6
+        },
+        {
+          "time": "14:15",
+          "pitch": 1,
+          "home": "La tiki-taka",
+          "away": "Stadsbygd Oldboys Jr",
+          "homeScore": 3,
+          "awayScore": 3
+        },
+        {
+          "time": "14:15",
+          "pitch": 2,
+          "home": "Ungkarran FC",
+          "away": "Werder Beermen",
+          "homeScore": 2,
+          "awayScore": 3
+        }
+      ]
+    },
+    {
+      "name": "Gruppe D",
+      "standings": [
+        {
+          "team": "SGG",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 14,
+          "goalsAgainst": 1,
+          "goalDiff": 13,
+          "points": 7
+        },
+        {
+          "team": "Brotherhood FC",
+          "played": 3,
+          "won": 2,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 7,
+          "goalsAgainst": 5,
+          "goalDiff": 2,
+          "points": 7
+        },
+        {
+          "team": "Heimdal Rangers",
+          "played": 3,
+          "won": 1,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 5,
+          "goalsAgainst": 11,
+          "goalDiff": -6,
+          "points": 3
+        },
+        {
+          "team": "Jomar & Co",
+          "played": 3,
+          "won": 0,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 5,
+          "goalsAgainst": 14,
+          "goalDiff": -9,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "12:00",
+          "pitch": 1,
+          "home": "Brotherhood FC",
+          "away": "SGG",
+          "homeScore": 1,
+          "awayScore": 1
+        },
+        {
+          "time": "12:00",
+          "pitch": 2,
+          "home": "Heimdal Rangers",
+          "away": "Jomar & Co",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "13:15",
+          "pitch": 1,
+          "home": "Brotherhood FC",
+          "away": "Jomar & Co",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "13:15",
+          "pitch": 2,
+          "home": "Heimdal Rangers",
+          "away": "SGG",
+          "homeScore": 0,
+          "awayScore": 6
+        },
+        {
+          "time": "14:30",
+          "pitch": 1,
+          "home": "Brotherhood FC",
+          "away": "Heimdal Rangers",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "14:30",
+          "pitch": 2,
+          "home": "Jomar & Co",
+          "away": "SGG",
+          "homeScore": 0,
+          "awayScore": 7
+        }
+      ]
+    }
+  ],
+  "knockout": [
+    {
+      "round": "Finale Damer",
+      "matches": [
+        {
+          "time": "14:45",
+          "pitch": 1,
+          "home": "Nederlaget",
+          "away": "God blanding",
+          "homeScore": 4,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "round": "Kvartfinale",
+      "matches": [
+        {
+          "time": "15:00",
+          "pitch": 1,
+          "home": "The Gunners",
+          "away": "Jumbo Flyers",
+          "homeScore": 1,
+          "awayScore": 2
+        },
+        {
+          "time": "15:00",
+          "pitch": 2,
+          "home": "Vanvik 1",
+          "away": "Team Retardico",
+          "homeScore": 1,
+          "awayScore": 0
+        },
+        {
+          "time": "15:15",
+          "pitch": 1,
+          "home": "Ungkaran FC",
+          "away": "Brotherhood FC",
+          "homeScore": 4,
+          "awayScore": 3
+        },
+        {
+          "time": "15:15",
+          "pitch": 2,
+          "home": "SGG",
+          "away": "Werder Beermen",
+          "homeScore": 2,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "round": "Semifinale",
+      "matches": [
+        {
+          "time": "15:35",
+          "pitch": 1,
+          "home": "Jumbo Flyers",
+          "away": "Ungkaran FC",
+          "homeScore": 1,
+          "awayScore": 4
+        },
+        {
+          "time": "15:35",
+          "pitch": 2,
+          "home": "Vanvik 1",
+          "away": "SGG",
+          "homeScore": 3,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "round": "Finale Herrer",
+      "matches": [
+        {
+          "time": "15:55",
+          "pitch": 1,
+          "home": "Ungkaran FC",
+          "away": "Vanvik 1",
+          "homeScore": 3,
+          "awayScore": 2
+        }
+      ]
+    }
+  ]
+}
