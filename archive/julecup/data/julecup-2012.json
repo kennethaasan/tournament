@@ -1,0 +1,668 @@
+{
+  "tournament": "Julecup 2012",
+  "type": "julecup",
+  "year": 2012,
+  "location": "Vanvikanhallen",
+  "winners": {
+    "herrer": "Real Kuuse",
+    "damer": "Shooting Stars"
+  },
+  "groups": [
+    {
+      "name": "Gruppe A",
+      "standings": [
+        {
+          "team": "Inge Arne Lerstad FC",
+          "played": 4,
+          "won": 4,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 23,
+          "goalsAgainst": 4,
+          "goalDiff": 19,
+          "points": 12
+        },
+        {
+          "team": "The Wolfpack",
+          "played": 4,
+          "won": 3,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 18,
+          "goalsAgainst": 4,
+          "goalDiff": 14,
+          "points": 9
+        },
+        {
+          "team": "Lun FC",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 14,
+          "goalsAgainst": 8,
+          "goalDiff": 6,
+          "points": 6
+        },
+        {
+          "team": "Shooting Stars",
+          "played": 4,
+          "won": 1,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 3,
+          "goalsAgainst": 24,
+          "goalDiff": -21,
+          "points": 3
+        },
+        {
+          "team": "Jomar & Co",
+          "played": 4,
+          "won": 0,
+          "drawn": 0,
+          "lost": 4,
+          "goalsFor": 1,
+          "goalsAgainst": 19,
+          "goalDiff": -18,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:00",
+          "pitch": 1,
+          "home": "Shooting Stars",
+          "away": "Jomar & Co",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "time": "11:15",
+          "pitch": 1,
+          "home": "The Wolfpack!",
+          "away": "LUN FC",
+          "homeScore": 4,
+          "awayScore": 1
+        },
+        {
+          "time": "12:00",
+          "pitch": 1,
+          "home": "Jomar & Co",
+          "away": "The Wolfpack!",
+          "homeScore": 0,
+          "awayScore": 6
+        },
+        {
+          "time": "12:15",
+          "pitch": 1,
+          "home": "LUN FC",
+          "away": "Inge Arne Lerstad FC",
+          "homeScore": 2,
+          "awayScore": 4
+        },
+        {
+          "time": "13:00",
+          "pitch": 1,
+          "home": "LUN FC",
+          "away": "Shooting Stars",
+          "homeScore": 7,
+          "awayScore": 0
+        },
+        {
+          "time": "13:15",
+          "pitch": 1,
+          "home": "Inge Arne Lerstad FC",
+          "away": "The Wolfpack!",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "14:00",
+          "pitch": 1,
+          "home": "Shooting Stars",
+          "away": "Inge Arne Lerstad FC",
+          "homeScore": 0,
+          "awayScore": 10
+        },
+        {
+          "time": "14:15",
+          "pitch": 1,
+          "home": "Jomar & Co",
+          "away": "LUN FC",
+          "homeScore": 0,
+          "awayScore": 4
+        },
+        {
+          "time": "15:00",
+          "pitch": 1,
+          "home": "The Wolfpack!",
+          "away": "Shooting Stars",
+          "homeScore": 6,
+          "awayScore": 0
+        },
+        {
+          "time": "15:15",
+          "pitch": 1,
+          "home": "Inge Arne Lerstad FC",
+          "away": "Jomar & Co",
+          "homeScore": 6,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "name": "Gruppe B",
+      "standings": [
+        {
+          "team": "Real Kuuse",
+          "played": 4,
+          "won": 3,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 17,
+          "goalsAgainst": 5,
+          "goalDiff": 12,
+          "points": 10
+        },
+        {
+          "team": "Jumbo Flyers",
+          "played": 4,
+          "won": 2,
+          "drawn": 2,
+          "lost": 0,
+          "goalsFor": 13,
+          "goalsAgainst": 3,
+          "goalDiff": 10,
+          "points": 8
+        },
+        {
+          "team": "FC Kuran(t)",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 15,
+          "goalsAgainst": 12,
+          "goalDiff": 3,
+          "points": 6
+        },
+        {
+          "team": "RFSU",
+          "played": 4,
+          "won": 1,
+          "drawn": 1,
+          "lost": 2,
+          "goalsFor": 19,
+          "goalsAgainst": 14,
+          "goalDiff": 5,
+          "points": 4
+        },
+        {
+          "team": "El fantastico",
+          "played": 4,
+          "won": 0,
+          "drawn": 0,
+          "lost": 4,
+          "goalsFor": 5,
+          "goalsAgainst": 27,
+          "goalDiff": -22,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:30",
+          "pitch": 1,
+          "home": "El fantastico",
+          "away": "FC Kuran(t)",
+          "homeScore": 1,
+          "awayScore": 9
+        },
+        {
+          "time": "11:45",
+          "pitch": 1,
+          "home": "Real Kuuse",
+          "away": "RFSU",
+          "homeScore": 8,
+          "awayScore": 0
+        },
+        {
+          "time": "12:30",
+          "pitch": 1,
+          "home": "FC Kuran(t)",
+          "away": "Real Kuuse",
+          "homeScore": 2,
+          "awayScore": 4
+        },
+        {
+          "time": "12:45",
+          "pitch": 1,
+          "home": "RFSU",
+          "away": "Jumbo Flyers",
+          "homeScore": 2,
+          "awayScore": 2
+        },
+        {
+          "time": "13:30",
+          "pitch": 1,
+          "home": "RFSU",
+          "away": "El fantastico",
+          "homeScore": 7,
+          "awayScore": 0
+        },
+        {
+          "time": "13:45",
+          "pitch": 1,
+          "home": "Jumbo Flyers",
+          "away": "Real Kuuse",
+          "homeScore": 0,
+          "awayScore": 0
+        },
+        {
+          "time": "14:30",
+          "pitch": 1,
+          "home": "El fantastico",
+          "away": "Jumbo Flyers",
+          "homeScore": 1,
+          "awayScore": 6
+        },
+        {
+          "time": "14:45",
+          "pitch": 1,
+          "home": "FC Kuran(t)",
+          "away": "RFSU",
+          "homeScore": 4,
+          "awayScore": 2
+        },
+        {
+          "time": "15:30",
+          "pitch": 1,
+          "home": "Real Kuuse",
+          "away": "El fantastico",
+          "homeScore": 5,
+          "awayScore": 3
+        },
+        {
+          "time": "15:45",
+          "pitch": 1,
+          "home": "Jumbo Flyers",
+          "away": "FC Kuran(t)",
+          "homeScore": 5,
+          "awayScore": 0
+        }
+      ]
+    },
+    {
+      "name": "Gruppe C",
+      "standings": [
+        {
+          "team": "FC Ungkaran",
+          "played": 4,
+          "won": 4,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 20,
+          "goalsAgainst": 5,
+          "goalDiff": 15,
+          "points": 12
+        },
+        {
+          "team": "SGG",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 16,
+          "goalsAgainst": 7,
+          "goalDiff": 9,
+          "points": 6
+        },
+        {
+          "team": "Brotherhood",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 10,
+          "goalsAgainst": 7,
+          "goalDiff": 3,
+          "points": 6
+        },
+        {
+          "team": "Vanvik 1",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 6,
+          "goalsAgainst": 11,
+          "goalDiff": -5,
+          "points": 6
+        },
+        {
+          "team": "Leksvik damer",
+          "played": 4,
+          "won": 0,
+          "drawn": 0,
+          "lost": 4,
+          "goalsFor": 3,
+          "goalsAgainst": 25,
+          "goalDiff": -22,
+          "points": 0
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:00",
+          "pitch": 2,
+          "home": "Brotherhood",
+          "away": "FC Ungkaran",
+          "homeScore": 2,
+          "awayScore": 5
+        },
+        {
+          "time": "11:15",
+          "pitch": 2,
+          "home": "SGG",
+          "away": "Vanvik 1",
+          "homeScore": 2,
+          "awayScore": 3
+        },
+        {
+          "time": "12:00",
+          "pitch": 2,
+          "home": "FC Ungkaran",
+          "away": "SGG",
+          "homeScore": 4,
+          "awayScore": 1
+        },
+        {
+          "time": "12:15",
+          "pitch": 2,
+          "home": "Vanvik 1",
+          "away": "Leksvik damer",
+          "homeScore": 3,
+          "awayScore": 1
+        },
+        {
+          "time": "13:00",
+          "pitch": 2,
+          "home": "Vanvik 1",
+          "away": "Brotherhood",
+          "homeScore": 0,
+          "awayScore": 2
+        },
+        {
+          "time": "13:15",
+          "pitch": 2,
+          "home": "Leksvik damer",
+          "away": "SGG",
+          "homeScore": 0,
+          "awayScore": 11
+        },
+        {
+          "time": "14:00",
+          "pitch": 2,
+          "home": "Brotherhood",
+          "away": "Leksvik damer",
+          "homeScore": 6,
+          "awayScore": 0
+        },
+        {
+          "time": "14:15",
+          "pitch": 2,
+          "home": "FC Ungkaran",
+          "away": "Vanvik 1",
+          "homeScore": 6,
+          "awayScore": 0
+        },
+        {
+          "time": "15:00",
+          "pitch": 2,
+          "home": "SGG",
+          "away": "Brotherhood",
+          "homeScore": 2,
+          "awayScore": 0
+        },
+        {
+          "time": "15:15",
+          "pitch": 2,
+          "home": "Leksvik damer",
+          "away": "FC Ungkaran",
+          "homeScore": 2,
+          "awayScore": 5
+        }
+      ]
+    },
+    {
+      "name": "Gruppe D",
+      "standings": [
+        {
+          "team": "Vinneran",
+          "played": 4,
+          "won": 4,
+          "drawn": 0,
+          "lost": 0,
+          "goalsFor": 18,
+          "goalsAgainst": 6,
+          "goalDiff": 12,
+          "points": 12
+        },
+        {
+          "team": "Trondheim Kickers",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 8,
+          "goalsAgainst": 10,
+          "goalDiff": -2,
+          "points": 6
+        },
+        {
+          "team": "The Gunners",
+          "played": 4,
+          "won": 2,
+          "drawn": 0,
+          "lost": 2,
+          "goalsFor": 8,
+          "goalsAgainst": 13,
+          "goalDiff": -5,
+          "points": 6
+        },
+        {
+          "team": "Guggen Foss & Co",
+          "played": 4,
+          "won": 1,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 12,
+          "goalsAgainst": 12,
+          "goalDiff": 0,
+          "points": 3
+        },
+        {
+          "team": "Vanvik 2",
+          "played": 4,
+          "won": 1,
+          "drawn": 0,
+          "lost": 3,
+          "goalsFor": 6,
+          "goalsAgainst": 11,
+          "goalDiff": -5,
+          "points": 3
+        }
+      ],
+      "matches": [
+        {
+          "time": "11:30",
+          "pitch": 2,
+          "home": "Vinneran",
+          "away": "Guggen Foss & Co",
+          "homeScore": 5,
+          "awayScore": 3
+        },
+        {
+          "time": "11:45",
+          "pitch": 2,
+          "home": "The Gunners",
+          "away": "Trondheim Kickers",
+          "homeScore": 3,
+          "awayScore": 2
+        },
+        {
+          "time": "12:30",
+          "pitch": 2,
+          "home": "Guggen Foss & Co",
+          "away": "The Gunners",
+          "homeScore": 5,
+          "awayScore": 1
+        },
+        {
+          "time": "12:45",
+          "pitch": 2,
+          "home": "Trondheim Kickers",
+          "away": "Vanvik 2",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "13:30",
+          "pitch": 2,
+          "home": "Trondheim Kickers",
+          "away": "Vinneran",
+          "homeScore": 1,
+          "awayScore": 4
+        },
+        {
+          "time": "13:45",
+          "pitch": 2,
+          "home": "Vanvik 2",
+          "away": "The Gunners",
+          "homeScore": 1,
+          "awayScore": 3
+        },
+        {
+          "time": "14:30",
+          "pitch": 2,
+          "home": "Vinneran",
+          "away": "Vanvik 2",
+          "homeScore": 4,
+          "awayScore": 1
+        },
+        {
+          "time": "14:45",
+          "pitch": 2,
+          "home": "Guggen Foss & Co",
+          "away": "Trondheim Kickers",
+          "homeScore": 2,
+          "awayScore": 3
+        },
+        {
+          "time": "15:30",
+          "pitch": 2,
+          "home": "The Gunners",
+          "away": "Vinneran",
+          "homeScore": 1,
+          "awayScore": 5
+        },
+        {
+          "time": "15:45",
+          "pitch": 2,
+          "home": "Vanvik 2",
+          "away": "Guggen Foss & Co",
+          "homeScore": 3,
+          "awayScore": 2
+        }
+      ]
+    }
+  ],
+  "knockout": [
+    {
+      "round": "Kvartfinale",
+      "matches": [
+        {
+          "time": "16:15",
+          "pitch": 1,
+          "home": "Inge Arne Lerstad FC",
+          "away": "SGG",
+          "homeScore": 4,
+          "awayScore": 3,
+          "extraTime": true
+        },
+        {
+          "time": "16:15",
+          "pitch": 2,
+          "home": "Real Kuuse",
+          "away": "Trondheim Kickers",
+          "homeScore": 4,
+          "awayScore": 2
+        },
+        {
+          "time": "16:30",
+          "pitch": 1,
+          "home": "FC Ungkaran",
+          "away": "The Wolfpack",
+          "homeScore": 2,
+          "awayScore": 1
+        },
+        {
+          "time": "16:30",
+          "pitch": 2,
+          "home": "Vinneran",
+          "away": "Jumbo Flyers",
+          "homeScore": 4,
+          "awayScore": 5
+        }
+      ]
+    },
+    {
+      "round": "Semifinale",
+      "matches": [
+        {
+          "time": "17:00",
+          "pitch": 1,
+          "home": "Inge Arne Lerstad FC",
+          "away": "Real Kuuse",
+          "homeScore": 2,
+          "awayScore": 4
+        },
+        {
+          "time": "17:00",
+          "pitch": 2,
+          "home": "Jumbo Flyers",
+          "away": "Ungkaran",
+          "homeScore": 1,
+          "awayScore": 4
+        }
+      ]
+    },
+    {
+      "round": "Finale Damer",
+      "matches": [
+        {
+          "time": "17:20",
+          "pitch": 1,
+          "home": "Shooting Stars",
+          "away": "El fantastico",
+          "homeScore": 2,
+          "awayScore": 1
+        }
+      ]
+    },
+    {
+      "round": "Finale Herrer",
+      "matches": [
+        {
+          "time": "17:40",
+          "pitch": 2,
+          "home": "Real Kuuse",
+          "away": "FC Ungkaran",
+          "homeScore": 4,
+          "awayScore": 4,
+          "penalties": "8-6"
+        }
+      ]
+    }
+  ]
+}
