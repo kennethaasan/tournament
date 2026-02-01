@@ -589,7 +589,7 @@ function resolveTimezone(): string {
       return local;
     }
   } catch {
-    return "Europe/Oslo";
+    // Fall through to default timezone.
   }
 
   return "Europe/Oslo";

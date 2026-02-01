@@ -40,9 +40,8 @@ export default async function DashboardHomePage() {
       ? await getCompetitionsForUser(userId)
       : [];
 
-  const primaryAction = !hasAnyRole
-    ? { label: "Opprett konkurranse", href: "/dashboard/competitions/new" }
-    : roleFlags.isGlobalAdmin
+  const primaryAction =
+    !hasAnyRole || roleFlags.isGlobalAdmin
       ? { label: "Opprett konkurranse", href: "/dashboard/competitions/new" }
       : roleFlags.isCompetitionAdmin || roleFlags.isTeamManager
         ? { label: "Send invitasjon", href: "/dashboard/invitations" }
