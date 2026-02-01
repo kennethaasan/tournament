@@ -27,6 +27,10 @@ export default async function DashboardHomePage() {
     isCompetitionAdmin: userHasRole(session, "competition_admin"),
     isTeamManager: userHasRole(session, "team_manager"),
   };
+  const hasAnyRole =
+    roleFlags.isGlobalAdmin ||
+    roleFlags.isCompetitionAdmin ||
+    roleFlags.isTeamManager;
   const sections = buildDashboardSections(roleFlags);
 
   const managedTeams =
@@ -36,11 +40,13 @@ export default async function DashboardHomePage() {
       ? await getCompetitionsForUser(userId)
       : [];
 
-  const primaryAction = roleFlags.isGlobalAdmin
+  const primaryAction = !hasAnyRole
     ? { label: "Opprett konkurranse", href: "/dashboard/competitions/new" }
-    : roleFlags.isCompetitionAdmin || roleFlags.isTeamManager
-      ? { label: "Send invitasjon", href: "/dashboard/invitations" }
-      : { label: "Åpne varsler", href: "/dashboard/notifications" };
+    : roleFlags.isGlobalAdmin
+      ? { label: "Opprett konkurranse", href: "/dashboard/competitions/new" }
+      : roleFlags.isCompetitionAdmin || roleFlags.isTeamManager
+        ? { label: "Send invitasjon", href: "/dashboard/invitations" }
+        : { label: "Åpne varsler", href: "/dashboard/notifications" };
 
   const roleLabel = roleFlags.isGlobalAdmin
     ? "Global admin"
@@ -59,6 +65,28 @@ export default async function DashboardHomePage() {
         actionLabel={primaryAction.label}
         actionHref={primaryAction.href as Route}
       />
+
+      {!hasAnyRole ? (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-lg text-foreground">
+              Velkommen! Opprett din første konkurranse.
+            </CardTitle>
+            <CardDescription>
+              Du trenger ingen invitasjon for å komme i gang. Når du oppretter
+              en konkurranse blir du automatisk administrator.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href="/dashboard/competitions/new"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-primary/90"
+            >
+              Opprett konkurranse
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {managedTeams.length > 0 && (
         <section className="space-y-4">

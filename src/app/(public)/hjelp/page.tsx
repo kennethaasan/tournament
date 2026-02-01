@@ -77,7 +77,7 @@ Plattformen har tre hovedroller:
 
 ## Opprette en ny konkurranse
 
-> **Krav**: Du må være global administrator for å opprette nye konkurranser.
+> **Krav**: Du må være innlogget. Nye brukere kan opprette sin første konkurranse uten invitasjon og blir automatisk konkurranseadministrator.
 
 ### Steg for steg
 
