@@ -83,6 +83,19 @@ export const POST = createApiHandler(
       );
     }
 
+    const existingCompetitionAdmin = await db
+      .select({ id: userRoles.id })
+      .from(userRoles)
+      .where(
+        and(
+          eq(userRoles.userId, auth.user.id),
+          eq(userRoles.role, "competition_admin"),
+          eq(userRoles.scopeType, "competition"),
+        ),
+      )
+      .limit(1);
+    const isFirstCompetition = existingCompetitionAdmin.length === 0;
+
     const payload = (await request.json()) as CreateCompetitionBody;
 
     const defaultEdition = payload.default_edition;
@@ -168,6 +181,9 @@ export const POST = createApiHandler(
     };
 
     recordBusinessMetric(BusinessMetric.COMPETITION_CREATED);
+    if (isFirstCompetition) {
+      recordBusinessMetric(BusinessMetric.FIRST_COMPETITION_CREATED);
+    }
     logger.info("competition_created", {
       competitionId: result.competition.id,
       editionId: result.edition.id,

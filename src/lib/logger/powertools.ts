@@ -64,10 +64,11 @@ export { MetricUnit };
  * - requestDuration (1)
  * - requestError (1)
  * - competitionCreated (1)
+ * - firstCompetitionCreated (1)
  * - invitationSent (1)
  * - invitationAccepted (1)
  * - matchFinalized (1)
- * Total: 7 metrics (within 10 free tier limit)
+ * Total: 8 metrics (within 10 free tier limit)
  *
  * IMPORTANT: Do NOT add dimensions (like editionId, competitionId) as each
  * unique dimension combination counts as a separate metric and will exceed
@@ -76,6 +77,8 @@ export { MetricUnit };
 export const BusinessMetric = {
   /** A new competition was created */
   COMPETITION_CREATED: "competitionCreated",
+  /** A user created their first competition */
+  FIRST_COMPETITION_CREATED: "firstCompetitionCreated",
   /** An invitation email was sent */
   INVITATION_SENT: "invitationSent",
   /** An invitation was accepted by a user */

@@ -17,6 +17,9 @@ type PageProps = {
   params: Promise<{
     competitionId?: string;
   }>;
+  searchParams?: {
+    welcome?: string;
+  };
 };
 
 export const dynamic = "force-dynamic";
@@ -26,7 +29,10 @@ const datetimeFormatter = new Intl.DateTimeFormat("nb-NO", {
   timeStyle: "short",
 });
 
-export default async function CompetitionDetailPage({ params }: PageProps) {
+export default async function CompetitionDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const resolvedParams = await params;
   const competitionId = resolvedParams.competitionId;
   if (!competitionId) {
@@ -34,6 +40,7 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
   }
 
   const competition = await getCompetitionDetail(competitionId);
+  const shouldShowWelcome = searchParams?.welcome === "1";
   const publishedEditions = competition.editions.filter(
     (edition) => edition.status === "published",
   ).length;
@@ -69,6 +76,63 @@ export default async function CompetitionDetailPage({ params }: PageProps) {
           <Link href="/dashboard/admin/overview">Tilbake til oversikten</Link>
         </Button>
       </div>
+
+      {shouldShowWelcome ? (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-lg text-foreground">
+              Neste steg: få konkurransen klar
+            </CardTitle>
+            <CardDescription>
+              Du er nå administrator. Bruk sjekklisten for å komme raskt i mål.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm">
+            <Link
+              href="/dashboard/invitations"
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 px-4 py-3 transition hover:border-primary/40 hover:bg-primary/10"
+            >
+              <div>
+                <div className="font-semibold text-foreground">
+                  Inviter samarbeidspartnere
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Legg til flere administratorer som kan hjelpe.
+                </div>
+              </div>
+              <span className="text-primary">→</span>
+            </Link>
+            <Link
+              href={`/dashboard/competitions/${competition.id}/venues` as Route}
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 px-4 py-3 transition hover:border-primary/40 hover:bg-primary/10"
+            >
+              <div>
+                <div className="font-semibold text-foreground">
+                  Registrer arenaer
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Legg inn baner før kampoppsettet.
+                </div>
+              </div>
+              <span className="text-primary">→</span>
+            </Link>
+            <Link
+              href={`/dashboard/competitions/${competition.id}/editions/new`}
+              className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 px-4 py-3 transition hover:border-primary/40 hover:bg-primary/10"
+            >
+              <div>
+                <div className="font-semibold text-foreground">
+                  Opprett neste utgave
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Klar når du vil legge til flere sesonger.
+                </div>
+              </div>
+              <span className="text-primary">→</span>
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <Card className="border-border/70 bg-card/70">

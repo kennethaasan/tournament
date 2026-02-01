@@ -63,6 +63,8 @@ export const navigationLinks = [
 export function buildDashboardSections(flags: RoleFlags): NavSection[] {
   const canInvite =
     flags.isGlobalAdmin || flags.isCompetitionAdmin || flags.isTeamManager;
+  const hasAnyRole =
+    flags.isGlobalAdmin || flags.isCompetitionAdmin || flags.isTeamManager;
 
   const [
     dashboardLink,
@@ -79,6 +81,10 @@ export function buildDashboardSections(flags: RoleFlags): NavSection[] {
 
   if (canInvite) {
     overviewLinks.push(invitationLink);
+  }
+
+  if (!hasAnyRole) {
+    overviewLinks.push(newCompetitionLink);
   }
 
   // Add "Mine konkurranser" for competition admins (but not global admins who have a fuller view)

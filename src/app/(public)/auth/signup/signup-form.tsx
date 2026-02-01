@@ -50,7 +50,7 @@ export function SignupForm() {
         name,
         email,
         password,
-        callbackURL: "/dashboard/admin/overview",
+        callbackURL: "/dashboard",
       });
 
       if (result.error) {
@@ -62,7 +62,7 @@ export function SignupForm() {
       }
 
       setFormState("success");
-      router.push("/dashboard/admin/overview");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setFormState("error");
