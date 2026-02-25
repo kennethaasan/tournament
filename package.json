@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.30.0",
     "@aws-lambda-powertools/metrics": "^2.30.0",
-    "@aws-sdk/client-ses": "^3.956.0",
+    "@aws-sdk/client-ses": "^3.997.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dialog": "^1.1.15",
