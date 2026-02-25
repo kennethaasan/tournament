@@ -11,6 +11,7 @@ import { createApiHandler } from "@/server/api/handler";
 
 type PatchEditionBody = {
   label?: string | null;
+  slug?: string | null;
   status?: "draft" | "published" | "archived" | null;
   format?: "round_robin" | "knockout" | "hybrid" | null;
   timezone?: string | null;
@@ -71,6 +72,7 @@ export const PATCH = createApiHandler<RouteParams>(
     // Check if we have core edition updates
     const hasCoreUpdates =
       payload.label !== undefined ||
+      payload.slug !== undefined ||
       payload.status !== undefined ||
       payload.format !== undefined ||
       payload.timezone !== undefined ||
@@ -90,6 +92,7 @@ export const PATCH = createApiHandler<RouteParams>(
       await updateEdition({
         editionId: edition.id,
         label: payload.label ?? undefined,
+        slug: payload.slug ?? undefined,
         status: payload.status ?? undefined,
         format: payload.format ?? undefined,
         timezone: payload.timezone ?? undefined,

@@ -26,6 +26,13 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+vi.mock("@tanstack/react-query", () => ({
+  useMutation: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 const scoreboardStub: ScoreboardData = {
   edition: {
     id: "ed-1",

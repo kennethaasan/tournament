@@ -4,6 +4,12 @@ import type { components, paths } from "@/lib/api/generated/openapi";
 type CompetitionGet = NonNullable<
   paths["/api/competitions/{competition_id}"]["get"]
 >;
+type CompetitionPatch = NonNullable<
+  paths["/api/competitions/{competition_id}"]["patch"]
+>;
+type CompetitionDelete = NonNullable<
+  paths["/api/competitions/{competition_id}"]["delete"]
+>;
 type CompetitionDetail = components["schemas"]["CompetitionDetail"];
 
 describe("OpenAPI contract › GET /api/competitions/{competition_id}", () => {
@@ -23,6 +29,24 @@ describe("OpenAPI contract › GET /api/competitions/{competition_id}", () => {
     expectTypeOf<CompetitionGet["responses"][403]>().toEqualTypeOf<
       components["responses"]["ProblemDetails"]
     >();
+  });
+
+  it("supports archive state updates with PATCH", () => {
+    expectTypeOf<
+      CompetitionPatch["requestBody"]["content"]["application/json"]
+    >().toEqualTypeOf<{
+      archived?: boolean;
+    }>();
+
+    expectTypeOf<
+      CompetitionPatch["responses"]["200"]["content"]["application/json"]
+    >().toEqualTypeOf<CompetitionDetail>();
+  });
+
+  it("supports soft delete with DELETE", () => {
+    expectTypeOf<
+      CompetitionDelete["responses"]["200"]["content"]["application/json"]
+    >().toEqualTypeOf<CompetitionDetail>();
   });
 
   it("exposes edition and administrator summaries for dashboards", () => {

@@ -1,6 +1,9 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, test } from "vitest";
-import { createCompetition } from "@/modules/competitions/service";
+import {
+  createCompetition,
+  setCompetitionArchivedState,
+} from "@/modules/competitions/service";
 import { db } from "@/server/db/client";
 import {
   competitions,
@@ -65,5 +68,35 @@ describe("Organizer self-service onboarding flow", () => {
       where: eq(editionSettings.editionId, result.edition.id),
     });
     expect(settings).toBeDefined();
+  });
+
+  test("archives and restores a competition through soft delete state", async () => {
+    const result = await createCompetition({
+      name: "Trondheim Cup",
+      slug: "trondheim-cup",
+      defaultTimezone: "Europe/Oslo",
+      ownerUserId: USER_ID,
+      defaultEdition: {
+        label: "2025",
+        slug: "2025",
+        format: "round_robin",
+        registrationWindow: {
+          opensAt: new Date("2025-01-01T10:00:00Z"),
+          closesAt: new Date("2025-02-01T10:00:00Z"),
+        },
+      },
+    });
+
+    const archived = await setCompetitionArchivedState({
+      competitionId: result.competition.id,
+      archived: true,
+    });
+    expect(archived.archivedAt).toBeInstanceOf(Date);
+
+    const restored = await setCompetitionArchivedState({
+      competitionId: result.competition.id,
+      archived: false,
+    });
+    expect(restored.archivedAt).toBeNull();
   });
 });

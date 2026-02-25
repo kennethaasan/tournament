@@ -7,6 +7,7 @@ import {
   getEditionScoreboardSummary,
   listStages,
   triggerScoreboardHighlight,
+  updateEdition,
   updateEditionScoreboardSettings,
 } from "@/modules/editions/service";
 import { db } from "@/server/db/client";
@@ -130,6 +131,35 @@ describe("editions service", () => {
 
     const summary = await getEditionScoreboardSummary(EDITION_ID);
     expect(summary.highlight).toBeNull();
+  });
+
+  test("updates edition slug and normalizes the value", async () => {
+    const updated = await updateEdition({
+      editionId: EDITION_ID,
+      slug: "  New Season 2026  ",
+    });
+
+    expect(updated.slug).toBe("new-season-2026");
+  });
+
+  test("rejects edition slug updates that conflict within a competition", async () => {
+    const conflictingEdition = createTestEdition(COMPETITION_ID, {
+      id: "00000000-0000-0000-0000-000000000103",
+      label: "2026",
+      slug: "season-2026",
+    });
+    await db.insert(editions).values(conflictingEdition);
+
+    await expect(
+      updateEdition({
+        editionId: EDITION_ID,
+        slug: "season-2026",
+      }),
+    ).rejects.toMatchObject({
+      problem: expect.objectContaining({
+        type: "https://tournament.app/problems/edition-slug-conflict",
+      }),
+    });
   });
 });
 

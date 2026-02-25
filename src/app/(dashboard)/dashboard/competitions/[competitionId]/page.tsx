@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/ui/components/card";
 import { PageHero } from "@/ui/components/page-hero";
+import { CompetitionArchiveControls } from "./competition-archive-controls";
 
 type PageProps = {
   params: Promise<{
@@ -296,6 +297,11 @@ export default async function CompetitionDetailPage({
           )}
         </CardContent>
       </Card>
+
+      <CompetitionArchiveControls
+        competitionId={competition.id}
+        archivedAt={competition.archivedAt?.toISOString() ?? null}
+      />
     </div>
   );
 }

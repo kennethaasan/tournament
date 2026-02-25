@@ -6,6 +6,7 @@ type RequestOptions = {
 };
 
 export type CompetitionSummary = components["schemas"]["CompetitionSummary"];
+export type CompetitionDetail = components["schemas"]["CompetitionDetail"];
 
 export const competitionListQueryKey = () => ["competitions"] as const;
 
@@ -20,4 +21,42 @@ export async function fetchCompetitions(
   const payload = unwrapResponse({ data, error, response });
 
   return payload.competitions ?? [];
+}
+
+export async function setCompetitionArchivedState(
+  competitionId: string,
+  archived: boolean,
+): Promise<CompetitionDetail> {
+  const { data, error, response } = await apiClient.PATCH(
+    "/api/competitions/{competition_id}",
+    {
+      params: {
+        path: {
+          competition_id: competitionId,
+        },
+      },
+      body: { archived },
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
+}
+
+export async function softDeleteCompetition(
+  competitionId: string,
+): Promise<CompetitionDetail> {
+  const { data, error, response } = await apiClient.DELETE(
+    "/api/competitions/{competition_id}",
+    {
+      params: {
+        path: {
+          competition_id: competitionId,
+        },
+      },
+      credentials: "include",
+    },
+  );
+
+  return unwrapResponse({ data, error, response });
 }

@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, gt, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, ne } from "drizzle-orm";
 import { createProblem } from "@/lib/errors/problem";
 import {
   __internal as competitionsInternal,
@@ -543,6 +543,7 @@ export async function updateEditionScoreboardSettings(
 export type UpdateEditionInput = {
   editionId: string;
   label?: string | null;
+  slug?: string | null;
   status?: EditionStatus | null;
   format?: EditionFormat | null;
   timezone?: string | null;
@@ -653,6 +654,29 @@ export async function updateEdition(
         });
       }
       updates.label = trimmed;
+    }
+
+    if (input.slug !== undefined && input.slug !== null) {
+      const normalizedSlug = competitionsInternal.normalizeSlug(input.slug);
+      const existingEdition = await tx.query.editions.findFirst({
+        columns: { id: true },
+        where: and(
+          eq(editions.competitionId, edition.competitionId),
+          eq(editions.slug, normalizedSlug),
+          ne(editions.id, input.editionId),
+        ),
+      });
+
+      if (existingEdition) {
+        throw createProblem({
+          type: "https://tournament.app/problems/edition-slug-conflict",
+          title: "Utgave-slug er allerede i bruk",
+          status: 409,
+          detail: `En annen utgave i konkurransen bruker slugen "${normalizedSlug}".`,
+        });
+      }
+
+      updates.slug = normalizedSlug;
     }
 
     if (input.status !== undefined && input.status !== null) {

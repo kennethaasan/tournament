@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   competitionListQueryKey,
   fetchCompetitions,
+  setCompetitionArchivedState,
+  softDeleteCompetition,
 } from "@/lib/api/competitions-client";
 import {
   deleteEntry,
@@ -110,6 +112,49 @@ describe("competitions client", () => {
       signal,
       credentials: "include",
     });
+  });
+
+  it("archives and restores competitions", async () => {
+    apiMocks.apiClient.DELETE.mockResolvedValueOnce(makeResult({}));
+    apiMocks.apiClient.PATCH.mockResolvedValueOnce(makeResult({}));
+    apiMocks.unwrapResponse
+      .mockReturnValueOnce({
+        id: "comp-1",
+        archived_at: "2026-01-01T00:00:00Z",
+      })
+      .mockReturnValueOnce({ id: "comp-1", archived_at: null });
+
+    const archived = await softDeleteCompetition("comp-1");
+    const restored = await setCompetitionArchivedState("comp-1", false);
+
+    expect(archived).toEqual({
+      id: "comp-1",
+      archived_at: "2026-01-01T00:00:00Z",
+    });
+    expect(restored).toEqual({ id: "comp-1", archived_at: null });
+    expect(apiMocks.apiClient.DELETE).toHaveBeenCalledWith(
+      "/api/competitions/{competition_id}",
+      {
+        params: {
+          path: {
+            competition_id: "comp-1",
+          },
+        },
+        credentials: "include",
+      },
+    );
+    expect(apiMocks.apiClient.PATCH).toHaveBeenCalledWith(
+      "/api/competitions/{competition_id}",
+      {
+        params: {
+          path: {
+            competition_id: "comp-1",
+          },
+        },
+        body: { archived: false },
+        credentials: "include",
+      },
+    );
   });
 });
 
