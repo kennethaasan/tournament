@@ -159,6 +159,54 @@ paths:
           $ref: '#/components/responses/ProblemDetails'
         '404':
           $ref: '#/components/responses/ProblemDetails'
+    patch:
+      tags:
+        - competitions
+      summary: Update competition archive state
+      description: Archive or restore a competition (soft delete)
+      operationId: update_competition_archive_state
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompetitionArchiveRequest'
+      responses:
+        <<: *standardErrorResponses
+        '200':
+          description: Competition archive state updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionDetail'
+          headers: *standardResponseHeaders
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
+    delete:
+      tags:
+        - competitions
+      summary: Soft delete a competition
+      description: Mark a competition as archived while retaining all data
+      operationId: soft_delete_competition
+      parameters:
+        - $ref: '#/components/parameters/CompetitionId'
+      responses:
+        <<: *standardErrorResponses
+        '200':
+          description: Competition archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitionDetail'
+          headers: *standardResponseHeaders
+        '403':
+          $ref: '#/components/responses/ProblemDetails'
+        '404':
+          $ref: '#/components/responses/ProblemDetails'
   /api/competitions/{competition_id}/editions:
     post:
       tags:
@@ -1485,6 +1533,19 @@ components:
           type: string
           format: date-time
           maxLength: 30
+        default_timezone:
+          type: string
+          maxLength: 64
+        description:
+          type: string
+          nullable: true
+          maxLength: 2048
+          pattern: ^.{0,2048}$
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+          maxLength: 30
     CreateCompetitionRequest:
       type: object
       required:
@@ -1613,6 +1674,10 @@ components:
           type: string
           maxLength: 2048
           pattern: ^.{0,2048}$
+        slug:
+          type: string
+          maxLength: 120
+          pattern: ^.{0,120}$
         status:
           type: string
           enum:
@@ -1657,6 +1722,11 @@ components:
         scoreboard_theme:
           $ref: '#/components/schemas/ScoreboardTheme'
         entries_locked:
+          type: boolean
+    UpdateCompetitionArchiveRequest:
+      type: object
+      properties:
+        archived:
           type: boolean
     ScoreboardTheme:
       type: object

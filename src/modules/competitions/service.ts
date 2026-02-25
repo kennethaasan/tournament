@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { computeContrastRatio } from "@/lib/colors";
 import { createProblem } from "@/lib/errors/problem";
 import { type TransactionClient, withTransaction } from "@/server/db/client";
@@ -80,6 +81,11 @@ export type EditionCreationResult = {
   editionSettings: EditionSetting;
 };
 
+export type SetCompetitionArchivedStateInput = {
+  competitionId: string;
+  archived: boolean;
+};
+
 export async function createCompetition(
   input: CreateCompetitionInput,
 ): Promise<CompetitionCreationResult> {
@@ -160,6 +166,50 @@ export async function createEdition(
   input: CreateEditionInput,
 ): Promise<EditionCreationResult> {
   return withTransaction((tx) => createEditionWithClient(tx, input));
+}
+
+export async function setCompetitionArchivedState(
+  input: SetCompetitionArchivedStateInput,
+): Promise<Competition> {
+  return withTransaction(async (tx) => {
+    const competition = await tx.query.competitions.findFirst({
+      where: (table, { eq: eqHelper }) =>
+        eqHelper(table.id, input.competitionId),
+    });
+
+    if (!competition) {
+      throw createProblem({
+        type: "https://tournament.app/problems/competition-not-found",
+        title: "Competition not found",
+        status: 404,
+        detail: "The specified competition does not exist.",
+      });
+    }
+
+    const archivedAt = input.archived
+      ? (competition.archivedAt ?? new Date())
+      : null;
+
+    const updatedRows = await tx
+      .update(competitions)
+      .set({
+        archivedAt,
+      })
+      .where(eq(competitions.id, input.competitionId))
+      .returning();
+
+    const updatedCompetition = updatedRows[0];
+    if (!updatedCompetition) {
+      throw createProblem({
+        type: "https://tournament.app/problems/competition-not-updated",
+        title: "Unable to update competition",
+        status: 500,
+        detail: "The competition archive state could not be updated.",
+      });
+    }
+
+    return updatedCompetition;
+  });
 }
 
 async function createEditionWithClient(

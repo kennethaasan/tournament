@@ -82,10 +82,18 @@ export interface paths {
     get: operations["get_competition"];
     put?: never;
     post?: never;
-    delete?: never;
+    /**
+     * Soft delete a competition
+     * @description Mark a competition as archived while retaining all data
+     */
+    delete: operations["soft_delete_competition"];
     options?: never;
     head?: never;
-    patch?: never;
+    /**
+     * Update competition archive state
+     * @description Archive or restore a competition (soft delete)
+     */
+    patch: operations["update_competition_archive_state"];
     trace?: never;
   };
   "/api/competitions/{competition_id}/editions": {
@@ -732,6 +740,10 @@ export interface components {
       scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
       /** Format: date-time */
       created_at: string;
+      default_timezone?: string;
+      description?: string | null;
+      /** Format: date-time */
+      archived_at?: string | null;
     };
     CreateCompetitionRequest: {
       name: string;
@@ -781,6 +793,7 @@ export interface components {
     };
     UpdateEditionRequest: {
       label?: string;
+      slug?: string;
       /** @enum {string} */
       status?: "draft" | "published" | "archived";
       /** @enum {string} */
@@ -800,6 +813,9 @@ export interface components {
       )[];
       scoreboard_theme?: components["schemas"]["ScoreboardTheme"];
       entries_locked?: boolean;
+    };
+    UpdateCompetitionArchiveRequest: {
+      archived?: boolean;
     };
     ScoreboardTheme: {
       primary_color?: string;
@@ -1592,6 +1608,74 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Competition detail */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompetitionDetail"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  soft_delete_competition: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Competition archived */
+      200: {
+        headers: {
+          "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];
+          "RateLimit-Limit": components["headers"]["RateLimit-Limit"];
+          "RateLimit-Remaining": components["headers"]["RateLimit-Remaining"];
+          "RateLimit-Reset": components["headers"]["RateLimit-Reset"];
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CompetitionDetail"];
+        };
+      };
+      400: components["responses"]["ProblemDetails"];
+      401: components["responses"]["ProblemDetails"];
+      403: components["responses"]["ProblemDetails"];
+      404: components["responses"]["ProblemDetails"];
+      429: components["responses"]["TooManyRequests"];
+      500: components["responses"]["InternalServerError"];
+    };
+  };
+  update_competition_archive_state: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        competition_id: components["parameters"]["CompetitionId"];
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCompetitionArchiveRequest"];
+      };
+    };
+    responses: {
+      /** @description Competition archive state updated */
       200: {
         headers: {
           "Access-Control-Allow-Origin": components["headers"]["Access-Control-Allow-Origin"];

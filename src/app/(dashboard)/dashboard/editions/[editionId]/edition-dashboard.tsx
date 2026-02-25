@@ -270,6 +270,7 @@ function EditionSettingsCard({
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [label, setLabel] = useState(edition.label);
+  const [slug, setSlug] = useState(edition.slug);
   const [format, setFormat] = useState(edition.format);
   const [timezone, setTimezone] = useState(edition.timezone);
   const [status, setStatus] = useState(edition.status);
@@ -278,6 +279,7 @@ function EditionSettingsCard({
   useEffect(() => {
     if (!isEditing) {
       setLabel(edition.label);
+      setSlug(edition.slug);
       setFormat(edition.format);
       setTimezone(edition.timezone);
       setStatus(edition.status);
@@ -292,6 +294,7 @@ function EditionSettingsCard({
           params: { path: { edition_id: editionId } },
           body: {
             label,
+            slug,
             format: format as "round_robin" | "knockout" | "hybrid",
             timezone,
             status: status as "draft" | "published" | "archived",
@@ -301,16 +304,19 @@ function EditionSettingsCard({
       );
       return unwrapResponse({ data, error, response });
     },
-    onSuccess: () => {
+    onSuccess: (updatedEditionData) => {
+      const competitionSlug =
+        updatedEditionData.edition.competition_slug ?? edition.competition_slug;
+      const editionSlug = updatedEditionData.edition.slug;
       toast.success("Utgaveinnstillinger oppdatert.", {
         action:
-          edition.competition_slug && edition.slug
+          competitionSlug && editionSlug
             ? {
                 label: "Se offentlig side",
                 onClick: () =>
                   router.push(
                     /* biome-ignore lint/suspicious/noExplicitAny: typed routes are too strict for dynamic paths */
-                    `/${edition.competition_slug}/${edition.slug}` as any,
+                    `/${competitionSlug}/${editionSlug}` as any,
                   ),
               }
             : undefined,
@@ -329,6 +335,7 @@ function EditionSettingsCard({
 
   const handleCancel = () => {
     setLabel(edition.label);
+    setSlug(edition.slug);
     setFormat(edition.format);
     setTimezone(edition.timezone);
     setStatus(edition.status);
@@ -365,6 +372,15 @@ function EditionSettingsCard({
                 id="edition-label"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edition-slug">Slug</Label>
+              <Input
+                id="edition-slug"
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="f.eks. 2026"
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -448,6 +464,12 @@ function EditionSettingsCard({
               <div className="font-semibold text-foreground">
                 {edition.label}
               </div>
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                Slug
+              </div>
+              <div className="font-mono text-foreground">{edition.slug}</div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
