@@ -191,33 +191,50 @@ export function deriveScheduleSummary(
   return `${formatDateOnly(start)} - ${formatDateOnly(end)}`;
 }
 
-export function deriveVenueSummary(matches: ScoreboardMatch[]): string | null {
-  const seen = new Set<string>();
-  const venues: string[] = [];
-
-  for (const match of matches) {
-    const name = match.venueName?.trim() ?? "";
-    if (!name || seen.has(name)) {
-      continue;
-    }
-    seen.add(name);
-    venues.push(name);
-  }
-
-  if (venues.length === 0) {
+function summarizeUnique(values: string[]): string | null {
+  if (values.length === 0) {
     return null;
   }
 
-  // Sort venues naturally (handles "Bane 1", "Bane 2", "Bane 10" correctly)
-  venues.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+  values.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-  if (venues.length === 1) {
-    return venues[0] ?? null;
+  if (values.length === 1) {
+    return values[0] ?? null;
   }
-  if (venues.length === 2) {
-    return `${venues[0]} og ${venues[1]}`;
+  if (values.length === 2) {
+    return `${values[0]} og ${values[1]}`;
   }
-  return `${venues[0]} + ${venues.length - 1}`;
+  return `${values[0]} + ${values.length - 1}`;
+}
+
+function collectUniqueValues(
+  matches: ScoreboardMatch[],
+  selector: (match: ScoreboardMatch) => string | null | undefined,
+): string[] {
+  const seen = new Set<string>();
+  const values: string[] = [];
+
+  for (const match of matches) {
+    const value = selector(match)?.trim() ?? "";
+    if (!value || seen.has(value)) {
+      continue;
+    }
+    seen.add(value);
+    values.push(value);
+  }
+
+  return values;
+}
+
+export function deriveVenueSummary(matches: ScoreboardMatch[]): string | null {
+  const addresses = collectUniqueValues(matches, (match) => match.venueAddress);
+  if (addresses.length > 0) {
+    // Prefer venue addresses in public header metadata.
+    return summarizeUnique(addresses);
+  }
+
+  const venueNames = collectUniqueValues(matches, (match) => match.venueName);
+  return summarizeUnique(venueNames);
 }
 
 export function deriveOverlayMessage(data: ScoreboardData): string {

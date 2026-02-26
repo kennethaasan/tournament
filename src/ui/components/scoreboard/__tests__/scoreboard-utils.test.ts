@@ -277,13 +277,17 @@ describe("deriveScheduleSummary", () => {
 });
 
 describe("deriveVenueSummary", () => {
-  const createMatch = (venueName?: string): ScoreboardMatch => ({
+  const createMatch = (
+    venueName?: string,
+    venueAddress?: string,
+  ): ScoreboardMatch => ({
     id: "match-1",
     status: "scheduled",
     kickoffAt: new Date(),
     home: { entryId: "e1", name: "Home", score: 0 },
     away: { entryId: "e2", name: "Away", score: 0 },
     venueName,
+    venueAddress,
   });
 
   it("returns null for no matches", () => {
@@ -296,6 +300,28 @@ describe("deriveVenueSummary", () => {
 
   it("returns single venue name", () => {
     expect(deriveVenueSummary([createMatch("Arena")])).toBe("Arena");
+  });
+
+  it("prefers venue address over venue name", () => {
+    const matches = [createMatch("Bane 1", "Vanvikanhallen")];
+    expect(deriveVenueSummary(matches)).toBe("Vanvikanhallen");
+  });
+
+  it("merges same address across multiple venues", () => {
+    const matches = [
+      createMatch("Bane 1", "Vanvikanhallen"),
+      createMatch("Bane 2", "Vanvikanhallen"),
+      createMatch("Bane 3", "Vanvikanhallen"),
+    ];
+    expect(deriveVenueSummary(matches)).toBe("Vanvikanhallen");
+  });
+
+  it("summarizes multiple unique addresses", () => {
+    const matches = [
+      createMatch("Bane 1", "Vanvikanhallen"),
+      createMatch("Bane 2", "Rissa Stadion"),
+    ];
+    expect(deriveVenueSummary(matches)).toBe("Rissa Stadion og Vanvikanhallen");
   });
 
   it("joins two venues with 'og'", () => {
