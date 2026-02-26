@@ -90,7 +90,7 @@ describe("formatMatchScore", () => {
       home: 4,
       away: 3,
     });
-    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 4–3 str.");
+    expect(formatMatchScore(match)).toBe("1 – 1 (ESP) 4–3 str.");
   });
 
   it("does not show EEO or ESP when values are 0-0 in a finalized match", () => {
@@ -105,14 +105,22 @@ describe("formatMatchScore", () => {
   });
 
   it("shows ESP when match has penalty score even if in_progress", () => {
+    const match = createMatch("in_progress", 1, 1, undefined, {
+      home: 4,
+      away: 3,
+    });
+    expect(formatMatchScore(match)).toBe("1 – 1 (ESP) 4–3 str.");
+  });
+
+  it("shows only EEO when both extra time and penalties are set", () => {
     const match = createMatch(
-      "in_progress",
+      "finalized",
       1,
       1,
-      { home: 0, away: 0 },
+      { home: 1, away: 0 },
       { home: 4, away: 3 },
     );
-    expect(formatMatchScore(match)).toBe("1 – 1 (EEO, ESP) 4–3 str.");
+    expect(formatMatchScore(match)).toBe("2 – 1 (EEO) 4–3 str.");
   });
 
   it("shows EEO when match has extra time score", () => {

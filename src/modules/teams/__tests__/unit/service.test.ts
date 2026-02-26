@@ -22,6 +22,11 @@ describe("teams service", () => {
   it("creates a team with normalized slug", async () => {
     const teams: TeamRecord[] = [];
     const fakeDb = {
+      query: {
+        teams: {
+          findFirst: () => null,
+        },
+      },
       insert: () => ({
         values: (payload: TeamRecord) => ({
           returning: () => {

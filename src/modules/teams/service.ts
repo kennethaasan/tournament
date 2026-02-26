@@ -69,12 +69,29 @@ export type TeamServiceDeps = {
   withTransaction?: typeof defaultWithTransaction;
 };
 
+function createTeamSlugConflictProblem(slug: string) {
+  return createProblem({
+    type: "https://tournament.app/problems/team-slug-conflict",
+    title: "Team slug already exists",
+    status: 409,
+    detail: `The slug "${slug}" is already in use by another team.`,
+  });
+}
+
 export async function createTeam(
   input: CreateTeamInput,
   deps: TeamServiceDeps = {},
 ): Promise<Team> {
   const db = deps.db ?? defaultDb;
   const slug = competitionsInternal.normalizeSlug(input.slug ?? input.name);
+  const existingTeam = await db.query.teams.findFirst({
+    columns: { id: true },
+    where: eq(teams.slug, slug),
+  });
+
+  if (existingTeam) {
+    throw createTeamSlugConflictProblem(slug);
+  }
 
   const [team] = await db
     .insert(teams)
@@ -282,6 +299,17 @@ export async function updateTeam(
 
   if (input.contactPhone !== undefined) {
     updates.contactPhone = input.contactPhone?.trim() ?? null;
+  }
+
+  if (updates.slug && updates.slug !== existingTeam.slug) {
+    const conflictingTeam = await db.query.teams.findFirst({
+      columns: { id: true },
+      where: eq(teams.slug, updates.slug),
+    });
+
+    if (conflictingTeam && conflictingTeam.id !== teamId) {
+      throw createTeamSlugConflictProblem(updates.slug);
+    }
   }
 
   if (Object.keys(updates).length === 0) {
