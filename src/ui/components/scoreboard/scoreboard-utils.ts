@@ -30,9 +30,7 @@ export function formatMatchScore(match: ScoreboardMatch): string {
   const hasPenalties =
     match.home.penalties != null || match.away.penalties != null;
   const hasExtraTime =
-    hasPenalties ||
-    match.home.extraTime != null ||
-    match.away.extraTime != null;
+    match.home.extraTime != null || match.away.extraTime != null;
 
   const homeTotal = match.home.score + homeExtraTime;
   const awayTotal = match.away.score + awayExtraTime;
@@ -52,8 +50,7 @@ export function formatMatchScore(match: ScoreboardMatch): string {
   const markers: string[] = [];
   if (hasExtraTime) {
     markers.push("EEO");
-  }
-  if (hasPenalties) {
+  } else if (hasPenalties) {
     markers.push("ESP");
   }
 
