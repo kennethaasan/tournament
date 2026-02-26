@@ -4,7 +4,7 @@ import { createTeam } from "@/modules/teams/service";
 import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
 import { db } from "@/server/db/client";
-import { teams, userRoles } from "@/server/db/schema";
+import { editions, entries, teams } from "@/server/db/schema";
 
 type RequestBody = {
   name: string;
@@ -77,26 +77,46 @@ export const GET = createApiHandler(
       return NextResponse.json({ teams: rows }, { status: 200 });
     }
 
-    const scoped = await db
-      .select({ scopeId: userRoles.scopeId })
-      .from(userRoles)
-      .where(
-        and(
-          eq(userRoles.userId, auth.user.id),
-          eq(userRoles.role, "team_manager"),
-          eq(userRoles.scopeType, "team"),
-        ),
-      );
+    const ids = new Set<string>();
+    const competitionScopeIds = new Set<string>();
+    for (const assignment of auth.user.roles) {
+      if (
+        assignment.role === "team_manager" &&
+        assignment.scopeType === "team" &&
+        assignment.scopeId
+      ) {
+        ids.add(assignment.scopeId);
+      }
 
-    const ids = scoped
-      .map((row) => row.scopeId)
-      .filter((id): id is string => Boolean(id));
+      if (
+        assignment.role === "competition_admin" &&
+        assignment.scopeType === "competition" &&
+        assignment.scopeId
+      ) {
+        competitionScopeIds.add(assignment.scopeId);
+      }
+    }
 
-    if (!ids.length) {
+    if (competitionScopeIds.size > 0) {
+      const competitionTeamRows = await db
+        .select({ teamId: entries.teamId })
+        .from(entries)
+        .innerJoin(editions, eq(entries.editionId, editions.id))
+        .where(
+          inArray(editions.competitionId, Array.from(competitionScopeIds)),
+        );
+
+      for (const row of competitionTeamRows) {
+        ids.add(row.teamId);
+      }
+    }
+
+    const teamIds = Array.from(ids);
+    if (!teamIds.length) {
       return NextResponse.json({ teams: [] }, { status: 200 });
     }
 
-    const baseWhere = inArray(teams.id, ids);
+    const baseWhere = inArray(teams.id, teamIds);
     const whereClause = slug ? and(baseWhere, eq(teams.slug, slug)) : baseWhere;
     const rows = await db
       .select({
