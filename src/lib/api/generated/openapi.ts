@@ -674,6 +674,9 @@ export interface components {
       errors?: {
         [key: string]: string[];
       };
+      meta?: {
+        [key: string]: unknown;
+      };
     };
     Invitation: {
       /** Format: uuid */
@@ -1055,6 +1058,8 @@ export interface components {
     CreateTeamRequest: {
       name: string;
       slug?: string | null;
+      /** Format: uuid */
+      edition_id?: string | null;
       /** Format: email */
       contact_email?: string | null;
       contact_phone?: string | null;
@@ -1273,6 +1278,8 @@ export interface components {
       highlight?: string | null;
       /** @description Venue or playing surface name */
       venue_name?: string | null;
+      /** @description Venue address/location shown in public scoreboard header */
+      venue_address?: string | null;
     };
     ScoreboardSide: {
       /** Format: uuid */
@@ -2296,7 +2303,9 @@ export interface operations {
   };
   list_teams: {
     parameters: {
-      query?: never;
+      query?: {
+        slug?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;

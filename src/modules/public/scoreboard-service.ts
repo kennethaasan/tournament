@@ -111,6 +111,7 @@ type MatchRow = {
   homePenalties: number | null;
   awayPenalties: number | null;
   venueName: string | null;
+  venueAddress?: string | null;
   code: string | null;
   groupId: string | null;
   groupCode: string | null;
@@ -312,6 +313,7 @@ async function listMatchesFromDatabase(editionId: string) {
       homePenalties: matchesTable.homePenalties,
       awayPenalties: matchesTable.awayPenalties,
       venueName: venues.name,
+      venueAddress: venues.address,
       code: matchesTable.code,
       groupId: matchesTable.groupId,
       groupCode: groups.code,
@@ -399,6 +401,7 @@ function buildMatches(
       },
       highlight,
       venueName: row.venueName ?? null,
+      venueAddress: row.venueAddress ?? null,
     });
   }
 

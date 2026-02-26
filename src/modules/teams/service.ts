@@ -8,6 +8,8 @@ import {
   type TransactionClient,
 } from "@/server/db/client";
 import {
+  competitions,
+  editions,
   type Person,
   persons,
   type Team,
@@ -19,6 +21,7 @@ import {
 export type CreateTeamInput = {
   name: string;
   slug?: string | null;
+  editionId?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
 };
@@ -75,7 +78,60 @@ function createTeamSlugConflictProblem(slug: string) {
     title: "Team slug already exists",
     status: 409,
     detail: `The slug "${slug}" is already in use by another team.`,
+    meta: {
+      slug,
+    },
   });
+}
+
+function hasCustomSlug(value: string | null | undefined): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+async function resolveTeamSlugForCreate(
+  input: CreateTeamInput,
+  db: DrizzleDatabase | TransactionClient,
+): Promise<string> {
+  const customSlug = hasCustomSlug(input.slug) ? input.slug : null;
+  const baseSlug = competitionsInternal.normalizeSlug(customSlug ?? input.name);
+  if (customSlug) {
+    return baseSlug;
+  }
+
+  const editionId = input.editionId?.trim();
+  if (!editionId) {
+    return baseSlug;
+  }
+
+  const edition = await db.query.editions.findFirst({
+    columns: { competitionId: true, slug: true },
+    where: eq(editions.id, editionId),
+  });
+  if (!edition) {
+    throw createProblem({
+      type: "https://tournament.app/problems/edition-not-found",
+      title: "Edition not found",
+      status: 404,
+      detail: "The edition used for team creation does not exist.",
+    });
+  }
+
+  const competition = await db.query.competitions.findFirst({
+    columns: { slug: true },
+    where: eq(competitions.id, edition.competitionId),
+  });
+  if (!competition) {
+    throw createProblem({
+      type: "https://tournament.app/problems/competition-not-found",
+      title: "Competition not found",
+      status: 404,
+      detail: "The competition for the selected edition does not exist.",
+    });
+  }
+
+  return competitionsInternal.normalizeSlug(
+    `${competition.slug}-${edition.slug}-${baseSlug}`,
+  );
 }
 
 export async function createTeam(
@@ -83,7 +139,7 @@ export async function createTeam(
   deps: TeamServiceDeps = {},
 ): Promise<Team> {
   const db = deps.db ?? defaultDb;
-  const slug = competitionsInternal.normalizeSlug(input.slug ?? input.name);
+  const slug = await resolveTeamSlugForCreate(input, db);
   const existingTeam = await db.query.teams.findFirst({
     columns: { id: true },
     where: eq(teams.slug, slug),

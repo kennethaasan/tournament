@@ -1,3 +1,4 @@
+import { v7 as uuidv7 } from "uuid";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ProblemError } from "@/lib/errors/problem";
 import {
@@ -9,7 +10,13 @@ import {
   updateTeamMember,
 } from "@/modules/teams/service";
 import { db } from "@/server/db/client";
-import { persons, teamMemberships, teams } from "@/server/db/schema";
+import {
+  competitions,
+  editions,
+  persons,
+  teamMemberships,
+  teams,
+} from "@/server/db/schema";
 
 const TEAM_ID = "00000000-0000-0000-0000-000000000611";
 
@@ -60,6 +67,63 @@ describe("teams service integration", () => {
     expect(team.slug).toBe("stadsbygd-vanvik-rissa-1");
   });
 
+  it("prefixes slug with competition and edition when auto-generated", async () => {
+    const competitionId = uuidv7();
+    const editionId = uuidv7();
+
+    await db.insert(competitions).values({
+      id: competitionId,
+      name: "Fosen Cup",
+      slug: `fosen-cup-${editionId}`,
+      defaultTimezone: "Europe/Oslo",
+    });
+    await db.insert(editions).values({
+      id: editionId,
+      competitionId,
+      label: "G16",
+      slug: `g16-${competitionId}`,
+      format: "round_robin",
+      timezone: "Europe/Oslo",
+    });
+
+    const team = await createTeam({
+      name: "FK Fosen 1",
+      editionId,
+    });
+
+    expect(team.slug).toBe(
+      `fosen-cup-${editionId}-g16-${competitionId}-fk-fosen-1`,
+    );
+  });
+
+  it("keeps explicit slug unchanged in edition context", async () => {
+    const competitionId = uuidv7();
+    const editionId = uuidv7();
+
+    await db.insert(competitions).values({
+      id: competitionId,
+      name: "Fosen Cup",
+      slug: `fosen-cup-${editionId}`,
+      defaultTimezone: "Europe/Oslo",
+    });
+    await db.insert(editions).values({
+      id: editionId,
+      competitionId,
+      label: "G16",
+      slug: `g16-${competitionId}`,
+      format: "round_robin",
+      timezone: "Europe/Oslo",
+    });
+
+    const team = await createTeam({
+      name: "FK Fosen 1",
+      slug: "fk-fosen-custom",
+      editionId,
+    });
+
+    expect(team.slug).toBe("fk-fosen-custom");
+  });
+
   it("returns conflict when another team already uses the slug", async () => {
     await createTeam({
       name: "Stadsbygd/Vanvik/Rissa 1",
@@ -73,6 +137,9 @@ describe("teams service integration", () => {
       problem: {
         type: "https://tournament.app/problems/team-slug-conflict",
         status: 409,
+        meta: {
+          slug: "stadsbygd-vanvik-rissa-1",
+        },
       },
     });
   });
@@ -177,6 +244,9 @@ describe("teams service integration", () => {
         problem: {
           type: "https://tournament.app/problems/team-slug-conflict",
           status: 409,
+          meta: {
+            slug: targetTeam.slug,
+          },
         },
       });
     });

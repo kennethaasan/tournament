@@ -366,21 +366,27 @@ function CreateTeamForm({
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateTeamInput) => {
-      const desiredSlug = normalizeTeamSlug(data.slug || data.name);
-
       // 1. Create team
       let newTeam: Awaited<ReturnType<typeof createTeam>>;
       try {
         newTeam = await createTeam({
           name: data.name,
           slug: data.slug || null,
+          editionId,
           contactEmail: data.contactEmail || null,
           contactPhone: data.contactPhone || null,
         });
       } catch (error) {
         if (isProblemError(error) && error.problem.status === 409) {
-          const teams = await fetchTeams();
-          const existingTeam = teams.find((team) => team.slug === desiredSlug);
+          const conflictingSlug = error.problem.meta?.slug;
+          if (typeof conflictingSlug !== "string") {
+            throw error;
+          }
+
+          const teams = await fetchTeams({ slug: conflictingSlug });
+          const existingTeam = teams.find(
+            (team) => team.slug === conflictingSlug,
+          );
 
           if (existingTeam) {
             await registerTeamEntry(existingTeam.id, { edition_id: editionId });
@@ -482,12 +488,4 @@ function CreateTeamForm({
       </form>
     </Form>
   );
-}
-
-function normalizeTeamSlug(value: string): string {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }

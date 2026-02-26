@@ -58,6 +58,7 @@ describe("getPublicScoreboard", () => {
         homePenalties: null,
         awayPenalties: null,
         venueName: "Main Arena",
+        venueAddress: "Vanvikanhallen",
         code: "A1",
         groupId: null,
         groupCode: null,
@@ -79,6 +80,7 @@ describe("getPublicScoreboard", () => {
         homePenalties: null,
         awayPenalties: null,
         venueName: "Training Ground",
+        venueAddress: "Vanvikanhallen",
         code: "B2",
         groupId: null,
         groupCode: null,
@@ -100,6 +102,7 @@ describe("getPublicScoreboard", () => {
         homePenalties: null,
         awayPenalties: null,
         venueName: "Main Arena",
+        venueAddress: "Vanvikanhallen",
         code: "C3",
         groupId: "group-a",
         groupCode: "A",
@@ -163,6 +166,7 @@ describe("getPublicScoreboard", () => {
       id: "match-2",
       status: "in_progress",
       highlight: "Final whistle in 5 minutes",
+      venueAddress: "Vanvikanhallen",
     });
 
     expect(result.standings[0]).toMatchObject({
