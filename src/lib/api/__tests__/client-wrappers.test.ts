@@ -691,6 +691,11 @@ describe("teams client", () => {
     expect(teamListQueryKey()).toEqual(["teams"]);
     expect(teamRosterQueryKey("team-1")).toEqual(["team", "team-1", "roster"]);
     expect(apiMocks.apiClient.GET).toHaveBeenNthCalledWith(1, "/api/teams", {
+      params: {
+        query: {
+          slug: undefined,
+        },
+      },
       signal,
       credentials: "include",
     });
@@ -707,6 +712,25 @@ describe("teams client", () => {
         credentials: "include",
       },
     );
+  });
+
+  it("passes slug filter when fetching teams", async () => {
+    apiMocks.apiClient.GET.mockResolvedValueOnce(makeResult({}));
+    apiMocks.unwrapResponse.mockReturnValueOnce({
+      teams: [],
+    });
+
+    await fetchTeams({ slug: "stadsbygd-vanvik-rissa-1" });
+
+    expect(apiMocks.apiClient.GET).toHaveBeenCalledWith("/api/teams", {
+      params: {
+        query: {
+          slug: "stadsbygd-vanvik-rissa-1",
+        },
+      },
+      signal: undefined,
+      credentials: "include",
+    });
   });
 
   it("adds team members and registers entries", async () => {

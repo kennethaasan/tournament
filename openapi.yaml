@@ -624,6 +624,14 @@ paths:
       summary: List accessible teams
       description: List accessible teams
       operationId: list_teams
+      parameters:
+        - name: slug
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 120
+            pattern: ^.{0,120}$
       responses:
         <<: *standardErrorResponses
         '200':
@@ -1347,6 +1355,9 @@ components:
               maxLength: 2048
               pattern: ^.{0,2048}$
             maxItems: 200
+        meta:
+          type: object
+          additionalProperties: true
     Invitation:
       type: object
       required:
@@ -2371,6 +2382,11 @@ components:
           nullable: true
           maxLength: 120
           pattern: ^.{0,120}$
+        edition_id:
+          type: string
+          format: uuid
+          nullable: true
+          maxLength: 36
         contact_email:
           type: string
           format: email
@@ -3016,6 +3032,12 @@ components:
           description: Venue or playing surface name
           maxLength: 200
           pattern: ^.{0,200}$
+        venue_address:
+          type: string
+          nullable: true
+          description: Venue address/location shown in public scoreboard header
+          maxLength: 2048
+          pattern: ^.{0,2048}$
     ScoreboardSide:
       type: object
       required:

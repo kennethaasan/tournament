@@ -9,6 +9,7 @@ import { teams, userRoles } from "@/server/db/schema";
 type RequestBody = {
   name: string;
   slug?: string | null;
+  edition_id?: string | null;
   contact_email?: string | null;
   contact_phone?: string | null;
 };
@@ -20,6 +21,7 @@ export const POST = createApiHandler(
     const team = await createTeam({
       name: payload.name,
       slug: payload.slug,
+      editionId: payload.edition_id,
       contactEmail: payload.contact_email,
       contactPhone: payload.contact_phone,
     });
@@ -43,7 +45,7 @@ export const POST = createApiHandler(
 );
 
 export const GET = createApiHandler(
-  async ({ auth }) => {
+  async ({ request, auth }) => {
     if (!auth) {
       return NextResponse.json(
         {
@@ -56,16 +58,21 @@ export const GET = createApiHandler(
       );
     }
 
+    const slugFilter = request.nextUrl.searchParams.get("slug")?.trim() ?? "";
+    const slug = slugFilter.length > 0 ? slugFilter : null;
+
     const isGlobalAdmin = userHasRole(auth, "global_admin");
     if (isGlobalAdmin) {
-      const rows = await db
+      const query = db
         .select({
           id: teams.id,
           name: teams.name,
           slug: teams.slug,
         })
-        .from(teams)
-        .orderBy(teams.name);
+        .from(teams);
+      const rows = slug
+        ? await query.where(eq(teams.slug, slug)).orderBy(teams.name)
+        : await query.orderBy(teams.name);
 
       return NextResponse.json({ teams: rows }, { status: 200 });
     }
@@ -89,6 +96,8 @@ export const GET = createApiHandler(
       return NextResponse.json({ teams: [] }, { status: 200 });
     }
 
+    const baseWhere = inArray(teams.id, ids);
+    const whereClause = slug ? and(baseWhere, eq(teams.slug, slug)) : baseWhere;
     const rows = await db
       .select({
         id: teams.id,
@@ -96,7 +105,7 @@ export const GET = createApiHandler(
         slug: teams.slug,
       })
       .from(teams)
-      .where(inArray(teams.id, ids))
+      .where(whereClause)
       .orderBy(teams.name);
 
     return NextResponse.json({ teams: rows }, { status: 200 });

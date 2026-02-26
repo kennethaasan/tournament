@@ -3,6 +3,7 @@ import type { components } from "@/lib/api/generated/openapi";
 
 type FetchRosterOptions = {
   signal?: AbortSignal;
+  slug?: string;
 };
 
 export type TeamRoster = components["schemas"]["TeamRoster"];
@@ -25,6 +26,7 @@ export const teamListQueryKey = () => ["teams"] as const;
 export type CreateTeamInput = {
   name: string;
   slug?: string | null;
+  editionId?: string | null;
   contactEmail?: string | null;
   contactPhone?: string | null;
 };
@@ -34,6 +36,7 @@ export async function createTeam(input: CreateTeamInput): Promise<Team> {
     body: {
       name: input.name,
       slug: input.slug,
+      edition_id: input.editionId,
       contact_email: input.contactEmail,
       contact_phone: input.contactPhone,
     },
@@ -47,6 +50,11 @@ export async function fetchTeams(
   options: FetchRosterOptions = {},
 ): Promise<TeamSummary[]> {
   const { data, error, response } = await apiClient.GET("/api/teams", {
+    params: {
+      query: {
+        slug: options.slug,
+      },
+    },
     signal: options.signal,
     credentials: "include",
   });

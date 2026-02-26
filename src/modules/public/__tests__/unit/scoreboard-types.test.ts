@@ -62,6 +62,7 @@ describe("scoreboard types helpers", () => {
           kickoffAt: new Date("2024-06-02T12:00:00Z"),
           home: { entryId: "entry-1", name: "Home", score: 1 },
           away: { entryId: "entry-2", name: "Away", score: 0 },
+          venueAddress: "Vanvikanhallen",
         },
       ],
       standings: [
@@ -87,6 +88,7 @@ describe("scoreboard types helpers", () => {
     });
 
     expect(payload.matches[0]?.kickoff_at).toBe("2024-06-02T12:00:00.000Z");
+    expect(payload.matches[0]?.venue_address).toBe("Vanvikanhallen");
     expect(payload.edition.competition_slug).toBe("elite");
     expect(payload.edition.scoreboard_modules).toEqual(DEFAULT_ROTATION);
     expect(payload.standings[0]?.points).toBe(3);
@@ -326,6 +328,7 @@ describe("fromApiScoreboardPayload", () => {
         },
         highlight: "Goal!",
         venue_name: "Stadium",
+        venue_address: "Vanvikanhallen",
       },
     ];
     const result = fromApiScoreboardPayload(payload);
@@ -353,6 +356,7 @@ describe("fromApiScoreboardPayload", () => {
       },
       highlight: "Goal!",
       venueName: "Stadium",
+      venueAddress: "Vanvikanhallen",
     });
   });
 
@@ -381,6 +385,7 @@ describe("fromApiScoreboardPayload", () => {
         },
         highlight: null,
         venue_name: null,
+        venue_address: null,
       },
     ];
     const result = fromApiScoreboardPayload(payload);
@@ -390,6 +395,7 @@ describe("fromApiScoreboardPayload", () => {
     expect(result.matches[0]?.home.entryId).toBeNull();
     expect(result.matches[0]?.highlight).toBeNull();
     expect(result.matches[0]?.venueName).toBeNull();
+    expect(result.matches[0]?.venueAddress).toBeNull();
   });
 
   it("converts standings correctly", () => {

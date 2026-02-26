@@ -47,6 +47,7 @@ export type ScoreboardMatch = {
   away: ScoreboardMatchSide;
   highlight?: string | null;
   venueName?: string | null;
+  venueAddress?: string | null;
 };
 
 export type ScoreboardStanding = {
@@ -187,6 +188,7 @@ export function toApiScoreboardPayload(
       },
       highlight: match.highlight ?? data.overlayMessage ?? null,
       venue_name: match.venueName ?? null,
+      venue_address: match.venueAddress ?? null,
     })),
     standings: data.standings.map((standing) => ({
       entry_id: standing.entryId,
@@ -298,6 +300,7 @@ export function fromApiScoreboardPayload(
       },
       highlight: match.highlight ?? null,
       venueName: match.venue_name ?? null,
+      venueAddress: match.venue_address ?? null,
     })),
     standings: payload.standings.map((standing, index) => ({
       entryId: standing.entry_id,
