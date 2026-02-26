@@ -33,6 +33,7 @@ export type ScreenLayoutProps = {
   overlayText: string;
   hasHighlight: boolean;
   highlightAnimating: boolean;
+  showTopScorers?: boolean;
   matches: ScoreboardMatch[];
   standings: ScoreboardStanding[];
   tables: ScoreboardGroupTable[];
@@ -45,6 +46,7 @@ export type LandingLayoutProps = {
   entryNames: Map<string, string>;
   overlayText: string;
   hasHighlight: boolean;
+  showTopScorers?: boolean;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   statusFilter: MatchStatusFilter;

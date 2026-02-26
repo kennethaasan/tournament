@@ -197,6 +197,7 @@ export function LandingLayout({
   entryNames,
   overlayText,
   hasHighlight,
+  showTopScorers = true,
   searchQuery,
   onSearchChange,
   statusFilter,
@@ -364,9 +365,14 @@ export function LandingLayout({
       )}
 
       {/* Top Scorers */}
-      <CollapsibleSection title="Toppscorere" count={data.topScorers.length}>
-        <TopScorersContent scorers={data.topScorers} entryNames={entryNames} />
-      </CollapsibleSection>
+      {showTopScorers ? (
+        <CollapsibleSection title="Toppscorere" count={data.topScorers.length}>
+          <TopScorersContent
+            scorers={data.topScorers}
+            entryNames={entryNames}
+          />
+        </CollapsibleSection>
+      ) : null}
     </div>
   );
 }

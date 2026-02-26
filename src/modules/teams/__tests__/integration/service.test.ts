@@ -51,6 +51,32 @@ describe("teams service integration", () => {
     expect(memberships).toHaveLength(1);
   });
 
+  it("supports long compound team names with separators", async () => {
+    const team = await createTeam({
+      name: "Stadsbygd/Vanvik/Rissa 1",
+    });
+
+    expect(team.name).toBe("Stadsbygd/Vanvik/Rissa 1");
+    expect(team.slug).toBe("stadsbygd-vanvik-rissa-1");
+  });
+
+  it("returns conflict when another team already uses the slug", async () => {
+    await createTeam({
+      name: "Stadsbygd/Vanvik/Rissa 1",
+    });
+
+    await expect(
+      createTeam({
+        name: "Stadsbygd Vanvik Rissa 1",
+      }),
+    ).rejects.toMatchObject({
+      problem: {
+        type: "https://tournament.app/problems/team-slug-conflict",
+        status: 409,
+      },
+    });
+  });
+
   it("lists roster members for a team", async () => {
     await db.insert(teams).values({
       id: TEAM_ID,
@@ -133,6 +159,26 @@ describe("teams service integration", () => {
 
       expect(updated.name).toBe("Slug Override Team");
       expect(updated.slug).toBe("custom-slug");
+    });
+
+    it("rejects slug updates that conflict with another team", async () => {
+      const sourceTeam = await createTeam({
+        name: "Source Team",
+      });
+      const targetTeam = await createTeam({
+        name: "Target Team",
+      });
+
+      await expect(
+        updateTeam(sourceTeam.id, {
+          slug: targetTeam.slug,
+        }),
+      ).rejects.toMatchObject({
+        problem: {
+          type: "https://tournament.app/problems/team-slug-conflict",
+          status: 409,
+        },
+      });
     });
 
     it("returns unchanged team when no updates provided", async () => {

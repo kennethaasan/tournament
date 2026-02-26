@@ -447,6 +447,29 @@ describe("ScreenLayout", () => {
     expect(screen.getByText("Top Scorer")).toBeInTheDocument();
   });
 
+  test("hides top scorers panel when disabled by modules", () => {
+    const scorers = [
+      createScorer({ personId: "p1", name: "Hidden Scorer", goals: 7 }),
+    ];
+
+    render(
+      <ScreenLayout
+        overlayText=""
+        hasHighlight={false}
+        highlightAnimating={false}
+        showTopScorers={false}
+        matches={[]}
+        standings={[]}
+        tables={[]}
+        scorers={scorers}
+        entryNames={defaultEntryNames}
+      />,
+    );
+
+    expect(screen.queryByText("Hidden Scorer")).not.toBeInTheDocument();
+    expect(screen.queryByText("Toppscorere")).not.toBeInTheDocument();
+  });
+
   test("renders empty scorers state", () => {
     render(
       <ScreenLayout

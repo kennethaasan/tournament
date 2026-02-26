@@ -82,6 +82,10 @@ export function ScoreboardScreen({
   const data = query.data ?? initialData;
   const overlayText = useMemo(() => deriveOverlayMessage(data), [data]);
   const highlightAnimating = useHighlightAnimation(overlayText);
+  const showTopScorers = useMemo(
+    () => data.rotation.includes("top_scorers"),
+    [data.rotation],
+  );
 
   // Mode state
   const [mode, setMode] = usePersistedMode();
@@ -262,6 +266,7 @@ export function ScoreboardScreen({
             overlayText={overlayText}
             hasHighlight={hasHighlight}
             highlightAnimating={highlightAnimating}
+            showTopScorers={showTopScorers}
             matches={data.matches}
             standings={data.standings}
             tables={data.tables}
@@ -274,6 +279,7 @@ export function ScoreboardScreen({
             entryNames={entryNames}
             hasHighlight={hasHighlight}
             overlayText={overlayText}
+            showTopScorers={showTopScorers}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             statusFilter={statusFilter}

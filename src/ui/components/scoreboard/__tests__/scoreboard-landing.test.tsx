@@ -401,6 +401,21 @@ describe("LandingLayout", () => {
     expect(screen.getByText("Star Player")).toBeInTheDocument();
   });
 
+  test("hides top scorers section when disabled by modules", () => {
+    render(
+      <LandingLayout
+        data={createData({
+          topScorers: [createScorer({ name: "Hidden Scorer", goals: 4 })],
+        })}
+        {...defaultProps}
+        showTopScorers={false}
+      />,
+    );
+
+    expect(screen.queryByText("Toppscorere")).not.toBeInTheDocument();
+    expect(screen.queryByText("Hidden Scorer")).not.toBeInTheDocument();
+  });
+
   test("renders empty scorers state", () => {
     render(
       <LandingLayout data={createData({ topScorers: [] })} {...defaultProps} />,

@@ -35,6 +35,7 @@ export function ScreenLayout({
   overlayText,
   hasHighlight,
   highlightAnimating,
+  showTopScorers = true,
   matches,
   standings,
   tables,
@@ -124,14 +125,16 @@ export function ScreenLayout({
         </div>
 
         {/* Top Scorers - sticky */}
-        <div className="xl:flex-[2]">
-          <div className="sticky top-3 max-h-[calc(100vh-1rem)] overflow-auto">
-            <ScreenTopScorersTable
-              scorers={visibleScorers}
-              entryNames={entryNames}
-            />
+        {showTopScorers ? (
+          <div className="xl:flex-[2]">
+            <div className="sticky top-3 max-h-[calc(100vh-1rem)] overflow-auto">
+              <ScreenTopScorersTable
+                scorers={visibleScorers}
+                entryNames={entryNames}
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </div>
   );

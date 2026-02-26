@@ -18,6 +18,7 @@ import {
   registerTeamEntry,
   teamListQueryKey,
 } from "@/lib/api/teams-client";
+import { isProblemError } from "@/lib/errors/problem";
 import { Badge } from "@/ui/components/badge";
 import { Button } from "@/ui/components/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/components/card";
@@ -365,13 +366,30 @@ function CreateTeamForm({
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateTeamInput) => {
+      const desiredSlug = normalizeTeamSlug(data.slug || data.name);
+
       // 1. Create team
-      const newTeam = await createTeam({
-        name: data.name,
-        slug: data.slug || null,
-        contactEmail: data.contactEmail || null,
-        contactPhone: data.contactPhone || null,
-      });
+      let newTeam: Awaited<ReturnType<typeof createTeam>>;
+      try {
+        newTeam = await createTeam({
+          name: data.name,
+          slug: data.slug || null,
+          contactEmail: data.contactEmail || null,
+          contactPhone: data.contactPhone || null,
+        });
+      } catch (error) {
+        if (isProblemError(error) && error.problem.status === 409) {
+          const teams = await fetchTeams();
+          const existingTeam = teams.find((team) => team.slug === desiredSlug);
+
+          if (existingTeam) {
+            await registerTeamEntry(existingTeam.id, { edition_id: editionId });
+            return existingTeam;
+          }
+        }
+
+        throw error;
+      }
 
       // 2. Register to edition
       await registerTeamEntry(newTeam.id, { edition_id: editionId });
@@ -464,4 +482,12 @@ function CreateTeamForm({
       </form>
     </Form>
   );
+}
+
+function normalizeTeamSlug(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
