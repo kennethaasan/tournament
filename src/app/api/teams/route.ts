@@ -1,10 +1,10 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, or } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { createTeam } from "@/modules/teams/service";
 import { createApiHandler } from "@/server/api/handler";
 import { userHasRole } from "@/server/auth";
 import { db } from "@/server/db/client";
-import { teams, userRoles } from "@/server/db/schema";
+import { editions, entries, teams } from "@/server/db/schema";
 
 type RequestBody = {
   name: string;
@@ -77,27 +77,51 @@ export const GET = createApiHandler(
       return NextResponse.json({ teams: rows }, { status: 200 });
     }
 
-    const scoped = await db
-      .select({ scopeId: userRoles.scopeId })
-      .from(userRoles)
-      .where(
-        and(
-          eq(userRoles.userId, auth.user.id),
-          eq(userRoles.role, "team_manager"),
-          eq(userRoles.scopeType, "team"),
-        ),
-      );
+    const teamManagerScopeIds: string[] = [];
+    const competitionAdminScopeIds: string[] = [];
+    for (const assignment of auth.user.roles) {
+      if (
+        assignment.role === "team_manager" &&
+        assignment.scopeType === "team" &&
+        assignment.scopeId
+      ) {
+        teamManagerScopeIds.push(assignment.scopeId);
+      } else if (
+        assignment.role === "competition_admin" &&
+        assignment.scopeType === "competition" &&
+        assignment.scopeId
+      ) {
+        competitionAdminScopeIds.push(assignment.scopeId);
+      }
+    }
 
-    const ids = scoped
-      .map((row) => row.scopeId)
-      .filter((id): id is string => Boolean(id));
+    const teamManagerCondition =
+      teamManagerScopeIds.length > 0
+        ? inArray(teams.id, teamManagerScopeIds)
+        : null;
+    const competitionAdminCondition =
+      competitionAdminScopeIds.length > 0
+        ? inArray(
+            teams.id,
+            db
+              .select({ teamId: entries.teamId })
+              .from(entries)
+              .innerJoin(editions, eq(entries.editionId, editions.id))
+              .where(inArray(editions.competitionId, competitionAdminScopeIds)),
+          )
+        : null;
 
-    if (!ids.length) {
+    const visibleTeamsWhere =
+      teamManagerCondition && competitionAdminCondition
+        ? or(teamManagerCondition, competitionAdminCondition)
+        : (teamManagerCondition ?? competitionAdminCondition);
+    if (!visibleTeamsWhere) {
       return NextResponse.json({ teams: [] }, { status: 200 });
     }
 
-    const baseWhere = inArray(teams.id, ids);
-    const whereClause = slug ? and(baseWhere, eq(teams.slug, slug)) : baseWhere;
+    const whereClause = slug
+      ? and(visibleTeamsWhere, eq(teams.slug, slug))
+      : visibleTeamsWhere;
     const rows = await db
       .select({
         id: teams.id,
