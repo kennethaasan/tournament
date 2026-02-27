@@ -1,6 +1,7 @@
+import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { GET, PATCH } from "@/app/api/matches/[matchId]/route";
+import { DELETE, GET, PATCH } from "@/app/api/matches/[matchId]/route";
 import type { AuthContext } from "@/server/auth";
 import { getSession } from "@/server/auth";
 import { db } from "@/server/db/client";
@@ -14,7 +15,10 @@ import {
   teams,
   venues,
 } from "@/server/db/schema";
-import { createCompetitionAdminContext } from "@/test/factories";
+import {
+  createCompetitionAdminContext,
+  createGlobalAdminContext,
+} from "@/test/factories";
 
 vi.mock("@/server/email/action-emails", () => ({
   sendMatchScheduleChangedEmails: vi.fn(async () => null),
@@ -216,5 +220,78 @@ describe("matches route", () => {
 
     expect(correctionResponse.status).toBe(200);
     expect(correctedBody.outcome).toBe("away_win");
+  });
+
+  test("DELETE removes a match for scoped competition admins", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const request = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "DELETE",
+      },
+    );
+    const response = await DELETE(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+
+    expect(response.status).toBe(204);
+
+    const storedMatch = await db.query.matches.findFirst({
+      where: eq(matches.id, MATCH_ID),
+    });
+    expect(storedMatch).toBeUndefined();
+
+    const storedEvents = await db.query.matchEvents.findMany({
+      where: eq(matchEvents.matchId, MATCH_ID),
+    });
+    expect(storedEvents).toHaveLength(0);
+  });
+
+  test("DELETE removes a match for global admins", async () => {
+    const auth = createGlobalAdminContext();
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const request = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "DELETE",
+      },
+    );
+    const response = await DELETE(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+
+    expect(response.status).toBe(204);
+
+    const storedMatch = await db.query.matches.findFirst({
+      where: eq(matches.id, MATCH_ID),
+    });
+    expect(storedMatch).toBeUndefined();
+  });
+
+  test("DELETE rejects competition admins outside the edition scope", async () => {
+    const auth = createCompetitionAdminContext(
+      "00000000-0000-0000-0000-000000000000",
+    );
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const request = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "DELETE",
+      },
+    );
+    const response = await DELETE(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+
+    expect(response.status).toBe(403);
+
+    const storedMatch = await db.query.matches.findFirst({
+      where: eq(matches.id, MATCH_ID),
+    });
+    expect(storedMatch?.id).toBe(MATCH_ID);
   });
 });
