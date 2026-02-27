@@ -5,6 +5,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { EntryReview } from "@/lib/api/entries-client";
@@ -221,7 +222,7 @@ describe("MatchEditorCard event sync", () => {
     });
     const addEventButton = addEventButtons[0];
     if (!addEventButton) {
-      throw new Error("Expected add event button to be available");
+      throw new TypeError("Expected add event button to be available");
     }
     fireEvent.click(addEventButton);
 
@@ -253,6 +254,43 @@ describe("MatchEditorCard event sync", () => {
       expect(screen.getAllByRole("button", { name: /^Slett$/i })).toHaveLength(
         initialCount + 1,
       );
+    });
+  });
+
+  test("does not enter an update loop when squad member lookup is missing", async () => {
+    matchDetailData = {
+      ...baseMatch,
+      events: [
+        {
+          id: "event-missing-member",
+          match_id: baseMatch.id,
+          team_side: "home",
+          event_type: "goal",
+          minute: 5,
+          stoppage_time: null,
+          squad_member_id: "missing-member",
+        },
+      ],
+    };
+    squadMembersData = [];
+
+    render(
+      <MatchEditorCard
+        match={baseMatch}
+        entries={entries}
+        entryMap={new Map(entries.map((entry) => [entry.entry.id, entry]))}
+        venues={[]}
+        isSaving={false}
+        isDeleting={false}
+        onSave={async () => true}
+        onDelete={async () => true}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole("button", { name: /^Slett$/i }).length,
+      ).toBeGreaterThan(0);
     });
   });
 
@@ -307,7 +345,7 @@ describe("MatchEditorCard event sync", () => {
     });
     const addEventButton = addEventButtons[0];
     if (!addEventButton) {
-      throw new Error("Expected add event button to be available");
+      throw new TypeError("Expected add event button to be available");
     }
     fireEvent.click(addEventButton);
 
@@ -316,7 +354,7 @@ describe("MatchEditorCard event sync", () => {
     });
     const playerSelect = playerOption.closest("select");
     if (!(playerSelect instanceof HTMLSelectElement)) {
-      throw new Error("Expected player select to be available");
+      throw new TypeError("Expected player select to be available");
     }
     fireEvent.change(playerSelect, { target: { value: "member-1" } });
 
@@ -331,5 +369,49 @@ describe("MatchEditorCard event sync", () => {
       | undefined;
     expect(payload?.events).toHaveLength(1);
     expect(payload?.events?.[0]?.squad_member_id).toBe("squad-member-1");
+  });
+
+  test("requires confirmation before deleting a match", async () => {
+    matchDetailData = { ...baseMatch, events: [] };
+    const onDelete = vi.fn(async () => true);
+
+    render(
+      <MatchEditorCard
+        match={baseMatch}
+        entries={entries}
+        entryMap={new Map(entries.map((entry) => [entry.entry.id, entry]))}
+        venues={[]}
+        isSaving={false}
+        isDeleting={false}
+        onSave={async () => true}
+        onDelete={onDelete}
+      />,
+    );
+
+    const deleteMatchButton = screen.getAllByRole("button", {
+      name: /^Slett kamp$/i,
+    })[0];
+
+    if (!deleteMatchButton) {
+      throw new TypeError("Expected delete match button to be available");
+    }
+
+    fireEvent.click(deleteMatchButton);
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.getByText("Slett kamp?")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Denne handlingen kan ikke angres\./i),
+    ).toBeInTheDocument();
+
+    const dialog = screen.getByRole("alertdialog");
+    const confirmDeleteButton = within(dialog).getByRole("button", {
+      name: /^Slett kamp$/i,
+    });
+    fireEvent.click(confirmDeleteButton);
+
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledTimes(1);
+    });
   });
 });

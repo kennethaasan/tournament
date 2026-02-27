@@ -64,6 +64,8 @@ type MatchEditorCardProps = {
   onClose?: () => void;
 };
 
+const EMPTY_SQUAD_MEMBERS: components["schemas"]["SquadMember"][] = [];
+
 export function MatchEditorCard({
   match,
   entries,
@@ -229,8 +231,8 @@ export function MatchEditorCard({
 
   const homeRoster = homeRosterQuery.data ?? null;
   const awayRoster = awayRosterQuery.data ?? null;
-  const homeSquadMembers = homeSquadMembersQuery.data ?? [];
-  const awaySquadMembers = awaySquadMembersQuery.data ?? [];
+  const homeSquadMembers = homeSquadMembersQuery.data ?? EMPTY_SQUAD_MEMBERS;
+  const awaySquadMembers = awaySquadMembersQuery.data ?? EMPTY_SQUAD_MEMBERS;
 
   const homeMembersById = useMemo(
     () => new Map(homeSquadMembers.map((member) => [member.id, member])),
@@ -275,8 +277,9 @@ export function MatchEditorCard({
     if (!eventsOpen || eventRows.length === 0) {
       return;
     }
-    setEventRows((prev) =>
-      prev.map((row) => {
+    setEventRows((prev) => {
+      let hasChanges = false;
+      const next = prev.map((row) => {
         if (row.membershipId || !row.squadMemberId) {
           return row;
         }
@@ -286,9 +289,11 @@ export function MatchEditorCard({
         if (!member?.membership_id) {
           return row;
         }
+        hasChanges = true;
         return { ...row, membershipId: member.membership_id };
-      }),
-    );
+      });
+      return hasChanges ? next : prev;
+    });
   }, [eventsOpen, eventRows.length, homeMembersById, awayMembersById]);
 
   const homeRosterOptions = useMemo(
