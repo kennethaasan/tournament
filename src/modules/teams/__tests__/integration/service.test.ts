@@ -13,6 +13,7 @@ import { db } from "@/server/db/client";
 import {
   competitions,
   editions,
+  entries,
   persons,
   teamMemberships,
   teams,
@@ -23,6 +24,9 @@ const TEAM_ID = "00000000-0000-0000-0000-000000000611";
 beforeEach(async () => {
   await db.delete(teamMemberships);
   await db.delete(persons);
+  await db.delete(entries);
+  await db.delete(editions);
+  await db.delete(competitions);
   await db.delete(teams);
 });
 
@@ -197,6 +201,45 @@ describe("teams service integration", () => {
       expect(updated.name).toBe("Updated Team Name");
       expect(updated.slug).toBe("updated-team-name");
       expect(updated.contactEmail).toBe("team@example.com");
+    });
+
+    it("uses edition-scoped slug strategy when team is registered in an edition", async () => {
+      const competitionId = uuidv7();
+      const editionId = uuidv7();
+
+      await db.insert(competitions).values({
+        id: competitionId,
+        name: "Vanvikan Cup",
+        slug: "vanvikan-cup",
+        defaultTimezone: "Europe/Oslo",
+      });
+
+      await db.insert(editions).values({
+        id: editionId,
+        competitionId,
+        label: "J14",
+        slug: "j14",
+        status: "published",
+        format: "round_robin",
+        timezone: "Europe/Oslo",
+      });
+
+      const team = await createTeam({
+        name: "KF 1",
+        editionId,
+      });
+
+      await db.insert(entries).values({
+        editionId,
+        teamId: team.id,
+        status: "approved",
+      });
+
+      const updated = await updateTeam(team.id, {
+        name: "KF 2",
+      });
+
+      expect(updated.slug).toBe("vanvikan-cup-j14-kf-2");
     });
 
     it("updates contact information without changing name", async () => {
