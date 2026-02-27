@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { createProblem } from "@/lib/errors/problem";
 import { __internal as competitionsInternal } from "@/modules/competitions/service";
 import {
@@ -10,6 +10,7 @@ import {
 import {
   competitions,
   editions,
+  entries,
   type Person,
   persons,
   type Team,
@@ -345,8 +346,23 @@ export async function updateTeam(
       ? competitionsInternal.normalizeSlug(input.slug)
       : competitionsInternal.normalizeSlug(input.name ?? existingTeam.name);
   } else if (input.name !== undefined) {
-    // Auto-update slug when name changes but slug not explicitly provided
-    updates.slug = competitionsInternal.normalizeSlug(input.name);
+    // Mirror create flow: when the team is attached to an edition, auto-generate
+    // an edition-scoped slug (competition-edition-team-name).
+    const latestEntry = await db.query.entries.findFirst({
+      columns: { editionId: true },
+      where: eq(entries.teamId, teamId),
+      orderBy: desc(entries.createdAt),
+    });
+
+    updates.slug = latestEntry
+      ? await resolveTeamSlugForCreate(
+          {
+            name: input.name,
+            editionId: latestEntry.editionId,
+          },
+          db,
+        )
+      : competitionsInternal.normalizeSlug(input.name);
   }
 
   if (input.contactEmail !== undefined) {

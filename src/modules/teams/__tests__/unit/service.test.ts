@@ -120,6 +120,9 @@ describe("teams service", () => {
         teams: {
           findFirst: () => existingTeam,
         },
+        entries: {
+          findFirst: () => null,
+        },
       },
       update: () => ({
         set: (updates: Partial<TeamRecord>) => ({
