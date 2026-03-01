@@ -257,10 +257,10 @@ export function deriveSeasonTheme(date: Date): Exclude<SeasonTheme, "auto"> {
   if (month === 11) {
     return "christmas";
   }
-  if (month === 10 || month === 0 || month === 1) {
+  if (month === 10 || (month >= 0 && month <= 3)) {
     return "winter";
   }
-  if (month >= 2 && month <= 4) {
+  if (month === 4) {
     return "spring";
   }
   if (month >= 5 && month <= 7) {
