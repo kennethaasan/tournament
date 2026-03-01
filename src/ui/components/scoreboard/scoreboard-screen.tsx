@@ -20,7 +20,6 @@ import type {
   ScreenLayoutProps,
 } from "./scoreboard-ui-types";
 import {
-  SCREEN_GROUP_STANDINGS_LIMIT,
   SCREEN_GROUP_TABLES_LIMIT,
   SCREEN_STANDINGS_LIMIT,
 } from "./scoreboard-ui-types";
@@ -55,11 +54,7 @@ export function ScreenLayout({
   // Show all scorers - no limit for screen mode (same as matches)
   const visibleScorers = scorers;
   const visibleTables = useMemo(
-    () =>
-      tables.slice(0, SCREEN_GROUP_TABLES_LIMIT).map((table) => ({
-        ...table,
-        standings: table.standings.slice(0, SCREEN_GROUP_STANDINGS_LIMIT),
-      })),
+    () => tables.slice(0, SCREEN_GROUP_TABLES_LIMIT),
     [tables],
   );
 
