@@ -222,6 +222,68 @@ describe("matches route", () => {
     expect(correctedBody.outcome).toBe("away_win");
   });
 
+  test("PATCH allows assigning one team when the other side is still a placeholder", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    await db
+      .update(matches)
+      .set({
+        homeEntryId: null,
+        awayEntryId: null,
+        metadata: {
+          homeLabel: "Vinner kvartfinale 1",
+          awayLabel: "Vinner kvartfinale 2",
+        },
+      })
+      .where(eq(matches.id, MATCH_ID));
+
+    const request = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          home_entry_id: ENTRY_HOME_ID,
+        }),
+      },
+    );
+
+    const response = await PATCH(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.home_entry_id).toBe(ENTRY_HOME_ID);
+    expect(body.away_entry_id).toBeNull();
+  });
+
+  test("PATCH normalizes empty team values to null", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const request = new NextRequest(
+      `http://localhost/api/matches/${MATCH_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          away_entry_id: "",
+        }),
+      },
+    );
+
+    const response = await PATCH(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.home_entry_id).toBe(ENTRY_HOME_ID);
+    expect(body.away_entry_id).toBeNull();
+  });
+
   test("DELETE removes a match for scoped competition admins", async () => {
     const auth = createCompetitionAdminContext(COMPETITION_ID);
     mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
