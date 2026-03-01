@@ -73,5 +73,4 @@ export const THEME_SOURCE_STORAGE_KEY = "scoreboard-theme-source";
 // No limit - show all matches in screen mode
 export const SCREEN_STANDINGS_LIMIT = 8;
 export const SCREEN_GROUP_TABLES_LIMIT = 6;
-export const SCREEN_GROUP_STANDINGS_LIMIT = 5;
 export const CONTROLS_HIDE_DELAY_MS = 3000;
