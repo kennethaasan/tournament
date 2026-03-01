@@ -1,7 +1,11 @@
+import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { v7 as uuidv7 } from "uuid";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { POST as createMatch } from "@/app/api/editions/[editionId]/matches/route";
+import {
+  POST as createMatch,
+  GET as listMatches,
+} from "@/app/api/editions/[editionId]/matches/route";
 import type { AuthContext } from "@/server/auth";
 import { getSession } from "@/server/auth";
 import { db } from "@/server/db/client";
@@ -221,5 +225,45 @@ describe("create match endpoint", () => {
     });
 
     expect(response.status).toBe(404);
+  });
+
+  test("GET returns null kickoff when a match has no kickoff time", async () => {
+    const auth = createCompetitionAdminContext(competitionId);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    const createRequest = new NextRequest(
+      `http://localhost/api/editions/${editionId}/matches`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          stage_id: stageId,
+          kickoff_at: new Date().toISOString(),
+        }),
+      },
+    );
+    const createResponse = await createMatch(createRequest, {
+      params: Promise.resolve({ editionId }),
+    });
+    expect(createResponse.status).toBe(201);
+    const created = await createResponse.json();
+
+    await db
+      .update(matches)
+      .set({ kickoffAt: null })
+      .where(eq(matches.id, created.id as string));
+
+    const listRequest = new NextRequest(
+      `http://localhost/api/editions/${editionId}/matches`,
+    );
+    const listResponse = await listMatches(listRequest, {
+      params: Promise.resolve({ editionId }),
+    });
+    expect(listResponse.status).toBe(200);
+    const listBody = await listResponse.json();
+
+    const listedMatch = (
+      listBody.matches as { id: string; kickoff_at: string | null }[]
+    ).find((match) => match.id === created.id);
+    expect(listedMatch?.kickoff_at).toBeNull();
   });
 });

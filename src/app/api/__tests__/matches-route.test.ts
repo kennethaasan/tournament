@@ -127,6 +127,25 @@ describe("matches route", () => {
     expect(body.events).toHaveLength(1);
   });
 
+  test("GET returns null kickoff for unscheduled matches", async () => {
+    const auth = createCompetitionAdminContext(COMPETITION_ID);
+    mockGetSession.mockResolvedValue(auth as unknown as AuthContext);
+
+    await db
+      .update(matches)
+      .set({ kickoffAt: null })
+      .where(eq(matches.id, MATCH_ID));
+
+    const request = new NextRequest(`http://localhost/api/matches/${MATCH_ID}`);
+    const response = await GET(request, {
+      params: Promise.resolve({ matchId: MATCH_ID }),
+    });
+
+    const body = await response.json();
+    expect(response.status).toBe(200);
+    expect(body.kickoff_at).toBeNull();
+  });
+
   test("PATCH updates match details and recomputes outcome", async () => {
     const auth = createCompetitionAdminContext(COMPETITION_ID);
     mockGetSession.mockResolvedValue(auth as unknown as AuthContext);

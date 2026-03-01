@@ -453,7 +453,7 @@ function mapMatchResponse(
     group_code: row.groupCode ?? null,
     code: row.code ?? null,
     status: row.status,
-    kickoff_at: (row.kickoffAt ?? row.createdAt).toISOString(),
+    kickoff_at: row.kickoffAt?.toISOString() ?? null,
     venue_id: row.venueId,
     venue_name: row.venueName ?? null,
     home_entry_id: row.homeEntryId,

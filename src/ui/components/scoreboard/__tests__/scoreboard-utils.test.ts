@@ -400,15 +400,15 @@ describe("deriveSeasonTheme", () => {
     expect(deriveSeasonTheme(new Date(2024, 11, 15))).toBe("christmas");
   });
 
-  it("returns winter for November, January, February", () => {
+  it("returns winter for November through April (except December christmas)", () => {
     expect(deriveSeasonTheme(new Date(2024, 10, 15))).toBe("winter");
     expect(deriveSeasonTheme(new Date(2024, 0, 15))).toBe("winter");
     expect(deriveSeasonTheme(new Date(2024, 1, 15))).toBe("winter");
+    expect(deriveSeasonTheme(new Date(2024, 2, 15))).toBe("winter");
+    expect(deriveSeasonTheme(new Date(2024, 3, 15))).toBe("winter");
   });
 
-  it("returns spring for March, April, May", () => {
-    expect(deriveSeasonTheme(new Date(2024, 2, 15))).toBe("spring");
-    expect(deriveSeasonTheme(new Date(2024, 3, 15))).toBe("spring");
+  it("returns spring for May", () => {
     expect(deriveSeasonTheme(new Date(2024, 4, 15))).toBe("spring");
   });
 
