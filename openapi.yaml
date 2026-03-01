@@ -2064,6 +2064,7 @@ components:
         kickoff_at:
           type: string
           format: date-time
+          nullable: true
           maxLength: 30
         venue_id:
           type: string
@@ -2236,10 +2237,12 @@ components:
         home_entry_id:
           type: string
           format: uuid
+          nullable: true
           maxLength: 36
         away_entry_id:
           type: string
           format: uuid
+          nullable: true
           maxLength: 36
         home_label:
           type: string

@@ -931,7 +931,7 @@ export interface components {
       round_label?: string;
       status: components["schemas"]["MatchStatus"];
       /** Format: date-time */
-      kickoff_at: string;
+      kickoff_at: string | null;
       /** Format: uuid */
       venue_id?: string | null;
       venue_name?: string | null;
@@ -1007,9 +1007,9 @@ export interface components {
     UpdateMatchRequest: {
       code?: string | null;
       /** Format: uuid */
-      home_entry_id?: string;
+      home_entry_id?: string | null;
       /** Format: uuid */
-      away_entry_id?: string;
+      away_entry_id?: string | null;
       home_label?: string | null;
       away_label?: string | null;
       /** Format: date-time */

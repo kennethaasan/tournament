@@ -322,11 +322,15 @@ export function MatchEditorCard({
         ? homeRosterQuery.error.message
         : awayRosterQuery.error instanceof Error
           ? awayRosterQuery.error.message
-          : homeSquadMembersQuery.error instanceof Error
-            ? homeSquadMembersQuery.error.message
-            : awaySquadMembersQuery.error instanceof Error
-              ? awaySquadMembersQuery.error.message
-              : null;
+          : homeSquadQuery.error instanceof Error
+            ? homeSquadQuery.error.message
+            : awaySquadQuery.error instanceof Error
+              ? awaySquadQuery.error.message
+              : homeSquadMembersQuery.error instanceof Error
+                ? homeSquadMembersQuery.error.message
+                : awaySquadMembersQuery.error instanceof Error
+                  ? awaySquadMembersQuery.error.message
+                  : null;
 
   useEffect(() => {
     if (!pendingEventFocusId) {

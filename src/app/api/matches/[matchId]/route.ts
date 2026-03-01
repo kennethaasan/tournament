@@ -649,7 +649,7 @@ function mapMatchToResponse(
     code: match.code ?? null,
     round_label: null,
     status: match.status,
-    kickoff_at: (match.kickoffAt ?? match.createdAt).toISOString(),
+    kickoff_at: match.kickoffAt?.toISOString() ?? null,
     venue_id: match.venueId,
     home_entry_id: match.homeEntryId,
     away_entry_id: match.awayEntryId,
