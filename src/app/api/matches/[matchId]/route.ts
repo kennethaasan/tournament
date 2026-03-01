@@ -396,29 +396,27 @@ async function buildMatchUpdate(
     update.metadata = metadata;
   }
 
+  const requestedHomeEntryId = normalizeOptionalEntryId(payload.home_entry_id);
+  const requestedAwayEntryId = normalizeOptionalEntryId(payload.away_entry_id);
+
   const nextHomeEntryId =
-    payload.home_entry_id !== undefined
-      ? payload.home_entry_id
+    requestedHomeEntryId !== undefined
+      ? requestedHomeEntryId
       : match.homeEntryId;
   const nextAwayEntryId =
-    payload.away_entry_id !== undefined
-      ? payload.away_entry_id
+    requestedAwayEntryId !== undefined
+      ? requestedAwayEntryId
       : match.awayEntryId;
 
   if (
-    payload.home_entry_id !== undefined ||
-    payload.away_entry_id !== undefined
+    requestedHomeEntryId !== undefined ||
+    requestedAwayEntryId !== undefined
   ) {
-    if (!nextHomeEntryId || !nextAwayEntryId) {
-      throw createProblem({
-        type: "https://tournament.app/problems/matches/invalid-entry",
-        title: "Ugyldig lag",
-        status: 400,
-        detail: "Begge lag må være satt på kampen.",
-      });
-    }
-
-    if (nextHomeEntryId === nextAwayEntryId) {
+    if (
+      nextHomeEntryId &&
+      nextAwayEntryId &&
+      nextHomeEntryId === nextAwayEntryId
+    ) {
       throw createProblem({
         type: "https://tournament.app/problems/matches/duplicate-entry",
         title: "Ugyldig lagvalg",
@@ -427,11 +425,19 @@ async function buildMatchUpdate(
       });
     }
 
-    await assertEntryBelongsToEdition(nextHomeEntryId, match.editionId);
-    await assertEntryBelongsToEdition(nextAwayEntryId, match.editionId);
+    if (nextHomeEntryId) {
+      await assertEntryBelongsToEdition(nextHomeEntryId, match.editionId);
+    }
+    if (nextAwayEntryId) {
+      await assertEntryBelongsToEdition(nextAwayEntryId, match.editionId);
+    }
 
-    update.homeEntryId = nextHomeEntryId;
-    update.awayEntryId = nextAwayEntryId;
+    if (requestedHomeEntryId !== undefined) {
+      update.homeEntryId = nextHomeEntryId ?? null;
+    }
+    if (requestedAwayEntryId !== undefined) {
+      update.awayEntryId = nextAwayEntryId ?? null;
+    }
   }
 
   if (payload.kickoff_at !== undefined) {
@@ -575,6 +581,21 @@ function toMetadataRecord(value: unknown): Record<string, unknown> {
   }
 
   return { ...(value as Record<string, unknown>) };
+}
+
+function normalizeOptionalEntryId(
+  value: string | null | undefined,
+): string | null | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  if (value === null) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 function computeOutcome(
